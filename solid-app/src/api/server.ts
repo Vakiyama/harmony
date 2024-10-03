@@ -4,6 +4,8 @@ import { useSession } from "vinxi/http";
 import { eq } from "drizzle-orm";
 import { db } from "./db";
 import { Users } from "../../drizzle/schema";
+import { google } from "googleapis";
+import { Credentials } from "google-auth-library";
 
 function validateUsername(username: unknown) {
   if (typeof username !== "string" || username.length < 3) {
@@ -18,20 +20,29 @@ function validatePassword(password: unknown) {
 }
 
 async function login(username: string, password: string) {
-  const user = db.select().from(Users).where(eq(Users.username, username)).get();
+  const user = db
+    .select()
+    .from(Users)
+    .where(eq(Users.username, username))
+    .get();
   if (!user || password !== user.password) throw new Error("Invalid login");
   return user;
 }
 
 async function register(username: string, password: string) {
-  const existingUser = db.select().from(Users).where(eq(Users.username, username)).get();
+  const existingUser = db
+    .select()
+    .from(Users)
+    .where(eq(Users.username, username))
+    .get();
   if (existingUser) throw new Error("User already exists");
   return db.insert(Users).values({ username, password }).returning().get();
 }
 
-function getSession() {
+export function getSession() {
   return useSession({
-    password: process.env.SESSION_SECRET ?? "areallylongsecretthatyoushouldreplace"
+    password:
+      process.env.SESSION_SECRET ?? "areallylongsecretthatyoushouldreplace",
   });
 }
 
@@ -47,7 +58,7 @@ export async function loginOrRegister(formData: FormData) {
       ? register(username, password)
       : login(username, password));
     const session = await getSession();
-    await session.update(d => {
+    await session.update((d) => {
       d.userId = user.id;
     });
   } catch (err) {
@@ -58,7 +69,7 @@ export async function loginOrRegister(formData: FormData) {
 
 export async function logout() {
   const session = await getSession();
-  await session.update(d => (d.userId = undefined));
+  await session.update((d) => (d.userId = undefined));
   throw redirect("/login");
 }
 
@@ -75,3 +86,41 @@ export async function getUser() {
     throw logout();
   }
 }
+
+const oauth2Client = new google.auth.OAuth2(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_REDIRECT_URL
+);
+
+export const googleAuth = async () => {
+  const url = oauth2Client.generateAuthUrl({
+    access_type: "offline",
+    scope: ["https://www.googleapis.com/auth/calendar.readonly"],
+  });
+  return url;
+};
+
+export const authCallback = async (code: string) => {
+  const { tokens } = await oauth2Client.getToken(code);
+  oauth2Client.setCredentials(tokens);
+  return tokens;
+};
+
+export const getCalendarData = async () => {
+  const session = await useSession({
+    password:
+      "areallylongsecretthatyoushouldreplaceareallylongsecretthatyoushouldreplaceareallylongsecretthatyoushouldreplaceareallylongsecretthatyoushouldreplaceareallylongsecretthatyoushouldreplaceareallylongsecretthatyoushouldreplaceareallylongsecretthatyoushouldreplace",
+  });
+  const tokens = session.data.googleTokens;
+  oauth2Client.setCredentials(tokens);
+  const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+  const events = await calendar.events.list({
+    calendarId: "primary",
+    timeMin: new Date().toISOString(),
+    maxResults: 10,
+    singleEvents: true,
+    orderBy: "startTime",
+  });
+  return events.data.items;
+};
