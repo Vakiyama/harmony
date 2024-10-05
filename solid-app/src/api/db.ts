@@ -1,6 +1,20 @@
-import { drizzle, BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
-import Database from "better-sqlite3";
+import { drizzle } from 'drizzle-orm/libsql';
+import { createClient } from '@libsql/client';
+import * as dotenv from 'dotenv';
+dotenv.config({
+  path: '.env',
+});
 
-const sqlite = new Database('./drizzle/db.sqlite');
+let client;
 
-export const db: BetterSQLite3Database = drizzle(sqlite);
+if ((process.env.NODE_ENV || '').trim() !== 'production') {
+  client = createClient({
+    url: 'file:./drizzle/local.db',
+  });
+} else {
+  client = createClient({
+    url: process.env.TURSO_CONNECTION_URL!,
+    authToken: process.env.TURSO_AUTH_TOKEN,
+  });
+}
+export const db = drizzle(client);
