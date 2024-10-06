@@ -13,6 +13,7 @@ export default function App() {
           <div class="px-2">
             <a href="/" class="hover:text-blue-500">Index</a>
             <a href="/about" class="hover:text-blue-500">About</a>
+            <a href="/socketExample" class="hover:text-blue-500">Socket Chat</a>
           </div>
           <Suspense>{props.children}</Suspense>
         </>
