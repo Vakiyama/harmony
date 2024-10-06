@@ -1,3 +1,4 @@
+import { RadioGroupContext } from "@ark-ui/solid";
 import { createAsync, type RouteDefinition } from "@solidjs/router";
 import { getUser, logout } from "~/api";
 import AlertDialogDemo from "~/components/shadcn/AlertDialog";
@@ -6,6 +7,9 @@ import CardDemo from "~/components/shadcn/Card";
 import CheckboxDemo from "~/components/shadcn/CheckBox";
 import DatePickerDemo from "~/components/shadcn/DatePicker";
 import DialogDemo from "~/components/shadcn/Dialog";
+import ImageDemo from "~/components/shadcn/Image";
+import RadioGroupDemo from "~/components/shadcn/RadioGroup";
+import SelectDemo from "~/components/shadcn/Select";
 
 export const route = {
   preload() {
@@ -43,6 +47,18 @@ export default function Components() {
         <div class="mr-5">
           <div class="mb-3">Dialog</div>
           <DialogDemo />
+        </div>
+        <div class="mr-5">
+          <div class="mb-3">Image</div>
+          <ImageDemo />
+        </div>
+        <div class="mr-5">
+          <div class="mb-3">Radio Group</div>
+          <RadioGroupDemo />
+        </div>
+        <div class="mr-5">
+          <div class="mb-3">Select</div>
+          <SelectDemo />
         </div>
       </div>
     </div>

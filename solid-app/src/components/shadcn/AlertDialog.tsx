@@ -17,32 +17,22 @@ const AlertDialogDemo = () => {
     <AlertDialog>
       <AlertDialogTrigger
         as={(props: AlertDialogTriggerProps) => (
-          <Button
-            variant="outline"
-            className="border border-gray-300 rounded-md p-2 hover:bg-gray-100" // Tailwind styles for the button
-            {...props}
-          >
+          <Button variant="outline" {...props}>
             Show Dialog
           </Button>
         )}
       />
-      <AlertDialogContent class="bg-white p-6 rounded-md shadow-lg max-w-md mx-auto">
-        <AlertDialogHeader class="mb-4">
-          <AlertDialogTitle class="text-lg font-bold text-gray-900">
-            Are you absolutely sure?
-          </AlertDialogTitle>
-          <AlertDialogDescription class="text-gray-600">
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
             This action cannot be undone. This will permanently delete your
             account and remove your data from our servers.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter class="flex justify-end space-x-4">
-          <AlertDialogClose class="px-4 py-2 bg-gray-200 rounded-md text-gray-700 hover:bg-gray-300">
-            Cancel
-          </AlertDialogClose>
-          <AlertDialogAction class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
-            Continue
-          </AlertDialogAction>
+        <AlertDialogFooter>
+          <AlertDialogClose>Cancel</AlertDialogClose>
+          <AlertDialogAction>Continue</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

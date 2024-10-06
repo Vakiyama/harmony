@@ -30,23 +30,23 @@ export const DialogContent = <T extends ValidComponent = "div">(
     <DialogPrimitive.Portal>
       <DialogPrimitive.Overlay
         class={cn(
-          "tw-fixed tw-inset-0 tw-z-50 tw-bg-background/80 data-[expanded]:tw-animate-in data-[closed]:tw-animate-out data-[closed]:tw-fade-out-0 data-[expanded]:tw-fade-in-0"
+          "fixed inset-0 z-50 bg-background/80 data-[expanded]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0 data-[expanded]:fade-in-0"
         )}
         {...rest}
       />
       <DialogPrimitive.Content
         class={cn(
-          "tw-fixed tw-left-[50%] tw-top-[50%] tw-z-50 tw-grid tw-w-full tw-max-w-lg tw-translate-x-[-50%] tw-translate-y-[-50%] tw-gap-4 tw-border tw-bg-background tw-p-6 tw-shadow-lg data-[closed]:tw-duration-200 data-[expanded]:tw-duration-200 data-[expanded]:tw-animate-in data-[closed]:tw-animate-out data-[closed]:tw-fade-out-0 data-[expanded]:tw-fade-in-0 data-[closed]:tw-zoom-out-95 data-[expanded]:tw-zoom-in-95 data-[closed]:tw-slide-out-to-left-1/2 data-[closed]:tw-slide-out-to-top-[48%] data-[expanded]:tw-slide-in-from-left-1/2 data-[expanded]:tw-slide-in-from-top-[48%] sm:tw-rounded-lg md:tw-w-full",
+          "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg data-[closed]:duration-200 data-[expanded]:duration-200 data-[expanded]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0 data-[expanded]:fade-in-0 data-[closed]:zoom-out-95 data-[expanded]:zoom-in-95 data-[closed]:slide-out-to-left-1/2 data-[closed]:slide-out-to-top-[48%] data-[expanded]:slide-in-from-left-1/2 data-[expanded]:slide-in-from-top-[48%] sm:rounded-lg md:w-full",
           local.class
         )}
         {...rest}
       >
         {local.children}
-        <DialogPrimitive.CloseButton class="tw-absolute tw-right-4 tw-top-4 tw-rounded-sm tw-opacity-70 tw-ring-offset-background tw-transition-[opacity,box-shadow] hover:tw-opacity-100 focus:tw-outline-none focus:tw-ring-[1.5px] focus:tw-ring-ring focus:tw-ring-offset-2 disabled:tw-pointer-events-none">
+        <DialogPrimitive.CloseButton class="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-[opacity,box-shadow] hover:opacity-100 focus:outline-none focus:ring-[1.5px] focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
-            class="tw-h-4 tw-w-4"
+            class="h-4 w-4"
           >
             <path
               fill="none"
@@ -75,7 +75,7 @@ export const DialogTitle = <T extends ValidComponent = "h2">(
 
   return (
     <DialogPrimitive.Title
-      class={cn("tw-text-lg tw-font-semibold tw-text-foreground", local.class)}
+      class={cn("text-lg font-semibold text-foreground", local.class)}
       {...rest}
     />
   );
@@ -93,7 +93,7 @@ export const DialogDescription = <T extends ValidComponent = "p">(
 
   return (
     <DialogPrimitive.Description
-      class={cn("tw-text-sm tw-text-muted-foreground", local.class)}
+      class={cn("text-sm text-muted-foreground", local.class)}
       {...rest}
     />
   );
@@ -105,7 +105,7 @@ export const DialogHeader = (props: ComponentProps<"div">) => {
   return (
     <div
       class={cn(
-        "tw-flex tw-flex-col tw-space-y-2 tw-text-center sm:tw-text-left",
+        "flex flex-col space-y-2 text-center sm:text-left",
         local.class
       )}
       {...rest}
@@ -119,7 +119,7 @@ export const DialogFooter = (props: ComponentProps<"div">) => {
   return (
     <div
       class={cn(
-        "tw-flex tw-flex-col-reverse sm:tw-flex-row sm:tw-justify-end sm:tw-space-x-2",
+        "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
         local.class
       )}
       {...rest}

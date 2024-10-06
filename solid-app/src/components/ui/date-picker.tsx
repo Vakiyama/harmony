@@ -52,10 +52,7 @@ export const DatePickerView = (props: DatePickerViewProps) => {
   const [local, rest] = splitProps(props, ["class"]);
 
   return (
-    <DatePickerPrimitive.View
-      class={cn("tw-space-y-4", local.class)}
-      {...rest}
-    />
+    <DatePickerPrimitive.View class={cn("space-y-4", local.class)} {...rest} />
   );
 };
 
@@ -64,7 +61,7 @@ export const DatePickerViewControl = (props: DatePickerViewControlProps) => {
 
   return (
     <DatePickerPrimitive.ViewControl
-      class={cn("tw-flex tw-items-center tw-justify-between", local.class)}
+      class={cn("flex items-center justify-between", local.class)}
       {...rest}
     >
       <DatePickerPrimitive.PrevTrigger
@@ -72,12 +69,12 @@ export const DatePickerViewControl = (props: DatePickerViewControlProps) => {
           buttonVariants({
             variant: "outline",
           }),
-          "tw-h-7 tw-w-7 tw-bg-transparent tw-p-0 tw-opacity-50 hover:tw-opacity-100"
+          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
         )}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          class="tw-h-4 tw-w-4"
+          class="h-4 w-4"
           viewBox="0 0 24 24"
         >
           <path
@@ -97,12 +94,12 @@ export const DatePickerViewControl = (props: DatePickerViewControlProps) => {
           buttonVariants({
             variant: "outline",
           }),
-          "tw-h-7 tw-w-7 tw-bg-transparent tw-p-0 tw-opacity-50 hover:tw-opacity-100"
+          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
         )}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          class="tw-h-4 tw-w-4"
+          class="h-4 w-4"
           viewBox="0 0 24 24"
         >
           <path
@@ -127,7 +124,7 @@ export const DatePickerRangeText = (
 
   return (
     <DatePickerPrimitive.RangeText
-      class={cn("tw-text-sm tw-font-medium", local.class)}
+      class={cn("text-sm font-medium", local.class)}
       {...rest}
     />
   );
@@ -138,7 +135,7 @@ export const DatePickerTable = (props: DatePickerTableProps) => {
 
   return (
     <DatePickerPrimitive.Table
-      class={cn("tw-w-full tw-border-collapse tw-space-y-1", local.class)}
+      class={cn("w-full border-collapse space-y-1", local.class)}
       {...rest}
     />
   );
@@ -149,7 +146,7 @@ export const DatePickerTableRow = (props: DatePickerTableRowProps) => {
 
   return (
     <DatePickerPrimitive.TableRow
-      class={cn("tw-mt-2 tw-flex tw-w-full", local.class)}
+      class={cn("mt-2 flex w-full", local.class)}
       {...rest}
     />
   );
@@ -161,7 +158,7 @@ export const DatePickerTableHeader = (props: DatePickerTableHeaderProps) => {
   return (
     <DatePickerPrimitive.TableHeader
       class={cn(
-        "tw-w-8 tw-flex-1 tw-text-[0.8rem] tw-font-normal tw-text-muted-foreground",
+        "w-8 flex-1 text-[0.8rem] font-normal text-muted-foreground",
         local.class
       )}
       {...rest}
@@ -175,10 +172,10 @@ export const DatePickerTableCell = (props: DatePickerTableCellProps) => {
   return (
     <DatePickerPrimitive.TableCell
       class={cn(
-        "tw-flex-1 tw-p-0 tw-text-center tw-text-sm",
-        "has-[[data-in-range]]:tw-bg-accent has-[[data-in-range]]:first-of-type:tw-rounded-l-md has-[[data-in-range]]:last-of-type:tw-rounded-r-md",
-        "has-[[data-range-end]]:tw-rounded-r-md has-[[data-range-start]]:tw-rounded-l-md",
-        "has-[[data-outside-range][data-in-range]]:tw-bg-accent/50",
+        "flex-1 p-0 text-center text-sm",
+        "has-[[data-in-range]]:bg-accent has-[[data-in-range]]:first-of-type:rounded-l-md has-[[data-in-range]]:last-of-type:rounded-r-md",
+        "has-[[data-range-end]]:rounded-r-md has-[[data-range-start]]:rounded-l-md",
+        "has-[[data-outside-range][data-in-range]]:bg-accent/50",
         local.class
       )}
       {...rest}
@@ -195,13 +192,13 @@ export const DatePickerTableCellTrigger = (
     <DatePickerPrimitive.TableCellTrigger
       class={cn(
         buttonVariants({ variant: "ghost" }),
-        "tw-size-8 tw-w-full tw-p-0 tw-font-normal data-[selected]:tw-opacity-100",
-        "data-[today]:tw-bg-accent data-[today]:tw-text-accent-foreground",
-        "[&:is([data-today][data-selected])]:tw-bg-primary [&:is([data-today][data-selected])]:tw-text-primary-foreground",
-        "data-[selected]:tw-bg-primary data-[selected]:tw-text-primary-foreground data-[selected]:hover:tw-bg-primary data-[selected]:hover:tw-text-primary-foreground",
-        "data-[disabled]:tw-text-muted-foreground data-[disabled]:tw-opacity-50",
-        "data-[outside-range]:tw-text-muted-foreground data-[outside-range]:tw-opacity-50",
-        "[&:is([data-outside-range][data-in-range])]:tw-bg-accent/50 [&:is([data-outside-range][data-in-range])]:tw-text-muted-foreground [&:is([data-outside-range][data-in-range])]:tw-opacity-30",
+        "size-8 w-full p-0 font-normal data-[selected]:opacity-100",
+        "data-[today]:bg-accent data-[today]:text-accent-foreground",
+        "[&:is([data-today][data-selected])]:bg-primary [&:is([data-today][data-selected])]:text-primary-foreground",
+        "data-[selected]:bg-primary data-[selected]:text-primary-foreground data-[selected]:hover:bg-primary data-[selected]:hover:text-primary-foreground",
+        "data-[disabled]:text-muted-foreground data-[disabled]:opacity-50",
+        "data-[outside-range]:text-muted-foreground data-[outside-range]:opacity-50",
+        "[&:is([data-outside-range][data-in-range])]:bg-accent/50 [&:is([data-outside-range][data-in-range])]:text-muted-foreground [&:is([data-outside-range][data-in-range])]:opacity-30",
         local.class
       )}
       {...rest}
@@ -214,7 +211,7 @@ export const DatePickerViewTrigger = (props: DatePickerViewTriggerProps) => {
 
   return (
     <DatePickerPrimitive.ViewTrigger
-      class={cn(buttonVariants({ variant: "ghost" }), "tw-h-7", local.class)}
+      class={cn(buttonVariants({ variant: "ghost" }), "h-7", local.class)}
       {...rest}
     />
   );
@@ -227,7 +224,7 @@ export const DatePickerContent = (props: DatePickerContentProps) => {
     <DatePickerPrimitive.Positioner>
       <DatePickerPrimitive.Content
         class={cn(
-          "tw-rounded-md tw-border tw-bg-popover tw-p-3 tw-text-popover-foreground tw-shadow-md tw-outline-none data-[state=open]:tw-animate-in data-[state=closed]:tw-animate-out data-[state=closed]:tw-fade-out-0 data-[state=open]:tw-fade-in-0 data-[state=closed]:tw-zoom-out-95 data-[state=open]:tw-zoom-in-95 tw-z-50",
+          "rounded-md border bg-popover p-3 text-popover-foreground shadow-md outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 z-50",
           local.class
         )}
         {...rest}
@@ -242,18 +239,18 @@ export const DatePickerInput = (props: DatePickerInputProps) => {
   const [local, rest] = splitProps(props, ["class", "children"]);
 
   return (
-    <DatePickerPrimitive.Control class="tw-flex tw-h-9 tw-w-full tw-rounded-md tw-border tw-border-input tw-bg-background tw-px-3 tw-py-1 tw-text-sm tw-shadow-sm placeholder:tw-text-muted-foreground focus-visible:tw-outline-none focus-visible:tw-ring-[1.5px] focus-visible:tw-ring-ring disabled:tw-cursor-not-allowed disabled:tw-opacity-50">
+    <DatePickerPrimitive.Control class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-[1.5px] focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50">
       <DatePickerPrimitive.Input
         class={cn(
-          "tw-w-full tw-appearance-none tw-bg-transparent tw-outline-none",
+          "w-full appearance-none bg-transparent outline-none",
           local.class
         )}
         {...rest}
       />
-      <DatePickerPrimitive.Trigger class="tw-transition-shadow focus-visible:tw-outline-none focus-visible:tw-ring-[1.5px] focus-visible:tw-ring-ring">
+      <DatePickerPrimitive.Trigger class="transition-shadow focus-visible:outline-none focus-visible:ring-[1.5px] focus-visible:ring-ring">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          class="tw-mx-1 tw-h-4 tw-w-4"
+          class="mx-1 h-4 w-4"
           viewBox="0 0 24 24"
         >
           <path

@@ -7,7 +7,7 @@
       "variable": true
     },
     "color": "slate",
-    "prefix": "tw-"
+    "prefix": ""
   },
   "alias": {
     "component": "~/components",

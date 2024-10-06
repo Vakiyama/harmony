@@ -8,59 +8,59 @@ import type { ValidComponent } from "solid-js";
 import { splitProps } from "solid-js";
 
 export const buttonVariants = cva(
-	"tw-inline-flex tw-items-center tw-justify-center tw-rounded-md tw-text-sm tw-font-medium tw-transition-[color,background-color,box-shadow] focus-visible:tw-outline-none focus-visible:tw-ring-[1.5px] focus-visible:tw-ring-ring disabled:tw-pointer-events-none disabled:tw-opacity-50",
-	{
-		variants: {
-			variant: {
-				default:
-					"tw-bg-primary tw-text-primary-foreground tw-shadow hover:tw-bg-primary/90",
-				destructive:
-					"tw-bg-destructive tw-text-destructive-foreground tw-shadow-sm hover:tw-bg-destructive/90",
-				outline:
-					"tw-border tw-border-input tw-bg-background tw-shadow-sm hover:tw-bg-accent hover:tw-text-accent-foreground",
-				secondary:
-					"tw-bg-secondary tw-text-secondary-foreground tw-shadow-sm hover:tw-bg-secondary/80",
-				ghost: "hover:tw-bg-accent hover:tw-text-accent-foreground",
-				link: "tw-text-primary tw-underline-offset-4 hover:tw-underline",
-			},
-			size: {
-				default: "tw-h-9 tw-px-4 tw-py-2",
-				sm: "tw-h-8 tw-rounded-md tw-px-3 tw-text-xs",
-				lg: "tw-h-10 tw-rounded-md tw-px-8",
-				icon: "tw-h-9 tw-w-9",
-			},
-		},
-		defaultVariants: {
-			variant: "default",
-			size: "default",
-		},
-	},
+  "inline-flex items-center justify-center rounded-md text-sm font-medium transition-[color,background-color,box-shadow] focus-visible:outline-none focus-visible:ring-[1.5px] focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        default:
+          "bg-primary text-primary-foreground shadow hover:bg-primary/90",
+        destructive:
+          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+        outline:
+          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+        secondary:
+          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default: "h-9 px-4 py-2",
+        sm: "h-8 rounded-md px-3 text-xs",
+        lg: "h-10 rounded-md px-8",
+        icon: "h-9 w-9",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
 );
 
 type buttonProps<T extends ValidComponent = "button"> = ButtonRootProps<T> &
-	VariantProps<typeof buttonVariants> & {
-		class?: string;
-	};
+  VariantProps<typeof buttonVariants> & {
+    class?: string;
+  };
 
 export const Button = <T extends ValidComponent = "button">(
-	props: PolymorphicProps<T, buttonProps<T>>,
+  props: PolymorphicProps<T, buttonProps<T>>
 ) => {
-	const [local, rest] = splitProps(props as buttonProps, [
-		"class",
-		"variant",
-		"size",
-	]);
+  const [local, rest] = splitProps(props as buttonProps, [
+    "class",
+    "variant",
+    "size",
+  ]);
 
-	return (
-		<ButtonPrimitive
-			class={cn(
-				buttonVariants({
-					size: local.size,
-					variant: local.variant,
-				}),
-				local.class,
-			)}
-			{...rest}
-		/>
-	);
+  return (
+    <ButtonPrimitive
+      class={cn(
+        buttonVariants({
+          size: local.size,
+          variant: local.variant,
+        }),
+        local.class
+      )}
+      {...rest}
+    />
+  );
 };

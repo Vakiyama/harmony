@@ -1,5 +1,4 @@
 import { Button } from "~/components/ui/button";
-import { createSignal } from "solid-js";
 import {
   Card,
   CardContent,
@@ -27,20 +26,17 @@ const notifications = [
 ];
 
 const CardDemo = () => {
-  const [isToggled, setIsToggled] = createSignal(false);
   return (
-    <Card class="w-[380px] shadow-lg border border-gray-200 p-6">
+    <Card class="w-[380px]">
       <CardHeader>
-        <CardTitle class="text-lg font-bold">Notifications</CardTitle>
-        <CardDescription class="text-sm text-gray-600">
-          You have {notifications.length} unread messages.
-        </CardDescription>
+        <CardTitle>Notifications</CardTitle>
+        <CardDescription>You have 3 unread messages.</CardDescription>
       </CardHeader>
       <CardContent class="grid gap-4">
-        <div class="flex items-center space-x-4 rounded-md border p-4 bg-gray-50">
+        <div class=" flex items-center space-x-4 rounded-md border p-4">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4 text-gray-500"
+            class="h-4 w-4"
             viewBox="0 0 24 24"
           >
             <path
@@ -54,18 +50,13 @@ const CardDemo = () => {
           </svg>
           <div class="flex-1 space-y-1">
             <p class="text-sm font-medium leading-none">Push Notifications</p>
-            <p class="text-sm text-gray-500">Send notifications to device.</p>
+            <p class="text-sm text-muted-foreground">
+              Send notifications to device.
+            </p>
           </div>
-          <Switch
-            checked={isToggled()}
-            onChange={() => setIsToggled(!isToggled())}
-          >
-            <SwitchControl class="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200">
-              <SwitchThumb
-                class={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                  isToggled() ? "translate-x-6" : "translate-x-1"
-                }`}
-              />
+          <Switch>
+            <SwitchControl>
+              <SwitchThumb />
             </SwitchControl>
           </Switch>
         </div>
@@ -78,7 +69,7 @@ const CardDemo = () => {
                   <p class="text-sm font-medium leading-none">
                     {notification.title}
                   </p>
-                  <p class="text-sm text-gray-500">
+                  <p class="text-sm text-muted-foreground">
                     {notification.description}
                   </p>
                 </div>
@@ -88,7 +79,7 @@ const CardDemo = () => {
         </div>
       </CardContent>
       <CardFooter>
-        <Button class="w-full bg-blue-600 hover:bg-blue-700 text-white mt-5 px-3 py-2 rounded-md flex items-center justify-center">
+        <Button class="w-full">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             class="mr-2 h-4 w-4"
