@@ -5,6 +5,7 @@ import ButtonDemo from "~/components/shadcn/Button";
 import CardDemo from "~/components/shadcn/Card";
 import CheckboxDemo from "~/components/shadcn/CheckBox";
 import DatePickerDemo from "~/components/shadcn/DatePicker";
+import DialogDemo from "~/components/shadcn/Dialog";
 
 export const route = {
   preload() {
@@ -38,6 +39,10 @@ export default function Components() {
         <div class="mr-5">
           <div class="mb-3">Checkbox</div>
           <CheckboxDemo />
+        </div>
+        <div class="mr-5">
+          <div class="mb-3">Dialog</div>
+          <DialogDemo />
         </div>
       </div>
     </div>
