@@ -1,5 +1,5 @@
 import { APIEvent } from "solid-start";
-import { authCallback, getSession } from "../api/server";
+import { authCallback } from "../api/server";
 import { redirect } from "@solidjs/router";
 import { useSession } from "vinxi/http";
 
@@ -10,6 +10,7 @@ export async function GET({ request }: APIEvent) {
   const googleTokens = await authCallback(code);
   const session = await useSession({
     password:
+      process.env.SESSION_SECRET ??
       "areallylongsecretthatyoushouldreplaceareallylongsecretthatyoushouldreplaceareallylongsecretthatyoushouldreplaceareallylongsecretthatyoushouldreplaceareallylongsecretthatyoushouldreplaceareallylongsecretthatyoushouldreplaceareallylongsecretthatyoushouldreplace",
   });
   await session.update((d) => (d.googleTokens = googleTokens));

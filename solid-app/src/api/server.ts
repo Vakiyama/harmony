@@ -110,9 +110,13 @@ export const authCallback = async (code: string) => {
 export const getCalendarData = async () => {
   const session = await useSession({
     password:
+      process.env.SESSION_SECRET ??
       "areallylongsecretthatyoushouldreplaceareallylongsecretthatyoushouldreplaceareallylongsecretthatyoushouldreplaceareallylongsecretthatyoushouldreplaceareallylongsecretthatyoushouldreplaceareallylongsecretthatyoushouldreplaceareallylongsecretthatyoushouldreplace",
   });
   const tokens = session.data.googleTokens;
+  if (!tokens) {
+    return; // some error
+  }
   oauth2Client.setCredentials(tokens);
   const calendar = google.calendar({ version: "v3", auth: oauth2Client });
   const events = await calendar.events.list({
