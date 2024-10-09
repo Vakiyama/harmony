@@ -4,14 +4,12 @@ import {
 } from "@solidjs/router";
 import { Show } from "solid-js";
 import { loginOrRegister } from "~/api";
-import SocketComponent from "~/SocketComponent";
 
 export default function Login(props: RouteSectionProps) {
   const loggingIn = useSubmission(loginOrRegister);
 
   return (
     <main>
-      <SocketComponent />
       <h1 class="w-full text-3xl font-bold text-blue-500 cursor-default">Login</h1>
       <form action={loginOrRegister} method="post" class="flex flex-col items-center gap-2">
         <input type="hidden" name="redirectTo" value={props.params.redirectTo ?? "/"} />
