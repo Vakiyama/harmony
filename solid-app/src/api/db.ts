@@ -9,7 +9,7 @@ let client;
 
 if ((process.env.NODE_ENV || '').trim() !== 'production') {
   client = createClient({
-    url: 'file:./drizzle/local.db',
+    url: 'http://127.0.0.1:8080',
   });
 } else {
   client = createClient({

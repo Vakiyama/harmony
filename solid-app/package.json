@@ -8,7 +8,6 @@
     "test": "vitest"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.10",
     "@solidjs/testing-library": "^0.8.10",
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/user-event": "^14.5.2",
@@ -27,7 +26,6 @@
     "@libsql/client": "^0.14.0",
     "@solidjs/router": "^0.14.7",
     "@solidjs/start": "^1.0.2",
-    "better-sqlite3": "^11.0.0",
     "drizzle-orm": "^0.31.2",
     "might-fail": "^0.6.1",
     "solid-js": "^1.9.1",
