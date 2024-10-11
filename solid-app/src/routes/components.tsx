@@ -17,15 +17,7 @@ import TableDemo from "~/components/shadcn/Table";
 import TabsDemo from "~/components/shadcn/Tabs";
 import ToastDemo from "~/components/shadcn/Toast";
 
-export const route = {
-  preload() {
-    getUser(); // Preload user data
-  },
-} satisfies RouteDefinition;
-
 export default function Components() {
-  const user = createAsync(async () => getUser(), { deferStream: true });
-
   return (
     <div class="w-full p-10 space-y-2">
       <h1 class="flex justify-center mb-10">Components</h1>
