@@ -9,10 +9,9 @@ export default defineConfig({
     url:
       (process.env.NODE_ENV || '').trim() === 'production'
         ? process.env.TURSO_CONNECTION_URL!
-        : 'file:/./drizzle/local.db',
-    authToken:
-      (process.env.NODE_ENV || '').trim() === 'production'
-        ? process.env.TURSO_AUTH_TOKEN
-        : '',
+        : 'http://127.0.0.1:8080',
+    ...(process.env.NODE_ENV || '').trim() === 'production' && {
+        authToken : process.env.TURSO_AUTH_TOKEN
+      },
   },
 });
