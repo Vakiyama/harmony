@@ -3,8 +3,8 @@ import { redirect } from '@solidjs/router';
 import { useSession } from 'vinxi/http';
 import { eq } from 'drizzle-orm';
 import { db } from './db';
-import { Users } from '../../drizzle/schema';
-import { type User } from '@/schema';
+import { Users } from '../../drizzle/schema/Users';
+import { type User } from '@/schema/Users';
 
 function validateUsername(username: unknown) {
   if (typeof username !== 'string' || username.length < 3) {
