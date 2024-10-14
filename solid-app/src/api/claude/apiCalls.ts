@@ -1,4 +1,5 @@
-import { AnyZodObject, z, ZodObject } from 'zod';
+import { z, ZodObject } from 'zod';
+import { mightFailSync } from 'might-fail/go';
 
 export const defaultClaudeSettings = {
   model: 'claude-3-5-sonnet-20240620',
@@ -63,7 +64,7 @@ type AssistantResponse = {
  */
 export async function callClaude<
   T extends readonly Message[],
-  F extends z.ZodObject<any>,
+  F extends ZodObject<any>,
 >(
   claudeSettings: {
     model: string;
@@ -71,16 +72,16 @@ export async function callClaude<
   } = defaultClaudeSettings,
   system: string,
   messages: T & ValidMessages<T>,
-  format?: F
-): Promise<F extends z.ZodObject<any> ? z.infer<F> : AssistantResponse> {
+  jsonFormat?: { format: F, retryLimit: number },
+): Promise<F extends ZodObject<any> ? z.infer<F> : AssistantResponse> {
   const body = {
     model: claudeSettings.model,
     max_tokens: claudeSettings.maxTokens,
-    messages: format ? [...messages] : messages,
-    system: format
+    messages,
+    system: jsonFormat
       ? `
     ${system}
-    ${getResponsePrompt(format)}
+    ${getResponsePrompt(jsonFormat.format)}
         `
       : system,
   };
@@ -103,8 +104,11 @@ export async function callClaude<
   console.log(json);
   if (!format) return json;
   else {
-    JSON.parse(json.content[0].text)
+    const [result, error] = mightFailSync(() =>
+      JSON.parse(json.content[0].text)
+    );
 
+    if (error) 
   }
 }
 
@@ -123,7 +127,7 @@ function getResponsePrompt(format: ZodObject<any>): string {
     `;
 }
 
-function schemaToString(schema: z.ZodObject<any>): string {
+function schemaToString(schema: ZodObject<any>): string {
   const shape = schema.shape;
   const fields = Object.keys(shape)
     .map((key) => `${key}: ${shape[key].toString()}`)
