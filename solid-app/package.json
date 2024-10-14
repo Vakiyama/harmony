@@ -4,20 +4,39 @@
   "scripts": {
     "dev": "vinxi dev",
     "build": "vinxi build",
-    "start": "vinxi start"
+    "start": "vinxi start",
+    "test": "vitest"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.11",
+    "@solidjs/testing-library": "^0.8.11",
+    "@testing-library/jest-dom": "^6.5.0",
+    "@testing-library/user-event": "^14.5.2",
     "@types/node": "^20.16.10",
-    "drizzle-kit": "^0.22.8"
+    "@types/socket.io-client": "^3.0.0",
+    "autoprefixer": "^10.4.20",
+    "drizzle-kit": "^0.22.8",
+    "jsdom": "^25.0.1",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "vitest": "^2.1.2"
   },
   "dependencies": {
+    "@ark-ui/solid": "^4.2.0",
+    "@kobalte/core": "^0.13.6",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "@langchain/anthropic": "^0.3.3",
+    "@langchain/core": "^0.3.8",
+    "@langchain/langgraph": "^0.2.13",
+    "@libsql/client": "^0.14.0",
     "@solidjs/router": "^0.14.7",
     "@solidjs/start": "^1.0.8",
     "better-sqlite3": "^11.3.0",
     "drizzle-orm": "^0.31.4",
     "googleapis": "^144.0.0",
     "solid-js": "^1.9.1",
+    "tailwind-merge": "^2.5.3",
+    "tailwindcss-animate": "^1.0.7",
     "solid-start": "^0.3.11",
     "vinxi": "^0.4.3"
   },
