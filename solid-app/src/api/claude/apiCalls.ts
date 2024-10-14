@@ -1,5 +1,7 @@
-import { z, ZodObject } from 'zod';
-import { mightFailSync } from 'might-fail/go';
+import { z } from 'zod';
+import { EOL } from 'os';
+type ZodObjectAny = z.ZodObject<any, any, any, any>;
+import { mightFailSync, mightFail } from 'might-fail/go';
 
 export const defaultClaudeSettings = {
   model: 'claude-3-5-sonnet-20240620',
@@ -56,34 +58,54 @@ type AssistantResponse = {
   };
 };
 
+type ClaudeSettings = {
+  model: string;
+  maxTokens: number;
+};
+
+type ClaudeFormatParams<F extends ZodObjectAny> = {
+  format: F;
+  retryLimit: number;
+};
+
+type ClaudeCallParams<T extends readonly Message[], F extends ZodObjectAny> = {
+  claudeSettings: ClaudeSettings;
+  system: string;
+  messages: T & ValidMessages<T>;
+  jsonFormat?: ClaudeFormatParams<F>;
+  jsonFormatError?: [AssistantMessage, UserMessage];
+};
+
 /**
  * Call Anthropic Claude API
  * @param claudeSettings - settings for the model, check types
  * @param system - system prompt for claude to follow. Determines behavior.
- * @param messages - must be called passed as const; for example: [{ role: "user", content: "example"} as const]
+ * @param messages - array must be called passed as const. for example: [\[{ role: "user", content: "example"}\] as const;]
  */
 export async function callClaude<
   T extends readonly Message[],
-  F extends ZodObject<any>,
+  F extends ZodObjectAny,
 >(
-  claudeSettings: {
-    model: string;
-    maxTokens: number;
-  } = defaultClaudeSettings,
-  system: string,
-  messages: T & ValidMessages<T>,
-  jsonFormat?: { format: F, retryLimit: number },
-): Promise<F extends ZodObject<any> ? z.infer<F> : AssistantResponse> {
+  params: ClaudeCallParams<T, F>
+): Promise<
+  typeof params.jsonFormat extends undefined ? AssistantResponse : z.output<F>
+> {
+  if (params.jsonFormat?.retryLimit === 0) {
+    throw new Error('Retry limit hit for formatted claude response attempts');
+  }
+
+  if (params.jsonFormatError) params.messages.concat(params.jsonFormatError);
+
   const body = {
-    model: claudeSettings.model,
-    max_tokens: claudeSettings.maxTokens,
-    messages,
-    system: jsonFormat
+    model: params.claudeSettings.model,
+    max_tokens: params.claudeSettings.maxTokens,
+    messages: params.messages,
+    system: params.jsonFormat
       ? `
-    ${system}
-    ${getResponsePrompt(jsonFormat.format)}
+    ${params.system}
+    ${getResponsePrompt(params.jsonFormat.format)}
         `
-      : system,
+      : params.system,
   };
 
   const stringifiedBody = JSON.stringify(body);
@@ -98,24 +120,74 @@ export async function callClaude<
     body: stringifiedBody,
   });
 
-  const json = (await response.json()) as unknown as AssistantResponse;
+  const claudeApiCall = (await response.json()) as unknown as AssistantResponse;
 
   console.log('Claude API call:');
-  console.log(json);
-  if (!format) return json;
-  else {
-    const [result, error] = mightFailSync(() =>
-      JSON.parse(json.content[0].text)
-    );
-
-    if (error) 
+  console.log(claudeApiCall);
+  if (!params.jsonFormat) {
+    return claudeApiCall;
   }
+
+  const [jsonParseResult, jsonParseError] = mightFailSync(() =>
+    JSON.parse(claudeApiCall.content[0].text)
+  );
+
+  if (jsonParseError) {
+    return handleClaudeRetry(params, claudeApiCall, {
+      type: 'parse',
+      error: jsonParseError,
+    });
+  }
+
+  const [zodValidateResult, zodValidateError] = await mightFail(
+    params.jsonFormat!.format.parseAsync(jsonParseResult)
+  );
+
+  if (zodValidateError)
+    return handleClaudeRetry(params, claudeApiCall, {
+      type: 'validate',
+      error: zodValidateError,
+    });
+
+  return zodValidateResult as z.output<F>;
+}
+
+async function handleClaudeRetry<
+  T extends readonly Message[],
+  F extends ZodObjectAny,
+>(
+  params: ClaudeCallParams<T, F>,
+  claudeApiCall: AssistantResponse,
+  errorDetails: { type: 'validate' | 'parse'; error: Error }
+) {
+  if (!params.jsonFormat) throw new Error('Retry without JSON format?');
+
+  params.jsonFormatError = [
+    { role: 'assistant', content: claudeApiCall.content[0].text },
+    {
+      role: 'user',
+      content: `Your response gave the following ${errorDetails.type === 'parse' ? 'JSON parse' : 'Zod validation'} error:
+            \`\`\`
+            ${errorDetails.error.message}
+            \`\`\`
+
+            Please correct your mistakes and try again.
+            `,
+    },
+  ];
+
+  params.jsonFormat = {
+    ...params.jsonFormat,
+    retryLimit: params.jsonFormat!.retryLimit - 1,
+  };
+
+  return await callClaude(params);
 }
 
 // we'd like an API for getting json responses from claude
 // We'll use zod and pass in a "response schema"
 
-function getResponsePrompt(format: ZodObject<any>): string {
+function getResponsePrompt(format: ZodObjectAny): string {
   return `
     ## Response Format
     To answer, you've been given the following response format:
@@ -123,15 +195,21 @@ function getResponsePrompt(format: ZodObject<any>): string {
     Please respond with only the object format as a JSON parsable string.
     Don't give any reasoning or explanations.
 
+    Descriptions of fields:
+
+    ## Format
     ${schemaToString(format)}
     `;
 }
 
-function schemaToString(schema: ZodObject<any>): string {
+function schemaToString(schema: ZodObjectAny): string {
   const shape = schema.shape;
   const fields = Object.keys(shape)
-    .map((key) => `${key}: ${shape[key].toString()}`)
-    .join(', ');
+    .map(
+      (key) =>
+        `${key}: ${shape[key].toString()}, // ${schema.shape[key].description}`
+    )
+    .join(EOL);
 
   return `{ ${fields} }`;
 }
