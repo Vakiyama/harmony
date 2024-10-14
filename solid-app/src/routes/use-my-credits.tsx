@@ -32,8 +32,12 @@ export default function Login() {
         </button>
       </form>
       <h2>Your viral AI generated tweet of doom</h2>
-      <Show when={typeof callAi.result === 'string'}>
-        <p>{callAi.result as string}</p>
+      <Show
+        when={
+          callAi.result && typeof callAi.result?.content[0].text === 'string'
+        }
+      >
+        <p>{callAi.result!.content[0].text}</p>
       </Show>
     </main>
   );
