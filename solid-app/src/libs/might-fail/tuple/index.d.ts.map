@@ -1,0 +1,1 @@
+{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../src/tuple/index.ts"],"names":[],"mappings":"AAAA;;;;;;;;;;;;;;;KAeK;AAEL,OAAO,EAAE,KAAK,MAAM,EAAE,MAAM,UAAU,CAAA;AACtC,OAAO,EAAE,SAAS,EAAE,aAAa,EAAE,MAAM,aAAa,CAAA;AACtD,OAAO,EAAE,aAAa,EAAE,iBAAiB,EAAE,MAAM,iBAAiB,CAAA;AAElE,OAAO,EAAE,MAAM,EAAE,SAAS,EAAE,aAAa,EAAE,aAAa,EAAE,iBAAiB,EAAE,CAAA;;;;;;;AAC7E,wBAA6E"}

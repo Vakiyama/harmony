@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { EOL } from 'os';
 type ZodObjectAny = z.ZodObject<any, any, any, any>;
-import { mightFailSync, mightFail } from 'might-fail/go';
+import { mightFail, mightFailSync } from '../../libs/might-fail/index';
 
 export const defaultClaudeSettings = {
   model: 'claude-3-5-sonnet-20240620',
@@ -128,7 +128,7 @@ export async function callClaude<
     return claudeApiCall;
   }
 
-  const [jsonParseResult, jsonParseError] = mightFailSync(() =>
+  const [jsonParseError, jsonParseResult] = mightFailSync(() =>
     JSON.parse(claudeApiCall.content[0].text)
   );
 
@@ -139,7 +139,7 @@ export async function callClaude<
     });
   }
 
-  const [zodValidateResult, zodValidateError] = await mightFail(
+  const [zodValidateError, zodValidateResult] = await mightFail(
     params.jsonFormat!.format.parseAsync(jsonParseResult)
   );
 
