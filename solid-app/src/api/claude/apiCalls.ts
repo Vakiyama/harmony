@@ -72,14 +72,17 @@ export async function callClaude<
   system: string,
   messages: T & ValidMessages<T>,
   format?: F
-): Promise<
-  F extends z.ZodObject<any> ? z.infer<F> : Promise<AssistantResponse>
-> {
+): Promise<F extends z.ZodObject<any> ? z.infer<F> : AssistantResponse> {
   const body = {
     model: claudeSettings.model,
     max_tokens: claudeSettings.maxTokens,
-    messages: format ? [...messages, getResponsePrompt(format)] : messages,
-    system,
+    messages: format ? [...messages] : messages,
+    system: format
+      ? `
+    ${system}
+    ${getResponsePrompt(format)}
+        `
+      : system,
   };
 
   const stringifiedBody = JSON.stringify(body);
@@ -98,24 +101,26 @@ export async function callClaude<
 
   console.log('Claude API call:');
   console.log(json);
-  return json;
+  if (!format) return json;
+  else {
+    JSON.parse(json.content[0].text)
+
+  }
 }
 
 // we'd like an API for getting json responses from claude
 // We'll use zod and pass in a "response schema"
 
-function getResponseFormat(format: ZodObject<any>): UserMessage {
-  return {
-    role: 'user',
-    content: `
+function getResponsePrompt(format: ZodObject<any>): string {
+  return `
     ## Response Format
     To answer, you've been given the following response format:
 
-    ${schemaToString(format)}
+    Please respond with only the object format as a JSON parsable string.
+    Don't give any reasoning or explanations.
 
-    Please respond with only the object format.
-    `,
-  };
+    ${schemaToString(format)}
+    `;
 }
 
 function schemaToString(schema: z.ZodObject<any>): string {

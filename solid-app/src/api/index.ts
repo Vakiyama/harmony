@@ -1,7 +1,7 @@
 import { action, cache } from '@solidjs/router';
 import { getUser as gU, logout as l, loginOrRegister as lOR } from './server';
 import { runApp } from './langgraph';
-import { callClaude, defaultClaudeSettings } from '~/libs/claude/apiCalls';
+import { callClaude, defaultClaudeSettings } from '~/api/claude/apiCalls';
 
 export const getUser = cache(gU, 'user');
 export const loginOrRegister = action(lOR, 'loginOrRegister');
