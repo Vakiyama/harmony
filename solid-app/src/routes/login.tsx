@@ -31,6 +31,7 @@ export default function Login(props: RouteSectionProps) {
           <input name="password" type="password" placeholder="twixrox" autocomplete="current-password" />
         </div>
         <button type="submit" class="mt-4 text-blue-500 border border-blue-500 px-2 rounded-[8px]">Login</button>
+
         <Show when={loggingIn.result}>
           <p style={{color: "red"}} role="alert" id="error-message">
             {loggingIn.result!.message}

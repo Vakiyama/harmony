@@ -10,11 +10,14 @@
     "allowJs": true,
     "strict": true,
     "noEmit": true,
-    "types": ["vinxi/types/client", "node"],
+    "types": ["vinxi/types/client", "node", "@testing-library/jest-dom"],
     "isolatedModules": true,
     "paths": {
       "~/*": ["./src/*"],
-      "@/*": ["./drizzle/*"]
-    }
+      "@/*": ["./drizzle/*"],
+      "~/components/*": ["./src/components/*"], 
+      "~libs/cn": ["./src/libs/cn"]
+    }, 
+    "baseUrl": "."
   }
 }
