@@ -1,13 +1,18 @@
 import { createSignal, onMount, For } from "solid-js";
 import { createStore } from "solid-js/store";
 import { clientSocket as socket } from "~/lib/clientSocket";
+import { getUser } from "~/api";
+
+const user = await getUser()
 
 export default function ChatRoom() {
   const [messageInput, setMessageInput] = createSignal("");
   const [messages, setMessages] = createStore<string[]>([]);
+  
+  onMount(() => { 
+    const username = user.username || "unknown"
+    socket.emit("new-user", username)
 
-  onMount(() => {
-    askUserName();
     appendMessage("You joined");
     socket.on("chat-message", (data) => {
       appendMessage(`${data.name}: ${data.message}`);
@@ -22,15 +27,6 @@ export default function ChatRoom() {
 
   const appendMessage = (message: string) =>
     setMessages(messages.length, message);
-
-  const askUserName = () => {
-    let myName = prompt("What is your name?");
-    if (!myName) {
-      socket.emit("new-user", "unknown");
-    } else {
-      socket.emit("new-user", myName);
-    }
-  };
 
   const handleInput = (e: Event) => {
     e.preventDefault();
