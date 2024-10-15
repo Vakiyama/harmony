@@ -18,10 +18,10 @@ import {
 import { Index } from "solid-js";
 import { Portal } from "solid-js/web";
 
-const DatePickerDemo = () => {
+const DatePickerDemo = (props : { name: string }) => {
   return (
     <DatePicker>
-      <DatePickerInput placeholder="Pick a date" />
+      <DatePickerInput placeholder="Pick a date" name={props.name}/>
       <Portal>
         <DatePickerContent>
           <DatePickerView view="day">

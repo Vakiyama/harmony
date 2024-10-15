@@ -1,8 +1,21 @@
 import { Separator } from "~/components/ui/separator"
 import RadioGroupDemo from "~/components/shadcn/RadioGroup"
 import DatePickerDemo from "~/components/shadcn/DatePicker"
+import { createSleepEntry } from "~/api/journal"
+import { createSignal } from "solid-js"
 
 export default function SleepTracker() {
+    const [sleepQuality, setSleepQuality] = createSignal<string>("Mid");
+    const [timeFrame, setTimeFrame] = createSignal<string>("Day")
+
+    const handleSleepQualityChange = (value: string) => {
+      console.log("Selected sleep quality:", value); // Debugging
+      setSleepQuality(value);
+    };
+    const handleTimeFrameChange = (value: string) => {
+        console.log("Selected sleep quality:", value); // Debugging
+        setTimeFrame(value);
+      };
     return (
         <section class="m-4">
             <div class="flex flex-row gap-1 items-center">
@@ -11,33 +24,34 @@ export default function SleepTracker() {
             <Separator />
             <div class="flex flex-col mt-2 gap-2 w-full">
                 <h1></h1>
-                <form action="" class="flex flex-col mt-2 gap-2">
+                <form action={createSleepEntry} class="flex flex-col mt-2 gap-2" method="post">
                     <div class="flex flex-col gap-2 justify-center">
                         <label>Sleep Quality:</label>
-                        <RadioGroupDemo options={["Poor", "Mid", "Good"]}/>
+                        <RadioGroupDemo options={["Poor", "Mid", "Good"]} name="quality"/>
                         <label>Timeframe:</label>
-                        <RadioGroupDemo options={["Day", "Night"]}/>
+                        <RadioGroupDemo options={["Day", "Night"]} name="timeFrame"/>
                         <label>Duration:</label>
                         <input 
+                                name="duration"
                                 type="number" 
                                 class="border rounded-sm"
                             />
                     </div>
                     <div class="flex gap-2 items-center">
                         <label>Date:</label>
-                        <DatePickerDemo />
+                        <DatePickerDemo name="date"/>
                     </div>
                     <div class="flex flex-col gap-2">
                     <label>Notes:</label>
                     <textarea 
-                        name="" 
-                        id=""
+                        name="note" 
+                        id="note"
                         class="border rounded-sm p-2"
                         placeholder="Add some notes..."
                     >      
                     </textarea>
                 </div>
-                <button class="w-14 border rounded-sm bg-blue-500 text-white">Add</button>
+                <button class="w-14 border rounded-sm bg-blue-500 text-white" type="submit">Add</button>
                 </form>
             </div>
         </section>

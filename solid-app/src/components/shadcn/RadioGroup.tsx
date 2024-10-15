@@ -4,16 +4,19 @@ import {
   RadioGroupItemControl,
   RadioGroupItemLabel,
 } from "~/components/ui/radio-group";
-import { For } from "solid-js";
+import { createSignal, For } from "solid-js";
 
 interface RadioGroupProps {
   options: string[];
   defaultValue?: string;
+  name: string;
 }
 
 const RadioGroupDemo = (props: RadioGroupProps) => {
+  const [value, setValue] = createSignal(props.defaultValue || props.options[0])
+
   return (
-    <RadioGroup defaultValue={props.defaultValue || props.options[0]} class="grid gap-2">
+    <RadioGroup name={props.name} value={value()} onChange={setValue} class="grid gap-2">
       <For each={props.options}>
         {(option) => (
           <RadioGroupItem value={option} class="flex items-center gap-2">

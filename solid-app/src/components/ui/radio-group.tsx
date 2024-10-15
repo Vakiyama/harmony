@@ -32,6 +32,7 @@ export const RadioGroupItemControl = <T extends ValidComponent = "div">(
       )}
       {...rest}
     >
+      <RadioGroupItemInput class="hidden" />
       <RadioGroupPrimitive.ItemIndicator class="h-2 w-2 rounded-full data-[checked]:bg-background" />
     </RadioGroupPrimitive.ItemControl>
   );
