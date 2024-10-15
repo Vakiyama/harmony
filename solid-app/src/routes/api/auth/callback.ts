@@ -17,7 +17,7 @@ export const GET = async ({ request }: APIEvent) => {
     
     await getKindeClient().handleRedirectToApp(manager, url);
     const kindeUser = await getKindeClient().getUser(manager)
-    console.log(kindeUser)
+    //console.log(kindeUser)
     const err = await loginOrRegister(kindeUser)
     if (err) {
         return new Response('Bad Request', { status: 400 })
