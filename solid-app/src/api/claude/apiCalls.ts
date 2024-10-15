@@ -68,28 +68,46 @@ type ClaudeFormatParams<F extends ZodObjectAny> = {
   retryLimit: number;
 };
 
-type ClaudeCallParams<T extends readonly Message[], F extends ZodObjectAny> = {
+type ClaudeCallParamsWithoutFormat<T extends readonly Message[]> = {
   claudeSettings: ClaudeSettings;
   system: string;
   messages: T & ValidMessages<T>;
-  jsonFormat?: ClaudeFormatParams<F>;
+  jsonFormat?: undefined;
   jsonFormatError?: [AssistantMessage, UserMessage];
 };
 
+type ClaudeCallParamsWithFormat<
+  T extends readonly Message[],
+  F extends ZodObjectAny,
+> = {
+  claudeSettings: ClaudeSettings;
+  system: string;
+  messages: T & ValidMessages<T>;
+  jsonFormat: ClaudeFormatParams<F>;
+  jsonFormatError?: [AssistantMessage, UserMessage];
+};
+
+// overloads
+
+export async function callClaude<T extends readonly Message[]>(
+  params: ClaudeCallParamsWithoutFormat<T>
+): Promise<AssistantResponse>;
+
+export async function callClaude<
+  T extends readonly Message[],
+  F extends ZodObjectAny,
+>(params: ClaudeCallParamsWithFormat<T, F>): Promise<z.output<F>>;
+
 /**
  * Call Anthropic Claude API
- * @param claudeSettings - settings for the model, check types
- * @param system - system prompt for claude to follow. Determines behavior.
- * @param messages - array must be called passed as const. for example: [\[{ role: "user", content: "example"}\] as const;]
+ * @param params - parameters for the API call
  */
 export async function callClaude<
   T extends readonly Message[],
   F extends ZodObjectAny,
 >(
-  params: ClaudeCallParams<T, F>
-): Promise<
-  typeof params.jsonFormat extends undefined ? AssistantResponse : z.output<F>
-> {
+  params: ClaudeCallParamsWithoutFormat<T> | ClaudeCallParamsWithFormat<T, F>
+): Promise<AssistantResponse | z.output<F>> {
   if (params.jsonFormat?.retryLimit === 0) {
     throw new Error('Retry limit hit for formatted claude response attempts');
   }
@@ -120,11 +138,12 @@ export async function callClaude<
     body: stringifiedBody,
   });
 
-  const claudeApiCall = (await response.json()) as unknown as AssistantResponse;
+  const claudeApiCall = (await response.json()) as AssistantResponse;
 
   console.log('Claude API call:');
   console.log(claudeApiCall);
-  if (!params.jsonFormat) {
+
+  if (params.jsonFormat === undefined) {
     return claudeApiCall;
   }
 
@@ -156,7 +175,7 @@ async function handleClaudeRetry<
   T extends readonly Message[],
   F extends ZodObjectAny,
 >(
-  params: ClaudeCallParams<T, F>,
+  params: ClaudeCallParamsWithFormat<T, F>,
   claudeApiCall: AssistantResponse,
   errorDetails: { type: 'validate' | 'parse'; error: Error }
 ) {
@@ -167,12 +186,12 @@ async function handleClaudeRetry<
     {
       role: 'user',
       content: `Your response gave the following ${errorDetails.type === 'parse' ? 'JSON parse' : 'Zod validation'} error:
-            \`\`\`
-            ${errorDetails.error.message}
-            \`\`\`
+          \`\`\`
+          ${errorDetails.error.message}
+          \`\`\`
 
-            Please correct your mistakes and try again.
-            `,
+          Please correct your mistakes and try again.
+          `,
     },
   ];
 
