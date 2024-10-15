@@ -1,54 +1,49 @@
 "use server";
 
-import { createKindeServerClient, GrantType, type SessionManager } from "@kinde-oss/kinde-typescript-sdk";
+import { createKindeServerClient, GrantType } from "@kinde-oss/kinde-typescript-sdk";
+import { clearSession, type SessionConfig, useSession } from "vinxi/http";
 
 const kindeClient = createKindeServerClient(GrantType.AUTHORIZATION_CODE, {
   authDomain: process.env.KINDE_DOMAIN!,
   clientId: process.env.KINDE_CLIENT_ID!,
-  clientSecret: process.env.KINDE_CLIENT_SECRET,
+  clientSecret: process.env.KINDE_CLIENT_SECRET!,
   redirectURL: process.env.KINDE_REDIRECT_URL!,
-  logoutRedirectURL: process.env.KINDE_LOGOUT_REDIRECT_URL
+  logoutRedirectURL: process.env.KINDE_LOGOUT_REDIRECT_URL!
 });
 
+const sessionConfig: SessionConfig = {
+  password:
+    process.env.SESSION_SECRET!,
+}
 
-const sessionStore: Record<string, Record<string, any>> = {};
-
-
-export function sessionManager(sessionId: string) {
-  sessionStore[sessionId] = sessionStore[sessionId] || {};
+export async function sessionManager() {
+    const session = await useSession(sessionConfig)
 
   return {
+    getSession() {
+      return session;
+    },
+
     async getSessionItem(key: string) {
-      return sessionStore[sessionId][key];
+      return session.data[key];
     },
 
     async setSessionItem(key: string, value: any) {
-      sessionStore[sessionId][key] = value;
+      await session.update({ [key] : value });
     },
 
     async removeSessionItem(key: string) {
-      delete sessionStore[sessionId][key];
+      const currentData = { ...session.data }
+      delete currentData[key]
+      await session.update(currentData);
     },
 
     async destroySession() {
-      delete sessionStore[sessionId];
+      await clearSession(sessionConfig);
     }
   };
 }
 
 export function getKindeClient() {
   return kindeClient;
-}
-
-export function extractSessionId(cookieHeader: string | null): string | undefined {
-  if (!cookieHeader) return undefined;
-
-  const cookies = cookieHeader.split(';');
-  for (const cookie of cookies) {
-    const [key, value] = cookie.trim().split('=');
-    if (key === 'sessionId') { 
-      return value;
-    }
-  }
-  return undefined;
 }
