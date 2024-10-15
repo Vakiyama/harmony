@@ -58,7 +58,6 @@ export async function loginOrRegister(kindeUser: UserType) {
   } catch (err) {
     return err as Error;
   }
-  throw redirect('/');
 }
 
 export async function logout() {
