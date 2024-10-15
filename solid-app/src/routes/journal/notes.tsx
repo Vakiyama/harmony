@@ -1,16 +1,8 @@
+"use client";
 import { Separator } from "~/components/ui/separator"
-import SelectInput from "~/components/shadcn/Select"
+import { createNoteAction } from "~/api/journal"
 
-export default function Notes() {
-
-    const categoryTypes = [
-        "General",
-        "Mood",
-        "Medication",
-        "Sleep",
-        "Meal"
-    ]
-
+export default function CreateNote() {
     return (
         <section class="m-4">
             <div class="flex flex-row gap-1 items-center">
@@ -21,27 +13,18 @@ export default function Notes() {
 
             <div class="flex flex-col mt-2 gap-2 w-full">
                 <h2 class="mt-2">Add a New Note</h2>
-                <form action="" class="flex flex-col gap-2">
-                    <div class="flex flex-row gap-2 items-center">
-                        <label>Title:</label>
-                        <input 
-                            type="text" 
-                            class="border rounded-sm"
-                        />
-                        <label>Category:</label>
-                        <SelectInput options={categoryTypes} placeholder="Select a cateogory" />
-                    </div>
+                <form action={createNoteAction} method="post" class="flex flex-col gap-2">
                     <div class="flex flex-col gap-2">
-                        <label>Description</label>
+                        <label>New Update:</label>
                         <textarea 
-                            name="" 
-                            id=""
+                            name="description" 
+                            id="description"
                             class="border rounded-sm p-2"
-                            placeholder="Add some notes..."
+                            placeholder="Notes..."
                         >      
                         </textarea>
                     </div>
-                    <button class="w-14 border rounded-sm bg-blue-500 text-white">Add</button>
+                    <button type="submit" class="w-14 border rounded-sm bg-blue-500 text-white">Add</button>
                 </form>
             </div>
         </section>

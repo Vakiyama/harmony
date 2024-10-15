@@ -1,6 +1,6 @@
 import { Separator } from "~/components/ui/separator"
 import RadioGroupDemo from "~/components/shadcn/RadioGroup"
-import DatePickerDemo from "~/components/shadcn/DatePicker"
+import DatePickerComponent from "~/components/shadcn/DatePicker"
 
 export default function MoodTracker() {
     return (
@@ -21,13 +21,13 @@ export default function MoodTracker() {
                     </div>
                     <div class="flex gap-2 items-center">
                         <label>Date:</label>
-                        <DatePickerDemo />
+                        <DatePickerComponent />
                     </div>
                     <div class="flex flex-col gap-2">
                     <label>Notes:</label>
                     <textarea 
-                        name="" 
-                        id=""
+                        name="notesDescription" 
+                        id="notesDescription"
                         class="border rounded-sm p-2"
                         placeholder="Add some notes..."
                     >      

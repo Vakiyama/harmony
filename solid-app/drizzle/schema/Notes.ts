@@ -9,4 +9,4 @@ export const Notes = sqliteTable('notes', {
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`)
 });
 
-export type Note = typeof Notes.$inferSelect;
+export type Notes = typeof Notes.$inferSelect;

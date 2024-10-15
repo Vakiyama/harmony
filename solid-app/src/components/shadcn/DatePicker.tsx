@@ -18,10 +18,10 @@ import {
 import { Index } from "solid-js";
 import { Portal } from "solid-js/web";
 
-const DatePickerDemo = () => {
+const DatePickerComponent = () => {
   return (
     <DatePicker>
-      <DatePickerInput placeholder="Pick a date" />
+      <DatePickerInput id="date" name="date" placeholder="Pick a date" />
       <Portal>
         <DatePickerContent>
           <DatePickerView view="day">
@@ -152,4 +152,4 @@ const DatePickerDemo = () => {
   );
 };
 
-export default DatePickerDemo;
+export default DatePickerComponent;

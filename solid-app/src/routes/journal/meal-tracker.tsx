@@ -1,6 +1,6 @@
 import { Separator } from "~/components/ui/separator"
 import RadioGroupDemo from "~/components/shadcn/RadioGroup"
-import DatePickerDemo from "~/components/shadcn/DatePicker"
+import DatePickerComponent from "~/components/shadcn/DatePicker"
 
 export default function MealTracker() {
     return (
@@ -32,7 +32,7 @@ export default function MealTracker() {
                     </div>
                     <div class="flex gap-2 items-center">
                         <label>Date:</label>
-                        <DatePickerDemo />
+                        <DatePickerComponent />
                     </div>
                     <div class="flex flex-col gap-2">
                     <label>Add Notes:</label>

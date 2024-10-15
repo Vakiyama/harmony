@@ -1,6 +1,6 @@
 import { Separator } from "~/components/ui/separator"
 import RadioGroupDemo from "~/components/shadcn/RadioGroup"
-import DatePickerDemo from "~/components/shadcn/DatePicker"
+import DatePickerComponent from "~/components/shadcn/DatePicker"
 
 export default function SleepTracker() {
     return (
@@ -17,15 +17,16 @@ export default function SleepTracker() {
                         <RadioGroupDemo options={["Poor", "Mid", "Good"]}/>
                         <label>Timeframe:</label>
                         <RadioGroupDemo options={["Day", "Night"]}/>
+                    </div>
+                    <div class="flex gap-2 items-center">
                         <label>Duration:</label>
                         <input 
                                 type="number" 
-                                class="border rounded-sm"
+                                class="border rounded-sm text-right"
+                                placeholder="00"
                             />
-                    </div>
-                    <div class="flex gap-2 items-center">
                         <label>Date:</label>
-                        <DatePickerDemo />
+                        <DatePickerComponent />
                     </div>
                     <div class="flex flex-col gap-2">
                     <label>Notes:</label>
