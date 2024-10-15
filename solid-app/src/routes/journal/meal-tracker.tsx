@@ -1,5 +1,5 @@
 import { Separator } from "~/components/ui/separator"
-import RadioGroupDemo from "~/components/shadcn/RadioGroup"
+import RadioGroupComponent from "~/components/shadcn/RadioGroup"
 import DatePickerComponent from "~/components/shadcn/DatePicker"
 
 export default function MealTracker() {
@@ -14,7 +14,7 @@ export default function MealTracker() {
                 <form action="" class="flex flex-col mt-2 gap-2">
                     <div class="flex flex-col gap-2 justify-center">
                         <label>Category:</label>
-                        <RadioGroupDemo options={["Breakfast", "Lunch", "Dinner", "Snack"]} />
+                        <RadioGroupComponent id="category" name="category" options={["Breakfast", "Lunch", "Dinner", "Snack"]} />
                         <div class="flex flex-row gap-2">
                             <label>Food Name:</label>
                             <input 
@@ -28,7 +28,7 @@ export default function MealTracker() {
                             />
                         </div>
                         <label>Consumption:</label>
-                        <RadioGroupDemo options={["None", "Less than half", "Half", "More than half", "All"]}/>
+                        <RadioGroupComponent id="consumption" name="consumption" options={["None", "Less than half", "Half", "More than half", "All"]}/>
                     </div>
                     <div class="flex gap-2 items-center">
                         <label>Date:</label>

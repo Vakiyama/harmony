@@ -1,5 +1,5 @@
 import { Separator } from "~/components/ui/separator"
-import RadioGroupDemo from "~/components/shadcn/RadioGroup"
+import RadioGroupComponent from "~/components/shadcn/RadioGroup"
 import DatePickerComponent from "~/components/shadcn/DatePicker"
 
 export default function MoodTracker() {
@@ -15,9 +15,9 @@ export default function MoodTracker() {
                 <form action="" class="flex flex-col mt-2 gap-2">
                     <div class="flex flex-col gap-2 justify-center">
                         <label>Well-being:</label>
-                        <RadioGroupDemo options={["Poor", "Mid", "Good"]}/>
+                        <RadioGroupComponent id="wellBeing" name="wellBeing"options={["Poor", "Mid", "Good"]}/>
                         <label>Timeframe:</label>
-                        <RadioGroupDemo options={["Morning", "Afternoon", "Evening"]}/>
+                        <RadioGroupComponent id="timeframe" name="timeframe" options={["Morning", "Afternoon", "Evening"]}/>
                     </div>
                     <div class="flex gap-2 items-center">
                         <label>Date:</label>
