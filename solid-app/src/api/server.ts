@@ -1,10 +1,10 @@
 'use server';
 import { redirect } from '@solidjs/router';
-import { useSession } from 'vinxi/http';
 import { eq } from 'drizzle-orm';
 import { db } from './db';
-import { Users } from '../../drizzle/schema';
-import { type User } from '@/schema';
+import { getKindeClient, sessionManager } from './kinde';
+import { UserType } from '@kinde-oss/kinde-typescript-sdk';
+import { Users } from '../../drizzle/schema/Users';
 
 function validateUsername(username: unknown) {
   if (typeof username !== 'string' || username.length < 3) {
@@ -18,64 +18,58 @@ function validatePassword(password: unknown) {
   }
 }
 
-async function login(username: string, password: string) {
+async function login(kindeUser : UserType) {
   const user = await db
     .select()
     .from(Users)
-    .where(eq(Users.username, username))
+    .where(eq(Users.kindeId, kindeUser.id))
     .get();
-  if (!user || password !== user.password) throw new Error('Invalid login');
   return user;
 }
 
-async function register(username: string, password: string) {
+async function register(kindeUser: UserType) {
   const existingUser = await db
     .select()
     .from(Users)
-    .where(eq(Users.username, username))
+    .where(eq(Users.kindeId, kindeUser.id))
     .get();
   if (existingUser) throw new Error('User already exists');
-  return db.insert(Users).values({ username, password }).returning().get();
+  return db.insert(Users).values({
+     kindeId: kindeUser.id, 
+     displayName: kindeUser.given_name,
+     firstName: kindeUser.given_name,
+     lastName: kindeUser.family_name,
+     photo: kindeUser.picture!,
+     email: kindeUser.email,
+     roleType: "other"
+    }).returning().get();
 }
 
-function getSession() {
-  return useSession({
-    password:
-      process.env.SESSION_SECRET ?? 'areallylongsecretthatyoushouldreplace',
-  });
-}
-
-export async function loginOrRegister(formData: FormData) {
-  const username = String(formData.get('username'));
-  const password = String(formData.get('password'));
-  const loginType = String(formData.get('loginType'));
-  let error = validateUsername(username) || validatePassword(password);
-  if (error) return new Error(error);
-
+export async function loginOrRegister(kindeUser: UserType) {
   try {
-    const user = await (loginType !== 'login'
-      ? register(username, password)
-      : login(username, password));
-    const session = await getSession();
+    let user = await login(kindeUser)
+    if (!user) {
+      user = await register(kindeUser)
+    }
+    const session = (await sessionManager()).getSession();
     await session.update((d) => {
       d.userId = user.id;
     });
   } catch (err) {
     return err as Error;
   }
-  throw redirect('/');
 }
 
 export async function logout() {
-  const session = await getSession();
-  await session.update((d) => (d.userId = undefined));
-  throw redirect('/login');
+  const manager = await sessionManager();
+  const logoutUrl = await getKindeClient().logout(manager);
+  throw redirect(logoutUrl.toString());
 }
 
 export async function getUser() {
-  const session = await getSession();
+  const sessionManager = await checkAuthenticated();
+  const session = await sessionManager.getSession();
   const userId = session.data.userId;
-  if (userId === undefined) throw redirect('/login');
 
   try {
     const user = await db
@@ -83,9 +77,20 @@ export async function getUser() {
       .from(Users)
       .where(eq(Users.id, userId))
       .get();
-    if (!user) throw redirect('/login');
-    return { id: user.id, username: user.username };
+    if (!user) throw redirect('/api/auth/login');
+    return { id: user.id, displayName: user.displayName };
   } catch {
     throw logout();
   }
+}
+
+export async function checkAuthenticated () {
+  const manager = await sessionManager()
+  const isAuthenticated = await getKindeClient().isAuthenticated(manager)
+
+  if (!isAuthenticated) {
+    throw redirect('/api/auth/login')
+  }
+  
+  return manager;
 }
