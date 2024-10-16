@@ -1,21 +1,10 @@
 import { Separator } from "~/components/ui/separator"
 import RadioGroupComponent from "~/components/shadcn/RadioGroup"
 import DatePickerComponent from "~/components/shadcn/DatePicker"
-import { createSleepEntry } from "~/api/journal"
+import { createSleepAction } from "~/api/journal"
 import { createSignal } from "solid-js"
 
 export default function SleepTracker() {
-    const [sleepQuality, setSleepQuality] = createSignal<string>("Mid");
-    const [timeFrame, setTimeFrame] = createSignal<string>("Day")
-
-    const handleSleepQualityChange = (value: string) => {
-      console.log("Selected sleep quality:", value); // Debugging
-      setSleepQuality(value);
-    };
-    const handleTimeFrameChange = (value: string) => {
-        console.log("Selected sleep quality:", value); // Debugging
-        setTimeFrame(value);
-      };
     return (
         <section class="m-4">
             <div class="flex flex-row gap-1 items-center">
@@ -24,12 +13,12 @@ export default function SleepTracker() {
             <Separator />
             <div class="flex flex-col mt-2 gap-2 w-full">
                 <h1></h1>
-                <form action={createSleepEntry} class="flex flex-col mt-2 gap-2" method="post">
+                <form action={createSleepAction} class="flex flex-col mt-2 gap-2" method="post">
                     <div class="flex flex-col gap-2 justify-center">
                         <label>Sleep Quality:</label>
                         <RadioGroupComponent id="quality" name="quality" options={["Poor", "Mid", "Good"]} />
                         <label>Timeframe:</label>
-                        <RadioGroupComponent id="timeframe" name="timeframe" options={["Day", "Night"]} />
+                        <RadioGroupComponent id="timeFrame" name="timeFrame" options={["Day", "Night"]} />
                         <label>Duration:</label>
                         <input 
                                 name="duration"
