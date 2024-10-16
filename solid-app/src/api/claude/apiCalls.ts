@@ -1,7 +1,7 @@
-import { z } from 'zod';
+import { ZodTypeAny, z } from 'zod';
 import { EOL } from 'os';
-type ZodObjectAny = z.ZodObject<any, any, any, any>;
-import { mightFail, mightFailSync } from '../../libs/might-fail/index';
+export type ZodObjectAny = z.ZodObject<any, any, any, any>;
+import { mightFail, mightFailSync } from 'might-fail';
 
 export const defaultClaudeSettings = {
   model: 'claude-3-5-sonnet-20240620',
@@ -126,6 +126,11 @@ export async function callClaude<
       : params.system,
   };
 
+  console.log('Calling claude with the following system message:');
+  console.log(body.system);
+  console.log('Calling claude with the following messages:');
+  console.log(JSON.stringify(body.messages));
+
   const stringifiedBody = JSON.stringify(body);
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -207,28 +212,91 @@ async function handleClaudeRetry<
 // We'll use zod and pass in a "response schema"
 
 function getResponsePrompt(format: ZodObjectAny): string {
-  return `
+  const prompt = `
     ## Response Format
     To answer, you've been given the following response format:
 
     Please respond with only the object format as a JSON parsable string.
     Don't give any reasoning or explanations.
 
+
+    ${format.description ? `Description of object: ${format.description}` : ''}
     Descriptions of fields:
 
     ## Format
     ${schemaToString(format)}
     `;
+
+  return prompt;
 }
 
-function schemaToString(schema: ZodObjectAny): string {
-  const shape = schema.shape;
-  const fields = Object.keys(shape)
-    .map(
-      (key) =>
-        `${key}: ${shape[key].toString()}, // ${schema.shape[key].description}`
-    )
-    .join(EOL);
+function schemaToString(schema: ZodTypeAny): string {
+  const typeName = schema._def.typeName;
 
-  return `{ ${fields} }`;
+  // Get the description if available
+  const description = schema.description ? ` // ${schema.description}` : '';
+
+  switch (typeName) {
+    case z.ZodFirstPartyTypeKind.ZodString:
+      return `string${description}`;
+    case z.ZodFirstPartyTypeKind.ZodNumber:
+      return `number${description}`;
+    case z.ZodFirstPartyTypeKind.ZodBoolean:
+      return `boolean${description}`;
+    case z.ZodFirstPartyTypeKind.ZodLiteral:
+      return `${JSON.stringify(schema._def.value)}${description}`;
+    case z.ZodFirstPartyTypeKind.ZodEnum:
+      return `${schema._def.values.map((v: any) => JSON.stringify(v)).join(' | ')}${description}`;
+    case z.ZodFirstPartyTypeKind.ZodUnion:
+      return `(${schema._def.options.map(schemaToString).join(' | ')})${description}`;
+    case z.ZodFirstPartyTypeKind.ZodArray:
+      return `Array<${schemaToString(schema._def.type)}>${description}`;
+    case z.ZodFirstPartyTypeKind.ZodObject:
+      const shape = schema._def.shape();
+      const fields = Object.keys(shape)
+        .map((key) => `${key}: ${schemaToString(shape[key])}`)
+        .join(',\n');
+      return `{\n${fields}\n}${description}`;
+    case z.ZodFirstPartyTypeKind.ZodOptional:
+      return `${schemaToString(schema._def.innerType)} | undefined${description}`;
+    case z.ZodFirstPartyTypeKind.ZodNullable:
+      return `${schemaToString(schema._def.innerType)} | null${description}`;
+    case z.ZodFirstPartyTypeKind.ZodDefault:
+      return `${schemaToString(schema._def.innerType)} // default: ${JSON.stringify(schema._def.defaultValue())}${description}`;
+    case z.ZodFirstPartyTypeKind.ZodAny:
+      return `any${description}`;
+    case z.ZodFirstPartyTypeKind.ZodUnknown:
+      return `unknown${description}`;
+    case z.ZodFirstPartyTypeKind.ZodVoid:
+      return `void${description}`;
+    case z.ZodFirstPartyTypeKind.ZodNever:
+      return `never${description}`;
+    case z.ZodFirstPartyTypeKind.ZodTuple:
+      const items = schema._def.items.map(schemaToString).join(', ');
+      return `[${items}]${description}`;
+    case z.ZodFirstPartyTypeKind.ZodRecord:
+      return `{ [key: string]: ${schemaToString(schema._def.valueType)} }${description}`;
+    case z.ZodFirstPartyTypeKind.ZodMap:
+      return `Map<${schemaToString(schema._def.keyType)}, ${schemaToString(schema._def.valueType)}>${description}`;
+    case z.ZodFirstPartyTypeKind.ZodSet:
+      return `Set<${schemaToString(schema._def.valueType)}>${description}`;
+    case z.ZodFirstPartyTypeKind.ZodDate:
+      return `Date${description}`;
+    case z.ZodFirstPartyTypeKind.ZodFunction:
+      const args = schema._def.args.items.map(schemaToString).join(', ');
+      const returns = schemaToString(schema._def.returns);
+      return `(${args}) => ${returns}${description}`;
+    case z.ZodFirstPartyTypeKind.ZodLazy:
+      return `Lazy<${schemaToString(schema._def.getter())}>${description}`;
+    case z.ZodFirstPartyTypeKind.ZodPromise:
+      return `Promise<${schemaToString(schema._def.type)}>${description}`;
+    case z.ZodFirstPartyTypeKind.ZodEffects:
+      return schemaToString(schema._def.schema); // Simplify by showing the base schema
+    case z.ZodFirstPartyTypeKind.ZodBranded:
+      return schemaToString(schema._def.type); // Simplify by showing the base schema
+    case z.ZodFirstPartyTypeKind.ZodNativeEnum:
+      return `Enum${description}`; // Could be expanded if needed
+    default:
+      return `UnknownType${description}`;
+  }
 }
