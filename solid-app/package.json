@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@ark-ui/solid": "^4.2.0",
+    "@kinde-oss/kinde-typescript-sdk": "^2.9.1",
     "@kobalte/core": "^0.13.6",
     "@langchain/anthropic": "^0.3.3",
     "@langchain/core": "^0.3.8",
