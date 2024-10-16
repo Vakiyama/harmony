@@ -1,8 +1,27 @@
 "use client";
-import { Separator } from "~/components/ui/separator"
-import { createNoteAction } from "~/api/journal"
+import { Separator } from "~/components/ui/separator";
+import { createNoteAction } from "~/api/journal";
+import { createSignal } from "solid-js";
+import { useAction } from "@solidjs/router";
 
 export default function CreateNote() {
+    const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
+    const myAction = useAction(createNoteAction);
+    type CreateNoteActionResponse = {
+        success?: boolean;
+        error?: string;
+    };
+    const handleSubmit = async (event: SubmitEvent) => {
+        event.preventDefault();
+
+        const result: CreateNoteActionResponse = await myAction(new FormData(event.target as HTMLFormElement));
+    
+        if (result.success) {
+          formRef()?.reset(); 
+        } else if (result.error) {
+          console.error(result.error); 
+        }
+    };
     return (
         <section class="m-4">
             <div class="flex flex-row gap-1 items-center">
@@ -13,12 +32,12 @@ export default function CreateNote() {
 
             <div class="flex flex-col mt-2 gap-2 w-full">
                 <h2 class="mt-2">Add a New Note</h2>
-                <form action={createNoteAction} method="post" class="flex flex-col gap-2">
+                <form ref={setFormRef} onSubmit={handleSubmit} method="post" class="flex flex-col gap-2">
                     <div class="flex flex-col gap-2">
                         <label>New Update:</label>
                         <textarea 
-                            name="description" 
-                            id="description"
+                            name="note" 
+                            id="note"
                             class="border rounded-sm p-2"
                             placeholder="Notes..."
                         >      

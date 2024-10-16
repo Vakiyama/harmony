@@ -1,8 +1,28 @@
-import { Separator } from "~/components/ui/separator"
-import RadioGroupComponent from "~/components/shadcn/RadioGroup"
-import DatePickerComponent from "~/components/shadcn/DatePicker"
+import { Separator } from "~/components/ui/separator";
+import RadioGroupComponent from "~/components/shadcn/RadioGroup";
+import DatePickerComponent from "~/components/shadcn/DatePicker";
+import { createMealAction } from "~/api/journal";
+import { createSignal } from "solid-js";
+import { useAction } from "@solidjs/router";
 
 export default function MealTracker() {
+    const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
+    const myAction = useAction(createMealAction);
+    type CreateMealActionResponse = {
+        success?: boolean;
+        error?: string;
+    };
+    const handleSubmit = async (event: SubmitEvent) => {
+        event.preventDefault();
+
+        const result: CreateMealActionResponse = await myAction(new FormData(event.target as HTMLFormElement));
+    
+        if (result.success) {
+          formRef()?.reset(); 
+        } else if (result.error) {
+          console.error(result.error); 
+        }
+    };
     return (
         <section class="m-4">
             <div class="flex flex-row gap-1 items-center">
@@ -11,7 +31,7 @@ export default function MealTracker() {
             <Separator />
             <div class="flex flex-col mt-2 gap-2 w-full">
                 <h1>Add a new meal</h1>
-                <form action="" class="flex flex-col mt-2 gap-2">
+                <form ref={setFormRef} onSubmit={handleSubmit} method="post" class="flex flex-col mt-2 gap-2">
                     <div class="flex flex-col gap-2 justify-center">
                         <label>Category:</label>
                         <RadioGroupComponent id="category" name="category" options={["Breakfast", "Lunch", "Dinner", "Snack"]} />
@@ -19,11 +39,15 @@ export default function MealTracker() {
                             <label>Food Name:</label>
                             <input 
                                 type="text" 
+                                id="foodName"
+                                name="foodName"
                                 class="border rounded-sm"
                             />
                             <label>Drink Name:</label>
                             <input 
                                 type="text" 
+                                id="drinkName"
+                                name="drinkName"
                                 class="border rounded-sm"
                             />
                         </div>
@@ -35,12 +59,12 @@ export default function MealTracker() {
                         <DatePickerComponent />
                     </div>
                     <div class="flex flex-col gap-2">
-                    <label>Add Notes:</label>
+                    <label>Add Note:</label>
                     <textarea 
-                        name="" 
-                        id=""
+                        name="note" 
+                        id="note"
                         class="border rounded-sm p-2"
-                        placeholder="Add some notes..."
+                        placeholder="Note..."
                     >      
                     </textarea>
                 </div>

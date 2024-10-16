@@ -1,8 +1,28 @@
-import { Separator } from "~/components/ui/separator"
-import RadioGroupComponent from "~/components/shadcn/RadioGroup"
-import DatePickerComponent from "~/components/shadcn/DatePicker"
+import { Separator } from "~/components/ui/separator";
+import RadioGroupComponent from "~/components/shadcn/RadioGroup";
+import DatePickerComponent from "~/components/shadcn/DatePicker";
+import { createMoodAction } from "~/api/journal";
+import { createSignal } from "solid-js";
+import { useAction } from "@solidjs/router";
 
 export default function MoodTracker() {
+    const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
+    const myAction = useAction(createMoodAction);
+    type CreateMoodActionResponse = {
+        success?: boolean;
+        error?: string;
+    };
+    const handleSubmit = async (event: SubmitEvent) => {
+        event.preventDefault();
+
+        const result: CreateMoodActionResponse = await myAction(new FormData(event.target as HTMLFormElement));
+    
+        if (result.success) {
+          formRef()?.reset(); 
+        } else if (result.error) {
+          console.error(result.error); 
+        }
+    };
     return (
         <section class="m-4">
             <div class="flex flex-row gap-1 items-center">
@@ -12,12 +32,12 @@ export default function MoodTracker() {
             <Separator />
             <div class="flex flex-col mt-2 gap-2 w-full">
                 <h1>Add a new mood</h1>
-                <form action="" class="flex flex-col mt-2 gap-2">
+                <form ref={setFormRef} onSubmit={handleSubmit} method="post" class="flex flex-col mt-2 gap-2">
                     <div class="flex flex-col gap-2 justify-center">
                         <label>Well-being:</label>
                         <RadioGroupComponent id="wellBeing" name="wellBeing"options={["Poor", "Mid", "Good"]}/>
                         <label>Timeframe:</label>
-                        <RadioGroupComponent id="timeframe" name="timeframe" options={["Morning", "Afternoon", "Evening"]}/>
+                        <RadioGroupComponent id="timeFrame" name="timeFrame" options={["Morning", "Afternoon", "Evening"]}/>
                     </div>
                     <div class="flex gap-2 items-center">
                         <label>Date:</label>
@@ -26,10 +46,10 @@ export default function MoodTracker() {
                     <div class="flex flex-col gap-2">
                     <label>Notes:</label>
                     <textarea 
-                        name="notesDescription" 
-                        id="notesDescription"
+                        name="note" 
+                        id="note"
                         class="border rounded-sm p-2"
-                        placeholder="Add some notes..."
+                        placeholder="Notes..."
                     >      
                     </textarea>
                 </div>
