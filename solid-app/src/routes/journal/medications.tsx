@@ -2,9 +2,9 @@ import { Separator } from "~/components/ui/separator";
 import DatePickerComponent from "~/components/shadcn/DatePicker";
 import SelectInput from "~/components/shadcn/Select"
 import { createMedicationAction } from "~/api/journal";
-import { createSignal } from "solid-js";
+import { createSignal, Show } from "solid-js";
 import { useAction } from "@solidjs/router";
-import ToastComponent from "~/components/shadcn/Toast";
+import ShowError from "~/components/showError";
 
 export default function Medication() {
     // const medicationTypes = [
@@ -17,6 +17,7 @@ export default function Medication() {
     //   ];
 
     const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
+    const [error, setError] = createSignal("");
     const myAction = useAction(createMedicationAction);
     type CreateMedicationActionResponse = {
         success?: boolean;
@@ -28,9 +29,11 @@ export default function Medication() {
         const result: CreateMedicationActionResponse = await myAction(new FormData(event.target as HTMLFormElement));
     
         if (result.success) {
-          formRef()?.reset(); 
+            setError("");
+            formRef()?.reset(); 
         } else if (result.error) {
-          console.error(result.error); 
+            console.error(result.error); 
+            setError(result.error);
         }
     };
     return (
@@ -41,6 +44,7 @@ export default function Medication() {
             </div>
             <Separator />
             <form ref={setFormRef} onSubmit={handleSubmit} method="post" class="flex flex-col mt-2 gap-2 w-full">
+                <ShowError error={error()}></ShowError>
                 <div class="flex flex-row gap-2 items-center">
                     <label>Medication Name:</label>
                     <input 
@@ -77,7 +81,6 @@ export default function Medication() {
                 </div>
                 <button class="w-14 border rounded-sm bg-blue-500 text-white">Add</button>
             </form>
-            <ToastComponent title="" description="hello" buttonLabel="hello" />
         </section>
     )
 }

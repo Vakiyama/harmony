@@ -4,9 +4,11 @@ import DatePickerComponent from "~/components/shadcn/DatePicker";
 import { createMoodAction } from "~/api/journal";
 import { createSignal } from "solid-js";
 import { useAction } from "@solidjs/router";
+import ShowError from "~/components/showError";
 
 export default function MoodTracker() {
     const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
+    const [error, setError] = createSignal("");
     const myAction = useAction(createMoodAction);
     type CreateMoodActionResponse = {
         success?: boolean;
@@ -18,9 +20,11 @@ export default function MoodTracker() {
         const result: CreateMoodActionResponse = await myAction(new FormData(event.target as HTMLFormElement));
     
         if (result.success) {
-          formRef()?.reset(); 
+            setError("");
+            formRef()?.reset(); 
         } else if (result.error) {
-          console.error(result.error); 
+            console.error(result.error); 
+            setError(result.error);
         }
     };
     return (
@@ -31,7 +35,8 @@ export default function MoodTracker() {
             </div>
             <Separator />
             <div class="flex flex-col mt-2 gap-2 w-full">
-                <h1>Add a new mood</h1>
+                <h2>Add a new mood</h2>
+                <ShowError error={error()}></ShowError>
                 <form ref={setFormRef} onSubmit={handleSubmit} method="post" class="flex flex-col mt-2 gap-2">
                     <div class="flex flex-col gap-2 justify-center">
                         <label>Well-being:</label>

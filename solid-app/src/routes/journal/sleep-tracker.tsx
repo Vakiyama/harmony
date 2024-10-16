@@ -4,9 +4,11 @@ import DatePickerComponent from "~/components/shadcn/DatePicker";
 import { createSleepAction } from "~/api/journal";
 import { useAction } from "@solidjs/router";
 import { createSignal } from "solid-js";
+import ShowError from "~/components/showError";
 
 export default function SleepTracker() {
     const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
+    const [error, setError] = createSignal("");
     const myAction = useAction(createSleepAction);
     type CreateSleepActionResponse = {
         success?: boolean;
@@ -18,9 +20,11 @@ export default function SleepTracker() {
         const result: CreateSleepActionResponse = await myAction(new FormData(event.target as HTMLFormElement));
     
         if (result.success) {
-          formRef()?.reset(); 
+            setError("");
+            formRef()?.reset(); 
         } else if (result.error) {
-          console.error(result.error); 
+            console.error(result.error); 
+            setError(result.error);
         }
     };
     return (
@@ -30,7 +34,7 @@ export default function SleepTracker() {
                 <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="#3b537d"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-zzz"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 12h6l-6 8h6" /><path d="M14 4h6l-6 8h6" /></svg>            </div>
             <Separator />
             <div class="flex flex-col mt-2 gap-2 w-full">
-                <h1></h1>
+                <ShowError error={error()}></ShowError>
                 <form ref={setFormRef} onSubmit={handleSubmit} class="flex flex-col mt-2 gap-2" method="post">
                     <div class="flex flex-col gap-2 justify-center">
                         <label>Sleep Quality:</label>
