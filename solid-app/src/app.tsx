@@ -17,6 +17,9 @@ export default function App() {
             <a href="/about" class="hover:text-blue-500">
               About
             </a>
+            <a href="/socketExample" class="hover:text-blue-500">
+              Socket Chat
+            </a>
             <a href="/counter" class="hover:text-blue-500">
               Counter
             </a>
