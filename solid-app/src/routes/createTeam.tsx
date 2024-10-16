@@ -7,6 +7,8 @@ import {
 } from "~/components/ui/textfield";
 import { Button } from "~/components/ui/button";
 import RadioRecipient from "~/components/shadcn/radio-recipient-pick";
+import UserRole from "~/components/shadcn/user-role";
+import TeamRole from "~/components/shadcn/team-role";
 
 export default function createTeam() {
   return (
@@ -23,6 +25,10 @@ export default function createTeam() {
         <RadioRecipient />
         <GenernalInput />
         <MedicalInput />
+
+        <UserRole />
+
+        <TeamRole />
 
         <Button>Create a team</Button>
       </div>
