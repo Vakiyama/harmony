@@ -10,7 +10,7 @@ export default function ChatRoom() {
   const [messages, setMessages] = createStore<string[]>([]);
   
   onMount(() => { 
-    const username = user.username || "unknown"
+    const username = user.displayName || "unknown"
     socket.emit("new-user", username)
 
     appendMessage("You joined");
