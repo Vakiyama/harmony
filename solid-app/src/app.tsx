@@ -26,6 +26,9 @@ export default function App() {
             <a href="/components" class="hover:text-blue-500">
               Components
             </a>
+            <a href="/journal" class="hover:text-blue-500">
+              Journal
+            </a>
           </div>
           <Suspense>{props.children}</Suspense>
         </>
