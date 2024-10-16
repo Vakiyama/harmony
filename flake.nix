@@ -16,6 +16,10 @@
           nodejs_20
           bun
         ];
+
+        shellHook = ''
+          cd solid-app/
+        '';
       };
   };
 }
