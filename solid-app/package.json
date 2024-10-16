@@ -5,7 +5,8 @@
     "dev": "vinxi dev",
     "build": "vinxi build",
     "start": "vinxi start",
-    "test": "vitest"
+    "test": "vitest",
+    "seed": "bun ./drizzle/seed.ts "
   },
   "devDependencies": {
     "@solidjs/testing-library": "^0.8.10",
