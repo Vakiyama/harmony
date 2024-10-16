@@ -2,10 +2,9 @@
 import { redirect } from '@solidjs/router';
 import { eq } from 'drizzle-orm';
 import { db } from './db';
-import { Users } from '../../drizzle/schema';
-import { type User } from '@/schema';
 import { getKindeClient, sessionManager } from './kinde';
 import { UserType } from '@kinde-oss/kinde-typescript-sdk';
+import { Users } from '../../drizzle/schema/Users';
 
 function validateUsername(username: unknown) {
   if (typeof username !== 'string' || username.length < 3) {
@@ -37,11 +36,12 @@ async function register(kindeUser: UserType) {
   if (existingUser) throw new Error('User already exists');
   return db.insert(Users).values({
      kindeId: kindeUser.id, 
-     email: kindeUser.email,
+     displayName: kindeUser.given_name,
      firstName: kindeUser.given_name,
      lastName: kindeUser.family_name,
-     picture: kindeUser.picture!,
-     displayName: kindeUser.given_name
+     photo: kindeUser.picture!,
+     email: kindeUser.email,
+     roleType: "other"
     }).returning().get();
 }
 

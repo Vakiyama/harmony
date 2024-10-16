@@ -15,6 +15,13 @@
       "when": 1729036696539,
       "tag": "0001_modern_stranger",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1729042143137,
+      "tag": "0002_dusty_wiccan",
+      "breakpoints": true
     }
   ]
 }
