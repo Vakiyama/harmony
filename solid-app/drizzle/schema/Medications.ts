@@ -12,4 +12,4 @@ export const Medications = sqliteTable('medications', {
   noteId: integer('note_id').references(() => Notes.id)
 });
 
-export type Medication = typeof Medications.$inferSelect;
+export type Medications = typeof Medications.$inferSelect;

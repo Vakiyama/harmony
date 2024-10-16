@@ -1,7 +1,7 @@
 import { action } from "@solidjs/router";
 import { db } from "./db";
 import { Notes as notesTable } from "../../drizzle/schema/Notes";
-import { Medications } from "../../drizzle/schema/Medications";
+import { Medications as medicationsTable } from "../../drizzle/schema/Medications";
 
 export const createNoteAction = action(async (formData: FormData) => {
     "use server";
@@ -30,7 +30,40 @@ export const createMedicationAction = action(async (formData: FormData) => {
     console.log(formData.get("notesDescription"))
     console.log(formData.get("date"))
 
+    const medicationName = formData.get("medicationName")?.toString().trim();
+    console.log(typeof(medicationName))
+    const medicationDosage = formData.get("medicationDosage");
+    const notesDescription = formData.get("notesDescription");
+    const dateString = formData.get("date")?.toString().trim();
+
+    console.log(typeof(dateString))
+
+    if (!dateString || isNaN(Date.parse(dateString))) {
+        return { error: "Please enter a valid date" };
+    }
+
+    const date = new Date(dateString);
+
+    // const dateValue = Math.floor(date.getTime() / 1000);
+    // console.log(typeof(dateValue))
+
+    if (!medicationName) {
+        return { error: "Please enter a medication name" };
+    }
+
+    if (!medicationDosage) {
+        return { error: "Please enter a dosage" };
+    }
+
+    if (!date) {
+        return { error: "Please select a date" };
+    }
     
+    await db.insert(medicationsTable).values({
+        name: medicationName,
+        dosage: medicationDosage,
+        date: date
+    });
 
 }, "createMedicationAction");
 
