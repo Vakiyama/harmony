@@ -8,3 +8,4 @@ export const alarms = sqliteTable("alarms", {
 });
 
 export type Alarm = typeof alarms.$inferSelect;
+export type AlarmInput = typeof alarms.$inferInsert;

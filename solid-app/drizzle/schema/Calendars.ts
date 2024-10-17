@@ -10,3 +10,4 @@ export const calendars = sqliteTable("calendars", {
 });
 
 export type Calendar = typeof calendars.$inferSelect;
+export type CalendarInput = typeof calendars.$inferInsert;

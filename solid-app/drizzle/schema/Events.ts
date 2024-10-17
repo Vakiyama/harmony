@@ -3,6 +3,7 @@ import { calendars } from "./Calendars";
 import { sql } from "drizzle-orm";
 
 export const eventsFrequencyEnum = ["daily", "weekly", "monthly"] as const;
+export const eventsTypeEnum = ["task", "event"] as const;
 
 export const events = sqliteTable("events", {
   id: integer("id").primaryKey({ autoIncrement: true }).notNull().unique(),
@@ -18,6 +19,8 @@ export const events = sqliteTable("events", {
   allDay: integer("allDay", { mode: "boolean" }).default(false),
   location: text("location"),
   frequency: text("frequency", { enum: eventsFrequencyEnum }),
+  type: text("frequency", { enum: eventsTypeEnum }),
 });
 
 export type Event = typeof events.$inferSelect;
+export type EventInput = typeof events.$inferInsert;

@@ -6,7 +6,7 @@ import { Recipients } from "./schema/Recipients";
 import { Teams } from "./schema/Teams";
 import { TeamMembers } from "./schema/TeamMembers";
 import { calendars } from "./schema/Calendars";
-import { events } from "./schema/Events";
+import { EventInput, events } from "./schema/Events";
 import { alarms } from "./schema/Alarms";
 
 const seedData = async () => {
@@ -77,7 +77,7 @@ const seedData = async () => {
   console.log(Calendars);
 
   // Seed Events
-  const eventsData = [
+  const eventsData: EventInput[] = [
     {
       calendarId: Calendars[0].id, // Adjust based on the calendar ID
       name: "Pick up a dish washing",
@@ -113,7 +113,6 @@ const seedData = async () => {
   for await (const data of eventsData) {
     await db
       .insert(events)
-      //@ts-ignore
       .values({
         description: data.description,
         name: data.name,
