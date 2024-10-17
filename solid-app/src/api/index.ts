@@ -1,19 +1,24 @@
-import { action, cache } from '@solidjs/router';
-import { getUser as gU, logout as l, loginOrRegister as lOR } from './server';
-import { callClaude, defaultClaudeSettings } from '~/api/claude/apiCalls';
-import { z } from 'zod';
+import { action, cache } from "@solidjs/router";
+import { getUser as gU, logout as l, loginOrRegister as lOR } from "./server";
+import { callClaude, defaultClaudeSettings } from "~/api/claude/apiCalls";
+import { z } from "zod";
 import {
   ParseFormWithClaudeResult,
   parseFormWithClaude,
-} from './claude/parseForm';
+} from "./claude/parseForm";
+import {
+  getCalendar as gC,
+  getEvents as gE,
+  getCalendarsFromTeamId as gCFT,
+} from "./calendar";
 
-export const getUser = cache(gU, 'user');
-export const loginOrRegister = action(lOR, 'loginOrRegister');
-export const logout = action(l, 'logout');
+export const getUser = cache(gU, "user");
+export const loginOrRegister = action(lOR, "loginOrRegister");
+export const logout = action(l, "logout");
 export const runAI = action(async (formData: FormData) => {
-  'use server';
+  "use server";
 
-  const prompt = formData.get('prompt')!.toString();
+  const prompt = formData.get("prompt")!.toString();
 
   const result = await callClaude({
     claudeSettings: defaultClaudeSettings,
@@ -23,10 +28,10 @@ export const runAI = action(async (formData: FormData) => {
     Only reply with the tweet contents! Nothing else!
     Generate a viral tweet given the following prompt:
                                   `,
-    messages: [{ role: 'user', content: prompt }] as const,
+    messages: [{ role: "user", content: prompt }] as const,
     jsonFormat: {
       format: z.object({
-        tweet: z.string().describe('The text content of the viral tweet'),
+        tweet: z.string().describe("The text content of the viral tweet"),
         alternativeTweet: z
           .string()
           .describe(
@@ -38,12 +43,12 @@ export const runAI = action(async (formData: FormData) => {
   });
 
   return result;
-}, 'runAI');
+}, "runAI");
 
 const promptFormSchema = z
-  .object({ prompt: z.string().describe('A prompt.') })
+  .object({ prompt: z.string().describe("A prompt.") })
   .describe(
-    'A form that gets a prompt from the user that generates a viral tweet.'
+    "A form that gets a prompt from the user that generates a viral tweet."
   );
 
 type ConversationItem = {
@@ -56,12 +61,12 @@ type ConversationItem = {
 const conversations: ConversationItem[] = [];
 
 export const getTweetPrompt = action(async () => {
-  'use server';
+  "use server";
   const id = Math.floor(Math.random() * 999999);
 
   const formOrQuestion = await parseFormWithClaude(promptFormSchema, []);
 
-  if (formOrQuestion.type === 'answer') {
+  if (formOrQuestion.type === "answer") {
     conversations.push({
       answer: formOrQuestion.answer,
       id: parseInt(id!.toString()),
@@ -69,13 +74,13 @@ export const getTweetPrompt = action(async () => {
     return { id, question: formOrQuestion.question };
   }
 
-  throw new Error('Form filled without question!!!');
-}, 'getTweetPrompt');
+  throw new Error("Form filled without question!!!");
+}, "getTweetPrompt");
 
 export const answerTweetPrompt = action(async (form: FormData) => {
-  'use server';
-  const id = form.get('id');
-  const answer = form.get('answer');
+  "use server";
+  const id = form.get("id");
+  const answer = form.get("answer");
 
   const conversationIndex = conversations.findIndex(
     (conversation) => conversation.id === parseInt(id!.toString())
@@ -85,7 +90,7 @@ export const answerTweetPrompt = action(async (form: FormData) => {
 
   const formOrQuestion = await conversation!.answer(answer!.toString());
 
-  if (formOrQuestion.type === 'answer') {
+  if (formOrQuestion.type === "answer") {
     conversations[conversationIndex] = {
       answer: formOrQuestion.answer,
       id: parseInt(id!.toString()),
@@ -95,4 +100,8 @@ export const answerTweetPrompt = action(async (form: FormData) => {
   }
 
   return formOrQuestion.form;
-}, 'answerTweetPrompt');
+}, "answerTweetPrompt");
+
+export const getCalendarsFromTeamId = cache(gCFT, "calenders");
+export const getCalendar = cache(gC, "calender");
+export const getEvents = cache(gE, "events");

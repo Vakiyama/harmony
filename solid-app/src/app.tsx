@@ -26,6 +26,9 @@ export default function App() {
             <a href="/components" class="hover:text-blue-500">
               Components
             </a>
+            <a href="/calendar" class="hover:text-blue-500">
+              Calendar
+            </a>
             <a href="/journal" class="hover:text-blue-500">
               Journal
             </a>
