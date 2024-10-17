@@ -1,3 +1,5 @@
+// Must make a user first!!!!!!!!!!!!!
+
 import { db } from "~/api/db";
 import { Users } from "./schema/Users";
 import { Recipients } from "./schema/Recipients";
@@ -111,8 +113,8 @@ const seedData = async () => {
   for await (const data of eventsData) {
     await db
       .insert(events)
+      //@ts-ignore
       .values({
-        //@ts-ignore
         description: data.description,
         name: data.name,
         allDay: data.allDay,
