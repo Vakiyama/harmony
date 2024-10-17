@@ -6,21 +6,30 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 
-const SelectDemo = () => {
+import { createSignal } from "solid-js";
+
+interface SelectProps {
+  options: string[];
+  placeholder: string;
+}
+
+const SelectInput = (props: SelectProps) => {
+  const [selectedOption, setSelectedOption] = createSignal<string | null>(null);
+  
   return (
     <Select
-      options={["Apple", "Banana", "Blueberry", "Grapes", "Pineapple"]}
-      placeholder="Select a fruit…"
-      itemComponent={(props) => (
-        <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>
+      options={props.options}
+      placeholder={props.placeholder}
+      itemComponent={(itemProps) => (
+        <SelectItem item={itemProps.item}>{itemProps.item.rawValue}</SelectItem>
       )}
     >
       <SelectTrigger class="w-[180px]">
-        <SelectValue<string>>{(state) => state.selectedOption()}</SelectValue>
+        <SelectValue>{selectedOption() || props.placeholder}</SelectValue>
       </SelectTrigger>
       <SelectContent />
     </Select>
   );
 };
 
-export default SelectDemo;
+export default SelectInput;

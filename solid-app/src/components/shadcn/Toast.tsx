@@ -8,26 +8,43 @@ import {
   ToastTitle,
 } from "~/components/ui/toast";
 
-const ToastDemo = () => {
-  const showToast = () => {
+type ToastProps = {
+  title: string;
+  description: string;
+  progress?: boolean;
+}
+
+type ToastButtonProps = ToastProps & {
+  buttonLabel: string;
+};
+
+const ToastComponent = ({ title, description, progress, buttonLabel }: ToastButtonProps) => {
+  const showToast = ({ title, description, progress }: ToastProps) => {
     toaster.show((props) => (
       <Toast toastId={props.toastId}>
         <ToastContent>
-          <ToastTitle>Scheduled: Catch up</ToastTitle>
-          <ToastDescription>
-            Friday, February 10, 2023 at 5:57 PM
-          </ToastDescription>
+          <ToastTitle>{title}</ToastTitle>
+          <ToastDescription>{description}</ToastDescription>
         </ToastContent>
-        <ToastProgress />
+        {progress && <ToastProgress />}
       </Toast>
     ));
   };
 
   return (
-    <Button variant="outline" onClick={showToast}>
-      Add to calendar
+    <Button
+      variant="outline"
+      onClick={() =>
+        showToast({
+          title,
+          description,
+          progress,
+        })
+      }
+    >
+      {buttonLabel}
     </Button>
   );
 };
 
-export default ToastDemo;
+export default ToastComponent;

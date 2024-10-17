@@ -1,7 +1,6 @@
 import solid from "vite-plugin-solid";
 import { defineConfig } from "vitest/config";
-import { dirname, resolve} from "node:path";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
 
 export default defineConfig({
   plugins: [solid()],

@@ -15,7 +15,7 @@ import SkeletonDemo from "~/components/shadcn/Skelaton";
 import SwitchDemo from "~/components/shadcn/Switch";
 import TableDemo from "~/components/shadcn/Table";
 import TabsDemo from "~/components/shadcn/Tabs";
-import ToastDemo from "~/components/shadcn/Toast";
+import ToastComponent from "~/components/shadcn/Toast";
 
 export default function Components() {
   return (
@@ -49,11 +49,11 @@ export default function Components() {
         </div>
         <div class="mr-5 w-full sm:w-auto mb-10">
           <div class="mb-3">Radio Group</div>
-          <RadioGroupDemo />
+          <RadioGroupDemo id="demo" name="demo" options={["1", "2", "3"]}/>
         </div>
         <div class="mr-5 w-full sm:w-auto mb-10">
           <div class="mb-3">Select</div>
-          <SelectDemo />
+          <SelectDemo options={["1", "2", "3"]} placeholder="demo"/>
         </div>
         <div class="mr-5 w-full sm:w-auto mb-10">
           <div class="mb-3">Separator</div>
@@ -65,7 +65,7 @@ export default function Components() {
         </div>
         <div class="mr-5 w-full sm:w-auto mb-10">
           <div class="mb-3">Toast</div>
-          <ToastDemo />
+          <ToastComponent title="demo" description="demo" buttonLabel="Demo"/>
         </div>
         <div class="mr-5 w-full sm:w-auto mb-10">
           <div class="mb-3">Switch</div>
