@@ -6,16 +6,16 @@ import { emailLogin } from "~/api/auth-server-actions";
 export default function Login() {
   return (
     <main class="w-full h-full mt-[120px] p-4 flex items-center justify-center space-y-2 overflow-hidden">
-      <div class="mt-64 mb-16 flex flex-col items-center justify-center max-w-[368px] w-full">
+      <div class="mt-64 mb-16 flex flex-col items-center justify-center w-full">
         <MediumLogo class="mt-10 mb-10" />
-        <div class="mt-[2px] mb-6 max-w-[368px] w-full flex items-center justify-center">
-          <h1 class="text-h2 normal-case text-gray-600">Welcome back!</h1>
+        <div class="mt-[2px] mb-6 w-full flex items-center justify-center">
+          <h1 class="text-h2 normal-case text-gray-600 ">Welcome back!</h1>
         </div>
         <form action={emailLogin} class="appearance-none w-full" method="post">
           <div class="mb-6 w-full">
             <TextFieldRoot>
               <TextField
-                class="h-12 w-full max-w-[368px] rounded-[100px] mb-4 text-base"
+                class="h-12 w-full rounded-[100px] mb-4 text-base"
                 type="email"
                 placeholder="Email"
                 name="email"
