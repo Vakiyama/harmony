@@ -32,6 +32,12 @@ export default function App() {
             <a href="/journal" class="hover:text-blue-500">
               Journal
             </a>
+            <a href="/use-my-credits" class="hover:text-blue-500">
+              Use My Credits!
+            </a>
+            <a href="/harmony-ai" class="hover:text-blue-500">
+              Harmony Chat
+            </a>
           </div>
           <Suspense>{props.children}</Suspense>
         </>
