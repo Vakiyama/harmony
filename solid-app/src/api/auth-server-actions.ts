@@ -5,17 +5,12 @@ import { getKindeClient, sessionManager } from "./kinde";
 type AuthUrlParams = {
   connection_id: string;
   login_hint?: string;
-  email?: string;
-  firstName?: string;
-  lastName?: string;
-  dob?: string;
 };
 
 export const emailLogin = action(async (formData: FormData) => {
   "use server";
 
   const email = formData.get("email")?.toString();
-  console.log(email);
 
   if (!email) {
     return { error: "Missing email" };
@@ -89,8 +84,13 @@ export const emailRegistration = action(async (formData: FormData) => {
   "use server";
   const email = formData.get("email")?.toString();
   const firstName = formData.get("firstName")?.toString();
-  const lastName = formData.get("firstName")?.toString();
+  const lastName = formData.get("lastName")?.toString();
   const dob = formData.get("date")?.toString();
+  const infoObj = JSON.stringify({
+    firstName,
+    lastName,
+    dob,
+  });
 
   if (!email) {
     return { error: "Missing email" };
@@ -107,10 +107,6 @@ export const emailRegistration = action(async (formData: FormData) => {
   const authUrlParams: AuthUrlParams = {
     connection_id: process.env.KINDE_EMAIL_CONNECTION_ID!,
     login_hint: email,
-    email,
-    firstName,
-    lastName,
-    dob,
   };
 
   const manager = await sessionManager();
@@ -120,13 +116,18 @@ export const emailRegistration = action(async (formData: FormData) => {
     state,
     authUrlParams,
   });
-  console.log(registerUrl);
   return new Response(null, {
     status: 302,
     headers: {
       Location: registerUrl.toString(),
+      "Set-Cookie": `register_obj=${infoObj}; HttpOnly; Path=/; Max-Age=86400; SameSite=Lax`,
     },
   });
 });
 
 export type oauthMethods = "" | "google" | "facebook" | "apple";
+export type RegisterInfo = {
+  firstName: string;
+  lastName: string;
+  dob: string;
+};
