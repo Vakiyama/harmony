@@ -4,6 +4,7 @@ import { FileRoutes } from "@solidjs/start/router";
 import { Suspense } from "solid-js";
 import "./app.css";
 import "./input.css";
+import { createContext } from "solid-js";
 
 export default function App() {
   return (

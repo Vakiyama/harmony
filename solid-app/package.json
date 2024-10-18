@@ -37,6 +37,7 @@
     "socket.io": "^4.8.0",
     "socket.io-client": "^4.8.0",
     "solid-js": "^1.9.1",
+    "solid-start": "^0.3.11",
     "tailwind-merge": "^2.5.3",
     "tailwindcss-animate": "^1.0.7",
     "vinxi": "^0.4.3"

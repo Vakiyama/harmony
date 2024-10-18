@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm';
 import { db } from './db';
 import { getKindeClient, sessionManager } from './kinde';
 import { UserType } from '@kinde-oss/kinde-typescript-sdk';
-import { Users } from '../../drizzle/schema/Users';
+import { Users } from '../../drizzle/schema/users';
 
 function validateUsername(username: unknown) {
   if (typeof username !== 'string' || username.length < 3) {

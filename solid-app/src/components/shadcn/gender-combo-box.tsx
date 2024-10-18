@@ -5,6 +5,7 @@ import {
   ComboboxItem,
   ComboboxTrigger,
 } from "~/components/ui/combobox";
+import { useCreateTeamForm } from "~/stores/teamFormStore";
 
 const ALL_OPTIONS = [
   "Male",
@@ -15,13 +16,24 @@ const ALL_OPTIONS = [
 ];
 
 const GenderComboBox = () => {
+  const { formData, updateField, updateRecipientField } = useCreateTeamForm();
   return (
     <Combobox
       options={ALL_OPTIONS}
       placeholder="Pick a gender..."
+      value={formData.recipient.gender}
       itemComponent={(props) => (
-        <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+        <ComboboxItem
+          item={props.item}
+          // value={formData.recipient.gender}
+          // onChange={(e: Event) =>
+          //   updateRecipientField("gender", (e.target as HTMLInputElement).value)
+          // }
+        >
+          {props.item.rawValue}
+        </ComboboxItem>
       )}
+      onChange={(value) => updateRecipientField("gender", value)}
     >
       <ComboboxTrigger>
         <ComboboxInput />

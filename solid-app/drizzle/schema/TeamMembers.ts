@@ -1,10 +1,16 @@
-import { integer, text, sqliteTable } from 'drizzle-orm/sqlite-core'
-import { Users } from './Users'
-import { Teams } from './Teams'
+import { integer, text, sqliteTable } from "drizzle-orm/sqlite-core";
+import { users } from "./users";
+import { teams } from "./teams";
 
-export const TeamMembers = sqliteTable('teammembers', {
-    id: integer('id').primaryKey({ autoIncrement: true }).unique().notNull(),
-    teamId: integer('team_id').references(() => Teams.id).notNull(),
-    userId: integer('user_id').references(() => Users.id).notNull(),
-    role: text('role').default('member') // 'admin' or 'member'
-})
+export const teamMembers = sqliteTable("teammembers", {
+  id: integer("id").primaryKey({ autoIncrement: true }).unique().notNull(),
+  teamId: integer("team_id")
+    .references(() => teams.id)
+    .notNull(),
+  userId: integer("user_id")
+    .references(() => users.id)
+    .notNull(),
+  role: text("role").default("member"), // 'admin' or 'member'
+});
+
+export type TeamMember = typeof teamMembers.$inferSelect;

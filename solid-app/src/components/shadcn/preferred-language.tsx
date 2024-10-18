@@ -5,6 +5,7 @@ import {
   ComboboxItem,
   ComboboxTrigger,
 } from "~/components/ui/combobox";
+import { useCreateTeamForm } from "~/stores/teamFormStore";
 
 const ALL_OPTIONS = [
   "English",
@@ -31,13 +32,17 @@ const ALL_OPTIONS = [
 ];
 
 const PreferredLanguage = () => {
+  const { formData, updateField, updateRecipientField } = useCreateTeamForm();
+
   return (
     <Combobox
       options={ALL_OPTIONS}
       placeholder="Pick the language..."
+      value={formData.recipient.preferredLanguage}
       itemComponent={(props) => (
         <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
       )}
+      onChange={(value) => updateRecipientField("preferredLanguage", value)}
     >
       <ComboboxTrigger>
         <ComboboxInput />
