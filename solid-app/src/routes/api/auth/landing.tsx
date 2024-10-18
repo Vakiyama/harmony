@@ -15,14 +15,18 @@ export default function Landing() {
     return await oauthAction(formData);
   };
   return (
-    <main class="absolute top-[3rem] w-full h-[calc(100%-3rem)] p-4 flex items-center justify-center space-y-2 overflow-hidden">
-      <div class="mt-8 mb-8 flex flex-col items-center justify-center max-w-md">
+    <main class="w-full h-full mt-28 p-4 flex items-center justify-center space-y-2 overflow-hidden">
+      <div class="mt-8 mb-8 flex flex-col items-center justify-center max-w-[368px] w-full">
         <WordMark class="mt-8 mb-8" />
-        <form onSubmit={handleSubmit} class="appearance-none" method="post">
-          <div class="mt-8 mb-8 grid grid-rows-3 w-full">
+        <form
+          onSubmit={handleSubmit}
+          class="appearance-none w-full max-w-[368px]"
+          method="post"
+        >
+          <div class="mt-8 mb-8 grid grid-rows-3 w-full max-w-[368px]">
             <span class="row-span-1 relative">
               <Button
-                class="rounded-[100px] h-12 w-[368px] mb-4 border text-gray-500 mx-auto"
+                class="rounded-[100px] h-12 w-full mb-4 border text-gray-500 text-base"
                 variant="outline"
                 onClick={() => setMethod("google")}
                 type="submit"
@@ -33,7 +37,7 @@ export default function Landing() {
             </span>
             <span class="row-span-1 relative">
               <Button
-                class="rounded-[100px] h-12 w-[368px] mb-4 border text-gray-500 mx-auto"
+                class="rounded-[100px] h-12 w-full mb-4 border text-gray-500 mx-auto text-base"
                 variant="outline"
                 onClick={() => setMethod("facebook")}
                 type="submit"
@@ -44,7 +48,7 @@ export default function Landing() {
             </span>
             <span class="row-span-1 relative">
               <Button
-                class="rounded-[100px] h-12 w-[368px] mb-4 border text-gray-500 mx-auto"
+                class="rounded-[100px] h-12 w-full mb-4 border text-gray-500 mx-auto text-base"
                 variant="outline"
                 onClick={() => setMethod("apple")}
                 type="submit"
@@ -58,7 +62,7 @@ export default function Landing() {
         <div class="mt-8 w-full">
           <a href="/api/auth/login" class="mx-auto">
             <Button
-              class="rounded-[100px] h-12 w-[368px] mb-4"
+              class="rounded-[100px] h-12 w-full mb-4 text-base"
               variant="default"
             >
               Login
@@ -66,7 +70,7 @@ export default function Landing() {
           </a>
         </div>
         <div class="w-full">
-          <a href="/" class="m-0 text-[13px]">
+          <a href="/api/auth/sign-up" class="m-0 text-subtitle_13">
             Sign Up
           </a>
         </div>
