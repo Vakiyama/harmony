@@ -5,17 +5,17 @@ import { emailLogin } from "~/api/auth-server-actions";
 
 export default function Login() {
   return (
-    <main class="absolute top-[3rem] w-full h-[calc(100%-3rem)] p-4 flex items-center justify-center overflow-hidden">
-      <div class="mt-64 mb-6 flex flex-col items-center justify-center max-w-md">
-        <MediumLogo class="mt-8 mb-8" />
-        <div class="mb-8">
-          <h1 class="text-[28px] normal-case text-gray-600">Welcome back!</h1>
+    <main class="w-full h-full mt-[120px] p-4 flex items-center justify-center space-y-2 overflow-hidden">
+      <div class="mt-64 mb-16 flex flex-col items-center justify-center max-w-[368px] w-full">
+        <MediumLogo class="mt-10 mb-10" />
+        <div class="mt-[2px] mb-6 max-w-[368px] w-full flex items-center justify-center">
+          <h1 class="text-h2 normal-case text-gray-600">Welcome back!</h1>
         </div>
-        <form action={emailLogin} class="appearance-none" method="post">
-          <div class="mb-8">
+        <form action={emailLogin} class="appearance-none w-full" method="post">
+          <div class="mb-6 w-full">
             <TextFieldRoot>
               <TextField
-                class="h-12 w-[368px] rounded-[100px] mb-4"
+                class="h-12 w-full max-w-[368px] rounded-[100px] mb-4 text-base"
                 type="email"
                 placeholder="Email"
                 name="email"
@@ -24,7 +24,7 @@ export default function Login() {
           </div>
           <div class="mt-4 w-full">
             <Button
-              class="rounded-[100px] h-12 w-[368px] mb-4"
+              class="rounded-[100px] h-12 w-full mb-4 text-base"
               variant="default"
               type="submit"
             >
@@ -32,11 +32,11 @@ export default function Login() {
             </Button>
           </div>
         </form>
-        <div class="w-full">
+        {/* <div class="w-full">
           <a href="/api/auth/reset-password" class="m-0 text-[13px]">
             Forgot your Password?
           </a>
-        </div>
+        </div> */}
       </div>
     </main>
   );
