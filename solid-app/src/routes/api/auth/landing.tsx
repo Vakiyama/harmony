@@ -16,45 +16,53 @@ export default function Landing() {
   };
   return (
     <main class="w-full h-full mt-28 p-4 flex items-center justify-center space-y-2 overflow-hidden">
-      <div class="mt-8 mb-8 flex flex-col items-center justify-center max-w-[368px] w-full">
+      <div class="mt-8 mb-8 flex flex-col items-center justify-center w-full">
         <WordMark class="mt-8 mb-8" />
         <form
           onSubmit={handleSubmit}
-          class="appearance-none w-full max-w-[368px]"
+          class="appearance-none w-full"
           method="post"
         >
-          <div class="mt-8 mb-8 grid grid-rows-3 w-full max-w-[368px]">
-            <span class="row-span-1 relative">
+          <div class="mt-8 mb-8 grid grid-rows-3 w-full">
+            <span class="row-span-1 flex flex-col items-center justify-center">
               <Button
-                class="rounded-[100px] h-12 w-full mb-4 border text-gray-500 text-base"
+                class="rounded-[100px] h-12 w-full mb-4 border text-gray-500 text-base overflow-hidden whitespace-nowrap"
                 variant="outline"
                 onClick={() => setMethod("google")}
                 type="submit"
               >
-                <PlaceholderMark class="absolute left-[10%]" />
-                Continue with Google
+                <span class="flex-grow mr-[70px] text-center ">
+                  <PlaceholderMark class="inline-block mr-[70px]" />
+                  Continue with Google
+                </span>
               </Button>
             </span>
             <span class="row-span-1 relative">
               <Button
-                class="rounded-[100px] h-12 w-full mb-4 border text-gray-500 mx-auto text-base"
+                class="rounded-[100px] h-12 w-full mb-4 border text-gray-500 mx-auto text-base overflow-hidden whitespace-nowrap"
                 variant="outline"
                 onClick={() => setMethod("facebook")}
                 type="submit"
               >
-                <PlaceholderMark class="absolute left-[10%]" />
-                Continue with Facebook
+                <span class="flex-grow mr-[61px] text-center">
+                  <PlaceholderMark class="inline-block mr-[61px]" />
+                  Continue with Facebook
+                </span>
               </Button>
             </span>
             <span class="row-span-1 relative">
               <Button
-                class="rounded-[100px] h-12 w-full mb-4 border text-gray-500 mx-auto text-base"
+                class="rounded-[100px] h-12 w-full mb-4 border text-gray-500 mx-auto text-base overflow-hidden whitespace-nowrap"
                 variant="outline"
                 onClick={() => setMethod("apple")}
                 type="submit"
               >
-                <PlaceholderMark class="absolute left-[10%]" />
-                Continue with Apple
+                <span class="flex-grow mr-[76px] text-center">
+                  <PlaceholderMark class="inline-block mr-[76px]" />
+                  Continue with Apple
+                </span>
+                {/* <PlaceholderMark class="absolute left-[10%]" />
+                Continue with Apple */}
               </Button>
             </span>
           </div>

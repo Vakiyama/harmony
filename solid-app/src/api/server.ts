@@ -56,7 +56,7 @@ async function register(kindeUser: UserTypeExtended) {
 
 export async function loginOrRegister(kindeUser: UserTypeExtended) {
   try {
-    console.log(kindeUser);
+    // console.log(kindeUser);
     let user = await login(kindeUser);
     if (!user) {
       user = await register(kindeUser);
@@ -66,7 +66,7 @@ export async function loginOrRegister(kindeUser: UserTypeExtended) {
       d.userId = user.id;
     });
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     return err as Error;
   }
 }
