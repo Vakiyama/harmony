@@ -32,6 +32,10 @@ export default function App() {
             <a href="/journal" class="hover:text-blue-500">
               Journal
             </a>
+            <a href="/teams" class="hover:text-blue-500">
+              Teams
+            </a>
+            <a href="/teams/profile" class="hover:text-blue-500"></a>
           </div>
           <Suspense>{props.children}</Suspense>
         </>

@@ -24,7 +24,7 @@
   "dependencies": {
     "@ark-ui/solid": "^4.2.0",
     "@kinde-oss/kinde-typescript-sdk": "^2.9.1",
-    "@kobalte/core": "^0.13.6",
+    "@kobalte/core": "^0.13.7",
     "@langchain/anthropic": "^0.3.3",
     "@langchain/core": "^0.3.8",
     "@langchain/langgraph": "^0.2.13",
@@ -37,6 +37,7 @@
     "might-fail": "^0.6.3",
     "socket.io": "^4.8.0",
     "socket.io-client": "^4.8.0",
+    "solid-icons": "^1.1.0",
     "solid-js": "^1.9.1",
     "tailwind-merge": "^2.5.3",
     "tailwindcss-animate": "^1.0.7",
