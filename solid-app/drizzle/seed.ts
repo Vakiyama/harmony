@@ -11,16 +11,15 @@ import { alarms } from "./schema/Alarms";
 
 const seedData = async () => {
   const users = await db.select().from(Users);
-  console.log(users);
   // Seed Recipients
-  await db.delete(Recipients);
-  await db.delete(Teams);
-  await db.delete(TeamMembers);
-  await db.delete(calendars);
   await db.delete(events);
+  await db.delete(calendars);
+  await db.delete(TeamMembers);
+  await db.delete(Teams);
+  await db.delete(Recipients);
 
   const recipientsData = {
-    firstName: "Max",
+    firstName: "Max2",
     lastName: "Test",
     email: "max@example.com",
     phoneNumber: "1234567890",

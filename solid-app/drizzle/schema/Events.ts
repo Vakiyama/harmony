@@ -10,12 +10,12 @@ export const events = sqliteTable("events", {
   calendarId: integer("calendarId").references(() => calendars.id),
   name: text("name").notNull(),
   description: text("description").notNull(),
-  timeStart: integer("timeStart", { mode: "timestamp" })
-    .notNull()
-    .default(sql`(unixepoch())`),
-  timeEnd: integer("timeEnd", { mode: "timestamp" })
-    .notNull()
-    .default(sql`(unixepoch())`),
+  timeStart: integer("timeStart", { mode: "timestamp" }).default(
+    sql`(unixepoch())`
+  ),
+  timeEnd: integer("timeEnd", { mode: "timestamp" }).default(
+    sql`(unixepoch())`
+  ),
   allDay: integer("allDay", { mode: "boolean" }).default(false),
   location: text("location"),
   frequency: text("frequency", { enum: eventsFrequencyEnum }),
