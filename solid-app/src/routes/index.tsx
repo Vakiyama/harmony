@@ -3,8 +3,8 @@ import { getUser, logout } from "~/api";
 
 export const route = {
   preload() {
-    getUser()
-  }
+    getUser();
+  },
 } satisfies RouteDefinition;
 
 export default function Home() {

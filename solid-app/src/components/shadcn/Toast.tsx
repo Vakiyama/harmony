@@ -12,13 +12,18 @@ type ToastProps = {
   title: string;
   description: string;
   progress?: boolean;
-}
+};
 
 type ToastButtonProps = ToastProps & {
   buttonLabel: string;
 };
 
-const ToastComponent = ({ title, description, progress, buttonLabel }: ToastButtonProps) => {
+const ToastComponent = ({
+  title,
+  description,
+  progress,
+  buttonLabel,
+}: ToastButtonProps) => {
   const showToast = ({ title, description, progress }: ToastProps) => {
     toaster.show((props) => (
       <Toast toastId={props.toastId}>
