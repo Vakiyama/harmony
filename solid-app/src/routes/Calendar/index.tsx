@@ -5,11 +5,9 @@ import type { Event } from "@/schema/Events";
 import {
   getCalendarsFromTeamId,
   getEvents,
-  createEvent,
   updateEvent,
   deleteEvent,
 } from "~/api/calendar";
-import Modal from "~/components/ui/modal";
 import UpdateModal from "./updateModal";
 import DeleteModal from "./deleteModal";
 
@@ -56,7 +54,7 @@ export default function CalendarPage() {
   };
 
   createEffect(() => {
-    fetchCalendars(5);
+    fetchCalendars(6);
   });
 
   const handleCalendarSelect = (id: number) => {
