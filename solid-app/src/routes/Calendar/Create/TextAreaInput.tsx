@@ -14,7 +14,7 @@ export default function TextArea(props: {
       </TextField.Label>
       <TextField.TextArea
         value={props.value()}
-        class="border p-1 rounded-lg"
+        class="border p-1 rounded-lg ps-4 h-40"
         placeholder={props.placeholder}
         onInput={(e) => props.setValue(e.currentTarget.value)}
       />

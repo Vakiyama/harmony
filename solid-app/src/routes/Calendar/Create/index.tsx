@@ -1,16 +1,27 @@
-import { createEffect, createSignal } from "solid-js";
+import { createSignal } from "solid-js";
 import { Button } from "~/components/ui/button";
 import TextInput from "./TextInput";
 import TextArea from "./TextAreaInput";
 import { twMerge } from "tailwind-merge";
 import TimeDateCalendar from "./TimeDateCalendar";
 import SelectInput from "~/components/shadcn/Select";
+import { getTeamMembersFromTeamId } from "~/api/calendar";
+import { createAsync } from "@solidjs/router";
+import { TeamMember } from "@/schema/TeamMembers";
+import { User } from "@/schema/Users";
 
-const UpdateModal = () => {
+const CalendarCreateEvent = () => {
+  const teamMembers = createAsync(
+    async () => await getTeamMembersFromTeamId(2),
+    { deferStream: true }
+  );
   const [eventType, setEventType] = createSignal<"event" | "task">("event");
   const [title, setTitle] = createSignal("");
   const [note, setNote] = createSignal("");
   const [location, setLocation] = createSignal("");
+  const [teamMember, setTeamMember] = createSignal<string | undefined>(
+    undefined
+  );
   const [timeStartDate, setTimeStartDate] = createSignal(
     new Date().toISOString()
   );
@@ -23,6 +34,25 @@ const UpdateModal = () => {
     "never" | "daily" | "weekly" | "monthly"
   >("never");
 
+  function parseTeamMemberToOption(
+    data:
+      | {
+          teammembers: TeamMember;
+          users: User;
+        }[]
+      | undefined
+  ) {
+    if (!data) {
+      return [];
+    }
+    return data.map((data) => {
+      return {
+        value: data.teammembers.id.toString(),
+        label: data.users.displayName,
+      };
+    });
+  }
+  const teamMemberOptions = parseTeamMemberToOption(teamMembers());
   return (
     <div class="flex flex-col items-center mt-10 w-full">
       <form class="space-y-4 max-w-lg w-full">
@@ -50,13 +80,13 @@ const UpdateModal = () => {
         </div>
         <TextInput
           label="Title"
-          placeholder="title"
+          placeholder="Title"
           value={title}
           setValue={setTitle}
         />
         <TextInput
           label="Location"
-          placeholder="location"
+          placeholder="Location"
           setValue={setLocation}
           value={location}
         />
@@ -77,7 +107,7 @@ const UpdateModal = () => {
         />
         <p class="text-lg font-semibold">Repeat</p>
         <SelectInput
-          class="w-full "
+          class="w-full p-1 rounded-lg py-6 ps-4 "
           placeholder="Never"
           options={
             [
@@ -89,9 +119,16 @@ const UpdateModal = () => {
           }
           setSelectedOption={setRepeat}
         />
+        <p class="text-lg font-semibold">Assigned to</p>
+        <SelectInput
+          class="w-full p-1 rounded-lg py-6 ps-4 "
+          placeholder="Person"
+          options={teamMemberOptions}
+          setSelectedOption={setTeamMember}
+        />
         <TextArea
           label="Notes"
-          placeholder="notes"
+          placeholder="Notes"
           value={note}
           setValue={setNote}
         />
@@ -100,4 +137,4 @@ const UpdateModal = () => {
   );
 };
 
-export default UpdateModal;
+export default CalendarCreateEvent;

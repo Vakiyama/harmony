@@ -14,7 +14,7 @@ export default function TextInput(props: {
       </TextField.Label>
       <TextField.Input
         value={props.value()}
-        class="border p-1 rounded-lg py-3"
+        class="border p-1 rounded-lg py-3 ps-4"
         placeholder={props.placeholder}
         onInput={(e) => props.setValue(e.currentTarget.value)}
       />

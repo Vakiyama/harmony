@@ -4,6 +4,8 @@ import { CalendarInput, calendars } from "../../drizzle/schema/Calendars";
 import { EventInput, events } from "../../drizzle/schema/Events";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
+import { TeamMember, TeamMembers } from "../../drizzle/schema/TeamMembers";
+import { User, Users } from "../../drizzle/schema/Users";
 
 // Alarms
 export const getAlarmsByEventId = cache(async (eventId: number) => {
@@ -120,3 +122,15 @@ export const deleteEvent = async (eventId: number) => {
   await db.delete(events).where(eq(events.id, eventId));
   return {};
 };
+
+export const getTeamMembersFromTeamId = cache(async (teamId: number) => {
+  "use server";
+  return (await db
+    .select()
+    .from(TeamMembers)
+    .where(eq(TeamMembers.teamId, teamId))
+    .leftJoin(Users, eq(TeamMembers.userId, Users.id))) as {
+    users: User;
+    teammembers: TeamMember;
+  }[];
+}, "teamMembers");
