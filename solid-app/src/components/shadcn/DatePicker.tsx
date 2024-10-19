@@ -18,15 +18,10 @@ import {
 import { Index } from "solid-js";
 import { Portal } from "solid-js/web";
 
-const DatePickerComponent = (props: { required?: boolean }) => {
+const DatePickerComponent = () => {
   return (
     <DatePicker>
-      <DatePickerInput
-        id="date"
-        name="date"
-        placeholder="Pick a date"
-        required={props.required}
-      />
+      <DatePickerInput id="date" name="date" placeholder="Pick a date" />
       <Portal>
         <DatePickerContent>
           <DatePickerView view="day">
