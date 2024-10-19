@@ -1,3 +1,5 @@
+import { Setter } from "solid-js";
+import { twMerge } from "tailwind-merge";
 import {
   Select,
   SelectContent,
@@ -6,30 +8,36 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 
-import { createSignal } from "solid-js";
+export type SelectOptions<T> = {
+  value: T;
+  label: string;
+};
 
-interface SelectProps {
-  options: string[];
+export default function SelectInput<T>(props: {
+  options: SelectOptions<T>[];
   placeholder: string;
-}
-
-const SelectInput = (props: SelectProps) => {
-  const [selectedOption, setSelectedOption] = createSignal<string | null>(null);
-  
+  setSelectedOption: Setter<T>;
+  class?: string; // this styles the select input
+}) {
   return (
     <Select
       options={props.options}
+      optionValue="value"
+      optionTextValue="label"
       placeholder={props.placeholder}
-      itemComponent={(itemProps) => (
-        <SelectItem item={itemProps.item}>{itemProps.item.rawValue}</SelectItem>
+      itemComponent={(props) => (
+        <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
       )}
     >
-      <SelectTrigger class="w-[180px]">
-        <SelectValue>{selectedOption() || props.placeholder}</SelectValue>
+      <SelectTrigger class={twMerge("w-[180px]", props.class)}>
+        <SelectValue<SelectOptions<T>>>
+          {(state) => {
+            props.setSelectedOption(() => state.selectedOption().value);
+            return state.selectedOption().label;
+          }}
+        </SelectValue>
       </SelectTrigger>
       <SelectContent />
     </Select>
   );
-};
-
-export default SelectInput;
+}

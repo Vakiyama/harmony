@@ -4,6 +4,7 @@ import TextInput from "./TextInput";
 import TextArea from "./TextAreaInput";
 import { twMerge } from "tailwind-merge";
 import TimeDateCalendar from "./TimeDateCalendar";
+import SelectInput from "~/components/shadcn/Select";
 
 const UpdateModal = () => {
   const [eventType, setEventType] = createSignal<"event" | "task">("event");
@@ -18,11 +19,9 @@ const UpdateModal = () => {
   const [timeEndTime, setTimeEndTime] = createSignal("");
   const timeEnd = () => `${timeEndDate()}T${timeEndTime()}`;
   const timeStart = () => `${timeStartDate()}T${timeStartTime()}`;
-
-  createEffect(
-    () => console.log(timeStart(), timeEnd()),
-    [timeStart(), timeEnd()]
-  );
+  const [repeat, setRepeat] = createSignal<
+    "never" | "daily" | "weekly" | "monthly"
+  >("never");
 
   return (
     <div class="flex flex-col items-center mt-10 w-full">
@@ -75,6 +74,20 @@ const UpdateModal = () => {
           setDate={setTimeEndDate}
           time={timeEndTime}
           setTime={setTimeEndTime}
+        />
+        <p class="text-lg font-semibold">Repeat</p>
+        <SelectInput
+          class="w-full "
+          placeholder="Never"
+          options={
+            [
+              { value: "never", label: "Never" },
+              { value: "daily", label: "Daily" },
+              { value: "weekly", label: "Weekly" },
+              { value: "monthly", label: "Monthly" },
+            ] as const
+          }
+          setSelectedOption={setRepeat}
         />
         <TextArea
           label="Notes"

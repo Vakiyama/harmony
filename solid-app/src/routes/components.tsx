@@ -49,11 +49,12 @@ export default function Components() {
         </div>
         <div class="mr-5 w-full sm:w-auto mb-10">
           <div class="mb-3">Radio Group</div>
-          <RadioGroupDemo id="demo" name="demo" options={["1", "2", "3"]}/>
+          <RadioGroupDemo id="demo" name="demo" options={["1", "2", "3"]} />
         </div>
         <div class="mr-5 w-full sm:w-auto mb-10">
           <div class="mb-3">Select</div>
-          <SelectDemo options={["1", "2", "3"]} placeholder="demo"/>
+          {/* <SelectDemo options={["1", "2", "3"]} placeholder="demo"/> */}
+          {/* sorry emmy */}
         </div>
         <div class="mr-5 w-full sm:w-auto mb-10">
           <div class="mb-3">Separator</div>
@@ -65,7 +66,7 @@ export default function Components() {
         </div>
         <div class="mr-5 w-full sm:w-auto mb-10">
           <div class="mb-3">Toast</div>
-          <ToastComponent title="demo" description="demo" buttonLabel="Demo"/>
+          <ToastComponent title="demo" description="demo" buttonLabel="Demo" />
         </div>
         <div class="mr-5 w-full sm:w-auto mb-10">
           <div class="mb-3">Switch</div>
