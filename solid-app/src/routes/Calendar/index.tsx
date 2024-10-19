@@ -13,7 +13,7 @@ import DeleteModal from "./deleteModal";
 
 export type EventFormData = {
   name: string;
-  description: string;
+  notes: string;
   timeStart: Date | null;
   timeEnd: Date | null;
   location: string | null;
@@ -25,7 +25,7 @@ export default function CalendarPage() {
   const [currentEvent, setCurrentEvent] = createSignal<Event | null>(null);
   const [formData, setFormData] = createSignal<EventFormData>({
     name: "",
-    description: "",
+    notes: "",
     timeStart: null,
     timeEnd: null,
     location: null,
@@ -54,7 +54,7 @@ export default function CalendarPage() {
   };
 
   createEffect(() => {
-    fetchCalendars(6);
+    fetchCalendars(1);
   });
 
   const handleCalendarSelect = (id: number) => {
@@ -67,7 +67,7 @@ export default function CalendarPage() {
     if (event && type === "update") {
       setFormData({
         name: event.name,
-        description: event.description,
+        notes: event.notes,
         timeStart: event.timeStart,
         timeEnd: event.timeEnd,
         location: event.location,
@@ -142,7 +142,7 @@ export default function CalendarPage() {
                   <div class="bg-gray-300 p-4 rounded-lg border">
                     <li class="mb-2 p-4">
                       <div class="font-semibold">{event.name}</div>
-                      <p class="text-gray-500">{event.description}</p>
+                      <p class="text-gray-500">{event.notes}</p>
                       <p class="text-sm text-gray-400">
                         Start: {formatDate(event.timeStart)} - End:{" "}
                         {formatDate(event.timeEnd)}

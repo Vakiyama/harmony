@@ -80,20 +80,18 @@ const seedData = async () => {
     {
       calendarId: Calendars[0].id, // Adjust based on the calendar ID
       name: "Pick up a dish washing",
-      description: "help",
+      notes: "help",
       // timeStart: Math.floor(new Date().getTime() / 1000),
       // timeEnd: Math.floor(new Date().getTime() / 1000),
-      allDay: false,
       location: "Langley",
       type: "event",
     },
     {
       calendarId: Calendars[0].id, // Adjust based on the calendar ID
       name: "Feed Meemaw",
-      description: "Broccoli",
+      notes: "Broccoli",
       //timeStart: Math.floor(new Date().getTime() / 1000),
       //timeEnd: Math.floor(new Date().getTime() / 1000),
-      allDay: false,
       location: "meemaw house",
       frequency: "daily",
       type: "task",
@@ -101,10 +99,9 @@ const seedData = async () => {
     {
       calendarId: Calendars[1].id, // Adjust based on the calendar ID
       name: "Grandma birthday",
-      description: "Celebrate!",
+      notes: "Celebrate!",
       //timeStart: Math.floor(new Date().getTime() / 1000),
       //timeEnd: Math.floor(new Date().getTime() / 1000),
-      allDay: true,
       location: "help",
       type: "event",
     },
@@ -113,9 +110,8 @@ const seedData = async () => {
     await db
       .insert(events)
       .values({
-        description: data.description,
+        notes: data.notes,
         name: data.name,
-        allDay: data.allDay,
         calendarId: data.calendarId,
         frequency: data.frequency,
         location: data.location,
