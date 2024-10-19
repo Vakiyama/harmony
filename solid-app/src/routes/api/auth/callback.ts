@@ -10,11 +10,8 @@ export const GET = async ({ request }: APIEvent) => {
       ?.split("; ")
       .map((cookie) => cookie.split("=")) as [string, string][]
   );
-  const infoString = cookies.get("info_obj") as string;
-  let registerInfo: RegisterInfo | undefined;
-  if (infoString) {
-    registerInfo = JSON.parse(infoString) as RegisterInfo;
-  }
+  const infoString = cookies.get("register_obj") as string;
+  let registerInfo = JSON.parse(infoString || "") as RegisterInfo;
   // console.log(registerInfo);
 
   const manager = await sessionManager();
@@ -33,16 +30,16 @@ export const GET = async ({ request }: APIEvent) => {
   await getKindeClient().handleRedirectToApp(manager, url);
   const kindeUser = await getKindeClient().getUser(manager);
   if (!kindeUser.family_name) {
-    kindeUser.family_name = registerInfo?.lastName || "";
+    kindeUser.family_name = registerInfo.lastName || "";
   }
   if (!kindeUser.given_name) {
-    kindeUser.given_name = registerInfo?.firstName || "";
+    kindeUser.given_name = registerInfo.firstName || "";
   }
 
   let err: Error | undefined;
   err = await loginOrRegister({
     ...kindeUser,
-    ...(registerInfo?.dob ? { dob: registerInfo.dob } : {}),
+    ...(registerInfo.dob ? { dob: registerInfo.dob } : {}),
   });
   if (err) {
     return new Response("Bad Request", { status: 400 });
@@ -53,7 +50,7 @@ export const GET = async ({ request }: APIEvent) => {
     headers: {
       Location: "/",
       "Set-Cookie":
-        "info_obj=; HttpOnly; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT",
+        "register_obj=; HttpOnly; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT",
     },
   });
 };
