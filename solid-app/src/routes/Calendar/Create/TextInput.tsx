@@ -9,10 +9,12 @@ export default function TextInput(props: {
 }) {
   return (
     <TextField class="flex flex-col ">
-      <TextField.Label>{props.label}</TextField.Label>
+      <TextField.Label class="text-lg font-semibold">
+        {props.label}
+      </TextField.Label>
       <TextField.Input
         value={props.value()}
-        class="border"
+        class="border p-1 rounded-lg py-3"
         placeholder={props.placeholder}
         onInput={(e) => props.setValue(e.currentTarget.value)}
       />

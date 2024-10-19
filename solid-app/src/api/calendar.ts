@@ -1,11 +1,11 @@
-import { action, cache } from "@solidjs/router";
+import { cache } from "@solidjs/router";
 import { AlarmInput, alarms } from "../../drizzle/schema/Alarms";
 import { CalendarInput, calendars } from "../../drizzle/schema/Calendars";
 import { EventInput, events } from "../../drizzle/schema/Events";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 
-// // Alarms
+// Alarms
 export const getAlarmsByEventId = cache(async (eventId: number) => {
   "use server";
   return await db.select().from(alarms).where(eq(alarms.eventId, eventId));
@@ -82,7 +82,7 @@ export const deleteCalendar = async (calendarId: number) => {
   return result;
 };
 
-// // Events
+// Events
 export const getEvents = cache(async (calendarId: number) => {
   "use server";
   return await db

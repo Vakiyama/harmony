@@ -3,7 +3,6 @@ import { Button } from "~/components/ui/button";
 import TextInput from "./TextInput";
 import TextArea from "./TextAreaInput";
 import { twMerge } from "tailwind-merge";
-import { DatePicker } from "~/components/ui/date-picker";
 import TimeDateCalendar from "./TimeDateCalendar";
 
 const UpdateModal = () => {
@@ -19,18 +18,19 @@ const UpdateModal = () => {
   const [timeEndTime, setTimeEndTime] = createSignal("");
   const timeEnd = () => `${timeEndDate()}T${timeEndTime()}`;
   const timeStart = () => `${timeStartDate()}T${timeStartTime()}`;
+
   createEffect(
     () => console.log(timeStart(), timeEnd()),
     [timeStart(), timeEnd()]
   );
 
   return (
-    <div class="flex flex-col items-center mt-10">
-      <form class="space-y-4 max-w-xl">
-        <div class="flex w-full gap-4">
+    <div class="flex flex-col items-center mt-10 w-full">
+      <form class="space-y-4 max-w-lg w-full">
+        <div class="flex gap-4 justify-center">
           <Button
             class={twMerge(
-              "px-16",
+              "px-20",
               eventType() === "event" ? "bg-purple-200 hover:bg-purple-300" : ""
             )}
             variant="outline"
@@ -40,7 +40,7 @@ const UpdateModal = () => {
           </Button>
           <Button
             class={twMerge(
-              "px-16",
+              "px-20",
               eventType() === "task" ? "bg-purple-200 hover:bg-purple-300" : ""
             )}
             variant="outline"
@@ -55,6 +55,13 @@ const UpdateModal = () => {
           value={title}
           setValue={setTitle}
         />
+        <TextInput
+          label="Location"
+          placeholder="location"
+          setValue={setLocation}
+          value={location}
+        />
+        <p class="text-lg font-semibold">Time</p>
         <TimeDateCalendar
           label="Start Time"
           date={timeStartDate}
@@ -69,19 +76,12 @@ const UpdateModal = () => {
           time={timeEndTime}
           setTime={setTimeEndTime}
         />
-        <TextInput
-          label="Location"
-          placeholder="location"
-          setValue={setLocation}
-          value={location}
-        />
         <TextArea
           label="Notes"
           placeholder="notes"
           value={note}
           setValue={setNote}
         />
-        <input type="datetime-local" name="" id="" />
       </form>
     </div>
   );
