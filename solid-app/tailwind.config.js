@@ -11,9 +11,6 @@ module.exports = {
         "2xl": "1400px",
       },
     },
-    borderRadius: {
-      button: "100px",
-    },
     extend: {
       fontSize: {
         h1: "33px",
@@ -62,6 +59,7 @@ module.exports = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        button: "100px",
       },
       keyframes: {
         "accordion-down": {
