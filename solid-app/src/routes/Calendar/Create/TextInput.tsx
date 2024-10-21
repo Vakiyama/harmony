@@ -2,8 +2,8 @@ import { TextField } from "@kobalte/core/text-field";
 import { Accessor, Setter } from "solid-js";
 
 export default function TextInput(props: {
-  value: Accessor<any>;
-  setValue: Setter<any>;
+  value: Accessor<string>;
+  setValue: Setter<string>;
   label: string;
   placeholder: string;
 }) {

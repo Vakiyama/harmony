@@ -5,54 +5,70 @@ import TextArea from "./TextAreaInput";
 import { twMerge } from "tailwind-merge";
 import TimeDateCalendar from "./TimeDateCalendar";
 import SelectInput from "~/components/shadcn/Select";
-import { getTeamMembersFromTeamId } from "~/api/calendar";
-import { createAsync } from "@solidjs/router";
+import { createEvent, getTeamMembersFromTeamId } from "~/api/calendar";
+import { createAsync, redirect, useNavigate } from "@solidjs/router";
 import { TeamMember } from "@/schema/TeamMembers";
 import { User } from "@/schema/Users";
+import { mightFail } from "might-fail";
 
 const CalendarCreateEvent = () => {
   const teamMembers = createAsync(
-    async () => await getTeamMembersFromTeamId(2),
+    // get teamId first
+    async () => await getTeamMembersFromTeamId(1),
     { deferStream: true }
   );
   const [eventType, setEventType] = createSignal<"event" | "task">("event");
   const [title, setTitle] = createSignal("");
-  const [note, setNote] = createSignal("");
+  const [notes, setNotes] = createSignal("");
   const [location, setLocation] = createSignal("");
-  const [teamMember, setTeamMember] = createSignal<string | undefined>(
+  const [teamMemberId, setTeamMemberId] = createSignal<number | undefined>(
     undefined
   );
-  const [timeStartDate, setTimeStartDate] = createSignal(
-    new Date().toISOString()
+  const [timeStartDate, setTimeStartDate] = createSignal<string | undefined>(
+    undefined
   );
   const [timeStartTime, setTimeStartTime] = createSignal("");
-  const [timeEndDate, setTimeEndDate] = createSignal(new Date().toISOString());
+  const [timeEndDate, setTimeEndDate] = createSignal<string | undefined>(
+    undefined
+  );
   const [timeEndTime, setTimeEndTime] = createSignal("");
   const timeEnd = () => `${timeEndDate()}T${timeEndTime()}`;
   const timeStart = () => `${timeStartDate()}T${timeStartTime()}`;
   const [repeat, setRepeat] = createSignal<
     "never" | "daily" | "weekly" | "monthly"
   >("never");
+  const navigate = useNavigate();
+  const parseTeamMemberToOption = (
+    data: { teammembers: TeamMember; users: User }[] | undefined
+  ) =>
+    data
+      ? data.map((data) => {
+          return {
+            value: data.teammembers.id,
+            label: data.users.displayName,
+          };
+        })
+      : [];
 
-  function parseTeamMemberToOption(
-    data:
-      | {
-          teammembers: TeamMember;
-          users: User;
-        }[]
-      | undefined
-  ) {
-    if (!data) {
-      return [];
-    }
-    return data.map((data) => {
-      return {
-        value: data.teammembers.id.toString(),
-        label: data.users.displayName,
-      };
-    });
-  }
   const teamMemberOptions = parseTeamMemberToOption(teamMembers());
+
+  async function createEventHandler(e: Event) {
+    e.preventDefault();
+    const [createEventError, createEventResult] = await mightFail(
+      createEvent({
+        calendarId: 1,
+        location: location(),
+        title: title(),
+        notes: notes(),
+        repeat: repeat(),
+        type: eventType(),
+      })
+    );
+    if (createEventError) {
+      return console.error(createEventError);
+    }
+    navigate("/calendar");
+  }
   return (
     <div class="flex flex-col items-center mt-10 w-full">
       <form class="space-y-4 max-w-lg w-full">
@@ -119,19 +135,28 @@ const CalendarCreateEvent = () => {
           }
           setSelectedOption={setRepeat}
         />
-        <p class="text-lg font-semibold">Assigned to</p>
+        <p class="text-lg font-semibold">Invitee</p>
         <SelectInput
           class="w-full p-1 rounded-lg py-6 ps-4 "
           placeholder="Person"
           options={teamMemberOptions}
-          setSelectedOption={setTeamMember}
+          setSelectedOption={setTeamMemberId}
         />
         <TextArea
           label="Notes"
           placeholder="Notes"
-          value={note}
-          setValue={setNote}
+          value={notes}
+          setValue={setNotes}
         />
+        <div class="flex justify-end w-full">
+          <button
+            class="border p-2 rounded-lg"
+            type="submit"
+            onClick={createEventHandler}
+          >
+            Create
+          </button>
+        </div>
       </form>
     </div>
   );

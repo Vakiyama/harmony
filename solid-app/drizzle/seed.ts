@@ -79,8 +79,9 @@ const seedData = async () => {
   const eventsData: EventInput[] = [
     {
       calendarId: Calendars[0].id, // Adjust based on the calendar ID
-      name: "Pick up a dish washing",
+      title: "Pick up a dish washing",
       notes: "help",
+      repeat: "never",
       // timeStart: Math.floor(new Date().getTime() / 1000),
       // timeEnd: Math.floor(new Date().getTime() / 1000),
       location: "Langley",
@@ -88,18 +89,19 @@ const seedData = async () => {
     },
     {
       calendarId: Calendars[0].id, // Adjust based on the calendar ID
-      name: "Feed Meemaw",
+      title: "Feed Meemaw",
       notes: "Broccoli",
       //timeStart: Math.floor(new Date().getTime() / 1000),
       //timeEnd: Math.floor(new Date().getTime() / 1000),
       location: "meemaw house",
-      frequency: "daily",
+      repeat: "daily",
       type: "task",
     },
     {
       calendarId: Calendars[1].id, // Adjust based on the calendar ID
-      name: "Grandma birthday",
+      title: "Grandma birthday",
       notes: "Celebrate!",
+      repeat: "monthly",
       //timeStart: Math.floor(new Date().getTime() / 1000),
       //timeEnd: Math.floor(new Date().getTime() / 1000),
       location: "help",
@@ -111,9 +113,9 @@ const seedData = async () => {
       .insert(events)
       .values({
         notes: data.notes,
-        name: data.name,
+        title: data.title,
         calendarId: data.calendarId,
-        frequency: data.frequency,
+        repeat: data.repeat,
         location: data.location,
         // timeEnd: data.timeEnd,
         // timeStart: data.timeStart,

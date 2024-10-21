@@ -3,13 +3,20 @@ import { calendars } from "./Calendars";
 import { sql } from "drizzle-orm";
 import { TeamMembers } from "./TeamMembers";
 
-export const eventsFrequencyEnum = ["daily", "weekly", "monthly"] as const;
+export const eventsFrequencyEnum = [
+  "never",
+  "daily",
+  "weekly",
+  "monthly",
+] as const;
 export const eventsTypeEnum = ["task", "event"] as const;
 
 export const events = sqliteTable("events", {
   id: integer("id").primaryKey({ autoIncrement: true }).notNull().unique(),
-  calendarId: integer("calendarId").references(() => calendars.id),
-  name: text("name").notNull(),
+  calendarId: integer("calendarId")
+    .references(() => calendars.id)
+    .notNull(),
+  title: text("title").notNull(),
   notes: text("notes").notNull(),
   timeStart: integer("timeStart", { mode: "timestamp" }).default(
     sql`(unixepoch())`
@@ -17,9 +24,9 @@ export const events = sqliteTable("events", {
   timeEnd: integer("timeEnd", { mode: "timestamp" }).default(
     sql`(unixepoch())`
   ),
-  location: text("location"),
-  frequency: text("frequency", { enum: eventsFrequencyEnum }),
-  type: text("type", { enum: eventsTypeEnum }),
+  location: text("location").notNull(),
+  repeat: text("repeat", { enum: eventsFrequencyEnum }).notNull(),
+  type: text("type", { enum: eventsTypeEnum }).notNull(),
   teamMemberId: integer("teamMemberId").references(() => TeamMembers.id),
 });
 

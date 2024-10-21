@@ -19,22 +19,22 @@ const UpdateModal = (props: {
       <input
         type="text"
         placeholder="Event Name"
-        value={props.formData().name}
+        value={props.formData().title}
         onInput={(e) =>
           props.setFormData({
             ...props.formData(),
-            name: e.currentTarget.value,
+            title: e.currentTarget.value,
           })
         }
       />
       <input
         type="text"
-        placeholder="Description"
-        value={props.formData().description}
+        placeholder="Notes"
+        value={props.formData().notes}
         onInput={(e) =>
           props.setFormData({
             ...props.formData(),
-            description: e.currentTarget.value,
+            notes: e.currentTarget.value,
           })
         }
       />

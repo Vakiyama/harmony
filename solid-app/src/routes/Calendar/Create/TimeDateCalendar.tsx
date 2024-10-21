@@ -1,8 +1,8 @@
 import { Accessor, Setter } from "solid-js";
 
 export default function TimeDateCalendar(props: {
-  date: Accessor<string>;
-  setDate: Setter<string>;
+  date: Accessor<string | undefined>;
+  setDate: Setter<string | undefined>;
   time: Accessor<string>;
   setTime: Setter<string>;
   label: string;

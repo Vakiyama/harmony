@@ -10,13 +10,14 @@ import {
 } from "~/api/calendar";
 import UpdateModal from "./updateModal";
 import DeleteModal from "./deleteModal";
+import { Navigate, Route } from "@solidjs/router";
 
 export type EventFormData = {
-  name: string;
+  title: string;
   notes: string;
   timeStart: Date | null;
   timeEnd: Date | null;
-  location: string | null;
+  location: string;
 };
 
 export default function CalendarPage() {
@@ -24,15 +25,20 @@ export default function CalendarPage() {
   const [events, setEvents] = createSignal<Event[]>([]);
   const [currentEvent, setCurrentEvent] = createSignal<Event | null>(null);
   const [formData, setFormData] = createSignal<EventFormData>({
-    name: "",
+    title: "",
     notes: "",
+    location: "",
     timeStart: null,
     timeEnd: null,
-    location: null,
   });
   const [selectedCalendarId, setSelectedCalendarId] = createSignal<
     number | null
   >(null);
+
+  createEffect(async () => {
+    // get teamId
+    await fetchCalendars(1);
+  });
 
   const fetchCalendars = async (teamId: number) => {
     const [calendarError, calendarResult] = await mightFail(
@@ -49,13 +55,8 @@ export default function CalendarPage() {
     if (eventError) {
       return console.error(eventError);
     }
-    console.log(eventResult);
     setEvents(eventResult);
   };
-
-  createEffect(() => {
-    fetchCalendars(1);
-  });
 
   const handleCalendarSelect = (id: number) => {
     setSelectedCalendarId(id);
@@ -66,7 +67,7 @@ export default function CalendarPage() {
     setCurrentEvent(event);
     if (event && type === "update") {
       setFormData({
-        name: event.name,
+        title: event.title,
         notes: event.notes,
         timeStart: event.timeStart,
         timeEnd: event.timeEnd,
@@ -87,8 +88,7 @@ export default function CalendarPage() {
       if (error) {
         return console.error(error);
       }
-      fetchEvents(selectedCalendarId()!);
-      console.log(result, events());
+      await fetchEvents(selectedCalendarId()!);
     }
     closeModal();
   };
@@ -99,7 +99,7 @@ export default function CalendarPage() {
       if (error) {
         return console.error(error);
       }
-      fetchEvents(selectedCalendarId()!);
+      await fetchEvents(selectedCalendarId()!);
     }
     closeModal();
   };
@@ -141,7 +141,7 @@ export default function CalendarPage() {
                 {events().map((event) => (
                   <div class="bg-gray-300 p-4 rounded-lg border">
                     <li class="mb-2 p-4">
-                      <div class="font-semibold">{event.name}</div>
+                      <div class="font-semibold">{event.title}</div>
                       <p class="text-gray-500">{event.notes}</p>
                       <p class="text-sm text-gray-400">
                         Start: {formatDate(event.timeStart)} - End:{" "}
@@ -211,6 +211,7 @@ export default function CalendarPage() {
           </div>
         </div>
       )}
+      <a href="/calendar/create">go create one bro</a>
     </div>
   );
 }

@@ -17,7 +17,7 @@ const DeleteModal = (props: {
     >
       <p>
         Are you sure you want to delete "
-        {props.currentEvent() ? props.currentEvent()!.name : ""}"?
+        {props.currentEvent() ? props.currentEvent()!.title : ""}"?
       </p>
     </Modal>
   );
