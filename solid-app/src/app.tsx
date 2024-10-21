@@ -9,7 +9,8 @@ export default function App() {
   return (
     <Router
       root={(props) => (
-        <>
+        <div class="h-full border">
+          {/*
           <div class="px-2">
             <a href="/" class="hover:text-blue-500">
               Index
@@ -39,8 +40,11 @@ export default function App() {
               Harmony Chat
             </a>
           </div>
-          <Suspense>{props.children}</Suspense>
-        </>
+          */}
+          <Suspense>
+            <div class="h-full">{props.children}</div>
+          </Suspense>
+        </div>
       )}
     >
       <FileRoutes />

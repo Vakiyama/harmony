@@ -4,67 +4,35 @@ import { Message } from "~/api/claude/apiCalls";
 import { Image, ImageRoot } from "~/components/ui/image";
 import Tail from "./images/Tail.svg";
 import Soundwave from "./images/BsSoundwave.svg";
-
-const sampleMessages: Message[] = [
-  {
-    role: "user",
-    content: "Hello, how are you?",
-  },
-  {
-    role: "assistant",
-    content: "I’m doing well, thank you! How can I assist you today?",
-  },
-  {
-    role: "user",
-    content: "Can you help me with a TypeScript question?",
-  },
-  {
-    role: "assistant",
-    content: "Of course! What do you need help with?",
-  },
-  {
-    role: "user",
-    content: "I’m working on a project and need to generate some sample data.",
-  },
-  {
-    role: "assistant",
-    content:
-      "Sure, I can create sample data for you. What type are you working with?",
-  },
-  {
-    role: "user",
-    content:
-      "I have a type for messages that alternate between user and assistant.",
-  },
-  {
-    role: "assistant",
-    content:
-      "Great! I can help with that. Let me know if you need anything else!",
-  },
-];
+import { harmonyChat } from "~/api/claude/chat";
+import SolidMarkdown from "@zentered/solid-markdown";
+import "./markdown.css";
 
 export function HarmonyChat() {
-  // need:
-  // an input field
-  // text bubbles
-  // some basic styling; color inputs, we can do this later tho
-
-  const [messages, setMessages] = createSignal<Message[]>(sampleMessages);
+  const [messages, setMessages] = createSignal<Message[]>([]);
   const [input, setInput] = createSignal<string>("");
+
+  async function handleConversation(messages: Message[]) {
+    const response = await harmonyChat(messages);
+    const newMessages = [
+      ...messages,
+      { role: "assistant", content: response.content[0].text } as const,
+    ];
+    setMessages(newMessages);
+  }
 
   function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
 
-    setMessages((messages) => {
-      messages.push({
-        role: "user",
-        content: input(),
-      });
-
-      return messages;
-    });
-
+    const newMessages = [
+      ...messages(),
+      { role: "user", content: input() } as const,
+    ];
+    setMessages(newMessages);
     setInput("");
+
+    handleConversation(newMessages);
+
     // add user message
     // send to claude
     // get response
@@ -72,48 +40,55 @@ export function HarmonyChat() {
   }
 
   return (
-    <div class="max-w-[700px] mx-4 border bg-[#E0E0E0]">
-      <form onSubmit={handleSubmit}>
-        <div class="flex flex-col ">
-          {messages().map((message) => (
+    <div class="bg-[#E0E0E0] h-full relative overflow-hidden">
+      <form onSubmit={handleSubmit} class="h-full">
+        <div class="flex flex-col overflow-scroll h-[calc(100%_-_65px)]">
+          {[
+            { role: "assistant", content: "What can I help you with today?" },
+            ...messages(),
+          ].map((message) => (
             <div
               class={twMerge(
-                "flex items-center relative",
+                "flex items-center relative max-w-[90%]",
                 message.role === "user"
-                  ? "self-end flex-row-reverse"
+                  ? "self-end flex-row-reverse mr-1 "
                   : "self-start flex-row",
               )}
             >
               <div
                 class={twMerge(
-                  "rounded-md p-2 my-3 mx-1 w-fit text-gray-800 ",
+                  "rounded-md p-2 my-3 mx-1 w-fit text-gray-800",
                   message.role === "user" ? "rounded-br-none bg-white" : "",
                 )}
               >
-                <p>{message.content}</p>
+                {message.role === "user" ? (
+                  <p>{message.content}</p>
+                ) : (
+                  <SolidMarkdown class="markdown" children={message.content} />
+                )}
               </div>
               <Show when={message.role === "user"}>
                 <div
                   class={twMerge("absolute bottom-[24px] w-2 h-2 right-[2px]")}
                 >
                   <ImageRoot class="w-full">
-                    <Image src={Tail} alt="" class="" />
+                    <Image src={Tail} alt="" class="relative bottom-px" />
                   </ImageRoot>
                 </div>
               </Show>
             </div>
           ))}
         </div>
-        <div class="flex flex-row px-4 gap-2 border-t-gray-300 border-t pt-2 pb-4">
+        <div class="flex flex-row px-2 gap-1 border-t-gray-600 border-t pt-2 pb-4">
           <input
-            class="w-full rounded-full px-4 py-0 border border-gray-500"
+            class="w-full rounded-full px-3 py-0 border border-gray-400 text-sm"
             value={input()}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Chat with Harmony..."
           />
-          <button class="rounded-full p-1 border bg-white flex items-center justify-center">
-            <ImageRoot>
-              <Image src={Soundwave} class="p-1.5" />
+          <button class="rounded-full p-px border bg-white flex items-center justify-center">
+            <ImageRoot class="h-7 w-7 flex items-center justify-center">
+              <Image height="20px" width="20px" src={Soundwave} class="h-5" />
             </ImageRoot>
           </button>
         </div>
