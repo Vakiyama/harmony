@@ -20,7 +20,7 @@ module.exports = {
         subtitle: "11px",
       },
       width: {
-        368: "368px",
+        "368": "368px",
       },
       colors: {
         border: "hsl(var(--border))",

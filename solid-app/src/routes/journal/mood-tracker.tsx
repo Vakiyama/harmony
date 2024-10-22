@@ -3,9 +3,10 @@ import DatePickerComponent from "~/components/shadcn/DatePicker";
 import { createMoodAction } from "~/api/journal";
 import { createSignal } from "solid-js";
 import { useAction } from "@solidjs/router";
-import ShowError from "~/components/show-error";
+import ShowError from "~/routes/journal/show-error";
 import { Button } from "~/components/ui/button";
-import AddNote from "~/components/add-notes";
+import AddNote from "~/routes/journal/add-notes";
+import Header from "./header";
 
 export default function MoodTracker() {
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
@@ -53,8 +54,10 @@ export default function MoodTracker() {
               </clipPath>
             </defs>
           </svg>
-          <h1 class="text-h2">Mood</h1>
-          <p class="text-subtitle mb-[16px]">Description of what a log does</p>
+          <Header
+            title="Mood"
+            description="Keep track of daily moods to see how the day went."
+          />
         </div>
         <div class="flex flex-col mt-2 gap-2 w-full">
           <ShowError error={error()}></ShowError>

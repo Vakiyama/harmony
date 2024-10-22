@@ -3,9 +3,10 @@ import SelectInput from "~/components/shadcn/Select";
 import { createMedicationAction } from "~/api/journal";
 import { createSignal, Show } from "solid-js";
 import { useAction } from "@solidjs/router";
-import ShowError from "~/components/show-error";
+import ShowError from "~/routes/journal/show-error";
 import { Button } from "~/components/ui/button";
-import AddNote from "~/components/add-notes";
+import AddNote from "~/routes/journal/add-notes";
+import Header from "./header";
 
 export default function Medication() {
   // const medicationTypes = [
@@ -56,8 +57,10 @@ export default function Medication() {
             fill="black"
           />
         </svg>
-        <h1 class="text-h2">Medication Taken</h1>
-        <p class="text-subtitle mb-[16px]">Description of what a log does</p>
+        <Header
+          title="Medication Taken"
+          description="Log medication taken to keep track of the treatment schedule."
+        />
       </div>
       <form
         ref={setFormRef}

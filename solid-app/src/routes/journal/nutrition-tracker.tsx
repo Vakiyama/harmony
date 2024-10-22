@@ -3,9 +3,10 @@ import DatePickerComponent from "~/components/shadcn/DatePicker";
 import { createMealAction } from "~/api/journal";
 import { createSignal } from "solid-js";
 import { useAction } from "@solidjs/router";
-import ShowError from "~/components/show-error";
+import ShowError from "~/routes/journal/show-error";
 import { Button } from "~/components/ui/button";
-import AddNote from "~/components/add-notes";
+import AddNote from "~/routes/journal/add-notes";
+import Header from "./header";
 
 export default function NutritionTracker() {
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
@@ -50,8 +51,10 @@ export default function NutritionTracker() {
               fill="black"
             />
           </svg>
-          <h1 class="text-h2">Nutrition</h1>
-          <p class="text-subtitle mb-[16px]">Description of what a log does</p>
+          <Header
+            title="Nutrition"
+            description="Log meals and snacks to track nutrition throughout the day."
+          />
         </div>
         <div class="flex flex-col mt-2 gap-2 w-full">
           <h2>Did x have anything to eat today?</h2>

@@ -3,9 +3,10 @@ import DatePickerComponent from "~/components/shadcn/DatePicker";
 import { createSleepAction } from "~/api/journal";
 import { useAction } from "@solidjs/router";
 import { createSignal } from "solid-js";
-import ShowError from "~/components/show-error";
+import ShowError from "~/routes/journal/show-error";
 import { Button } from "~/components/ui/button";
-import AddNote from "~/components/add-notes";
+import AddNote from "~/routes/journal/add-notes";
+import Header from "./header";
 
 export default function SleepTracker() {
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
@@ -46,8 +47,10 @@ export default function SleepTracker() {
               fill="black"
             />
           </svg>
-          <h1 class="text-h2">Sleep</h1>
-          <p class="text-subtitle mb-[16px]">Description of what a log does</p>
+          <Header
+            title="Sleep"
+            description="Log sleep hours to track nightly rest patterns."
+          />
         </div>
         <div class="flex flex-col mt-2 gap-2 w-full">
           <ShowError error={error()}></ShowError>
