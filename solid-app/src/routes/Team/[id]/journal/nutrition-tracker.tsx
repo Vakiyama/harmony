@@ -3,9 +3,9 @@ import DatePickerComponent from "~/components/shadcn/DatePicker";
 import { createMealAction } from "~/api/journal";
 import { createSignal } from "solid-js";
 import { useAction } from "@solidjs/router";
-import ShowError from "~/routes/journal/show-error";
+import ShowError from "~/routes/Team/[id]/journal/show-error";
 import { Button } from "~/components/ui/button";
-import AddNote from "~/routes/journal/add-notes";
+import AddNote from "~/routes/Team/[id]/journal/add-notes";
 import Header from "./header";
 
 export default function NutritionTracker() {

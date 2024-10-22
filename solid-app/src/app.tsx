@@ -29,7 +29,7 @@ export default function App() {
             <a href="/calendar" class="hover:text-blue-500">
               Calendar
             </a>
-            <a href="/journal" class="hover:text-blue-500">
+            <a href={`/team/1/journal`} class="hover:text-blue-500">
               Journal
             </a>
           </div>

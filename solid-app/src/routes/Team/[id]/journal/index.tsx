@@ -1,5 +1,5 @@
 import { createSignal } from "solid-js";
-import Modal from "./modal";
+import Modal from "../../../../components/modal";
 
 export default function Journal() {
   const currentDate = new Date();

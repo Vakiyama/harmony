@@ -1,7 +1,7 @@
 import { createMedicationAction } from "~/api/team";
 import { createSignal } from "solid-js";
 import { useAction, useParams } from "@solidjs/router";
-import ShowError from "~/routes/journal/show-error";
+import ShowError from "~/routes/Team/[id]/journal/show-error";
 import { Button } from "~/components/ui/button";
 
 export default function Medication() {
@@ -16,7 +16,7 @@ export default function Medication() {
   const handleSubmit = async (event: SubmitEvent) => {
     event.preventDefault();
     const formData = new FormData(event.target as HTMLFormElement);
-    formData.append("teamId", params.teamId);
+    formData.append("id", params.id);
     const result: CreateMedicationActionResponse = await createMedication(
       formData
     );

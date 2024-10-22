@@ -1,11 +1,11 @@
 import DatePickerComponent from "~/components/shadcn/DatePicker";
 import SelectInput from "~/components/shadcn/Select";
-import { createMedicationAction } from "~/api/journal";
+import { createTakenMedicationAction } from "~/api/journal";
 import { createSignal, Show } from "solid-js";
 import { useAction } from "@solidjs/router";
-import ShowError from "~/routes/journal/show-error";
+import ShowError from "~/routes/Team/[id]/journal/show-error";
 import { Button } from "~/components/ui/button";
-import AddNote from "~/routes/journal/add-notes";
+import AddNote from "~/routes/Team/[id]/journal/add-notes";
 import Header from "./header";
 
 export default function Medication() {
@@ -20,7 +20,7 @@ export default function Medication() {
 
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
   const [error, setError] = createSignal("");
-  const myAction = useAction(createMedicationAction);
+  const myAction = useAction(createTakenMedicationAction);
   type CreateMedicationActionResponse = {
     success?: boolean;
     error?: string;
