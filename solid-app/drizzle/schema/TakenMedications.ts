@@ -1,24 +1,12 @@
-import { integer, numeric, text, sqliteTable } from "drizzle-orm/sqlite-core";
+import { integer, text, sqliteTable } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 import { notes } from "./Notes";
 import { Teams } from "./Teams";
 import { Users } from "./Users";
+import { medications } from "./Medications";
 
-export const qualityEnum = [
-  "Really Terrible",
-  "Somewhat Bad",
-  "Completely Okay",
-  "Pretty Good",
-  "Super Awesome",
-] as const;
-export const timeFrameEnumSleeps = ["Day", "Night"] as const;
-
-export const sleeps = sqliteTable("sleeps", {
+export const takenMedications = sqliteTable("taken_medications", {
   id: integer("id").primaryKey().unique().notNull(),
-  quality: text("quality", { enum: qualityEnum }).notNull(),
-  timeFrame: text("time_frame", { enum: timeFrameEnumSleeps }).notNull(),
-  duration: numeric("duration").notNull(),
-  troubleSleeping: integer("troubleSleeping", { mode: "boolean" }).notNull(),
   date: integer("date", { mode: "timestamp" })
     .notNull()
     .default(sql`(unixepoch())`),
@@ -35,6 +23,9 @@ export const sleeps = sqliteTable("sleeps", {
   userId: integer("user_id")
     .references(() => Users.id)
     .notNull(),
+  medicationId: integer("medication_id")
+    .references(() => medications.id)
+    .notNull(),
 });
 
-export type Sleep = typeof sleeps.$inferSelect;
+export type Medications = typeof takenMedications.$inferSelect;
