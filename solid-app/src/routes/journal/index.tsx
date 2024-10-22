@@ -8,7 +8,7 @@ export default function Journal() {
       <div class="mt-8 mb-8 flex flex-col w-full text-start">
         <h1 class="text-[28px] min-w-full mb-[20px]">
           New Journal Entry
-          <span class="block text-[19px]">for {user.displayName}</span>
+          <span class="block text-[19px]">for {user?.displayName}</span>
         </h1>
         <p class="text-base mb-[16px] min-w-full">
           Description of what adding a log does

@@ -11,13 +11,6 @@ module.exports = {
         "2xl": "1400px",
       },
     },
-    borderRadius: {
-      button: "100px",
-      input: "10px",
-    },
-    borderRadius: {
-      button: "100px",
-    },
     extend: {
       fontSize: {
         h1: "33px",
@@ -28,7 +21,6 @@ module.exports = {
       },
       width: {
         368: "368px",
-        subtitle_13: "13px",
       },
       colors: {
         border: "hsl(var(--border))",
