@@ -12,8 +12,14 @@ export default function Modal(props: ModalProps) {
   };
 
   return (
-    <div class="fixed inset-0 flex items-end justify-center bg-black bg-opacity-50">
-      <div class="flex flex-col w-full bg-white rounded-t-[50px] p-[22px] items-center gap-2">
+    <div
+      class="fixed inset-0 flex items-end justify-center bg-black bg-opacity-50"
+      onClick={handleClose}
+    >
+      <div
+        class="flex flex-col w-full bg-white rounded-t-[50px] p-[22px] items-center gap-2 z-10"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button class="flex items-center mb-6 z-10" onClick={handleClose}>
           <svg
             width="122"

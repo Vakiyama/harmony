@@ -56,14 +56,13 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        lofiGray: "#D9D9D9"
+        lofiGray: "#D9D9D9",
+        black50: "rgb(30,30,30, 0.5)"
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
-        doneButton: "100px",
-        input: "10px",
       },
       keyframes: {
         "accordion-down": {

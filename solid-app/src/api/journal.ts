@@ -152,6 +152,7 @@ export const createMoodAction = action(async (formData: FormData) => {
     return { error: "User is not Authenticated" };
   }
   const wellBeing = formData.get("wellBeing") as string;
+  console.log(wellBeing);
   const timeFrame = formData.get("timeFrame") as string;
   let date: string | Date = formData.get("date") as string;
   const note = formData.get("note") as string;
@@ -163,7 +164,7 @@ export const createMoodAction = action(async (formData: FormData) => {
 
   if (!isValidEnumValue(wellBeing, qualityEnum)) {
     console.log(2);
-    return { error: "invalid quality" };
+    return { error: "Please enter a valid well-being state." };
   }
 
   if (!timeFrame) {
@@ -171,7 +172,7 @@ export const createMoodAction = action(async (formData: FormData) => {
   }
 
   if (!isValidEnumValue(timeFrame, timeFrameEnumMoods)) {
-    return { error: "invalid timeFrame" };
+    return { error: "Please enter a valid time frame." };
   }
 
   if (!date) {

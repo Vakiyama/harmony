@@ -18,14 +18,16 @@ const SelectInput = (props: SelectProps) => {
 
   return (
     <Select
+      value={selectedOption()}
+      onChange={(value) => setSelectedOption(value)}
       options={props.options}
       placeholder={props.placeholder}
       itemComponent={(itemProps) => (
         <SelectItem item={itemProps.item}>{itemProps.item.rawValue}</SelectItem>
       )}
     >
-      <SelectTrigger class="w-full text-gray-400">
-        <SelectValue>{selectedOption() || props.placeholder}</SelectValue>
+      <SelectTrigger class={selectedOption() ? "text-black" : "text-gray-400"}>
+        <SelectValue>{selectedOption()}</SelectValue>
       </SelectTrigger>
       <SelectContent />
     </Select>

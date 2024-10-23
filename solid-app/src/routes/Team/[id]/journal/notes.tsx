@@ -7,6 +7,7 @@ import { Button } from "~/components/ui/button";
 import AddNote from "~/routes/Team/[id]/journal/add-notes";
 import Header from "./header";
 import PageHeader from "~/routes/Team/[id]/journal/page-header";
+import Upload from "./upload";
 
 export default function CreateNote() {
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
@@ -63,8 +64,13 @@ export default function CreateNote() {
               class="flex flex-col gap-2"
             >
               <AddNote title="New Update" placeholder="User Input" />
+              <label class="text-h4">Add Media</label>
+              <div class="flex flex-row w-full gap-2">
+                <Upload description="Tap to add a photo" />
+                <Upload description="Tap to upload a file" />
+              </div>
               <Button
-                class="rounded-doneButton h-12 w-full mb-4 bg-lofiGray text-black"
+                class="rounded-[100px] h-12 w-full mb-4 bg-lofiGray text-black"
                 variant="default"
                 type="submit"
               >

@@ -72,15 +72,21 @@ export default function MoodTracker() {
           >
             <div class="flex flex-col gap-2 items-center justify-center">
               <label class="text-h4">How is Lola doing?</label>
-              <Slider minValue={1} maxValue={5} defaultValue={3} />
+              <Slider
+                id="wellBeing"
+                name="wellBeing"
+                minValue={1}
+                maxValue={5}
+                defaultValue={3}
+              />
             </div>
             <label class="text-h4">Time of Day</label>
             <RadioGroupComponent
               id="timeFrame"
               name="timeFrame"
-              options={["Morning", "Afternoon", "Evening"]}
+              options={["Morning", "Afternoon", "Night"]}
             />
-            <div class="flex gap-2 items-center">
+            <div class="flex flex-col gap-2">
               <label class="text-h4">Date</label>
               <DatePickerComponent />
             </div>
@@ -89,7 +95,7 @@ export default function MoodTracker() {
               placeholder="Describe the situation"
             />
             <Button
-              class="rounded-doneButton h-12 w-full mb-4 bg-lofiGray text-black"
+              class="rounded-[100px] h-12 w-full mb-4 bg-lofiGray text-black"
               variant="default"
               type="submit"
             >

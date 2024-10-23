@@ -8,6 +8,8 @@ import { Button } from "~/components/ui/button";
 import AddNote from "~/routes/Team/[id]/journal/add-notes";
 import Header from "./header";
 import PageHeader from "./page-header";
+import SelectInput from "~/components/shadcn/Select";
+import PhotoUpload from "./upload";
 
 export default function NutritionTracker() {
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
@@ -59,8 +61,12 @@ export default function NutritionTracker() {
           />
         </div>
         <div class="flex flex-col mt-2 gap-2 w-full">
-          <h2>Did x have anything to eat today?</h2>
           <ShowError error={error()}></ShowError>
+          <label>Meal Type</label>
+          <SelectInput
+            options={["Breakfast", "Lunch", "Dinner", "Snack"]}
+            placeholder="Select Meal Type"
+          />
           <form
             ref={setFormRef}
             onSubmit={handleSubmit}
@@ -68,32 +74,26 @@ export default function NutritionTracker() {
             class="flex flex-col mt-2 gap-2"
           >
             <div class="flex flex-col gap-2 justify-center">
-              <label class="text-h4">Meal Type</label>
-              <RadioGroupComponent
-                id="category"
-                name="category"
-                options={["Breakfast", "Lunch", "Dinner", "Snack"]}
-              />
               <div class="flex flex-col gap-2">
-                <label class="text-h4">Food</label>
+                <label class="text-h4">Food Name</label>
                 <input
                   type="text"
                   id="foodName"
                   name="foodName"
-                  class="border rounded-input"
+                  class="border border-black50 rounded-md p-2"
+                  placeholder="Food Name"
                 />
-                <label class="text-h4">Drink</label>
+                <label class="text-h4">Drink Name</label>
                 <input
                   type="text"
                   id="drinkName"
                   name="drinkName"
-                  class="border rounded-input"
+                  class="border border-black50 rounded-md p-2"
+                  placeholder="Drink Name"
                 />
               </div>
-              <label class="text-h4">How much did x eat?</label>
-              <RadioGroupComponent
-                id="consumption"
-                name="consumption"
+              <label class="text-h4">How much did Lola eat?</label>
+              <SelectInput
                 options={[
                   "None",
                   "Less than half",
@@ -101,19 +101,20 @@ export default function NutritionTracker() {
                   "More than half",
                   "All",
                 ]}
+                placeholder="Select Amount Eaten"
               />
             </div>
-            <div class="flex gap-2 items-center">
+            <div class="flex flex-col gap-2">
               <label class="text-h4">Date</label>
               <DatePickerComponent />
             </div>
             <div class="flex flex-col">
               <label class="text-h4">Photo</label>
-              <input type="file" />
+              <PhotoUpload description="Tap to add a photo" />
             </div>
             <AddNote title="Add Notes" placeholder="Note..." />
             <Button
-              class="rounded-doneButton h-12 w-full mb-4 bg-lofiGray text-black"
+              class="rounded-[100px] h-12 w-full mb-4 bg-lofiGray text-black"
               variant="default"
               type="submit"
             >

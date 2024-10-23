@@ -13,6 +13,8 @@ type SliderProps = {
   minValue?: number;
   maxValue?: number;
   defaultValue?: number;
+  id: string;
+  name: string;
 };
 export function Slider(props: SliderProps) {
   const [value, setValue] = createSignal<number>(props.defaultValue ?? 50); // Create a signal for the slider value
@@ -37,6 +39,8 @@ export function Slider(props: SliderProps) {
   return (
     <SliderKobalte
       value={[value()]}
+      id={props.id}
+      name={props.name}
       onChange={(val: number[]) => setValue(val[0])}
       class={cn(
         "relative flex flex-col items-center select-none touch-none w-full",

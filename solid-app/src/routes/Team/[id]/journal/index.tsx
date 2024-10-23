@@ -1,5 +1,6 @@
 import { createSignal } from "solid-js";
 import Modal from "../../../../components/modal";
+import { Skeleton } from "~/components/ui/skeleton";
 
 export default function Journal() {
   const currentDate = new Date();
@@ -92,6 +93,7 @@ export default function Journal() {
               </defs>
             </svg>
           </button>
+
           {isModalOpen() && (
             <div
               class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"

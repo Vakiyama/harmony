@@ -29,7 +29,7 @@ const RadioGroupComponent = (props: RadioGroupProps) => {
         {(option) => (
           <RadioGroupItem
             value={option}
-            class="relative flex items-center justify-start w-full h-10 rounded-md px-3 py-2"
+            class="relative flex items-center justify-start w-full h-10 rounded-md px-3 py-2 border-1 border-black50"
             classList={{
               "bg-lofiGray": value() === option,
             }}

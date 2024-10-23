@@ -78,7 +78,7 @@ export default function Medication() {
           class="flex flex-col mt-2 gap-2 w-full"
         >
           <ShowError error={error()}></ShowError>
-          <div class="flex flex-col gap-2">
+          <div class="flex flex-col gap-2 text-h4">
             <label>Select Medication</label>
             <SelectInput
               options={exampleMedications}
@@ -92,15 +92,17 @@ export default function Medication() {
           </div>
           <div class="flex flex-col gap-2">
             <label class="text-h4">Date & Time Taken</label>
-            <DatePickerComponent />
-            <TimePicker time={time} setTime={setTime} />
+            <div class="flex flex-row gap-2">
+              <DatePickerComponent />
+              <TimePicker time={time} setTime={setTime} />
+            </div>
           </div>
           <AddNote
             title="Additional Notes"
             placeholder="i.e. Take two tablets up to 4 times daily with food."
           />
           <Button
-            class="rounded-doneButton h-12 w-full mb-4 bg-lofiGray text-black"
+            class="rounded-[100px] h-12 w-full mb-4 bg-lofiGray text-black"
             variant="default"
             type="submit"
           >

@@ -10,7 +10,7 @@ export default function AddNote(props: AddNoteProps) {
       <textarea
         id="note"
         name="note"
-        class="border rounded-input p-2 min-h-[111px]"
+        class="border border-black50 rounded-md p-2 min-h-[111px]"
         placeholder={props.placeholder}
       ></textarea>
     </div>

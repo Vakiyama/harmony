@@ -65,27 +65,39 @@ export default function SleepTracker() {
           >
             <div class="flex flex-col gap-2 justify-center">
               <label class="text-h4">Sleep Quality</label>
-              <Slider minValue={1} maxValue={5} defaultValue={3} />
-              <label class="text-h4">Timeframe</label>
+              <Slider
+                id="quality"
+                name="quality"
+                minValue={1}
+                maxValue={5}
+                defaultValue={3}
+              />
+              <label class="text-h4">Night or Day</label>
               <RadioGroupComponent
                 id="timeFrame"
                 name="timeFrame"
-                options={["Day", "Night"]}
+                options={["Night", "Day"]}
               />
               <label class="text-h4">Hours Slept</label>
               <input
                 name="duration"
                 type="number"
-                class="border rounded-input text-right"
-                placeholder="00"
+                class="border border-black50 rounded-md text-center p-2"
+                placeholder="00:00"
               />
               <label class="text-h4">Date</label>
               <DatePickerComponent />
+              <label>Trouble going to sleep or staying up?</label>
+              <RadioGroupComponent
+                id="troubleSleeping"
+                name="troubleSleeping"
+                options={["Yes", "No"]}
+              />
             </div>
             <AddNote title="Add Notes" placeholder="User Input" />
             <div class="flex justify-center">
               <Button
-                class="rounded-doneButton h-12 w-full mb-4 bg-lofiGray text-black"
+                class="rounded-[100px] h-12 w-full mb-4 bg-lofiGray text-black"
                 variant="default"
                 type="submit"
               >

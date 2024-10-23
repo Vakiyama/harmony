@@ -47,7 +47,7 @@ export default function Medication() {
             type="text"
             id="medicationName"
             name="medicationName"
-            class="border rounded-input p-2"
+            class="border rounded-md p-2"
             placeholder="Medication Name"
             required={true}
           />
@@ -56,7 +56,7 @@ export default function Medication() {
             type="text"
             id="medicationDosage"
             name="medicationDosage"
-            class="border rounded-input p-2"
+            class="border rounded-md p-2"
             placeholder="i.e. 100mg"
             required={true}
           />
@@ -65,7 +65,7 @@ export default function Medication() {
             type="text"
             id="frequency"
             name="frequency"
-            class="border rounded-input p-2"
+            class="border rounded-md p-2"
             placeholder="i.e. Twice a Day"
             required={true}
           />
@@ -74,7 +74,7 @@ export default function Medication() {
             type="text"
             id="schedule"
             name="schedule"
-            class="border rounded-input p-2"
+            class="border rounded-md p-2"
             placeholder="i.e. Morning and Night"
             required={true}
           />
@@ -83,7 +83,7 @@ export default function Medication() {
             type="text"
             id="sideEffects"
             name="sideEffects"
-            class="border rounded-input p-2"
+            class="border rounded-md p-2"
             placeholder="Medication Side Effects"
           />
           <label class="text-h4">Instructions</label>
@@ -91,7 +91,7 @@ export default function Medication() {
             type="text"
             id="instructions"
             name="instructions"
-            class="border rounded-input p-2"
+            class="border rounded-md p-2"
             placeholder="Instructions for Medication"
           />
           <label class="text-h4">Pharmacy Information</label>
@@ -99,7 +99,7 @@ export default function Medication() {
             type="text"
             id="pharmacyInfo"
             name="pharmacyInfo"
-            class="border rounded-input p-2"
+            class="border rounded-md p-2"
             placeholder="Pharmacy Contact Address / Contact"
           />
         </div>

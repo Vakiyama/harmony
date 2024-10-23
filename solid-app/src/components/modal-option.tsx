@@ -10,7 +10,7 @@ export default function ModalOption(props: ModalOptionProps) {
   };
   return (
     <div
-      class="w-full flex flex-row items-center bg-lofiGray rounded-input p-4"
+      class="w-full flex flex-row items-center bg-lofiGray rounded-md p-4"
       onClick={handleClick}
     >
       <div class="w-full flex flex-col">
@@ -19,7 +19,7 @@ export default function ModalOption(props: ModalOptionProps) {
         </a>
         <p class="text-[11px] min-w-full">{props.description}</p>
       </div>
-      <div>
+      <div class="cursor-pointer">
         <svg
           width="32"
           height="32"
