@@ -11,13 +11,13 @@ export default function TimeDateCalendar(props: {
     <div class="flex justify-between items-center ">
       <p>{props.label}</p>
       <input
-        class="border px-12 py-3 rounded-lg focus:bg-purple-200 focus:border-none focus:outline-none !select-none "
+        class="border px-5 py-3 rounded-lg focus:bg-purple-200 focus:border-none focus:outline-none !select-none "
         type="date"
         value={props.date()}
         onInput={(e) => props.setDate(e.currentTarget.value)}
       />
       <input
-        class="border px-4 py-3 rounded-lg focus:bg-purple-200 focus:border-none focus:outline-none !select-none"
+        class="border px-2 py-3 rounded-lg focus:bg-purple-200 focus:border-none focus:outline-none !select-none"
         type="time"
         value={props.time()}
         onInput={(e) => props.setTime(e.currentTarget.value)}

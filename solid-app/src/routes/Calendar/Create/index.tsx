@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js";
+import { createMemo, createSignal } from "solid-js";
 import { Button } from "~/components/ui/button";
 import TextInput from "./TextInput";
 import TextArea from "./TextAreaInput";
@@ -32,8 +32,8 @@ const CalendarCreateEvent = () => {
     undefined
   );
   const [timeEndTime, setTimeEndTime] = createSignal("");
-  const timeEnd = () => `${timeEndDate()}T${timeEndTime()}`;
-  const timeStart = () => `${timeStartDate()}T${timeStartTime()}`;
+  const timeEnd = () => new Date(`${timeEndDate()}T${timeEndTime()}`);
+  const timeStart = () => new Date(`${timeStartDate()}T${timeStartTime()}`);
   const [repeat, setRepeat] = createSignal<
     "never" | "daily" | "weekly" | "monthly"
   >("never");
@@ -50,7 +50,9 @@ const CalendarCreateEvent = () => {
         })
       : [];
 
-  const teamMemberOptions = parseTeamMemberToOption(teamMembers());
+  const teamMemberOptions = createMemo(() =>
+    parseTeamMemberToOption(teamMembers())
+  );
 
   async function createEventHandler(e: Event) {
     e.preventDefault();
@@ -62,6 +64,8 @@ const CalendarCreateEvent = () => {
         notes: notes(),
         repeat: repeat(),
         type: eventType(),
+        timeEnd: timeEnd(),
+        timeStart: timeStart(),
       })
     );
     if (createEventError) {
@@ -72,7 +76,7 @@ const CalendarCreateEvent = () => {
   return (
     <div class="flex flex-col items-center mt-10 w-full">
       <form class="space-y-4 max-w-lg w-full">
-        <div class="flex gap-4 justify-center">
+        <div class="flex gap-4 justify-between">
           <Button
             class={twMerge(
               "px-20",
@@ -139,7 +143,7 @@ const CalendarCreateEvent = () => {
         <SelectInput
           class="w-full p-1 rounded-lg py-6 ps-4 "
           placeholder="Person"
-          options={teamMemberOptions}
+          options={teamMemberOptions()}
           setSelectedOption={setTeamMemberId}
         />
         <TextArea

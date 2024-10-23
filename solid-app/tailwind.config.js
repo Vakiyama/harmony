@@ -11,10 +11,10 @@ module.exports = {
         "2xl": "1400px",
       },
     },
-    borderRadius: {
-      button: "100px",
-    },
     extend: {
+      borderRadius: {
+        button: "100px",
+      },
       fontSize: {
         h1: "33px",
         h2: "28px",

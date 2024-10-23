@@ -57,6 +57,13 @@
       "when": 1729543098319,
       "tag": "0006_romantic_rhino",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1729545996257,
+      "tag": "0007_exotic_yellowjacket",
+      "breakpoints": true
     }
   ]
 }

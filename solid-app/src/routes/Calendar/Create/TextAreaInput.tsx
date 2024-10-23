@@ -8,16 +8,14 @@ export default function TextArea(props: {
   placeholder: string;
 }) {
   const handleInput = (e: InputEvent) => {
+    // this is here to add a space after -'s for a list like experience
     const inputValue = (e.currentTarget as HTMLTextAreaElement).value;
-    // Split text by new lines
     const lines = inputValue.split("\n");
-    // Process each line: if it starts with '-' and doesn't have a space, add a space after it
     const processedLines = lines.map((line) => {
       return line.startsWith("-") && !line.startsWith("- ")
         ? `- ${line.slice(1)}`
         : line;
     });
-    // Join the processed lines back into the final string and update the state
     props.setValue(processedLines.join("\n"));
   };
   return (

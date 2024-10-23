@@ -85,13 +85,13 @@ export const deleteCalendar = async (calendarId: number) => {
 };
 
 // Events
-export const getEvents = cache(async (calendarId: number) => {
+export const getEvents = async (calendarId: number) => {
   "use server";
   return await db
     .select()
     .from(events)
     .where(eq(events.calendarId, calendarId));
-}, "events");
+};
 
 export const getEvent = cache(async (eventId: number) => {
   "use server";
@@ -123,7 +123,7 @@ export const deleteEvent = async (eventId: number) => {
   return {};
 };
 
-export const getTeamMembersFromTeamId = cache(async (teamId: number) => {
+export const getTeamMembersFromTeamId = async (teamId: number) => {
   "use server";
   return (await db
     .select()
@@ -133,4 +133,4 @@ export const getTeamMembersFromTeamId = cache(async (teamId: number) => {
     users: User;
     teammembers: TeamMember;
   }[];
-}, "teamMembers");
+};

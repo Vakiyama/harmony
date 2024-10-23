@@ -13,8 +13,8 @@ const UpdateModal = (props: {
     <Modal
       title="Update Event"
       onClose={props.closeModal}
-      onSubmit={props.handleUpdateEvent}
       onClick={props.onClick}
+      onSubmit={props.handleUpdateEvent}
     >
       <input
         type="text"
