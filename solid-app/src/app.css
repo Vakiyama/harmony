@@ -20,6 +20,11 @@ h1 {
   font-weight: 100;
   line-height: 1.1;
   margin: 4rem auto;
+  font-family: "ES Rebond";
+}
+
+h2 {
+  font-family: "ES Rebond";
 }
 
 p {
@@ -29,4 +34,19 @@ p {
 
 * {
   scrollbar-width: none;
+  font-family: "SF Pro";
+}
+
+@font-face {
+  font-family: "SF Pro";
+  src: url("../fonts/SF-Pro.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "ES Rebond";
+  src: url("../fonts/ESRebondGrotesque-Medium.otf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
 }

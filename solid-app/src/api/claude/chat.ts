@@ -12,6 +12,8 @@ const CHAT_SYSTEM_MESSAGE = `
 
   If necessary, break up paragraphs with new lines.
 
+  Use markdown in your output.
+
   ## Recipient Information
 
     Name: Mary Johnson
@@ -64,7 +66,6 @@ export const harmonyChat = async (messages: Message[]) => {
   //
   // implement non-tool use version first
 
-  console.log("running?");
   const response = await callClaude({
     messages,
     system: CHAT_SYSTEM_MESSAGE,
