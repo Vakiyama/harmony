@@ -8,7 +8,7 @@ export default function ReallyTerrible() {
         class="icon icon-tabler icon-tabler-mood-annoyed"
         width="32px"
         height="32px"
-        viewBox="0 0 20 20"
+        viewBox="2 2 20 20"
         stroke="currentColor"
         stroke-linecap="round"
         stroke-linejoin="round"
