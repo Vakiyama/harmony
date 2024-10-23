@@ -33,10 +33,10 @@ export default function CreateNote() {
   };
   return (
     <>
-      <main class="w-full h-full mt-[120px] p-4 flex flex-col items-center justify-center space-y-2">
+      <main class="w-full h-full p-4 flex flex-col items-center justify-center space-y-2">
         <PageHeader />
         <section class="mt-8 mb-8 flex flex-col w-full justify-center text-start">
-          <div class="flex flex-col gap-1">
+          <div class="flex flex-col items-center gap-1">
             <svg
               width="40"
               height="40"
@@ -64,11 +64,11 @@ export default function CreateNote() {
             >
               <AddNote title="New Update" placeholder="User Input" />
               <Button
-                class="rounded-button h-12 items-center w-full sm:max-w-368 mb-4"
+                class="rounded-doneButton h-12 w-full mb-4 bg-lofiGray text-black"
                 variant="default"
                 type="submit"
               >
-                Save
+                Done
               </Button>
             </form>
           </div>

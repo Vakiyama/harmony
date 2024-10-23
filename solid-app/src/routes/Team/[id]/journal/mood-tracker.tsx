@@ -7,6 +7,8 @@ import ShowError from "~/routes/Team/[id]/journal/show-error";
 import { Button } from "~/components/ui/button";
 import AddNote from "~/routes/Team/[id]/journal/add-notes";
 import Header from "./header";
+import { Slider } from "~/components/ui/slider";
+import PageHeader from "./page-header";
 
 export default function MoodTracker() {
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
@@ -32,9 +34,10 @@ export default function MoodTracker() {
     }
   };
   return (
-    <main class="absolute top-[3rem] w-full h-[calc(100%-3rem)] p-4 flex items-center justify-center space-y-2 overflow-hidden">
-      <section class="mt-8 mb-8 flex flex-col w-full max-w-[368px] justify-center text-start">
-        <div class="flex flex-col gap-1">
+    <main class="w-full h-full p-4 flex flex-col items-center justify-center space-y-2">
+      <PageHeader />
+      <section class="mt-8 mb-8 flex flex-col w-full justify-center text-start">
+        <div class="flex flex-col items-center gap-1">
           <svg
             width="50"
             height="50"
@@ -67,20 +70,16 @@ export default function MoodTracker() {
             method="post"
             class="flex flex-col mt-2 gap-2"
           >
-            <div class="flex flex-col gap-2 justify-center">
-              <label class="text-h4">How is x doing?</label>
-              <RadioGroupComponent
-                id="wellBeing"
-                name="wellBeing"
-                options={["Poor", "Mid", "Good"]}
-              />
-              <label class="text-h4">Time of Day</label>
-              <RadioGroupComponent
-                id="timeFrame"
-                name="timeFrame"
-                options={["Morning", "Afternoon", "Evening"]}
-              />
+            <div class="flex flex-col gap-2 items-center justify-center">
+              <label class="text-h4">How is Lola doing?</label>
+              <Slider minValue={1} maxValue={5} defaultValue={3} />
             </div>
+            <label class="text-h4">Time of Day</label>
+            <RadioGroupComponent
+              id="timeFrame"
+              name="timeFrame"
+              options={["Morning", "Afternoon", "Evening"]}
+            />
             <div class="flex gap-2 items-center">
               <label class="text-h4">Date</label>
               <DatePickerComponent />
@@ -90,11 +89,11 @@ export default function MoodTracker() {
               placeholder="Describe the situation"
             />
             <Button
-              class="rounded-button h-12 w-full mb-4"
+              class="rounded-doneButton h-12 w-full mb-4 bg-lofiGray text-black"
               variant="default"
               type="submit"
             >
-              Save
+              Done
             </Button>
           </form>
         </div>

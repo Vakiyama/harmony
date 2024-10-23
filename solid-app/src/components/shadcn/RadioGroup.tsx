@@ -23,13 +23,24 @@ const RadioGroupComponent = (props: RadioGroupProps) => {
       name={props.name}
       value={value()}
       onChange={setValue}
-      class="grid gap-2"
+      class="flex w-full gap-2"
     >
       <For each={props.options}>
         {(option) => (
-          <RadioGroupItem value={option} class="flex items-center gap-2 ">
-            <RadioGroupItemControl class="h-4 w-4 border border-gray-300 rounded-full checked:bg-black-600 checked:border-transparent" />
-            <RadioGroupItemLabel class="text-sm text-gray-700 hover:text-blue-600 cursor-pointer">
+          <RadioGroupItem
+            value={option}
+            class="relative flex items-center justify-start w-full h-10 rounded-md px-3 py-2"
+            classList={{
+              "bg-lofiGray": value() === option,
+            }}
+          >
+            <input
+              type="radio"
+              id={option}
+              class="absolute inset-0 w-full h-full opacity-0 peer"
+            />
+            <RadioGroupItemControl class="absolute inset-0 w-full h-full z-0" />
+            <RadioGroupItemLabel class="flex items-center justify-center text-sm text-gray-700 hover:text-blue-600 cursor-pointer z-10">
               {option}
             </RadioGroupItemLabel>
           </RadioGroupItem>

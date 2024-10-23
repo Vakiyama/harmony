@@ -10,7 +10,7 @@ export default function ModalOption(props: ModalOptionProps) {
   };
   return (
     <div
-      class="w-full flex flex-row items-center bg-gray-300 rounded-input p-4"
+      class="w-full flex flex-row items-center bg-lofiGray rounded-input p-4"
       onClick={handleClick}
     >
       <div class="w-full flex flex-col">

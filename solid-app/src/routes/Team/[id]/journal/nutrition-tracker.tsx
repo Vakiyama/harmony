@@ -7,6 +7,7 @@ import ShowError from "~/routes/Team/[id]/journal/show-error";
 import { Button } from "~/components/ui/button";
 import AddNote from "~/routes/Team/[id]/journal/add-notes";
 import Header from "./header";
+import PageHeader from "./page-header";
 
 export default function NutritionTracker() {
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
@@ -32,9 +33,10 @@ export default function NutritionTracker() {
     }
   };
   return (
-    <main class="w-full h-[calc(100%-3rem)] p-4 flex items-center justify-center space-y-2">
-      <section class="mt-8 mb-8 flex flex-col w-full max-w-[368px] justify-center text-start overflow-y-auto overflow-x-hidden">
-        <div class="flex flex-col gap-1">
+    <main class="w-full h-full p-4 flex flex-col items-center justify-center space-y-2">
+      <PageHeader />
+      <section class="mt-8 mb-8 flex flex-col w-full justify-center text-start overflow-y-auto overflow-x-hidden">
+        <div class="flex flex-col items-center gap-1">
           <svg
             width="50"
             height="50"
@@ -111,11 +113,11 @@ export default function NutritionTracker() {
             </div>
             <AddNote title="Add Notes" placeholder="Note..." />
             <Button
-              class="rounded-button h-12 w-full mb-4"
+              class="rounded-doneButton h-12 w-full mb-4 bg-lofiGray text-black"
               variant="default"
               type="submit"
             >
-              Save
+              Done
             </Button>
           </form>
         </div>

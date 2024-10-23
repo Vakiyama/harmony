@@ -5,9 +5,9 @@ interface HeaderProps {
 
 export default function Header(props: HeaderProps) {
   return (
-    <div>
+    <div class="w-full flex flex-col items-center">
       <h1 class="text-h2">{props.title}</h1>
-      <p class="text-subtitle mb-[16px]">{props.description}</p>
+      <p class="text-subtitle">{props.description}</p>
     </div>
   );
 }

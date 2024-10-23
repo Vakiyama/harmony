@@ -15,7 +15,7 @@ interface SelectProps {
 
 const SelectInput = (props: SelectProps) => {
   const [selectedOption, setSelectedOption] = createSignal<string | null>(null);
-  
+
   return (
     <Select
       options={props.options}
@@ -24,7 +24,7 @@ const SelectInput = (props: SelectProps) => {
         <SelectItem item={itemProps.item}>{itemProps.item.rawValue}</SelectItem>
       )}
     >
-      <SelectTrigger class="w-[180px]">
+      <SelectTrigger class="w-full text-gray-400">
         <SelectValue>{selectedOption() || props.placeholder}</SelectValue>
       </SelectTrigger>
       <SelectContent />

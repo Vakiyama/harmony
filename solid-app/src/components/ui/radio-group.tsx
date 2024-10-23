@@ -24,16 +24,18 @@ export const RadioGroupItemControl = <T extends ValidComponent = "div">(
   const [local, rest] = splitProps(props as radioGroupItemControlProps, [
     "class",
   ]);
+
+  const controlClasses = cn(
+    "flex items-center justify-center h-10 w-10 rounded-md transition-shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 hover:border-blue-400 border border-gray-300 disabled:cursor-not-allowed disabled:opacity-50",
+    local.class
+  );
+
   return (
-    <RadioGroupPrimitive.ItemControl
-      class={cn(
-        "flex aspect-square h-4 w-4 items-center justify-center rounded-full border border-primary text-primary shadow transition-shadow focus:outline-none focus-visible:ring-[1.5px] focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[checked]:bg-foreground",
-        local.class
-      )}
-      {...rest}
-    >
-      <RadioGroupItemInput class="hidden" />
-      <RadioGroupPrimitive.ItemIndicator class="h-2 w-2 rounded-full data-[checked]:bg-background" />
+    <RadioGroupPrimitive.ItemControl class={controlClasses} {...rest}>
+      <RadioGroupItemInput class="absolute inset-0 opacity-0" />
+      <RadioGroupPrimitive.ItemLabel class="flex items-center text-sm text-gray-700 hover:text-blue-600 cursor-pointer ml-2">
+        {props.children}
+      </RadioGroupPrimitive.ItemLabel>
     </RadioGroupPrimitive.ItemControl>
   );
 };
