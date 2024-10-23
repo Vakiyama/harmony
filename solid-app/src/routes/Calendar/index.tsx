@@ -24,7 +24,6 @@ export type EventFormData = {
 };
 
 export default function CalendarPage() {
-  const [calendars, setCalendars] = createSignal<Calendar[]>([]);
   const [events, setEvents] = createSignal<Event[]>([]);
   const [currentEvent, setCurrentEvent] = createSignal<Event | null>(null);
   const [formData, setFormData] = createSignal<EventFormData>({
@@ -34,21 +33,18 @@ export default function CalendarPage() {
     timeStart: null,
     timeEnd: null,
   });
-  const [selectedCalendarId, setSelectedCalendarId] = createSignal<
-    number | null
-  >(null);
 
   const [selectedMonth, setSelectedMonth] = createSignal(
     moment().format("MMMM")
   );
   const [selectedDay, setSelectedDay] = createSignal<number>(moment().date());
   const [selectedYear, setSelectedYear] = createSignal<number>(moment().year());
-  console.log(selectedYear(), selectedMonth(), selectedDay());
   onMount(async () => {
     // get teamId
     await fetchCalendars(1);
-    setSelectedCalendarId(1);
+    await fetchEvents(1);
   });
+  const calendarId = 1; // temp
 
   const fetchCalendars = async (teamId: number) => {
     const [calendarError, calendarResult] = await mightFail(
@@ -57,7 +53,6 @@ export default function CalendarPage() {
     if (calendarError) {
       return console.error(calendarError);
     }
-    setCalendars(calendarResult);
   };
 
   const fetchEvents = async (calendarId: number) => {
@@ -66,11 +61,6 @@ export default function CalendarPage() {
       return console.error(eventError);
     }
     setEvents(eventResult);
-  };
-
-  const handleCalendarSelect = (id: number) => {
-    setSelectedCalendarId(id);
-    fetchEvents(id);
   };
 
   const openModal = (type: "update" | "delete", event: Event | null = null) => {
@@ -98,7 +88,7 @@ export default function CalendarPage() {
       if (error) {
         return console.error(error);
       }
-      await fetchEvents(selectedCalendarId()!);
+      await fetchEvents(calendarId);
     }
     closeModal();
   };
@@ -109,7 +99,7 @@ export default function CalendarPage() {
       if (error) {
         return console.error(error);
       }
-      await fetchEvents(selectedCalendarId()!);
+      await fetchEvents(calendarId);
     }
     closeModal();
   };
@@ -120,86 +110,61 @@ export default function CalendarPage() {
 
   return (
     <div class="p-6">
-      {/* <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-        <Show
-          when={calendars().length > 0}
-          fallback={<p>No calendars available.</p>}
-        >
-          <For each={calendars()} fallback={<div>loading...</div>}>
-            {(calendar) => (
-              <div
-                class="bg-white shadow-md rounded-lg p-4 cursor-pointer hover:shadow-lg transition"
-                onClick={() => handleCalendarSelect(calendar.id)}
-              >
-                <h2 class="text-xl font-semibold">{calendar.name}</h2>
-                <p class="text-gray-600">Source: {calendar.source}</p>
-              </div>
-            )}
-          </For>
-        </Show>
-      </div> */}
-
-      <Show when={selectedCalendarId()}>
-        <div class="max-w-[vw-50%]">
-          <div class="text-[#1e1e1e] text-[28px] font-medium font-['ES Rebond Grotesque TRIAL'] leading-[33.60px]">
-            {selectedMonth()}
-          </div>
-          <CalendarView
-            selectedYear={selectedYear}
-            setSelectedYear={setSelectedYear}
-            selectedMonth={selectedMonth}
-            setSelectedMonth={setSelectedMonth}
-            selectedDay={selectedDay}
-            setSelectedDay={setSelectedDay}
-            events={events}
-          />
-          {/* <h2 class="text-2xl font-bold mb-2">
-            Events for Calendar:{" "}
-            {calendars().find((c) => c.id === selectedCalendarId())!.name}
-          </h2> */}
-          <div class="bg-gray-100 p-4 rounded-lg">
-            <Show
-              when={events().length > 0}
-              fallback={<p>No events available for this calendar.</p>}
-            >
-              <ul class="flex flex-col gap-5">
-                <For each={events()} fallback={<div>loading...</div>}>
-                  {(event) => (
-                    <div class="bg-gray-300 p-4 rounded-lg border">
-                      <li class="mb-2 p-4">
-                        <div class="font-semibold">{event.title}</div>
-                        <p class="text-gray-500">{event.notes}</p>
-                        <p class="text-sm text-gray-400">
-                          Start: {formatDate(event.timeStart)} - End:{" "}
-                          {formatDate(event.timeEnd)}
-                        </p>
-                        {event.location && (
-                          <p class="text-sm text-gray-500">
-                            Location: {event.location}
-                          </p>
-                        )}
-                        <UpdateModal
-                          onClick={() => openModal("update", event)}
-                          closeModal={closeModal}
-                          handleUpdateEvent={handleUpdateEvent}
-                          formData={formData}
-                          setFormData={setFormData}
-                        />
-                        <DeleteModal
-                          onClick={() => openModal("delete", event)}
-                          closeModal={closeModal}
-                          handleDeleteEvent={handleDeleteEvent}
-                          currentEvent={currentEvent}
-                        />
-                      </li>
-                    </div>
-                  )}
-                </For>
-              </ul>
-            </Show>
-          </div>
+      <div class="max-w-[vw-50%]">
+        <div class="text-[#1e1e1e] text-[28px] font-medium font-['ES Rebond Grotesque TRIAL'] leading-[33.60px]">
+          {selectedMonth()}
         </div>
-      </Show>
+        <CalendarView
+          selectedYear={selectedYear}
+          setSelectedYear={setSelectedYear}
+          selectedMonth={selectedMonth}
+          setSelectedMonth={setSelectedMonth}
+          selectedDay={selectedDay}
+          setSelectedDay={setSelectedDay}
+          events={events}
+        />
+        <div class="bg-gray-100 p-4 rounded-lg">
+          <Show
+            when={events().length > 0}
+            fallback={<p>No events available for this calendar.</p>}
+          >
+            <ul class="flex flex-col gap-5">
+              <For each={events()} fallback={<div>loading...</div>}>
+                {(event) => (
+                  <div class="bg-gray-300 p-4 rounded-lg border">
+                    <li class="mb-2 p-4">
+                      <div class="font-semibold">{event.title}</div>
+                      <p class="text-gray-500">{event.notes}</p>
+                      <p class="text-sm text-gray-400">
+                        Start: {formatDate(event.timeStart)} - End:{" "}
+                        {formatDate(event.timeEnd)}
+                      </p>
+                      {event.location && (
+                        <p class="text-sm text-gray-500">
+                          Location: {event.location}
+                        </p>
+                      )}
+                      <UpdateModal
+                        onClick={() => openModal("update", event)}
+                        closeModal={closeModal}
+                        handleUpdateEvent={handleUpdateEvent}
+                        formData={formData}
+                        setFormData={setFormData}
+                      />
+                      <DeleteModal
+                        onClick={() => openModal("delete", event)}
+                        closeModal={closeModal}
+                        handleDeleteEvent={handleDeleteEvent}
+                        currentEvent={currentEvent}
+                      />
+                    </li>
+                  </div>
+                )}
+              </For>
+            </ul>
+          </Show>
+        </div>
+      </div>
       <a href="/calendar/create">go create one bro</a>
     </div>
   );

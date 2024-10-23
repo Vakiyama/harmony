@@ -90,7 +90,8 @@ export const getEvents = async (calendarId: number) => {
   return await db
     .select()
     .from(events)
-    .where(eq(events.calendarId, calendarId));
+    .where(eq(events.calendarId, calendarId))
+    .orderBy(events.timeStart);
 };
 
 export const getEvent = cache(async (eventId: number) => {
