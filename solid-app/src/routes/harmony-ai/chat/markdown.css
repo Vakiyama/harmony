@@ -1,6 +1,9 @@
+.markdown * {
+  font-family: "SF Pro", sans-serif;
+}
+
 .markdown p {
   font-size: 18px;
-  font-family: "SF Pro", sans-serif;
   margin-top: 16px;
   margin-bottom: 16px;
 }
@@ -8,26 +11,32 @@
   font-size: 24px;
   font-weight: 600;
   margin-top: 28px;
+  font-family: "ES Rebond";
 }
 
 .markdown h2 {
   font-size: 22px;
+  font-family: "ES Rebond";
   margin-top: 26px;
 }
 .markdown h3 {
   font-size: 20px;
+  font-family: "ES Rebond";
   margin-top: 24px;
 }
 .markdown h4 {
   font-size: 18px;
+  font-family: "ES Rebond";
   margin-top: 20px;
 }
 
 .markdown h5 {
+  font-family: "ES Rebond";
   font-size: 18px;
 }
 
 .markdown h6 {
+  font-family: "ES Rebond";
   font-size: 18px;
 }
 
@@ -132,7 +141,6 @@
     hyphens: auto;
   }
   ul {
-    list-style: square;
     padding-left: 1.2em;
   }
   ol {
@@ -157,11 +165,6 @@
   }
   a img {
     border: none;
-  }
-  h1 a,
-  h1 a:hover {
-    color: #333;
-    text-decoration: none;
   }
   hr {
     color: #ddd;
@@ -301,7 +304,7 @@
 }
 
 .markdown ul {
-  list-style: square;
+  list-style: disc;
   padding-left: 1.2em;
 }
 

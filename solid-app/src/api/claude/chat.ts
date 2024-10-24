@@ -71,6 +71,5 @@ export const harmonyChat = async (messages: Message[]) => {
     system: CHAT_SYSTEM_MESSAGE,
     claudeSettings: defaultClaudeSettings,
   });
-
   return response;
 };

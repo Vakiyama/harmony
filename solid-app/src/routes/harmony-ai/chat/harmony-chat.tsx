@@ -1,17 +1,19 @@
-import { Show, createSignal } from "solid-js";
+import { Show, createEffect, createSignal } from "solid-js";
 import { twMerge } from "tailwind-merge";
 import { Message } from "~/api/claude/apiCalls";
 import { Image, ImageRoot } from "~/components/ui/image";
-import Tail from "./images/Tail.svg";
-import HarmonyMascot from "./images/harmony-mascot-container.svg";
-import Soundwave from "./images/BsSoundwave.svg";
+import Tail from "../images/Tail.svg";
+import HarmonyMascot from "../images/harmony-mascot-container.svg";
+import Soundwave from "../images/BsSoundwave.svg";
 import { harmonyChat } from "~/api/claude/chat";
 import SolidMarkdown from "@zentered/solid-markdown";
 import "./markdown.css";
+import { A } from "@solidjs/router";
 
 export function HarmonyChat() {
   const [messages, setMessages] = createSignal<Message[]>([]);
   const [input, setInput] = createSignal<string>("");
+  const [lastMessage, setLastMessage] = createSignal<HTMLDivElement>();
 
   async function handleConversation(messages: Message[]) {
     const response = await harmonyChat(messages);
@@ -21,6 +23,17 @@ export function HarmonyChat() {
     ];
     setMessages(newMessages);
   }
+
+  createEffect(() => {
+    console.log(lastMessage());
+    if (lastMessage() === undefined) return;
+    console.log("scrolling!");
+    lastMessage()!.scrollIntoView({
+      block: "end",
+      inline: "nearest",
+      behavior: "smooth",
+    });
+  }, [lastMessage]);
 
   function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
@@ -90,7 +103,7 @@ export function HarmonyChat() {
               </Show>
             }
           >
-            {messages().map((message) => (
+            {messages().map((message, index) => (
               <div
                 class={twMerge(
                   "flex items-center relative max-w-[90%]",
@@ -110,10 +123,19 @@ export function HarmonyChat() {
                   {message.role === "user" ? (
                     <p class="text-white">{message.content}</p>
                   ) : (
-                    <SolidMarkdown
-                      class="markdown"
-                      children={message.content}
-                    />
+                    <div
+                      class="pb-4"
+                      ref={
+                        index === messages().length - 1
+                          ? setLastMessage
+                          : undefined
+                      }
+                    >
+                      <SolidMarkdown
+                        class="markdown"
+                        children={message.content}
+                      />
+                    </div>
                   )}
                 </div>
                 <Show when={message.role === "user"}>
@@ -138,10 +160,15 @@ export function HarmonyChat() {
             onChange={(e) => setInput(e.target.value)}
             placeholder="Chat with Harmony..."
           />
-          <button class="rounded-full p-px bg-white flex items-center justify-center">
-            <ImageRoot class="h-7 w-7 flex items-center justify-center">
-              <Image height="30px" width="30px" src={Soundwave} class="h-7" />
-            </ImageRoot>
+          <button class="rounded-full p-px bg-white">
+            <A
+              href="/harmony-ai/voice"
+              class="flex items-center justify-center"
+            >
+              <ImageRoot class="h-7 w-7 flex items-center justify-center">
+                <Image height="30px" width="30px" src={Soundwave} class="h-7" />
+              </ImageRoot>
+            </A>
           </button>
         </div>
       </form>

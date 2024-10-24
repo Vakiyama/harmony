@@ -12,6 +12,10 @@ module.exports = {
       },
     },
     extend: {
+      fontFamily: {
+        "sf-pro": ["SF Pro", "sans-serif"], // Fallback to sans-serif
+        grotesque: ["ES Rebond", "sans-serif"],
+      },
       fontSize: {
         h1: "33px",
         h2: "28px",

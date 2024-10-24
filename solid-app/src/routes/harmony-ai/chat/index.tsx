@@ -1,6 +1,6 @@
 import { ImageRoot, Image } from "~/components/ui/image";
-import { HarmonyChat } from "../harmony-chat";
-import HarmonyMascot from "./images/harmony-mascot-container.svg";
+import { HarmonyChat } from "./harmony-chat";
+import HarmonyMascot from "../images/harmony-mascot-container.svg";
 import { Button } from "~/components/ui/button";
 import { JSXElement } from "solid-js";
 import { twMerge } from "tailwind-merge";
@@ -15,6 +15,8 @@ export default function Index() {
     </>
   );
 }
+
+// ignore these components i'll refac it later
 
 function BottomModal(props: { children: JSXElement; height?: number }) {
   return (
