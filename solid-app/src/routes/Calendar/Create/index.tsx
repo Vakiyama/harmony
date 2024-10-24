@@ -1,4 +1,4 @@
-import { createMemo, createSignal } from "solid-js";
+import { createEffect, createMemo, createSignal } from "solid-js";
 import { Button } from "~/components/ui/button";
 import TextInput from "./TextInput";
 import TextArea from "./TextAreaInput";
@@ -7,9 +7,10 @@ import TimeDateCalendar from "./TimeDateCalendar";
 import SelectInput from "~/components/shadcn/Select";
 import { createEvent, getTeamMembersFromTeamId } from "~/api/calendar";
 import { createAsync, useNavigate } from "@solidjs/router";
-import { TeamMember } from "@/schema/TeamMembers";
+import type { TeamMember } from "@/schema/TeamMembers";
 import { User } from "@/schema/Users";
 import { mightFail } from "might-fail";
+import { isValidEnumValue } from "~/api/dbHelper";
 
 const CalendarCreateEvent = () => {
   const navigate = useNavigate();
@@ -25,19 +26,16 @@ const CalendarCreateEvent = () => {
   const [teamMemberId, setTeamMemberId] = createSignal<number | undefined>(
     undefined
   );
-  const [timeStartDate, setTimeStartDate] = createSignal<string | undefined>(
-    undefined
-  );
+  const [timeStartDate, setTimeStartDate] = createSignal<string | undefined>();
   const [timeStartTime, setTimeStartTime] = createSignal("");
-  const [timeEndDate, setTimeEndDate] = createSignal<string | undefined>(
-    undefined
-  );
+  const [timeEndDate, setTimeEndDate] = createSignal<string | undefined>();
   const [timeEndTime, setTimeEndTime] = createSignal("");
   const timeEnd = () => new Date(`${timeEndDate()}T${timeEndTime()}`);
   const timeStart = () => new Date(`${timeStartDate()}T${timeStartTime()}`);
   const [repeat, setRepeat] = createSignal<
     "never" | "daily" | "weekly" | "monthly"
   >("never");
+
   const parseTeamMemberToOption = (
     data: { teammembers: TeamMember; users: User }[] | undefined
   ) =>
@@ -56,6 +54,24 @@ const CalendarCreateEvent = () => {
 
   async function createEventHandler(e: Event) {
     e.preventDefault();
+    if (!title() || title().trim() === "") {
+      return alert("Title is required.");
+    }
+    if (!timeStartTime() || !timeStartDate) {
+      return alert("Start time is required.");
+    }
+    if (!timeEndTime() || !timeEndDate) {
+      return alert("End time is required.");
+    }
+    // if (isValidEnumValue(repeat(), eventsFrequencyEnum)) {
+    //   return alert("Valid repeat frequency is required.";
+    // }
+    // if (isValidEnumValue(eventType(), eventsTypeEnum)) {
+    //   return alert("Valid event type is required.";
+    // }
+    if (timeEnd() <= timeStart()) {
+      return alert("End time must be after start time.");
+    }
     const [createEventError, createEventResult] = await mightFail(
       createEvent({
         calendarId: 1,
