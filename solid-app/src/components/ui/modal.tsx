@@ -20,7 +20,10 @@ export default function Modal(props: {
   return (
     <Dialog onOpenChange={(isOpen) => (!isOpen ? props.onClose() : "")}>
       <DialogTrigger
-        onClick={props.onClick}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (props.onClick) props.onClick();
+        }}
         as={(Props: DialogTriggerProps) => (
           <Button variant="outline" {...Props}>
             {props.title}

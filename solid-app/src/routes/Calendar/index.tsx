@@ -1,6 +1,5 @@
-import { createSignal, createEffect, For, onMount, Show } from "solid-js";
+import { createSignal, For, onMount, Show } from "solid-js";
 import { mightFail } from "might-fail";
-import type { Calendar } from "@/schema/Calendars";
 import type { Event } from "@/schema/Events";
 import {
   getCalendarsFromTeamId,
@@ -12,6 +11,7 @@ import UpdateModal from "./updateModal";
 import DeleteModal from "./deleteModal";
 import CalendarView from "./CalendarView";
 import moment from "moment";
+import { useNavigate } from "@solidjs/router";
 moment.locale("en");
 moment.updateLocale("en", { weekdaysMin: "S_M_T_W_T_F_S".split("_") });
 
@@ -24,6 +24,7 @@ export type EventFormData = {
 };
 
 export default function CalendarPage() {
+  const navigate = useNavigate();
   const [events, setEvents] = createSignal<Event[]>([]);
   const [currentEvent, setCurrentEvent] = createSignal<Event | null>(null);
   const [formData, setFormData] = createSignal<EventFormData>({
@@ -40,11 +41,12 @@ export default function CalendarPage() {
   const [selectedDay, setSelectedDay] = createSignal<number>(moment().date());
   const [selectedYear, setSelectedYear] = createSignal<number>(moment().year());
   onMount(async () => {
-    // get teamId
+    // temp get teamId
     await fetchCalendars(1);
+    // temp get calendar Id
     await fetchEvents(1);
   });
-  const calendarId = 1; // temp
+  const calendarId = 1; // temp get calendar Id
 
   const fetchCalendars = async (teamId: number) => {
     const [calendarError, calendarResult] = await mightFail(
@@ -131,7 +133,12 @@ export default function CalendarPage() {
             <ul class="flex flex-col gap-5">
               <For each={events()} fallback={<div>loading...</div>}>
                 {(event) => (
-                  <div class="bg-gray-300 p-4 rounded-lg border">
+                  <div
+                    class="bg-gray-300 p-4 rounded-lg border"
+                    onClick={() => {
+                      navigate(`/calendar/event/${event.id}`);
+                    }}
+                  >
                     <li class="mb-2 p-4">
                       <div class="font-semibold">{event.title}</div>
                       <p class="text-gray-500">{event.notes}</p>

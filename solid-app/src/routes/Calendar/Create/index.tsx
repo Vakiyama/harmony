@@ -6,14 +6,15 @@ import { twMerge } from "tailwind-merge";
 import TimeDateCalendar from "./TimeDateCalendar";
 import SelectInput from "~/components/shadcn/Select";
 import { createEvent, getTeamMembersFromTeamId } from "~/api/calendar";
-import { createAsync, redirect, useNavigate } from "@solidjs/router";
+import { createAsync, useNavigate } from "@solidjs/router";
 import { TeamMember } from "@/schema/TeamMembers";
 import { User } from "@/schema/Users";
 import { mightFail } from "might-fail";
 
 const CalendarCreateEvent = () => {
+  const navigate = useNavigate();
   const teamMembers = createAsync(
-    // get teamId first
+    // temp get teamId first
     async () => await getTeamMembersFromTeamId(1),
     { deferStream: true }
   );
@@ -37,7 +38,6 @@ const CalendarCreateEvent = () => {
   const [repeat, setRepeat] = createSignal<
     "never" | "daily" | "weekly" | "monthly"
   >("never");
-  const navigate = useNavigate();
   const parseTeamMemberToOption = (
     data: { teammembers: TeamMember; users: User }[] | undefined
   ) =>
