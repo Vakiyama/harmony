@@ -11,10 +11,11 @@ module.exports = {
         "2xl": "1400px",
       },
     },
-    borderRadius: {
-      button: "100px",
-    },
     extend: {
+      fontFamily: {
+        "sf-pro": ["SF Pro", "sans-serif"], // Fallback to sans-serif
+        grotesque: ["ES Rebond", "sans-serif"],
+      },
       fontSize: {
         h1: "33px",
         h2: "28px",
@@ -62,6 +63,7 @@ module.exports = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        button: "100px",
       },
       keyframes: {
         "accordion-down": {
