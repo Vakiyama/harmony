@@ -8,10 +8,12 @@ import { TeamMembers } from "./schema/TeamMembers";
 import { calendars } from "./schema/Calendars";
 import { EventInput, events } from "./schema/Events";
 import { alarms } from "./schema/Alarms";
+import { eventParticipants } from "./schema/EventParticipants";
 
 const seedData = async () => {
   const users = await db.select().from(Users);
   // Seed Recipients
+  await db.delete(eventParticipants);
   await db.delete(events);
   await db.delete(calendars);
   await db.delete(TeamMembers);
@@ -120,6 +122,19 @@ const seedData = async () => {
         // timeEnd: data.timeEnd,
         // timeStart: data.timeStart,
         type: data.type,
+      })
+      .onConflictDoNothing();
+  }
+
+  // Seed EventsParticipants
+  const Events = await db.select().from(events);
+  for await (const event of Events) {
+    await db
+      .insert(eventParticipants)
+      .values({
+        eventId: event.id,
+        userId: 1,
+        status: "maybe",
       })
       .onConflictDoNothing();
   }

@@ -3,15 +3,16 @@ import { mightFail } from "might-fail";
 import type { Event } from "@/schema/Events";
 import {
   getCalendarsFromTeamId,
-  getEvents,
+  getAllEvents,
   updateEvent,
   deleteEvent,
+  getEventsWithUserId,
 } from "~/api/calendar";
 import UpdateModal from "./updateModal";
 import DeleteModal from "./deleteModal";
 import CalendarView from "./CalendarView";
 import moment from "moment";
-import { useNavigate } from "@solidjs/router";
+import EventCard from "~/components/ui/eventCard";
 moment.locale("en");
 moment.updateLocale("en", { weekdaysMin: "S_M_T_W_T_F_S".split("_") });
 
@@ -24,7 +25,6 @@ export type EventFormData = {
 };
 
 export default function CalendarPage() {
-  const navigate = useNavigate();
   const [events, setEvents] = createSignal<Event[]>([]);
   const [currentEvent, setCurrentEvent] = createSignal<Event | null>(null);
   const [formData, setFormData] = createSignal<EventFormData>({
@@ -58,7 +58,7 @@ export default function CalendarPage() {
   };
 
   const fetchEvents = async (calendarId: number) => {
-    const [eventError, eventResult] = await mightFail(getEvents(calendarId));
+    const [eventError, eventResult] = await mightFail(getAllEvents(calendarId));
     if (eventError) {
       return console.error(eventError);
     }
@@ -106,10 +106,6 @@ export default function CalendarPage() {
     closeModal();
   };
 
-  const formatDate = (date: Date | null) => {
-    return date ? date.toLocaleString() : "Not specified";
-  };
-
   return (
     <div class="p-6">
       <div class="max-w-[vw-50%]">
@@ -133,39 +129,42 @@ export default function CalendarPage() {
             <ul class="flex flex-col gap-5">
               <For each={events()} fallback={<div>loading...</div>}>
                 {(event) => (
-                  <div
-                    class="bg-gray-300 p-4 rounded-lg border"
-                    onClick={() => {
-                      navigate(`/calendar/event/${event.id}`);
-                    }}
-                  >
-                    <li class="mb-2 p-4">
-                      <div class="font-semibold">{event.title}</div>
-                      <p class="text-gray-500">{event.notes}</p>
-                      <p class="text-sm text-gray-400">
-                        Start: {formatDate(event.timeStart)} - End:{" "}
-                        {formatDate(event.timeEnd)}
-                      </p>
-                      {event.location && (
-                        <p class="text-sm text-gray-500">
-                          Location: {event.location}
+                  <>
+                    <EventCard event={event}></EventCard>
+                    {/* <div
+                      class="bg-gray-300 p-4 rounded-lg border"
+                      onClick={() => {
+                        navigate(`/calendar/event/${event.id}`);
+                      }}
+                    >
+                      <li class="mb-2 p-4">
+                        <div class="font-semibold">{event.title}</div>
+                        <p class="text-gray-500">{event.notes}</p>
+                        <p class="text-sm text-gray-400">
+                          Start: {formatDateToLocaleString(event.timeStart)} -
+                          End: {formatDateToLocaleString(event.timeEnd)}
                         </p>
-                      )}
-                      <UpdateModal
-                        onClick={() => openModal("update", event)}
-                        closeModal={closeModal}
-                        handleUpdateEvent={handleUpdateEvent}
-                        formData={formData}
-                        setFormData={setFormData}
-                      />
-                      <DeleteModal
-                        onClick={() => openModal("delete", event)}
-                        closeModal={closeModal}
-                        handleDeleteEvent={handleDeleteEvent}
-                        currentEvent={currentEvent}
-                      />
-                    </li>
-                  </div>
+                        {event.location && (
+                          <p class="text-sm text-gray-500">
+                            Location: {event.location}
+                          </p>
+                        )}
+                        <UpdateModal
+                          onClick={() => openModal("update", event)}
+                          closeModal={closeModal}
+                          handleUpdateEvent={handleUpdateEvent}
+                          formData={formData}
+                          setFormData={setFormData}
+                        />
+                        <DeleteModal
+                          onClick={() => openModal("delete", event)}
+                          closeModal={closeModal}
+                          handleDeleteEvent={handleDeleteEvent}
+                          currentEvent={currentEvent}
+                        />
+                      </li>
+                    </div> */}
+                  </>
                 )}
               </For>
             </ul>

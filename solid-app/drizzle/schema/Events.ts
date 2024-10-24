@@ -1,7 +1,6 @@
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { calendars } from "./Calendars";
 import { sql } from "drizzle-orm";
-import { TeamMembers } from "./TeamMembers";
 
 export const eventsFrequencyEnum = [
   "never",
@@ -10,6 +9,9 @@ export const eventsFrequencyEnum = [
   "monthly",
 ] as const;
 export const eventsTypeEnum = ["task", "event"] as const;
+
+export type EventsFrequencyEnum = typeof eventsFrequencyEnum;
+export type EventsTypeEnum = typeof eventsTypeEnum;
 
 export const events = sqliteTable("events", {
   id: integer("id").primaryKey({ autoIncrement: true }).notNull().unique(),
@@ -27,7 +29,6 @@ export const events = sqliteTable("events", {
   location: text("location").notNull(),
   repeat: text("repeat", { enum: eventsFrequencyEnum }).notNull(),
   type: text("type", { enum: eventsTypeEnum }).notNull(),
-  teamMemberId: integer("teamMemberId").references(() => TeamMembers.id),
 });
 
 export type Event = typeof events.$inferSelect;
