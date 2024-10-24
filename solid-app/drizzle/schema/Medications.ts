@@ -22,9 +22,6 @@ export const medications = sqliteTable("medications", {
   teamId: integer("team_id")
     .references(() => Teams.id)
     .notNull(),
-  userId: integer("user_id")
-    .references(() => Users.id)
-    .notNull(),
 });
 
 export type Medications = typeof medications.$inferSelect;

@@ -1,7 +1,10 @@
 import DatePickerComponent from "~/components/shadcn/DatePicker";
-import { createTakenMedicationAction } from "~/api/journal";
-import { createSignal } from "solid-js";
-import { useAction } from "@solidjs/router";
+import {
+  createTakenMedicationAction,
+  getMedicationsFromTeamId,
+} from "~/api/journal";
+import { createMemo, createSignal } from "solid-js";
+import { createAsync, useAction } from "@solidjs/router";
 import ShowError from "~/routes/Team/[id]/journal/show-error";
 import { Button } from "~/components/ui/button";
 import AddNote from "~/routes/Team/[id]/journal/add-notes";
@@ -9,12 +12,24 @@ import Header from "./header";
 import PageHeader from "./page-header";
 import SelectInput from "~/components/shadcn/Select";
 import TimePicker from "~/components/ui/time-picker";
+import { Medications } from "@/schema/Medications";
 
 export default function Medication() {
+  const medications = createAsync(
+    async () => await getMedicationsFromTeamId(1),
+    { deferStream: true }
+  );
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
   const [error, setError] = createSignal("");
-  const [time, setTime] = createSignal("12:00");
-
+  const [time, setTime] = createSignal("");
+  const formatOptions = (data: Medications[] | undefined) => {
+    return data
+      ? data.map((data) => {
+          return { value: String(data.id), label: data.name };
+        })
+      : [];
+  };
+  const medicationOptions = createMemo(() => formatOptions(medications()));
   const myAction = useAction(createTakenMedicationAction);
   type CreateMedicationActionResponse = {
     success?: boolean;
@@ -45,7 +60,7 @@ export default function Medication() {
     "Inhaler",
   ];
 
-  const exampleMedications = ["Omeprazole", "Azithromycin", "Metformin"];
+  // const exampleMedications = ["Omeprazole", "Azithromycin", "Metformin"];
 
   return (
     <main class="w-full h-full p-4 flex flex-col items-center justify-center space-y-2">
@@ -81,11 +96,13 @@ export default function Medication() {
           <div class="flex flex-col gap-2 text-h4">
             <label>Select Medication</label>
             <SelectInput
-              options={exampleMedications}
+              name="medication"
+              options={medicationOptions()}
               placeholder="Select Medication"
             />
             <label>Medication Type</label>
             <SelectInput
+              name="medicationType"
               options={medicationTypes}
               placeholder="Select Medication Type"
             />
@@ -94,7 +111,7 @@ export default function Medication() {
             <label class="text-h4">Date & Time Taken</label>
             <div class="flex flex-row gap-2">
               <DatePickerComponent />
-              <TimePicker time={time} setTime={setTime} />
+              <TimePicker time={time} setTime={setTime} name="time" />
             </div>
           </div>
           <AddNote

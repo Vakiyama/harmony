@@ -8,6 +8,7 @@ import { TeamMembers } from "./schema/TeamMembers";
 import { calendars } from "./schema/Calendars";
 import { EventInput, events } from "./schema/Events";
 import { alarms } from "./schema/Alarms";
+import { medications } from "./schema/Medications";
 
 const seedData = async () => {
   const users = await db.select().from(Users);
@@ -135,6 +136,34 @@ const seedData = async () => {
   //     },
   //   ];
   //   await db.insert(alarms).values(alarmsData);
+
+  //Seed Medications
+  const medicationsData = [
+    {
+      name: "Omeprazole",
+      dosage: "10mg",
+      frequency: "1 per day",
+      schedule: "Morning",
+      teamId: 1,
+    },
+    {
+      name: "Azithromycin",
+      dosage: "250mg",
+      frequency: "3 times a week",
+      schedule: "Morning",
+      teamId: 1,
+    },
+    {
+      name: "Metformin",
+      dosage: "500mg",
+      frequency: "1 per day",
+      schedule: "Evening",
+      teamId: 1,
+    },
+  ];
+  for await (const data of medicationsData) {
+    await db.insert(medications).values(data).onConflictDoNothing();
+  }
 
   console.log("Database seeded successfully!");
 };

@@ -14,9 +14,7 @@ interface RadioGroupProps {
 }
 
 const RadioGroupComponent = (props: RadioGroupProps) => {
-  const [value, setValue] = createSignal(
-    props.defaultValue || props.options[0]
-  );
+  const [value, setValue] = createSignal(props.defaultValue || undefined);
 
   return (
     <RadioGroup

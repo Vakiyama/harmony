@@ -26,6 +26,7 @@ export const takenMedications = sqliteTable("taken_medications", {
   medicationId: integer("medication_id")
     .references(() => medications.id)
     .notNull(),
+  type: text("type").notNull(),
 });
 
 export type Medications = typeof takenMedications.$inferSelect;

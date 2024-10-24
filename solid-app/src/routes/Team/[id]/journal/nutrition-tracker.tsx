@@ -62,11 +62,6 @@ export default function NutritionTracker() {
         </div>
         <div class="flex flex-col mt-2 gap-2 w-full">
           <ShowError error={error()}></ShowError>
-          <label>Meal Type</label>
-          <SelectInput
-            options={["Breakfast", "Lunch", "Dinner", "Snack"]}
-            placeholder="Select Meal Type"
-          />
           <form
             ref={setFormRef}
             onSubmit={handleSubmit}
@@ -75,6 +70,12 @@ export default function NutritionTracker() {
           >
             <div class="flex flex-col gap-2 justify-center">
               <div class="flex flex-col gap-2">
+                <label>Meal Type</label>
+                <SelectInput
+                  options={["Breakfast", "Lunch", "Dinner", "Snack"]}
+                  placeholder="Select Meal Type"
+                  name="category"
+                />
                 <label class="text-h4">Food Name</label>
                 <input
                   type="text"
@@ -102,6 +103,7 @@ export default function NutritionTracker() {
                   "All",
                 ]}
                 placeholder="Select Amount Eaten"
+                name="consumption"
               />
             </div>
             <div class="flex flex-col gap-2">

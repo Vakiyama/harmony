@@ -1,6 +1,7 @@
-import { createSignal } from "solid-js";
+import { createSignal, Suspense } from "solid-js";
 import Modal from "../../../../components/modal";
 import { Skeleton } from "~/components/ui/skeleton";
+import JournalFeed from "./journal-feed";
 
 export default function Journal() {
   const currentDate = new Date();
@@ -68,6 +69,9 @@ export default function Journal() {
         <p class="text-base mb-[16px]">{formattedDate}</p>
         <div class="flex flex-col gap-2 mt-2">
           <h2 class="font-medium text-[24px]">Journal Entry</h2>
+          <Suspense fallback={<div>im loading bro</div>}>
+            <JournalFeed></JournalFeed>
+          </Suspense>
           <button
             onClick={handleButtonClick}
             class="absolute bottom-24 right-4 flex rounded-full w-14 h-14 bg-white shadow-md items-center justify-center"
