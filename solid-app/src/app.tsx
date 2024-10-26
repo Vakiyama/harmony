@@ -4,6 +4,7 @@ import { FileRoutes } from "@solidjs/start/router";
 import { Suspense } from "solid-js";
 import "./app.css";
 import "./input.css";
+import NavBar from "./routes/home/nav-bar";
 
 export default function App() {
   return (
@@ -41,9 +42,11 @@ export default function App() {
             </a>
           </div>
           */}
+
           <Suspense>
             <div class="h-full">{props.children}</div>
           </Suspense>
+          <NavBar />
         </div>
       )}
     >
