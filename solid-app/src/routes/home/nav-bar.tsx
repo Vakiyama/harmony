@@ -1,5 +1,5 @@
 import { useLocation } from "@solidjs/router";
-import { For } from "solid-js";
+import { createMemo, For } from "solid-js";
 import { AiFillHome } from "solid-icons/ai";
 import { FaSolidCalendar } from "solid-icons/fa";
 import { IoPerson, IoBook } from "solid-icons/io";
@@ -12,6 +12,7 @@ import ProfileIcon from "./_icon/profile-icon";
 
 export default function NavBar() {
   const location = useLocation();
+  const currentPath = createMemo(() => location.pathname);
 
   const routes = [
     { icon: <HomeIcon />, label: "Home", href: "/home" },
@@ -31,7 +32,7 @@ export default function NavBar() {
                 icon={route.icon}
                 label={route.label}
                 href={route.href}
-                active={location.pathname === route.href}
+                active={currentPath() === route.href}
               />
             )}
           </For>

@@ -8,23 +8,28 @@ interface NavBarItemProps {
   active: boolean;
 }
 
-const NavBarItem: (props: NavBarItemProps) => JSX.Element = ({
-  icon,
-  label,
-  href,
-  active,
-}) => {
+const NavBarItem: Component<NavBarItemProps> = (props) => {
   return (
-    <div>
-      <A
-        href={href}
-        class={`flex flex-col items-center justify-center py-2 px-3 text-sm font-medium cursor-pointer transition
-            ${active ? "text-blue-600" : "text-gray-600"} hover:text-blue-600`}
+    <A
+      href={props.href}
+      classList={{
+        "flex flex-col items-center justify-center py-2 px-3 text-sm font-medium cursor-pointer transition":
+          true,
+        "text-purple-600": props.active,
+        "text-gray-600": !props.active,
+        "hover:text-purple-600": true,
+      }}
+    >
+      <div
+        classList={{
+          "text-xl mb-1": true,
+          "bg-purple-300 text-white rounded-3xl px-4 py-2": props.active,
+        }}
       >
-        <div class="text-xl mb-1">{icon}</div>
-        <p class="text-xs">{label}</p>
-      </A>
-    </div>
+        {props.icon}
+      </div>
+      <p class="text-xs">{props.label}</p>
+    </A>
   );
 };
 
