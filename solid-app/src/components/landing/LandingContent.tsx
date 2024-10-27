@@ -14,20 +14,15 @@ import {
   TabsList,
   TabsTrigger,
 } from "~/components/ui/landing/landing-tabs";
-import {
-  TextField,
-  TextFieldLabel,
-  TextFieldRoot,
-} from "~/components/ui/textfield";
+
 import { FaSolidPen } from "solid-icons/fa";
 import LandingImage from "./LandingImage";
-import { Image, ImageFallback, ImageRoot } from "~/components/ui/image";
 import Member from "./Member";
 
 const LandingContent = () => {
   return (
     <div class="mt-4">
-      <Tabs defaultValue="notes" class="w-full">
+      <Tabs defaultValue="medication taken" class="w-full">
         <TabsList class="flex flex-row items-center justify-center">
           <TabsTrigger value="mood" class="text-md">
             Mood
