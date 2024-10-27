@@ -1,6 +1,8 @@
 import { MetaProvider } from "@solidjs/meta";
 import { LandingHeader } from "~/components/landing/LandingHeader";
+import LandingContent from "~/components/landing/LandingContent";
 import { TaskName } from "~/components/landing/TaskName";
+import Member from "~/components/landing/Member";
 
 export default function Index() {
   return (
@@ -84,6 +86,7 @@ export default function Index() {
         </div>
 
         <p class="text-2xl font-semibold mt-8 ml-4">While you were away...</p>
+        <LandingContent />
       </div>
     </MetaProvider>
   );
