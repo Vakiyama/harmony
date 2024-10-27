@@ -38,6 +38,7 @@
     "might-fail": "^0.6.3",
     "socket.io": "^4.8.0",
     "socket.io-client": "^4.8.0",
+    "solid-icons": "^1.1.0",
     "solid-js": "^1.9.1",
     "solid-markdown": "^2.0.13",
     "tailwind-merge": "^2.5.3",
