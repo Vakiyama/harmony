@@ -13,7 +13,7 @@ export const eventParticipants = sqliteTable("event_participants", {
   userId: integer("user_id")
     .references(() => Users.id)
     .notNull(),
-  status: text("status", { enum: eventStatusesEnum }).default("maybe"),
+  status: text("status", { enum: eventStatusesEnum }),
 });
 
 export type EventParticipants = typeof eventParticipants.$inferSelect;

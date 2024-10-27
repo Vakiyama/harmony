@@ -6,7 +6,6 @@ import {
   getAllEvents,
   updateEvent,
   deleteEvent,
-  getEventsWithUserId,
 } from "~/api/calendar";
 import UpdateModal from "./updateModal";
 import DeleteModal from "./deleteModal";
@@ -130,7 +129,7 @@ export default function CalendarPage() {
               <For each={events()} fallback={<div>loading...</div>}>
                 {(event) => (
                   <>
-                    <EventCard event={event}></EventCard>
+                    <EventCard event={event} />
                     {/* <div
                       class="bg-gray-300 p-4 rounded-lg border"
                       onClick={() => {

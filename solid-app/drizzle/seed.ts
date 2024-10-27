@@ -12,6 +12,9 @@ import { eventParticipants } from "./schema/EventParticipants";
 
 const seedData = async () => {
   const users = await db.select().from(Users);
+  if (users.length <= 0) {
+    throw new Error("Please create a user first using kinde");
+  } 
   // Seed Recipients
   await db.delete(eventParticipants);
   await db.delete(events);

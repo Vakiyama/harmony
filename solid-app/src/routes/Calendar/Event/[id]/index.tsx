@@ -1,8 +1,18 @@
 import { createAsync, useParams } from "@solidjs/router";
-import { createSignal, For, Show } from "solid-js";
+import {
+  createResource,
+  createSignal,
+  For,
+  Match,
+  Show,
+  Switch,
+} from "solid-js";
 import { getEvent, getEventParticipants } from "~/api/calendar";
 import { FaSolidAngleDown } from "solid-icons/fa";
 import { formatDateToLongForm } from "~/lib/formateDateLocal";
+import BsQuestionCircleFill from "~/components/svg/BsQuestionCircleFill";
+import IoCheckmarkCircle from "~/components/svg/IoCheckmarkCircle";
+import FaSolidCircleXmark from "~/components/svg/FaSolidCircleXmark";
 
 export default function EventPage() {
   const params = useParams();
@@ -10,15 +20,34 @@ export default function EventPage() {
   const event = createAsync(async () => await getEvent(parseInt(params.id)), {
     deferStream: true,
   });
-  const participants = createAsync(
-    async () => await getEventParticipants(parseInt(params.id)),
-    {
-      deferStream: true,
-    }
-  );
-
+  const [participants] = createResource(async () => {
+    const response = await getEventParticipants(parseInt(params.id));
+    return response;
+  });
   const [isOpen, setIsOpen] = createSignal(false);
-  console.log(participants.latest);
+
+  const statusCount = {
+    yes: 0,
+    maybe: 0,
+    no: 0,
+    null: 0,
+  };
+
+  if (participants()) {
+    for (const participant of participants()!) {
+      const status = participant.status;
+      if (status === "yes") {
+        statusCount.yes++;
+      } else if (status === "maybe") {
+        statusCount.maybe++;
+      } else if (status === "no") {
+        statusCount.no++;
+      } else {
+        statusCount.null++;
+      }
+    }
+  }
+
   return (
     <Show when={event.latest}>
       <div class="h-full flex flex-col p-4 justify-between">
@@ -62,38 +91,54 @@ export default function EventPage() {
 
         <div class="flex flex-col gap-5">
           <div class="flex flex-col space-y-3">
-            <div class="flex justify-between items-center">
+            <button
+              class="flex justify-between items-center"
+              onClick={() => setIsOpen(!isOpen())}
+            >
               <div class="flex flex-col ">
-                <div class="text-[#1e1e1e] text-lg font-medium leading-7">
+                <div class="text-[#1e1e1e] text-left text-lg font-medium leading-7">
                   {participants()?.length}{" "}
                   {participants()?.length === 1 ? "Person" : "People"}
                 </div>
                 <p class="text-[#1e1e1e]/50 text-sm leading-none">
-                  0 yes, 0 awaiting, 0 no, 0 maybe
+                  {statusCount.yes} yes, {statusCount.null} awaiting,{" "}
+                  {statusCount.no} no, {statusCount.maybe} maybe
                 </p>
               </div>
-              {/* temp */}
-              <button onClick={() => setIsOpen(!isOpen())}>↓</button>
-              {/* <FaSolidAngleDown /> */}
-            </div>
-            <Show when={isOpen()}>
+              <FaSolidAngleDown />
+            </button>
+            <Show when={!isOpen()}>
               <div class="space-y-2">
                 <For each={participants()}>
                   {(participant) => (
-                    <div class="flex items-center space-x-2">
-                      <Show
-                        when={participant.participant.photo}
-                        fallback={
-                          <div class="w-10 h-10 bg-[#d9d9d9] rounded-full"></div>
-                        }
-                      >
-                        <img
-                          class="w-10 h-10 rounded-full"
-                          src={participant.participant.photo ?? "temp"}
-                          alt="temp alt"
-                        />
-                      </Show>
-
+                    <div class="flex items-center space-x-2 ">
+                      <div class="relative">
+                        <Show
+                          when={participant.participant.photo}
+                          fallback={
+                            <div class="w-10 h-10 bg-[#d9d9d9] rounded-full"></div>
+                          }
+                        >
+                          <img
+                            class="w-10 h-10 rounded-full"
+                            src={participant.participant.photo!}
+                            alt="temp alt"
+                          />
+                          <div class="absolute right-0 bottom-0 z-20">
+                            <Switch>
+                              <Match when={participant.status === "yes"}>
+                                <IoCheckmarkCircle />
+                              </Match>
+                              <Match when={participant.status === "maybe"}>
+                                <BsQuestionCircleFill />
+                              </Match>
+                              <Match when={participant.status === "no"}>
+                                <FaSolidCircleXmark />
+                              </Match>
+                            </Switch>
+                          </div>
+                        </Show>
+                      </div>
                       <div>
                         <div class="text-[#1e1e1e] text-lg font-medium">
                           {participant.participant.firstName}{" "}

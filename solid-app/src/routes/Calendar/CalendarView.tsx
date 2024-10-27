@@ -76,12 +76,12 @@ const CalendarView = (props: {
 
   return (
     <div
-      class="p-4 bg-[#d9d9d9] rounded-lg shadow-md"
+      class="bg-[#d9d9d9] pt-4 pb-1"
       ontouchstart={handleTouchStart}
       ontouchend={handleTouchEnd}
     >
       <div class="mb-6">
-        <div class="grid grid-cols-7 text-center text-sm font-medium text-gray-600 mb-2">
+        <div class="grid grid-cols-7 text-center text-lg font-medium text-[#00000080]  mb-1">
           <For each={weekdays}>
             {(weekDayName) => <div class="py-2">{weekDayName}</div>}
           </For>
@@ -102,7 +102,7 @@ const CalendarView = (props: {
                           currentMonth() === props.selectedMonth() &&
                           currentYear() === props.selectedYear()
                             ? "bg-purple-400 text-white"
-                            : "text-black"
+                            : "text-[#5d5d5d]"
                         } rounded-full`}
                       >
                         {day}
