@@ -1,21 +1,21 @@
 import { useLocation } from "@solidjs/router";
 import { createMemo, For } from "solid-js";
-import { AiFillHome } from "solid-icons/ai";
-import { FaSolidCalendar } from "solid-icons/fa";
-import { IoPerson, IoBook } from "solid-icons/io";
-import HarmonyIcon from "./_icon/harmony-icon";
+// import { AiFillHome } from "solid-icons/ai";
+// import { FaSolidCalendar } from "solid-icons/fa";
+// import { IoPerson, IoBook } from "solid-icons/io";
+import HarmonyIcon from "~/components/icon/harmony-icon";
 import NavBarItem from "./nav-bar-item";
-import HomeIcon from "./_icon/home-icon";
-import CalendarIcon from "./_icon/calendar-icon";
-import JournalIcon from "./_icon/journal-icon";
-import ProfileIcon from "./_icon/profile-icon";
+import HomeIcon from "~/components/icon/home-icon";
+import CalendarIcon from "~/components/icon/calendar-icon";
+import JournalIcon from "~/components/icon/journal-icon";
+import ProfileIcon from "~/components/icon/profile-icon";
 
 export default function NavBar() {
   const location = useLocation();
   const currentPath = createMemo(() => location.pathname);
 
   const routes = [
-    { icon: <HomeIcon />, label: "Home", href: "/home" },
+    { icon: <HomeIcon />, label: "Home", href: "/landing" },
     { icon: <CalendarIcon />, label: "Calendar", href: "/calendar" },
     { icon: <HarmonyIcon />, label: "Harmony", href: "/harmony" },
     { icon: <JournalIcon />, label: "Journal", href: "/journal" },

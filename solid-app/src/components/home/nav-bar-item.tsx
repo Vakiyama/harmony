@@ -23,7 +23,7 @@ const NavBarItem: Component<NavBarItemProps> = (props) => {
       <div
         classList={{
           "text-xl mb-1": true,
-          "bg-purple-300 text-white rounded-3xl px-4 py-2": props.active,
+          "bg-purple-500 text-white rounded-full px-4 py-2": props.active,
         }}
       >
         {props.icon}
