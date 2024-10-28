@@ -1,4 +1,5 @@
 import type { PopoverTriggerProps } from "@kobalte/core/popover";
+import { A } from "@solidjs/router";
 import { createSignal } from "solid-js";
 import { Button } from "~/components/ui/button";
 import {
@@ -14,7 +15,7 @@ import {
   TextFieldRoot,
 } from "~/components/ui/textfield";
 
-const TeamPopover = () => {
+const ProfilePopover = () => {
   const [isOpen, setIsOpen] = createSignal(false);
   return (
     <Popover open={isOpen()} onOpenChange={setIsOpen}>
@@ -74,7 +75,9 @@ const TeamPopover = () => {
           </div>
           <div class="mx-2 items-center">
             <PopoverTitle class="space-y-2">
-              <a class="font-medium leading-none">Create New Team</a>
+              <A href="/profile/specific-team" class="font-medium leading-none">
+                Create New Team
+              </A>
             </PopoverTitle>
           </div>
         </div>
@@ -105,4 +108,4 @@ const TeamPopover = () => {
   );
 };
 
-export default TeamPopover;
+export default ProfilePopover;

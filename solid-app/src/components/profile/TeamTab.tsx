@@ -30,7 +30,7 @@ const TeamTab = () => {
   return (
     <div>
       <div>
-        <Tabs defaultValue="general" class="w-[400px]">
+        <Tabs defaultValue="teams" class="w-[400px]">
           <TabsList>
             <TabsTrigger
               value="general"

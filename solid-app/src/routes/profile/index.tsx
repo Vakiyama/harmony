@@ -1,8 +1,9 @@
-import AddButton from "~/components/teams/AddButton";
-import TeamCard from "~/components/teams/TeamCard";
-import TeamHeader from "~/components/teams/TeamHeader";
-import TeamPopover from "~/components/teams/TeamPopover";
-import PopoverDemo from "~/components/teams/TeamPopover";
+import AddButton from "~/components/profile/AddButton";
+import TeamCard from "~/components/profile/TeamCard";
+import TeamHeader from "~/components/profile/TeamHeader";
+import TeamPopover from "~/components/profile/ProfilePopover";
+import PopoverDemo from "~/components/profile/ProfilePopover";
+import ProfilePopover from "~/components/profile/ProfilePopover";
 
 export default function Profile() {
   return (
@@ -28,7 +29,7 @@ export default function Profile() {
           <div class="relative w-full h-[400px]">
             <div>
               <div class="absolute right-0 bottom-0 w-[56px] h-[56px] filter drop-shadow-lg">
-                <TeamPopover />
+                <ProfilePopover />
               </div>
             </div>
           </div>
