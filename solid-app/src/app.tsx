@@ -44,7 +44,7 @@ export default function App() {
           */}
 
           <Suspense>
-            <div class="h-full">
+            <div class="h-full border">
               {props.children}
               <NavBar />
             </div>
