@@ -24,6 +24,7 @@ export default function EventPage() {
     const response = await getEventParticipants(parseInt(params.id));
     return response;
   });
+
   const [isOpen, setIsOpen] = createSignal(false);
 
   const statusCount = {
@@ -107,7 +108,7 @@ export default function EventPage() {
               </div>
               <FaSolidAngleDown />
             </button>
-            <Show when={!isOpen()}>
+            <Show when={isOpen()}>
               <div class="space-y-2">
                 <For each={participants()}>
                   {(participant) => (

@@ -11,44 +11,54 @@ const EventCard = (props: { event: Event }) => {
     const response = await getEventParticipants(props.event.id);
     return response;
   });
+
+  const getEventBackground = (event: Event) => {
+    return "bg-[#f1eefc]";
+  };
   return (
-    <div
-      class="h-12 pl-1 pr-2 py-1 bg-[#e0e0e0] rounded-md justify-start items-center gap-1.5 inline-flex"
-      onClick={() => {
-        navigate(`/calendar/event/${props.event.id}`);
-      }}
-    >
-      {props.event.type === "event" ? (
-        <div class="ml-0.5 w-0.5 h-10 bg-[#1e1e1e]/75 rounded-[20px]" />
-      ) : (
-        <FaRegularCircleCheck class="text-lg ml-0.5" />
-      )}
-      <div class="grow shrink basis-0 h-7 justify-between items-center flex">
-        <div class="grow shrink basis-0 h-7 flex-col justify-between items-start inline-flex">
-          <div class="font-semibold self-stretch h-3 text-[#1e1e1e]/75 text-base font-['SF Pro'] leading-tight items-center flex">
-            {props.event.title}
+    <>
+      <div
+        class={`self-stretch h-12 pl-1 pr-2 py-1 ${getEventBackground(
+          props.event
+        )} rounded-md justify-start items-center gap-1.5 inline-flex`}
+        onClick={() => {
+          navigate(`/calendar/event/${props.event.id}`);
+        }}
+      >
+        {props.event.type === "event" ? (
+          <div class="w-0.5 h-10 bg-[#7859ea] rounded-[20px]" />
+        ) : (
+          <FaRegularCircleCheck class="text-lg ml-0.5" />
+        )}
+        <div class="grow shrink basis-0 h-7 justify-between items-center flex">
+          <div class="grow shrink basis-0 h-7 flex-col justify-between items-start inline-flex">
+            <div class="self-stretch h-3 text-[#1e1e1e]/75 text-base font-['SF Pro'] leading-tight">
+              {props.event.title}
+            </div>
+            <For each={response()}>
+              {(data, i) => (
+                <Show when={data.status !== "yes"}>
+                  <div class="self-stretch h-[9px] text-[#1e1e1e]/50 text-[13px] font-normal font-['SF Pro'] leading-none">
+                    {data.participant.firstName} {data.participant.lastName}
+                    {i() === response.length ? "" : ","}
+                  </div>
+                </Show>
+              )}
+            </For>
           </div>
-          <For each={response()}>
-            {(data, i) => (
-              <Show when={data.status !== "yes"}>
-                <div class="self-stretch h-[9px] text-[#1e1e1e]/50 text-[13px] font-normal font-['SF Pro'] leading-none">
-                  {data.participant.firstName} {data.participant.lastName}
-                  {i() === response.length ? "" : ","}
-                </div>
-              </Show>
+          <div class="w-[123px] h-7 flex-col justify-between items-end inline-flex">
+            <div class="self-stretch h-2.5 text-right text-[#1e1e1e]/50 text-[13px] font-normal font-['SF Pro'] uppercase leading-none">
+              {moment(props.event.timeStart).format("h:mm A")}
+            </div>
+            {props.event.timeEnd && (
+              <div class="self-stretch h-3 text-right text-[#1e1e1e]/50 text-[13px] font-normal font-['SF Pro'] uppercase leading-none">
+                {moment(props.event.timeEnd).format("h:mm A")}
+              </div>
             )}
-          </For>
-        </div>
-        <div class="w-[123px] h-7 flex-col justify-between items-end inline-flex">
-          <div class="self-stretch h-2.5 text-right text-[#1e1e1e]/75 text-[13px] font-normal font-['SF Pro'] uppercase leading-none">
-            {moment(props.event.timeStart).format("h:mm A")}
-          </div>
-          <div class="self-stretch h-3 text-right text-[#1e1e1e]/75 text-[13px] font-normal font-['SF Pro'] uppercase leading-none">
-            {moment(props.event.timeEnd).format("h:mm A")}
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

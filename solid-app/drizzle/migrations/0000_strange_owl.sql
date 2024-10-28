@@ -17,7 +17,7 @@ CREATE TABLE `event_participants` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`event_id` integer NOT NULL,
 	`user_id` integer NOT NULL,
-	`status` text DEFAULT 'maybe',
+	`status` text,
 	FOREIGN KEY (`event_id`) REFERENCES `events`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
 );

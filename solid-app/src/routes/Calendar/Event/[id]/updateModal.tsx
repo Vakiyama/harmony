@@ -1,6 +1,6 @@
 import { Accessor, Setter } from "solid-js";
 import Modal from "~/components/ui/modal";
-import { EventFormData } from ".";
+import { EventFormData } from "../..";
 
 const UpdateModal = (props: {
   closeModal: () => void;
