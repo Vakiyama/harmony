@@ -12,6 +12,18 @@ module.exports = {
       },
     },
     extend: {
+      fontFamily: {
+        "sf-pro": ["SF Pro", "sans-serif"], // Fallback to sans-serif
+        grotesque: ["ES Rebond", "sans-serif"],
+      },
+      fontSize: {
+        h1: "33px",
+        h2: "28px",
+        h3: "23px",
+        h4: "19px",
+        subtitle: "11px",
+        subtitle_13: "13px",
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -51,6 +63,7 @@ module.exports = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        button: "100px",
       },
       keyframes: {
         "accordion-down": {
@@ -71,15 +84,15 @@ module.exports = {
         },
         "caret-blink": {
           "0%,70%,100%": { opacity: "1" },
-          "20%,50%": { opacity: "0" }
-        }
+          "20%,50%": { opacity: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "collapsible-down": "collapsible-down 0.2s ease-out",
         "collapsible-up": "collapsible-up 0.2s ease-out",
-        "caret-blink": "caret-blink 1.25s ease-out infinite"
+        "caret-blink": "caret-blink 1.25s ease-out infinite",
       },
     },
   },

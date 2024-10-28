@@ -1,9 +1,6 @@
 body {
-  font-family: Gordita, Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-}
-
-a {
-  margin-right: 1rem;
+  font-family: Gordita, Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
+    "Helvetica Neue", sans-serif;
 }
 
 main {
@@ -13,27 +10,33 @@ main {
 }
 
 h1 {
-  color: #335d92;
-  text-transform: uppercase;
-  font-size: 4rem;
-  font-weight: 100;
-  line-height: 1.1;
-  margin: 4rem auto;
-  max-width: 14rem;
+  font-family: "ES Rebond";
+}
+
+h2 {
+  font-family: "ES Rebond";
 }
 
 p {
-  max-width: 14rem;
   margin: 2rem auto;
   line-height: 1.35;
 }
 
-@media (min-width: 480px) {
-  h1 {
-    max-width: none;
-  }
+* {
+  scrollbar-width: none;
+  font-family: "SF Pro";
+}
 
-  p {
-    max-width: none;
-  }
+@font-face {
+  font-family: "SF Pro";
+  src: url("../fonts/SF-Pro.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "ES Rebond";
+  src: url("../fonts/ESRebondGrotesque-Medium.otf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
 }

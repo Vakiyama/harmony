@@ -1,17 +1,16 @@
-import { ZodTypeAny, z } from 'zod';
-import { EOL } from 'os';
+import { ZodTypeAny, z } from "zod";
 export type ZodObjectAny = z.ZodObject<any, any, any, any>;
-import { mightFail, mightFailSync } from 'might-fail';
+import { mightFail, mightFailSync } from "might-fail";
 
 export const defaultClaudeSettings = {
-  model: 'claude-3-5-sonnet-20240620',
+  model: "claude-3-5-sonnet-20240620",
   maxTokens: 1000,
 };
 
-type Role = 'user' | 'assistant';
+type Role = "user" | "assistant";
 
 type TextContent = {
-  type: 'text';
+  type: "text";
   text: string;
 };
 
@@ -21,37 +20,21 @@ export type Message = {
 };
 
 type UserMessage = {
-  readonly role: 'user';
+  readonly role: "user";
 } & Message;
 
 type AssistantMessage = {
-  readonly role: 'assistant';
+  readonly role: "assistant";
 } & Message;
-
-// enforces the constraint: there must never be two assistant messages in a row.
-export type ValidMessages<
-  T extends readonly Message[],
-  PrevRole extends Role | null = null,
-> = T extends []
-  ? T
-  : T extends [infer Head extends Message, ...infer Tail extends Message[]]
-  ? Head extends Message
-  ? PrevRole extends 'assistant'
-  ? Head['role'] extends 'assistant'
-  ? never // Invalid if two assistants are consecutive
-  : [Head, ...ValidMessages<Tail, Head['role']>]
-  : [Head, ...ValidMessages<Tail, Head['role']>]
-  : never
-  : never;
 
 type AssistantResponse = {
   content: TextContent[];
   id: string;
   model: string;
-  role: 'assistant';
+  role: "assistant";
   stop_reason: string;
   stop_sequence: null;
-  type: 'message';
+  type: "message";
   usage: {
     input_tokens: number;
     output_tokens: number;
@@ -68,48 +51,41 @@ type ClaudeFormatParams<F extends ZodObjectAny> = {
   retryLimit: number;
 };
 
-type ClaudeCallParamsWithoutFormat<T extends readonly Message[]> = {
+type ClaudeCallParamsWithoutFormat = {
   claudeSettings: ClaudeSettings;
   system: string;
-  messages: T & ValidMessages<T>;
+  messages: Message[];
   jsonFormat?: undefined;
   jsonFormatError?: [AssistantMessage, UserMessage];
 };
 
-type ClaudeCallParamsWithFormat<
-  T extends readonly Message[],
-  F extends ZodObjectAny,
-> = {
+type ClaudeCallParamsWithFormat<F extends ZodObjectAny> = {
   claudeSettings: ClaudeSettings;
   system: string;
-  messages: T & ValidMessages<T>;
+  messages: Message[];
   jsonFormat: ClaudeFormatParams<F>;
   jsonFormatError?: [AssistantMessage, UserMessage];
 };
 
 // overloads
 
-export async function callClaude<T extends readonly Message[]>(
-  params: ClaudeCallParamsWithoutFormat<T>
+export async function callClaude(
+  params: ClaudeCallParamsWithoutFormat,
 ): Promise<AssistantResponse>;
 
-export async function callClaude<
-  T extends readonly Message[],
-  F extends ZodObjectAny,
->(params: ClaudeCallParamsWithFormat<T, F>): Promise<z.output<F>>;
+export async function callClaude<F extends ZodObjectAny>(
+  params: ClaudeCallParamsWithFormat<F>,
+): Promise<z.output<F>>;
 
 /**
  * Call Anthropic Claude API
  * @param params - parameters for the API call
  */
-export async function callClaude<
-  T extends readonly Message[],
-  F extends ZodObjectAny,
->(
-  params: ClaudeCallParamsWithoutFormat<T> | ClaudeCallParamsWithFormat<T, F>
+export async function callClaude<F extends ZodObjectAny>(
+  params: ClaudeCallParamsWithoutFormat | ClaudeCallParamsWithFormat<F>,
 ): Promise<AssistantResponse | z.output<F>> {
   if (params.jsonFormat?.retryLimit === 0) {
-    throw new Error('Retry limit hit for formatted claude response attempts');
+    throw new Error("Retry limit hit for formatted claude response attempts");
   }
 
   if (params.jsonFormatError) params.messages.concat(params.jsonFormatError);
@@ -126,26 +102,26 @@ export async function callClaude<
       : params.system,
   };
 
-  console.log('Calling claude with the following system message:');
+  console.log("Calling claude with the following system message:");
   console.log(body.system);
-  console.log('Calling claude with the following messages:');
+  console.log("Calling claude with the following messages:");
   console.log(JSON.stringify(body.messages));
 
   const stringifiedBody = JSON.stringify(body);
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
     headers: {
-      'x-api-key': process.env.ANTHROPIC_API_KEY!,
-      'anthropic-version': '2023-06-01',
-      'content-type': 'application/json',
+      "x-api-key": process.env.ANTHROPIC_API_KEY!,
+      "anthropic-version": "2023-06-01",
+      "content-type": "application/json",
     },
     body: stringifiedBody,
   });
 
   const claudeApiCall = (await response.json()) as AssistantResponse;
 
-  console.log('Claude API call:');
+  console.log("Claude API call:");
   console.log(claudeApiCall);
 
   if (params.jsonFormat === undefined) {
@@ -153,44 +129,41 @@ export async function callClaude<
   }
 
   const [jsonParseError, jsonParseResult] = mightFailSync(() =>
-    JSON.parse(claudeApiCall.content[0].text)
+    JSON.parse(claudeApiCall.content[0].text),
   );
 
   if (jsonParseError) {
     return handleClaudeRetry(params, claudeApiCall, {
-      type: 'parse',
+      type: "parse",
       error: jsonParseError,
     });
   }
 
   const [zodValidateError, zodValidateResult] = await mightFail(
-    params.jsonFormat!.format.parseAsync(jsonParseResult)
+    params.jsonFormat!.format.parseAsync(jsonParseResult),
   );
 
   if (zodValidateError)
     return handleClaudeRetry(params, claudeApiCall, {
-      type: 'validate',
+      type: "validate",
       error: zodValidateError,
     });
 
   return zodValidateResult as z.output<F>;
 }
 
-async function handleClaudeRetry<
-  T extends readonly Message[],
-  F extends ZodObjectAny,
->(
-  params: ClaudeCallParamsWithFormat<T, F>,
+async function handleClaudeRetry<F extends ZodObjectAny>(
+  params: ClaudeCallParamsWithFormat<F>,
   claudeApiCall: AssistantResponse,
-  errorDetails: { type: 'validate' | 'parse'; error: Error }
+  errorDetails: { type: "validate" | "parse"; error: Error },
 ) {
-  if (!params.jsonFormat) throw new Error('Retry without JSON format?');
+  if (!params.jsonFormat) throw new Error("Retry without JSON format?");
 
   params.jsonFormatError = [
-    { role: 'assistant', content: claudeApiCall.content[0].text },
+    { role: "assistant", content: claudeApiCall.content[0].text },
     {
-      role: 'user',
-      content: `Your response gave the following ${errorDetails.type === 'parse' ? 'JSON parse' : 'Zod validation'} error:
+      role: "user",
+      content: `Your response gave the following ${errorDetails.type === "parse" ? "JSON parse" : "Zod validation"} error:
           \`\`\`
           ${errorDetails.error.message}
           \`\`\`
@@ -220,7 +193,7 @@ function getResponsePrompt(format: ZodObjectAny): string {
     Don't give any reasoning or explanations.
 
 
-    ${format.description ? `Description of object: ${format.description}` : ''}
+    ${format.description ? `Description of object: ${format.description}` : ""}
     Descriptions of fields:
 
     ## Format
@@ -234,7 +207,7 @@ function schemaToString(schema: ZodTypeAny): string {
   const typeName = schema._def.typeName;
 
   // Get the description if available
-  const description = schema.description ? ` // ${schema.description}` : '';
+  const description = schema.description ? ` // ${schema.description}` : "";
 
   switch (typeName) {
     case z.ZodFirstPartyTypeKind.ZodString:
@@ -246,16 +219,16 @@ function schemaToString(schema: ZodTypeAny): string {
     case z.ZodFirstPartyTypeKind.ZodLiteral:
       return `${JSON.stringify(schema._def.value)}${description}`;
     case z.ZodFirstPartyTypeKind.ZodEnum:
-      return `${schema._def.values.map((v: any) => JSON.stringify(v)).join(' | ')}${description}`;
+      return `${schema._def.values.map((v: any) => JSON.stringify(v)).join(" | ")}${description}`;
     case z.ZodFirstPartyTypeKind.ZodUnion:
-      return `(${schema._def.options.map(schemaToString).join(' | ')})${description}`;
+      return `(${schema._def.options.map(schemaToString).join(" | ")})${description}`;
     case z.ZodFirstPartyTypeKind.ZodArray:
       return `Array<${schemaToString(schema._def.type)}>${description}`;
     case z.ZodFirstPartyTypeKind.ZodObject:
       const shape = schema._def.shape();
       const fields = Object.keys(shape)
         .map((key) => `${key}: ${schemaToString(shape[key])}`)
-        .join(',\n');
+        .join(",\n");
       return `{\n${fields}\n}${description}`;
     case z.ZodFirstPartyTypeKind.ZodOptional:
       return `${schemaToString(schema._def.innerType)} | undefined${description}`;
@@ -272,7 +245,7 @@ function schemaToString(schema: ZodTypeAny): string {
     case z.ZodFirstPartyTypeKind.ZodNever:
       return `never${description}`;
     case z.ZodFirstPartyTypeKind.ZodTuple:
-      const items = schema._def.items.map(schemaToString).join(', ');
+      const items = schema._def.items.map(schemaToString).join(", ");
       return `[${items}]${description}`;
     case z.ZodFirstPartyTypeKind.ZodRecord:
       return `{ [key: string]: ${schemaToString(schema._def.valueType)} }${description}`;
@@ -283,7 +256,7 @@ function schemaToString(schema: ZodTypeAny): string {
     case z.ZodFirstPartyTypeKind.ZodDate:
       return `Date${description}`;
     case z.ZodFirstPartyTypeKind.ZodFunction:
-      const args = schema._def.args.items.map(schemaToString).join(', ');
+      const args = schema._def.args.items.map(schemaToString).join(", ");
       const returns = schemaToString(schema._def.returns);
       return `(${args}) => ${returns}${description}`;
     case z.ZodFirstPartyTypeKind.ZodLazy:
