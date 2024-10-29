@@ -9,7 +9,6 @@ import ShowError from "~/routes/Team/[id]/journal/show-error";
 import { Button } from "~/components/ui/button";
 import AddNote from "~/routes/Team/[id]/journal/add-notes";
 import Header from "./header";
-import PageHeader from "./page-header";
 import SelectInput from "~/components/shadcn/Select";
 import TimePicker from "~/components/ui/time-picker";
 import { Medications } from "@/schema/Medications";
@@ -60,11 +59,8 @@ export default function Medication() {
     "Inhaler",
   ];
 
-  // const exampleMedications = ["Omeprazole", "Azithromycin", "Metformin"];
-
   return (
     <main class="w-full h-full p-4 flex flex-col items-center justify-center space-y-2">
-      {/* <PageHeader /> */}
       <section class="mt-8 mb-8 flex flex-col w-full justify-center text-start">
         <div class="flex flex-col items-center gap-1">
           <svg

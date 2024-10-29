@@ -7,7 +7,6 @@ import ShowError from "~/routes/Team/[id]/journal/show-error";
 import { Button } from "~/components/ui/button";
 import AddNote from "~/routes/Team/[id]/journal/add-notes";
 import Header from "./header";
-import PageHeader from "./page-header";
 import SelectInput from "~/components/shadcn/Select";
 import PhotoUpload from "./upload";
 
@@ -36,7 +35,6 @@ export default function NutritionTracker() {
   };
   return (
     // <main class="w-full h-full p-4 flex flex-col items-center justify-center space-y-2">
-    //   {/* <PageHeader /> */}
     //   {/* <section class="mt-8 mb-8 flex flex-col w-full justify-center text-start overflow-y-auto overflow-x-hidden"> */}
     <div class="mt-8">
       <div class="flex flex-col items-center gap-1">

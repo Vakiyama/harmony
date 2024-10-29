@@ -1,6 +1,6 @@
 import { useLocation } from "@solidjs/router";
 import { Component, JSXElement } from "solid-js";
-import TopNav from "~/components/share/TopNav";
+import TopNav from "~/components/shared/TopNav";
 import { LandingHeader } from "./landing/LandingHeader";
 import CalendarTopNav from "./calendar/CalendarTopNav";
 

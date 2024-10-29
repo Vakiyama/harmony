@@ -1,8 +1,5 @@
 import { useLocation } from "@solidjs/router";
 import { createMemo, For } from "solid-js";
-// import { AiFillHome } from "solid-icons/ai";
-// import { FaSolidCalendar } from "solid-icons/fa";
-// import { IoPerson, IoBook } from "solid-icons/io";
 import HarmonyIcon from "~/components/icon/harmony-icon";
 import NavBarItem from "./nav-bar-item";
 import HomeIcon from "~/components/icon/home-icon";

@@ -6,7 +6,6 @@ import ShowError from "~/routes/Team/[id]/journal/show-error";
 import { Button } from "~/components/ui/button";
 import AddNote from "~/routes/Team/[id]/journal/add-notes";
 import Header from "./header";
-import PageHeader from "~/routes/Team/[id]/journal/page-header";
 import Upload from "./upload";
 
 export default function CreateNote() {
@@ -35,7 +34,6 @@ export default function CreateNote() {
   return (
     <>
       <main class="w-full h-full p-4 flex flex-col items-center justify-center space-y-2">
-        {/* <PageHeader /> */}
         <section class="mt-8 mb-8 flex flex-col w-full justify-center text-start">
           <div class="flex flex-col items-center gap-1">
             <svg
