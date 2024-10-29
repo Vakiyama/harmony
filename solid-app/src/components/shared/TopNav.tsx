@@ -1,5 +1,5 @@
-import { A } from "@solidjs/router";
 import { JSX } from "solid-js";
+import { useLocation } from "@solidjs/router";
 
 interface TopNavProps {
   name?: JSX.Element;
@@ -12,19 +12,27 @@ export default function TopNav({
   leftNavigation,
   rightNavigation,
 }: TopNavProps) {
+  const location = useLocation();
+
+  let backLocation;
+
+  if (location.pathname.startsWith("/team/1/journal")) {
+    backLocation = "/team/1/journal";
+  }
+
   return (
     <div class="w-full flex flex-row h-[95px] bg-white shadow-md">
       <div class="w-full flex flex-row justify-between items-end px-4 mb-4">
         <div class="flex items-center">
-          <A href="/">{leftNavigation}</A>
+          <a href={backLocation}>{leftNavigation}</a>
         </div>
         <div class="flex-1 flex justify-center">
           <h4 class="text-md">{name}</h4>
         </div>
         <div class="flex justify-end">
-          <A href="/" class="text-md">
+          <a href="/" class="text-md">
             {rightNavigation}
-          </A>
+          </a>
         </div>
       </div>
     </div>
