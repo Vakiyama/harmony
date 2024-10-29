@@ -27,7 +27,6 @@ export function HarmonyChat() {
   createEffect(() => {
     console.log(lastMessage());
     if (lastMessage() === undefined) return;
-    console.log("scrolling!");
     lastMessage()!.scrollIntoView({
       block: "end",
       inline: "nearest",
@@ -84,17 +83,17 @@ export function HarmonyChat() {
   return (
     <div class="bg-white h-full relative overflow-hidden text-lg">
       <form onSubmit={handleSubmit} class="h-full">
-        <div class="flex flex-col overflow-scroll h-[calc(100%_-_85px)]">
+        <div class="flex flex-col overflow-scroll h-[calc(100%_-_185px)]">
           <Show
             when={messages().length > 0}
             fallback={
               <Show when={messages().length === 0}>
                 <div class="flex flex-col items-center justify-center h-full">
-                  <div class="flex flex-col items-center">
+                  <div class="flex flex-col items-center w-full">
                     <ImageRoot class="rounded-none w-60 h-60">
                       <Image src={HarmonyMascot} class="w-full" />
                     </ImageRoot>
-                    <h2 class="text-4xl my-1">
+                    <h2 class="text-4xl my-1 w-full px-4 text-center max-w-none block">
                       Good {currentTimeOfDay}, Tina!
                     </h2>
                     <h3 class="opacity-50">What can I help with today?</h3>

@@ -3,12 +3,6 @@ body {
     "Helvetica Neue", sans-serif;
 }
 
-main {
-  text-align: center;
-  padding: 1em;
-  margin: 0 auto;
-}
-
 h1 {
   font-family: "ES Rebond";
 }
@@ -18,8 +12,6 @@ h2 {
 }
 
 p {
-  margin: 2rem auto;
-  line-height: 1.35;
 }
 
 * {
@@ -29,14 +21,14 @@ p {
 
 @font-face {
   font-family: "SF Pro";
-  src: url("../fonts/SF-Pro.ttf") format("truetype");
+  src: url("../public/fonts/SF-Pro.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: "ES Rebond";
-  src: url("../fonts/ESRebondGrotesque-Medium.otf") format("truetype");
+  src: url("../public/fonts/ESRebondGrotesque-Medium.otf") format("opentype");
   font-weight: normal;
   font-style: normal;
 }

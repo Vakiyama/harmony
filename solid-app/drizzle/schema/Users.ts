@@ -20,3 +20,9 @@ export const Users = sqliteTable("users", {
 });
 
 export type User = typeof Users.$inferSelect;
+export type AttachedUser = {
+  id: User["id"];
+  firstName: User["firstName"];
+  lastName: User["lastName"];
+  photo: User["photo"];
+};
