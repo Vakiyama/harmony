@@ -4,45 +4,25 @@ import { FileRoutes } from "@solidjs/start/router";
 import { Suspense } from "solid-js";
 import "./app.css";
 import "./input.css";
-import NavBar from "~/components/home/nav-bar";
+import NavBar from "~/components/shared/nav-bar";
+import Layout from "./components/Layout";
+import { MetaProvider } from "@solidjs/meta";
 
 export default function App() {
   return (
     <Router
       root={(props) => (
         <div class="h-full border">
-          {/*
-          <div class="px-2">
-            <a href="/" class="hover:text-blue-500">
-              Index
-            </a>
-            <a href="/about" class="hover:text-blue-500">
-              About
-            </a>
-            <a href="/socketExample" class="hover:text-blue-500">
-              Socket Chat
-            </a>
-            <a href="/counter" class="hover:text-blue-500">
-              Counter
-            </a>
-            <a href="/components" class="hover:text-blue-500">
-              Components
-            </a>
-            <a href="/calendar" class="hover:text-blue-500">
-              Calendar
-            </a>
-            <a href="/journal" class="hover:text-blue-500">
-              Journal
-            </a>
-          </div>
-          */}
-
-          <Suspense>
-            <div class="h-full">
-              {props.children}
-              <NavBar />
-            </div>
-          </Suspense>
+          <MetaProvider>
+            <Layout>
+              <Suspense>
+                <div class="h-full">
+                  {props.children}
+                  <NavBar />
+                </div>
+              </Suspense>
+            </Layout>
+          </MetaProvider>
         </div>
       )}
     >

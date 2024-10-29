@@ -57,6 +57,14 @@
   }
 }
 @layer base {
+  @font-face {
+    font-family: "ES Rebond";
+    src: url("../public/fonts/ESRebondGrotesque-Medium.otf") format("opentype");
+  }
+  @font-face {
+    font-family: "SF Pro";
+    src: url("../public/fonts/SF-Pro.ttf") format("truetype");
+  }
   * {
     @apply border-border;
   }
