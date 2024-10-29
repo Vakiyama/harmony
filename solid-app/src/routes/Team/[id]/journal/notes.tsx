@@ -1,7 +1,7 @@
 "use client";
 import { createNoteAction } from "~/api/journal";
 import { createSignal } from "solid-js";
-import { useAction } from "@solidjs/router";
+import { useAction, useNavigate } from "@solidjs/router";
 import ShowError from "~/routes/Team/[id]/journal/show-error";
 import { Button } from "~/components/ui/button";
 import AddNote from "~/routes/Team/[id]/journal/add-notes";
@@ -11,6 +11,8 @@ import Upload from "./upload";
 export default function CreateNote() {
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
   const [error, setError] = createSignal("");
+  const navigate = useNavigate();
+
   const myAction = useAction(createNoteAction);
   type CreateNoteActionResponse = {
     success?: boolean;
@@ -26,6 +28,7 @@ export default function CreateNote() {
     if (result.success) {
       setError("");
       formRef()?.reset();
+      navigate("/team/1/journal");
     } else if (result.error) {
       console.error(result.error);
       setError(result.error);

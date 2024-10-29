@@ -4,7 +4,7 @@ import {
   getMedicationsFromTeamId,
 } from "~/api/journal";
 import { createMemo, createSignal } from "solid-js";
-import { createAsync, useAction } from "@solidjs/router";
+import { createAsync, useNavigate, useAction } from "@solidjs/router";
 import ShowError from "~/routes/Team/[id]/journal/show-error";
 import { Button } from "~/components/ui/button";
 import AddNote from "~/routes/Team/[id]/journal/add-notes";
@@ -21,6 +21,7 @@ export default function Medication() {
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
   const [error, setError] = createSignal("");
   const [time, setTime] = createSignal("");
+  const navigate = useNavigate();
   const formatOptions = (data: Medications[] | undefined) => {
     return data
       ? data.map((data) => {
@@ -44,6 +45,7 @@ export default function Medication() {
     if (result.success) {
       setError("");
       formRef()?.reset();
+      navigate("/team/1/journal");
     } else if (result.error) {
       console.error(result.error);
       setError(result.error);

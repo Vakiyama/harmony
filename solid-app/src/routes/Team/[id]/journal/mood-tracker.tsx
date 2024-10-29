@@ -2,7 +2,7 @@ import RadioGroupComponent from "~/components/shadcn/RadioGroup";
 import DatePickerComponent from "~/components/shadcn/DatePicker";
 import { createMoodAction } from "~/api/journal";
 import { createSignal } from "solid-js";
-import { useAction } from "@solidjs/router";
+import { useAction, useNavigate } from "@solidjs/router";
 import ShowError from "~/routes/Team/[id]/journal/show-error";
 import { Button } from "~/components/ui/button";
 import AddNote from "~/routes/Team/[id]/journal/add-notes";
@@ -12,6 +12,8 @@ import { Slider } from "~/components/ui/slider";
 export default function MoodTracker() {
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
   const [error, setError] = createSignal("");
+  const navigate = useNavigate();
+
   const myAction = useAction(createMoodAction);
   type CreateMoodActionResponse = {
     success?: boolean;
@@ -27,6 +29,7 @@ export default function MoodTracker() {
     if (result.success) {
       setError("");
       formRef()?.reset();
+      navigate("/team/1/journal");
     } else if (result.error) {
       console.error(result.error);
       setError(result.error);

@@ -14,7 +14,7 @@ export default function ModalOption(props: ModalOptionProps) {
       onClick={handleClick}
     >
       <div class="w-full flex flex-col">
-        <a href="/journal/medications" class="text-left w-full text-h4">
+        <a href={props.link} class="text-left w-full text-h4">
           {props.title}
         </a>
         <p class="text-[11px] min-w-full">{props.description}</p>
