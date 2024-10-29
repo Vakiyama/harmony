@@ -33,9 +33,6 @@ const WeekCalendarView = (props: {
         currentWeekStart().clone().add(i, "days").format("D")
       )
     );
-    // temp fix me
-    // props.setSelectedMonth(newStart.format("MMMM"));
-    // props.setSelectedYear(newStart.year());
   };
 
   let startX: number;
@@ -49,10 +46,17 @@ const WeekCalendarView = (props: {
     console.log(daysInWeek());
 
     if (startX > endX + 50) {
+      // temp fix me
+
+      // props.setSelectedMonth(newStart.format("MMMM"));
+      // props.setSelectedYear(newStart.year());
+
       // swipe left
+
       handleSelectWeek(1);
     } else if (startX < endX - 50) {
       // swipe right
+
       handleSelectWeek(-1);
     }
   };

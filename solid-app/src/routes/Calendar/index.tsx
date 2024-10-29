@@ -59,21 +59,12 @@ export default function CalendarPage() {
 
   return (
     <div class="p-6 relative">
-      <CalendarSideMenu />
+      {/* <CalendarSideMenu /> */}
       <div class="max-w-[vw-50%]">
         <div class="text-[#1e1e1e] text-[28px] font-medium font-['ES Rebond Grotesque TRIAL'] leading-[33.60px]">
           {selectedMonth()}
         </div>
-        {/* <CalendarView
-          selectedYear={selectedYear}
-          setSelectedYear={setSelectedYear}
-          selectedMonth={selectedMonth}
-          setSelectedMonth={setSelectedMonth}
-          selectedDay={selectedDay}
-          setSelectedDay={setSelectedDay}
-          events={events}
-        /> */}
-        <WeekCalendarView
+        <CalendarView
           selectedYear={selectedYear}
           setSelectedYear={setSelectedYear}
           selectedMonth={selectedMonth}
@@ -82,6 +73,15 @@ export default function CalendarPage() {
           setSelectedDay={setSelectedDay}
           events={events}
         />
+        {/* <WeekCalendarView
+          selectedYear={selectedYear}
+          setSelectedYear={setSelectedYear}
+          selectedMonth={selectedMonth}
+          setSelectedMonth={setSelectedMonth}
+          selectedDay={selectedDay}
+          setSelectedDay={setSelectedDay}
+          events={events}
+        /> */}
 
         <EventCalendarDisplay events={events()} />
         <a href="/calendar/create">go create one bro</a>
