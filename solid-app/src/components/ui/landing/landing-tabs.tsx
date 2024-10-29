@@ -84,7 +84,8 @@ export const TabsTrigger = <T extends ValidComponent = "button">(
   return (
     <TabsPrimitive.Trigger
       class={cn(
-        "bg-neutral-300 peer relative inline-flex h-7 items-center justify-center whitespace-nowrap rounded-2xl px-3 py-1 mr-2 text-sm font-medium outline-none transition-colors disabled:pointer-events-none disabled:opacity-50 data-[selected]:text-front",
+        "bg-white border border-[#C9BDF7] peer relative inline-flex h-7 items-center justify-center whitespace-nowrap rounded-2xl px-3 py-1 mr-2 text-sm font-medium outline-none transition-colors disabled:pointer-events-none disabled:opacity-50",
+        "data-[selected]:bg-[#7859EA] data-[selected]:text-white", // Apply lofi gray background and white text when selected
         local.class
       )}
       {...rest}
@@ -98,13 +99,10 @@ const tabsIndicatorVariants = cva(
     variants: {
       variant: {
         block:
-          "data-[orientation=horizontal]:bottom-1 data-[orientation=horizontal]:left-0 data-[orientation=vertical]:right-1 data-[orientation=vertical]:top-0 data-[orientation=horizontal]:h-[calc(100%-0.5rem)] data-[orientation=vertical]:w-[calc(100%-0.5rem)] bg-background shadow rounded-2xl peer-focus-visible:ring-[1.5px] peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background peer-focus-visible:outline-none",
+          "data-[orientation=horizontal]:bottom-1 data-[orientation=horizontal]:left-0 data-[orientation=vertical]:right-1 data-[orientation=vertical]:top-0 data-[orientation=horizontal]:h-[calc(100%-0.5rem)] data-[orientation=vertical]:w-[calc(100%-0.5rem)] bg-lofiGray opacity-50 shadow rounded-2xl peer-focus-visible:ring-[1.5px] peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background peer-focus-visible:outline-none",
         underline:
           "data-[orientation=horizontal]:-bottom-[1px] data-[orientation=horizontal]:left-0 data-[orientation=vertical]:-right-[1px] data-[orientation=vertical]:top-0 data-[orientation=horizontal]:h-[2px] data-[orientation=vertical]:w-[2px] bg-primary",
       },
-    },
-    defaultVariants: {
-      // variant: "block", //temporary
     },
   }
 );
