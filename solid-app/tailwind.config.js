@@ -4,6 +4,9 @@ module.exports = {
   content: ["src/routes/**/*.{ts,tsx}", "src/components/**/*.{ts,tsx}"],
   prefix: "",
   theme: {
+    fontFamily: {
+      grotesque: ["ES Rebond", "sans-serif"]
+    },
     container: {
       center: true,
       padding: "2rem",

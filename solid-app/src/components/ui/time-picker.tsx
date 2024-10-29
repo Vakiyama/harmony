@@ -5,7 +5,9 @@ interface TimeProps {
 }
 
 export default function TimePicker(props: TimeProps) {
-  const placeholderTime = "12:00"; // Simulated placeholder time
+  const hour = new Date(Date.now()).getHours();
+  const mins = new Date(Date.now()).getMinutes();
+  const placeholderTime = `${hour}:${mins}`.toString();
 
   return (
     <input

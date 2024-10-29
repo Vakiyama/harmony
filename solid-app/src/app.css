@@ -40,14 +40,14 @@ p {
 
 @font-face {
   font-family: "SF Pro";
-  src: url("../fonts/SF-Pro.ttf") format("truetype");
+  src: url("../public/fonts/SF-Pro.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: "ES Rebond";
-  src: url("../fonts/ESRebondGrotesque-Medium.otf") format("truetype");
+  src: url("../public/fonts/ESRebondGrotesque-Medium.otf") format("opentype");
   font-weight: normal;
   font-style: normal;
 }
