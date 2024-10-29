@@ -84,9 +84,9 @@ export default function Index() {
             }}
           />
         </div>
-
         <p class="text-2xl font-semibold mt-8 ml-4">While you were away...</p>
         <LandingContent />
+        <div class="h-[88px]"></div> {/* temporary  */}
       </div>
     </MetaProvider>
   );

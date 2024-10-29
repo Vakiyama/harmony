@@ -18,7 +18,7 @@ export default function NavBar() {
     { icon: <HomeIcon />, label: "Home", href: "/landing" },
     { icon: <CalendarIcon />, label: "Calendar", href: "/calendar" },
     { icon: <HarmonyIcon />, label: "Harmony", href: "/harmony" },
-    { icon: <JournalIcon />, label: "Journal", href: "/journal" },
+    { icon: <JournalIcon />, label: "Journal", href: "/team/1/journal" }, //Temporary
     { icon: <ProfileIcon />, label: "Profile", href: "/profile" },
   ];
 

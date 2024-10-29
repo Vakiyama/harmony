@@ -35,7 +35,7 @@ export default function MoodTracker() {
   };
   return (
     <main class="w-full h-full p-4 flex flex-col items-center justify-center space-y-2">
-      <PageHeader />
+      {/* <PageHeader /> */}
       <section class="mt-8 mb-8 flex flex-col w-full justify-center text-start">
         <div class="flex flex-col items-center gap-1">
           <svg

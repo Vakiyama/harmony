@@ -1,7 +1,7 @@
 import { integer, text, sqliteTable } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 import { Teams } from "./Teams";
-import { Users } from "./Users";
+import { AttachedUser, Users } from "./Users";
 
 export const categoryEnumNotes = [
   "general",
@@ -32,3 +32,11 @@ export const notes = sqliteTable("notes", {
 });
 
 export type Notes = typeof notes.$inferSelect;
+
+export type NoteWithUser = Omit<Notes, "userId" | "category"> & {
+  user: AttachedUser | null;
+};
+
+export type AttachedNote = {
+  note: Notes["note"];
+};

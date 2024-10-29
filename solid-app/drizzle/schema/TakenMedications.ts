@@ -1,9 +1,9 @@
 import { integer, text, sqliteTable } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
-import { notes } from "./Notes";
+import { AttachedNote, notes } from "./Notes";
 import { Teams } from "./Teams";
-import { Users } from "./Users";
-import { medications } from "./Medications";
+import { AttachedUser, Users } from "./Users";
+import { Medications, medications } from "./Medications";
 
 export const takenMedications = sqliteTable("taken_medications", {
   id: integer("id").primaryKey().unique().notNull(),
@@ -29,4 +29,14 @@ export const takenMedications = sqliteTable("taken_medications", {
   type: text("type").notNull(),
 });
 
-export type Medications = typeof takenMedications.$inferSelect;
+export type TakenMedications = typeof takenMedications.$inferSelect;
+export type TakenMedsWithNoteUser = Omit<
+  TakenMedications,
+  "userId" | "noteId" | "medicationId"
+> & {
+  user: AttachedUser | null;
+  note: AttachedNote | null;
+  medications: {
+    name: Medications["name"];
+  } | null;
+};

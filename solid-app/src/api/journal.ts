@@ -2,23 +2,37 @@ import { action } from "@solidjs/router";
 import { mightFail } from "might-fail";
 import { db } from "./db";
 import { eq, and, desc } from "drizzle-orm";
-import { notes, categoryEnumNotes } from "../../drizzle/schema/Notes";
-import { takenMedications } from "../../drizzle/schema/TakenMedications";
-import { moods, timeFrameEnumMoods } from "../../drizzle/schema/Moods";
+import {
+  notes,
+  categoryEnumNotes,
+  NoteWithUser,
+} from "../../drizzle/schema/Notes";
+import {
+  takenMedications,
+  TakenMedsWithNoteUser,
+} from "../../drizzle/schema/TakenMedications";
+import {
+  moods,
+  MoodsWithNoteUser,
+  timeFrameEnumMoods,
+} from "../../drizzle/schema/Moods";
 import {
   sleeps,
   qualityEnum,
   timeFrameEnumSleeps,
+  SleepWithNoteUser,
 } from "../../drizzle/schema/Sleeps";
 import { isValidEnumValue } from "~/api/dbHelper";
 import {
   categoryEnumMeals,
   consumptionEnum,
   meals,
+  MealWithNoteUser,
 } from "../../drizzle/schema/Meals";
 import { sessionManager } from "./kinde";
 import { medications } from "../../drizzle/schema/Medications";
 import { TeamMembers } from "../../drizzle/schema/TeamMembers";
+import { Users } from "../../drizzle/schema/Users";
 
 const teamId = 1; //temporary
 const mapQuality = (value: number) => {
@@ -87,7 +101,7 @@ export const createTakenMedicationAction = action(
         .select()
         .from(medications)
         .where(
-          and(eq(medications.name, medication), eq(medications.teamId, teamId))
+          and(eq(medications.name, medication), eq(medications.teamId, teamId)) //temporary, modify to use id later
         )
     );
     if (medicationError || !medicationResult.length) {
@@ -397,69 +411,174 @@ export const getMedicationsFromTeamId = async (teamId: number) => {
   return medicationsResult;
 };
 
-export const getJournalsFromTeamId = async (teamId: number) => {
+export const getJournalsFromTeamId = async (
+  teamId: number
+): Promise<AllJournals | undefined> => {
   "use server";
   const manager = await sessionManager();
   const session = await manager.getSession();
   const userId: number = session.data.userId;
   if (!userId) {
-    return [];
+    return undefined;
   }
   const [takenMedicationsError, takenMedicationsResult] = await mightFail(
     db
-      .select()
+      .select({
+        date: takenMedications.date,
+        id: takenMedications.id,
+        teamId: takenMedications.teamId,
+        createdAt: takenMedications.createdAt,
+        updatedAt: takenMedications.updatedAt,
+        type: takenMedications.type,
+        user: {
+          id: Users.id,
+          firstName: Users.firstName,
+          lastName: Users.lastName,
+          photo: Users.photo,
+        },
+        note: {
+          note: notes.note,
+        },
+        medications: {
+          name: medications.name,
+        },
+      })
       .from(takenMedications)
+      .leftJoin(Users, eq(takenMedications.userId, Users.id))
+      .leftJoin(medications, eq(takenMedications.medicationId, medications.id))
+      .leftJoin(notes, eq(takenMedications.noteId, notes.id))
       .where(eq(takenMedications.teamId, teamId))
       .orderBy(desc(takenMedications.createdAt))
   );
   if (takenMedicationsError) {
-    return [];
+    return undefined;
   }
   const [moodsError, moodsResult] = await mightFail(
-    db.select().from(moods).where(eq(moods.teamId, teamId))
+    db
+      .select({
+        id: moods.id,
+        wellBeing: moods.wellBeing,
+        timeFrame: moods.timeFrame,
+        date: moods.date,
+        createdAt: moods.createdAt,
+        updatedAt: moods.updatedAt,
+        teamId: moods.teamId,
+        user: {
+          id: Users.id,
+          firstName: Users.firstName,
+          lastName: Users.lastName,
+          photo: Users.photo,
+        },
+        note: {
+          note: notes.note,
+        },
+      })
+      .from(moods)
+      .leftJoin(Users, eq(moods.userId, Users.id))
+      .leftJoin(notes, eq(moods.noteId, notes.id))
+      .where(eq(moods.teamId, teamId))
   );
   if (moodsError) {
-    return [];
+    return undefined;
   }
   const [mealsError, mealsResult] = await mightFail(
-    db.select().from(meals).where(eq(meals.teamId, teamId))
+    db
+      .select({
+        id: meals.id,
+        photo: meals.photo,
+        category: meals.category,
+        foodName: meals.foodName,
+        drinkName: meals.drinkName,
+        consumption: meals.consumption,
+        date: meals.date,
+        createdAt: meals.createdAt,
+        updatedAt: meals.updatedAt,
+        teamId: meals.teamId,
+        user: {
+          id: Users.id,
+          firstName: Users.firstName,
+          lastName: Users.lastName,
+          photo: Users.photo,
+        },
+        note: {
+          note: notes.note,
+        },
+      })
+      .from(meals)
+      .leftJoin(Users, eq(meals.userId, Users.id))
+      .leftJoin(notes, eq(meals.noteId, notes.id))
+      .where(eq(meals.teamId, teamId))
   );
   if (mealsError) {
-    return [];
+    return undefined;
   }
   const [sleepsError, sleepsResult] = await mightFail(
-    db.select().from(sleeps).where(eq(sleeps.teamId, teamId))
+    db
+      .select({
+        id: sleeps.id,
+        quality: sleeps.quality,
+        timeFrame: sleeps.timeFrame,
+        duration: sleeps.duration,
+        troubleSleeping: sleeps.troubleSleeping,
+        date: sleeps.date,
+        createdAt: sleeps.createdAt,
+        updatedAt: sleeps.updatedAt,
+        teamId: sleeps.teamId,
+        user: {
+          id: Users.id,
+          firstName: Users.firstName,
+          lastName: Users.lastName,
+          photo: Users.photo,
+        },
+        note: {
+          note: notes.note,
+        },
+      })
+      .from(sleeps)
+      .leftJoin(Users, eq(sleeps.userId, Users.id))
+      .leftJoin(notes, eq(sleeps.noteId, notes.id))
+      .where(eq(sleeps.teamId, teamId))
   );
   if (sleepsError) {
-    return [];
+    return undefined;
   }
   const [notesError, notesResult] = await mightFail(
     db
-      .select()
+      .select({
+        id: notes.id,
+        note: notes.note,
+        createdAt: notes.createdAt,
+        updatedAt: notes.updatedAt,
+        teamId: notes.teamId,
+        user: {
+          id: Users.id,
+          firstName: Users.firstName,
+          lastName: Users.lastName,
+          photo: Users.photo,
+        },
+      })
       .from(notes)
+      .leftJoin(Users, eq(notes.userId, Users.id))
       .where(and(eq(notes.teamId, teamId), eq(notes.category, "general")))
   );
   if (notesError) {
-    return [];
+    return undefined;
   }
-  const combinedResults = [
-    ...takenMedicationsResult,
-    ...moodsResult,
-    ...mealsResult,
-    ...sleepsResult,
-    ...notesResult,
-  ];
 
-  combinedResults.sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
-  return combinedResults;
-  // const journals = {
-  //   takenMedications: takenMedicationsResult,
-  //   moods: moodsResult,
-  //   meals: mealsResult,
-  //   sleeps: sleepsResult,
-  //   notes: notesResult,
-  // };
-  // return journals;
+  const journals = {
+    takenMedications: takenMedicationsResult,
+    moods: moodsResult,
+    meals: mealsResult,
+    sleeps: sleepsResult,
+    notes: notesResult,
+  };
+  return journals;
+};
+
+export type AllJournals = {
+  takenMedications: TakenMedsWithNoteUser[];
+  moods: MoodsWithNoteUser[];
+  meals: MealWithNoteUser[];
+  sleeps: SleepWithNoteUser[];
+  notes: NoteWithUser[];
 };

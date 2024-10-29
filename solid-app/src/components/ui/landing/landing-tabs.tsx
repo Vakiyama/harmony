@@ -84,7 +84,7 @@ export const TabsTrigger = <T extends ValidComponent = "button">(
   return (
     <TabsPrimitive.Trigger
       class={cn(
-        "bg-neutral-300 peer relative z-10 inline-flex h-7 items-center justify-center whitespace-nowrap rounded-2xl px-3 py-1 mr-2 text-sm font-medium outline-none transition-colors disabled:pointer-events-none disabled:opacity-50 data-[selected]:text-front",
+        "bg-neutral-300 peer relative inline-flex h-7 items-center justify-center whitespace-nowrap rounded-2xl px-3 py-1 mr-2 text-sm font-medium outline-none transition-colors disabled:pointer-events-none disabled:opacity-50 data-[selected]:text-front",
         local.class
       )}
       {...rest}
@@ -104,7 +104,7 @@ const tabsIndicatorVariants = cva(
       },
     },
     defaultVariants: {
-      variant: "block",
+      // variant: "block", //temporary
     },
   }
 );

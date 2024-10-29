@@ -1,8 +1,8 @@
 import { integer, numeric, text, sqliteTable } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
-import { notes } from "./Notes";
+import { AttachedNote, notes } from "./Notes";
 import { Teams } from "./Teams";
-import { Users } from "./Users";
+import { AttachedUser, Users } from "./Users";
 
 export const qualityEnum = [
   "Really Terrible",
@@ -38,3 +38,7 @@ export const sleeps = sqliteTable("sleeps", {
 });
 
 export type Sleep = typeof sleeps.$inferSelect;
+export type SleepWithNoteUser = Omit<Sleep, "userId" | "noteId"> & {
+  user: AttachedUser | null;
+  note: AttachedNote | null;
+};

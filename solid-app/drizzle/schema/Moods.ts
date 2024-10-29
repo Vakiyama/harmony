@@ -1,8 +1,8 @@
 import { integer, text, sqliteTable } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
-import { notes } from "./Notes";
+import { AttachedNote, notes } from "./Notes";
 import { Teams } from "./Teams";
-import { Users } from "./Users";
+import { AttachedUser, Users } from "./Users";
 import { qualityEnum } from "./Sleeps";
 
 export const timeFrameEnumMoods = ["Morning", "Afternoon", "Night"] as const;
@@ -30,3 +30,7 @@ export const moods = sqliteTable("moods", {
 });
 
 export type Moods = typeof moods.$inferSelect;
+export type MoodsWithNoteUser = Omit<Moods, "userId" | "noteId"> & {
+  user: AttachedUser | null;
+  note: AttachedNote | null;
+};
