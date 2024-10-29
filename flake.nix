@@ -15,6 +15,8 @@
         buildInputs = with pkgs; [
           nodejs_20
           bun
+          turso-cli
+          sqld
         ];
 
         shellHook = ''
