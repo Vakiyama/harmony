@@ -5,13 +5,17 @@ import { Suspense } from "solid-js";
 import "./app.css";
 import "./input.css";
 import NavBar from "~/components/home/nav-bar";
+import Layout from "./components/Layout";
+import { MetaProvider } from "@solidjs/meta";
 
 export default function App() {
   return (
     <Router
       root={(props) => (
         <div class="h-full border">
-          {/*
+          <MetaProvider>
+            <Layout>
+              {/*
           <div class="px-2">
             <a href="/" class="hover:text-blue-500">
               Index
@@ -43,12 +47,14 @@ export default function App() {
           </div>
           */}
 
-          <Suspense>
-            <div class="h-full">
-              {props.children}
-              <NavBar />
-            </div>
-          </Suspense>
+              <Suspense>
+                <div class="h-full">
+                  {props.children}
+                  <NavBar />
+                </div>
+              </Suspense>
+            </Layout>
+          </MetaProvider>
         </div>
       )}
     >
