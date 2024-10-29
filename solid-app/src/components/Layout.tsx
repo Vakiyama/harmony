@@ -18,7 +18,7 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
           rightNavigation=""
         />
       );
-    } else if (location.pathname.startsWith("/journal")) {
+    } else if (location.pathname.startsWith("/team/1/journal/")) {
       return (
         <TopNav
           name=""
