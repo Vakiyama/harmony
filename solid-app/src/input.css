@@ -63,6 +63,14 @@
   body {
     @apply bg-background text-foreground;
   }
+  @font-face {
+    font-family: "ES Rebond";
+    src: url("../fonts/ESRebondGrotesque-Medium.otf") format("opentype");
+  }
+  @font-face {
+    font-family: "SF Pro";
+    src: url("../fonts/SF-Pro.ttf") format("truetype");
+  }
 }
 html,
 body,
