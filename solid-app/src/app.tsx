@@ -7,12 +7,13 @@ import "./input.css";
 import NavBar from "~/components/shared/nav-bar";
 import Layout from "./components/Layout";
 import { MetaProvider } from "@solidjs/meta";
+import RootWrapper from "./components/shared/root-wrapper";
 
 export default function App() {
   return (
     <Router
       root={(props) => (
-        <div class="h-full border">
+        <RootWrapper>
           <MetaProvider>
             <Layout>
               <Suspense>
@@ -21,7 +22,7 @@ export default function App() {
               </Suspense>
             </Layout>
           </MetaProvider>
-        </div>
+        </RootWrapper>
       )}
     >
       <FileRoutes />
