@@ -8,20 +8,24 @@ import { TeamMembers } from "./schema/TeamMembers";
 import { calendars } from "./schema/Calendars";
 import { EventInput, events } from "./schema/Events";
 import { alarms } from "./schema/Alarms";
+import { eventParticipants } from "./schema/EventParticipants";
 import { medications } from "./schema/Medications";
 
 const seedData = async () => {
   const users = await db.select().from(Users);
-  console.log(users);
+  if (users.length <= 0) {
+    throw new Error("Please create a user first using kinde");
+  }
   // Seed Recipients
-  await db.delete(Recipients);
-  await db.delete(Teams);
-  await db.delete(TeamMembers);
-  await db.delete(calendars);
+  await db.delete(eventParticipants);
   await db.delete(events);
+  await db.delete(calendars);
+  await db.delete(TeamMembers);
+  await db.delete(Teams);
+  await db.delete(Recipients);
 
   const recipientsData = {
-    firstName: "Max",
+    firstName: "Max2",
     lastName: "Test",
     email: "max@example.com",
     phoneNumber: "1234567890",
@@ -81,32 +85,31 @@ const seedData = async () => {
   const eventsData: EventInput[] = [
     {
       calendarId: Calendars[0].id, // Adjust based on the calendar ID
-      name: "Pick up a dish washing",
-      description: "help",
+      title: "Pick up a dish washing",
+      notes: "help",
+      repeat: "never",
       // timeStart: Math.floor(new Date().getTime() / 1000),
       // timeEnd: Math.floor(new Date().getTime() / 1000),
-      allDay: false,
       location: "Langley",
       type: "event",
     },
     {
       calendarId: Calendars[0].id, // Adjust based on the calendar ID
-      name: "Feed Meemaw",
-      description: "Broccoli",
+      title: "Feed Meemaw",
+      notes: "Broccoli",
       //timeStart: Math.floor(new Date().getTime() / 1000),
       //timeEnd: Math.floor(new Date().getTime() / 1000),
-      allDay: false,
       location: "meemaw house",
-      frequency: "daily",
+      repeat: "daily",
       type: "task",
     },
     {
       calendarId: Calendars[1].id, // Adjust based on the calendar ID
-      name: "Grandma birthday",
-      description: "Celebrate!",
+      title: "Grandma birthday",
+      notes: "Celebrate!",
+      repeat: "monthly",
       //timeStart: Math.floor(new Date().getTime() / 1000),
       //timeEnd: Math.floor(new Date().getTime() / 1000),
-      allDay: true,
       location: "help",
       type: "event",
     },
@@ -115,15 +118,27 @@ const seedData = async () => {
     await db
       .insert(events)
       .values({
-        description: data.description,
-        name: data.name,
-        allDay: data.allDay,
+        notes: data.notes,
+        title: data.title,
         calendarId: data.calendarId,
-        frequency: data.frequency,
+        repeat: data.repeat,
         location: data.location,
         // timeEnd: data.timeEnd,
         // timeStart: data.timeStart,
         type: data.type,
+      })
+      .onConflictDoNothing();
+  }
+
+  // Seed EventsParticipants
+  const Events = await db.select().from(events);
+  for await (const event of Events) {
+    await db
+      .insert(eventParticipants)
+      .values({
+        eventId: event.id,
+        userId: 1,
+        status: "maybe",
       })
       .onConflictDoNothing();
   }
