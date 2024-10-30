@@ -22,19 +22,20 @@ const LandingContent = () => {
   return (
     <div class="mt-4">
       <Tabs defaultValue="medication taken" class="w-full">
-        <TabsList class="w-full text-black px-2 overflow-scroll rounded-none">
+        <TabsList class="w-full text-black px-2 overflow-scroll rounded-none pb-2">
           {["Mood", "Medication Taken", "Notes", "Nutrition", "Sleep"].map(
             (tabName) => (
               <TabsTrigger value={tabName.toLowerCase()} class="text-md">
                 {tabName}
               </TabsTrigger>
-            )
+            ),
           )}
           <TabsIndicator />
         </TabsList>
 
         {/* tab content for mood */}
-        <div class="p-2">
+        <div class="p-2 overflow-scroll pb-[200px] h-[calc(100vh_-_200px)]">
+          {/* this pb and h-calc above is hacky, fix it*/}
           <JournalCard
             dateTime="Oct 15. - 9:41PM"
             title="Mood"
@@ -107,7 +108,7 @@ const LandingContent = () => {
                   <JournalCard
                     dateTime={`${new Date(med.createdAt).toLocaleDateString(
                       "en-us",
-                      { month: "short", day: "numeric" }
+                      { month: "short", day: "numeric" },
                     )} - ${new Date(med.createdAt).toLocaleTimeString("en-US", {
                       hour: "2-digit",
                       minute: "2-digit",
@@ -146,7 +147,7 @@ const LandingContent = () => {
                         content: (
                           <p class="text-xs">
                             {`${new Date(med.date).toDateString()} - ${new Date(
-                              med.date
+                              med.date,
                             ).toLocaleTimeString("en-US", {
                               hour: "2-digit",
                               minute: "2-digit",
@@ -179,7 +180,6 @@ const LandingContent = () => {
               );
             })}
           </Show>
-
           {/* tab content for notes */}
           <JournalCard
             dateTime="Oct 15. - 9:41PM"

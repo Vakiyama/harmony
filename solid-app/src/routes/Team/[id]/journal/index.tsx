@@ -29,12 +29,12 @@ export default function Journal() {
 
   return (
     <MetaProvider>
-      <div class="flex flex-col w-full text-start h-[calc(100%-100px)]">
+      <div class="flex flex-col w-full text-start h-[calc(100%-100px)] fixed">
         <LandingHeader />
         <div class="flex flex-col gap-2 mt-6">
           <h2 class="font-medium text-[24px] mx-4">Journal Entry</h2>
           <Suspense fallback={<div>Loading...</div>}>
-            <JournalFeed></JournalFeed>
+            <JournalFeed />
           </Suspense>
           <button
             onClick={handleButtonClick}
