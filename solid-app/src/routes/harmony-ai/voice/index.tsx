@@ -20,31 +20,50 @@ function formatCounter(seconds: number) {
   } else return `00:${toTwoDigits(seconds)}`;
 }
 
+function sleep(ms: number) {
+  return new Promise((res) => res);
+}
+
 export default function HarmonyVoice() {
   const [counter, setCounter] = createSignal(0);
+  const [streamedMessage, setStreamedMessage] = createSignal("");
+
+  async function streamMessage(message: string) {
+    const sleepRange = { low: 10, high: 100 };
+    let messageRangeCutoff = 0;
+    while (true) {
+      await sleep(sleepRange.low + Math.floor(sleepRange.high * Math.random()));
+      messageRangeCutoff++;
+      setStreamedMessage(message.slice(messageRangeCutoff))
+      if (messageRangeCutoff === message.length) break;
+    }
+  }
 
   onMount(() => {
     setInterval(() => setCounter(counter() + 1), 1000);
   });
 
   return (
-    <div class="flex flex-col items-center justify-between h-full pb-8 border">
+    <div class="flex flex-col items-center justify-between h-full pb-8 bg-gradient-to-b from-[#3100E6] from-[#987CFF]">
       <div class="w-full">
-        <A href="/harmony-ai/chat">
-          <ImageRoot class="mt-5 ml-4">
-            <Image class="h-7" src={ArrowBack} />
-          </ImageRoot>
-        </A>
-        <div class="flex flex-col items-center">
-          <h3 class="opacity-50 text-xl font-grotesque">
+        <div class="flex flex-col items-center mt-6">
+          <h3 class="text-xl font-grotesque text-black/70">
             {formatCounter(counter())}
           </h3>
           <h2 class="text-4xl mt-2">Harmony</h2>
+          <ImageRoot class="mt-0 ml-4 h-[200px] w-[200px]">
+            <Image class="w-full" src={HarmonyMascot} />
+          </ImageRoot>
         </div>
       </div>
-      <ImageRoot class="mt-0 ml-4 h-[60%] w-[60%]">
-        <Image class="w-full border" src={HarmonyMascot} />
-      </ImageRoot>
+      <div class="px-4">
+        <div class={`bg-white drop-shadow-lg rounded-lg px-4 py-4`}>
+          <p>
+            Can you help me set up an event for lola’s physical therapy
+            sessions?
+          </p>
+        </div>
+      </div>
       <div class="flex flex-row w-[90%] justify-between items-center">
         <div class="flex flex-col items-center gap-2">
           <div class="rounded-full bg-[#1E1E1E]/15 w-16 h-16 flex items-center justify-center">
