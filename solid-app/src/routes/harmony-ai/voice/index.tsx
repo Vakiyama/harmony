@@ -22,10 +22,76 @@ function formatCounter(seconds: number) {
 
 export default function HarmonyVoice() {
   const [counter, setCounter] = createSignal(0);
+  const [messageIndex, setMessageIndex] = createSignal(0);
+
+  const demoConversation = [
+    {
+      type: "user",
+      message:
+        "Hi Harmony, please create a new calendar event for Grandma's doctor's appointment tomorrow at 10:30 am",
+    },
+    {
+      type: "assistant",
+      message: "What is the location of the doctor's appointment?",
+    },
+    {
+      type: "user",
+      message: "555 Seymour St, Vancouver, BC V6B 3H6",
+    },
+    {
+      type: "assistant",
+      message: "What is the approximate end time for the appointment?",
+    },
+    {
+      type: "user",
+      message: "10:50 am",
+    },
+    {
+      type: "assistant",
+      message: "Does the appointment repeat?",
+    },
+    {
+      type: "user",
+      message: "No",
+    },
+    {
+      type: "assistant",
+      message:
+        "Who will be taking Grandma to her doctor's appointment tomorrow?",
+    },
+    {
+      type: "user",
+      message: "Tina",
+    },
+    {
+      type: "assistant",
+      message:
+        "Are there any notes you would like to make for this appointment?",
+    },
+    {
+      type: "user",
+      message: "Ask doctor to renew Grandma's meds",
+    },
+    {
+      type: "assistant",
+      message:
+        "I have created a new event in Lola's calendar for a doctor's appointment tomorrow at 10:30-10:50am at 555 Seymour St, Vancouver, BC V6B 3H6 that Tina will take her too with a note to ask the doctor to renew Lola's meds",
+    },
+  ];
 
   onMount(() => {
     setInterval(() => setCounter(counter() + 1), 1000);
   });
+
+  function nextMessage() {
+    setMessageIndex((prevIndex) =>
+      prevIndex < demoConversation.length - 1 ? prevIndex + 1 : prevIndex
+    );
+  }
+
+  const currentMessage = () => {
+    demoConversation[messageIndex()];
+  };
 
   return (
     <div class="flex flex-col items-center justify-between h-full pb-8 border">

@@ -24,7 +24,7 @@ export default function NavBar() {
     <nav
       class={twMerge(
         "fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-md z-50",
-        currentPath().includes("/harmony-ai/") ? "hidden" : "",
+        currentPath().includes("/harmony-ai/") ? "hidden" : ""
       )}
     >
       <div class="max-w-screen-lg mx-auto px-4">
