@@ -63,7 +63,7 @@ const CalendarCreateEvent = () => {
   const teamMemberOptions = createMemo(() =>
     parseTeamMemberToOption(teamMembers())
   );
-  console.log(teamMemberOptions());
+
   async function createEventHandler(e: Event) {
     e.preventDefault();
 

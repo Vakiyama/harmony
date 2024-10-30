@@ -169,8 +169,8 @@ const seedData = async () => {
         calendarId: data.calendarId,
         repeat: data.repeat,
         location: data.location,
-        // timeEnd: data.timeEnd,
-        // timeStart: data.timeStart,
+        timeEnd: data.timeEnd,
+        timeStart: data.timeStart,
         type: data.type,
       })
       .onConflictDoNothing();

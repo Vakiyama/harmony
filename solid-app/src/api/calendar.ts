@@ -111,7 +111,6 @@ export const createEvent = async (
   userIds: number[]
 ) => {
   "use server";
-  console.log(eventInput);
   const [newEvent] = await db.insert(events).values(eventInput).returning();
   if (newEvent) {
     for (let userId of userIds) {

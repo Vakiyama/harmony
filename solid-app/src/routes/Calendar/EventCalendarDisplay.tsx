@@ -7,7 +7,6 @@ const EventCalendarDisplay = (props: { events: Accessor<Event[]> }) => {
   const getDayName = (date: string) => {
     return moment.weekdaysShort()[moment(date).day()].toUpperCase();
   };
-  console.log(new Date("2024-11-02T16:00:00"));
   const getDayNumber = (date: string) => {
     return moment(date).date();
   };
