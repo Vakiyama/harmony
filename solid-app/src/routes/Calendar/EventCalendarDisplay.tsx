@@ -1,19 +1,20 @@
-import { createSignal, For } from "solid-js";
+import { For } from "solid-js";
 import type { Event } from "@/schema/Events";
-import EventCard from "~/components/ui/eventCard";
+import EventCard from "~/components/ui/event-card";
+import moment from "moment";
 
 const EventCalendarDisplay = (props: { events: Event[] }) => {
-  const getDayName = (date: Date) => {
-    return date.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase();
+  const getDayName = (date: string) => {
+    return moment.weekdaysShort()[moment(date).day()].toUpperCase();
   };
 
-  const getDayNumber = (date: Date) => {
-    return date.getDate();
+  const getDayNumber = (date: string) => {
+    return moment(date).date();
   };
 
   const getGroupedEvents = () => {
     return props.events.reduce((acc, event) => {
-      const date = new Date(event.timeStart!).toISOString().split("T")[0];
+      const date = moment(event.timeStart!).format("YYYY-MM-DD");
       if (!acc[date]) {
         acc[date] = [];
       }
@@ -21,22 +22,21 @@ const EventCalendarDisplay = (props: { events: Event[] }) => {
       return acc;
     }, {} as Record<string, Event[]>);
   };
-
   const getDates = () => {
     return Object.keys(getGroupedEvents()).sort();
   };
 
   return (
-    <div class="w-[366px] flex-col justify-start items-end gap-5 inline-flex">
+    <div class="w-[366px] flex-col justify-start items-end gap-5 inline-flex ">
       <For each={getDates()}>
         {(date) => (
           <div class="self-stretch justify-between items-start inline-flex">
             <div class="w-8 flex-col justify-start items-center gap-0.5 inline-flex">
               <div class="self-stretch text-center text-[#5d5d5d]/75 text-[11px] font-normal font-['SF Pro'] leading-[13.20px]">
-                {getDayName(new Date(date))}
+                {getDayName(date)}
               </div>
               <div class="self-stretch text-center text-[#5d5d5d] text-base font-['SF Pro'] leading-tight">
-                {getDayNumber(new Date(date))}
+                {getDayNumber(date)}
               </div>
             </div>
             <div class="w-[315px] flex-col justify-start items-end gap-1 inline-flex">

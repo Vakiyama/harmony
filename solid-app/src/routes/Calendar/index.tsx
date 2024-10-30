@@ -1,18 +1,10 @@
-import { createSignal, For, onMount, Show } from "solid-js";
+import { createSignal, onMount } from "solid-js";
 import { mightFail } from "might-fail";
 import type { Event } from "@/schema/Events";
-import {
-  getCalendarsFromTeamId,
-  getAllEvents,
-  updateEvent,
-  deleteEvent,
-} from "~/api/calendar";
-import UpdateModal from "./Event/[id]/updateModal";
-import DeleteModal from "./Event/[id]/deleteModal";
-import CalendarView from "./CalendarView";
+import { getAllEvents } from "~/api/calendar";
 import moment from "moment";
-import EventCard from "~/components/ui/eventCard";
-import WeekCalendarView from "./WeekCalendarView";
+import CalendarView from "./CalendarView";
+import WeekCalendarView from "./week-calendar-view";
 import CalendarSideMenu from "./CalendarSideMenu";
 import EventCalendarDisplay from "./EventCalendarDisplay";
 moment.locale("en");
@@ -28,26 +20,18 @@ export type EventFormData = {
 
 export default function CalendarPage() {
   const [events, setEvents] = createSignal<Event[]>([]);
+  const [currentdDay, setCurrentDay] = createSignal<number>(moment().date());
+  const [currentMonth, setCurrentMonth] = createSignal(moment().format("MMMM"));
+  const [currentYear, setCurrentYear] = createSignal<number>(moment().year());
   const [selectedDay, setSelectedDay] = createSignal<number>(moment().date());
   const [selectedMonth, setSelectedMonth] = createSignal(
     moment().format("MMMM")
   );
   const [selectedYear, setSelectedYear] = createSignal<number>(moment().year());
   onMount(async () => {
-    // temp get teamId
-    await fetchCalendars(1);
     // temp get calendar Id
     await fetchEvents(1);
   });
-
-  const fetchCalendars = async (teamId: number) => {
-    const [calendarError, calendarResult] = await mightFail(
-      getCalendarsFromTeamId(teamId)
-    );
-    if (calendarError) {
-      return console.error(calendarError);
-    }
-  };
 
   const fetchEvents = async (calendarId: number) => {
     const [eventError, eventResult] = await mightFail(getAllEvents(calendarId));
@@ -58,22 +42,13 @@ export default function CalendarPage() {
   };
 
   return (
-    <div class="p-6 relative">
+    <div class="relative">
       {/* <CalendarSideMenu /> */}
-      <div class="max-w-[vw-50%]">
+      <div class="max-w-[vw-50%] flex flex-col ">
         <div class="text-[#1e1e1e] text-[28px] font-medium font-['ES Rebond Grotesque TRIAL'] leading-[33.60px]">
-          {selectedMonth()}
+          {currentMonth()}
         </div>
-        <CalendarView
-          selectedYear={selectedYear}
-          setSelectedYear={setSelectedYear}
-          selectedMonth={selectedMonth}
-          setSelectedMonth={setSelectedMonth}
-          selectedDay={selectedDay}
-          setSelectedDay={setSelectedDay}
-          events={events}
-        />
-        {/* <WeekCalendarView
+        {/* <CalendarView
           selectedYear={selectedYear}
           setSelectedYear={setSelectedYear}
           selectedMonth={selectedMonth}
@@ -82,8 +57,22 @@ export default function CalendarPage() {
           setSelectedDay={setSelectedDay}
           events={events}
         /> */}
-
-        <EventCalendarDisplay events={events()} />
+        <WeekCalendarView
+          selectedYear={selectedYear}
+          setSelectedYear={setSelectedYear}
+          selectedMonth={selectedMonth}
+          setSelectedMonth={setSelectedMonth}
+          selectedDay={selectedDay}
+          setSelectedDay={setSelectedDay}
+          currentMonth={currentMonth}
+          currentYear={currentYear}
+          setCurrentMonth={setCurrentMonth}
+          setCurrentYear={setCurrentYear}
+          events={events}
+        />
+        <div class="flex justify-center pt-4">
+          <EventCalendarDisplay events={events()} />
+        </div>
         <a href="/calendar/create">go create one bro</a>
       </div>
     </div>

@@ -53,8 +53,7 @@ export default function Components() {
         </div>
         <div class="mr-5 w-full sm:w-auto mb-10">
           <div class="mb-3">Select</div>
-          {/* <SelectDemo options={["1", "2", "3"]} placeholder="demo"/> */}
-          {/* sorry emmy */}
+          {/* <SelectDemo options={["1", "2", "3"]} placeholder="demo" /> */}
         </div>
         <div class="mr-5 w-full sm:w-auto mb-10">
           <div class="mb-3">Separator</div>

@@ -67,16 +67,17 @@ export default function EventPage() {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}{" "}
-                to{" "}
-                {event()?.timeEnd?.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                <Show when={event()?.timeEnd}>
+                  to{" "}
+                  {event()?.timeEnd?.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </Show>
               </p>
               <p class="text-[#1e1e1e]/50 text-base leading-tight">
-                Repeats{" "}
-                {/* {event()?.repeat.charAt(0).toUpperCase() +
-                  event()?.repeat.slice(1)} */}
+                Repeats {event()?.repeat.charAt(0).toUpperCase()}
+                {event()?.repeat.slice(1)}
               </p>
             </div>
           </div>
@@ -155,20 +156,21 @@ export default function EventPage() {
               </div>
             </Show>
           </div>
-
-          <div class="flex flex-col space-y-1">
-            <hr class="border-t border-[#1e1e1e]/20" />
-            <h2 class="text-[#1e1e1e] text-lg font-medium">Notes</h2>
-            <div class="bg-[#f9f9f9] rounded-md p-2 text-[#1e1e1e]/50 text-base leading-tight">
-              {event()?.notes}
+          <div>
+            <div class="flex flex-col space-y-1">
+              <hr class="border-t border-[#1e1e1e]/20" />
+              <h2 class="text-[#1e1e1e] text-lg font-medium">Notes</h2>
+              <div class="bg-[#f9f9f9] rounded-md p-2 text-[#1e1e1e]/50 text-base leading-tight">
+                {event()?.notes}
+              </div>
             </div>
-          </div>
-          <div class="flex justify-end space-x-4 bg-[#fcfcfc] border-t border-[#1e1e1e] p-3">
-            {["Yes", "No", "Maybe"].map((response) => (
-              <button class="bg-[#1e1e1e]/20 rounded-full px-4 py-2 text-[#1e1e1e] text-lg font-medium">
-                {response}
-              </button>
-            ))}
+            <div class="flex justify-end space-x-4 bg-[#fcfcfc] border-t border-[#1e1e1e] p-3">
+              {["Yes", "No", "Maybe"].map((response) => (
+                <button class="bg-[#1e1e1e]/20 rounded-full px-4 py-2 text-[#1e1e1e] text-lg font-medium">
+                  {response}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>

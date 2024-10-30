@@ -106,9 +106,18 @@ export const getEvent = cache(async (eventId: number) => {
   return (await db.select().from(events).where(eq(events.id, eventId)))[0];
 }, "event");
 
-export const createEvent = async (eventInput: EventInput) => {
+export const createEvent = async (
+  eventInput: EventInput,
+  userIds: number[]
+) => {
   "use server";
+  console.log(eventInput);
   const [newEvent] = await db.insert(events).values(eventInput).returning();
+  if (newEvent) {
+    for (let userId of userIds) {
+      await createEventParticipant(newEvent.id, userId);
+    }
+  }
   return newEvent;
 };
 
@@ -156,6 +165,18 @@ export const getEventParticipants = async (eventId: number) => {
     .innerJoin(Users, eq(eventParticipants.userId, Users.id))
     .innerJoin(TeamMembers, eq(eventParticipants.userId, TeamMembers.userId));
   return result;
+};
+
+export const createEventParticipant = async (
+  eventId: number,
+  userId: number
+) => {
+  "use server";
+  const [newEventParticipant] = await db
+    .insert(eventParticipants)
+    .values({ eventId, userId })
+    .returning();
+  return newEventParticipant;
 };
 
 export const getEventsWithUserId = async (

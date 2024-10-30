@@ -101,7 +101,7 @@ const CalendarView = (props: {
                           parseInt(day) === props.selectedDay() &&
                           currentMonth() === props.selectedMonth() &&
                           currentYear() === props.selectedYear()
-                            ? "bg-purple-400 text-white"
+                            ? "bg-[#7859ea] text-white"
                             : "text-[#5d5d5d]"
                         } rounded-full`}
                       >

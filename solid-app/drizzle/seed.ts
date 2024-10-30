@@ -8,8 +8,8 @@ import { TeamMembers } from "./schema/TeamMembers";
 import { calendars } from "./schema/Calendars";
 import { EventInput, events } from "./schema/Events";
 import { alarms } from "./schema/Alarms";
-import { eventParticipants } from "./schema/EventParticipants";
 import { medications } from "./schema/Medications";
+import { eventParticipants } from "./schema/EventParticipants";
 
 const seedData = async () => {
   const users = await db.select().from(Users);

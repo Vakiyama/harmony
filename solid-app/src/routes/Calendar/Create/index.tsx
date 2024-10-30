@@ -11,6 +11,8 @@ import type { TeamMember } from "@/schema/TeamMembers";
 import { User } from "@/schema/Users";
 import { mightFail } from "might-fail";
 import { isValidEnumValue } from "~/api/dbHelper";
+import SelectMultipleInput from "~/components/shadcn/MultiSelect";
+import moment from "moment";
 
 const CalendarCreateEvent = () => {
   const navigate = useNavigate();
@@ -23,9 +25,7 @@ const CalendarCreateEvent = () => {
   const [title, setTitle] = createSignal("");
   const [notes, setNotes] = createSignal("");
   const [location, setLocation] = createSignal("");
-  const [teamMemberId, setTeamMemberId] = createSignal<number | undefined>(
-    undefined
-  );
+  const [teamMemberIds, setTeamMemberIds] = createSignal<number[]>([]);
   const [timeStartDate, setTimeStartDate] = createSignal<string | undefined>();
   const [timeStartTime, setTimeStartTime] = createSignal("");
   const [timeEndDate, setTimeEndDate] = createSignal<string | undefined>();
@@ -42,7 +42,7 @@ const CalendarCreateEvent = () => {
     data
       ? data.map((data) => {
           return {
-            value: data.teammembers.id,
+            value: data.teammembers.userId,
             label: data.users.displayName,
           };
         })
@@ -54,6 +54,7 @@ const CalendarCreateEvent = () => {
 
   async function createEventHandler(e: Event) {
     e.preventDefault();
+    // temp
     if (!title() || title().trim() === "") {
       return alert("Title is required.");
     }
@@ -72,17 +73,21 @@ const CalendarCreateEvent = () => {
     if (timeEnd() <= timeStart()) {
       return alert("End time must be after start time.");
     }
+    console.log(teamMemberIds());
     const [createEventError, createEventResult] = await mightFail(
-      createEvent({
-        calendarId: 1,
-        location: location(),
-        title: title(),
-        notes: notes(),
-        repeat: repeat(),
-        type: eventType(),
-        timeEnd: timeEnd(),
-        timeStart: timeStart(),
-      })
+      createEvent(
+        {
+          calendarId: 1,
+          location: location(),
+          title: title(),
+          notes: notes(),
+          repeat: repeat(),
+          type: eventType(),
+          timeEnd: timeEnd(),
+          timeStart: timeStart(),
+        },
+        teamMemberIds()
+      )
     );
     if (createEventError) {
       return console.error(createEventError);
@@ -91,7 +96,7 @@ const CalendarCreateEvent = () => {
   }
   return (
     <div class="flex flex-col items-center mt-10 w-full">
-      <form class="space-y-4 max-w-lg w-full">
+      <form class="space-y-4 max-w-lg w-full px-4">
         <div class="flex gap-4 justify-between">
           <Button
             class={twMerge(
@@ -156,11 +161,13 @@ const CalendarCreateEvent = () => {
           setSelectedOption={setRepeat}
         />
         <p class="text-lg font-semibold">Invitee</p>
-        <SelectInput
+
+        <SelectMultipleInput
           class="w-full p-1 rounded-lg py-6 ps-4 "
           placeholder="Person"
+          multiple={true}
           options={teamMemberOptions()}
-          setSelectedOption={setTeamMemberId}
+          setSelectedOptions={setTeamMemberIds}
         />
         <TextArea
           label="Notes"
@@ -179,6 +186,8 @@ const CalendarCreateEvent = () => {
         </div>
         <div class="h-[88px]"></div> {/* temporary */}
       </form>
+      {/* temp */}
+      <div class="h-[88px]"></div>
     </div>
   );
 };
