@@ -46,17 +46,17 @@ export default function Modal(props: ModalProps) {
         <ModalOption
           title="Mood"
           description="Keep track of daily moods to see how the day went."
-          link="/team/1/journal/mood-tracker"
+          link="/team/1/journal/mood"
         />
         <ModalOption
           title="Nutrition"
           description="Log meals to track nutrition throughout the day."
-          link="/team/1/journal/nutrition-tracker"
+          link="/team/1/journal/nutrition"
         />
         <ModalOption
           title="Sleep"
           description="Log sleep hours to track nightly rest patterns."
-          link="/team/1/journal/sleep-tracker"
+          link="/team/1/journal/sleep"
         />
         <ModalOption
           title="Note"

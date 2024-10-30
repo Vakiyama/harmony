@@ -17,6 +17,7 @@ export default function TimePicker(props: TimeProps) {
       }`}
       type="time"
       value={props.time() || placeholderTime}
+      placeholder={props.time() || placeholderTime}
       onInput={(e) => props.setTime(e.currentTarget.value)}
     />
   );

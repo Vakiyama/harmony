@@ -9,6 +9,7 @@ import AddNote from "~/routes/Team/[id]/journal/add-notes";
 import Header from "./header";
 import SelectInput from "~/components/shadcn/Select";
 import PhotoUpload from "./upload";
+import { showNotification } from "~/routes/api/notificationStore";
 
 export default function NutritionTracker() {
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
@@ -30,6 +31,7 @@ export default function NutritionTracker() {
     if (result.success) {
       setError("");
       formRef()?.reset();
+      showNotification("Nutrition Entry Posted");
       navigate("/team/1/journal");
     } else if (result.error) {
       console.error(result.error);

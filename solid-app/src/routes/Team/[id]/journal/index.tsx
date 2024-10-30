@@ -3,16 +3,14 @@ import Modal from "../../../../components/shared/modal";
 import JournalFeed from "./journal-feed";
 import { LandingHeader } from "~/components/landing/LandingHeader";
 import { MetaProvider } from "@solidjs/meta";
+import Notification from "~/components/shared/notification";
+import {
+  notificationMessage,
+  isNotificationVisible,
+  hideNotification,
+} from "~/routes/api/notificationStore";
 
 export default function Journal() {
-  const currentDate = new Date();
-
-  const options: Intl.DateTimeFormatOptions = {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  };
-
   const [isModalOpen, setIsModalOpen] = createSignal(false);
 
   const handleButtonClick = () => {
@@ -37,7 +35,7 @@ export default function Journal() {
         </span>
         <div class="flex flex-col gap-2 mt-6">
           <h2 class="font-medium text-[24px] mx-4">Journal Entry</h2>
-          <Suspense fallback={<div>im loading bro</div>}>
+          <Suspense fallback={<div>Loading...</div>}>
             <JournalFeed></JournalFeed>
           </Suspense>
           <button
@@ -77,6 +75,12 @@ export default function Journal() {
         </div>
         <div class="h-[88px]"></div> {/* Temporary */}
       </div>
+      {isNotificationVisible() && (
+        <Notification
+          title={notificationMessage()}
+          onClose={hideNotification}
+        />
+      )}
     </MetaProvider>
   );
 }
