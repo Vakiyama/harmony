@@ -1,21 +1,11 @@
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/landing/landing-card";
-import {
   Tabs,
   TabsContent,
   TabsIndicator,
   TabsList,
   TabsTrigger,
 } from "~/components/ui/landing/landing-tabs";
-
-import { FaSolidPen } from "solid-icons/fa";
 import LandingImage from "./LandingImage";
-import Member from "./Member";
 import { JournalCard } from "./journal-card/JournalCard";
 import { createAsync } from "@solidjs/router";
 import { createMemo, Show } from "solid-js";
@@ -26,6 +16,9 @@ const LandingContent = () => {
     deferStream: true,
   });
   const journalsData = createMemo(() => getJournals());
+  if (journalsData()) {
+    console.log(journalsData());
+  }
   return (
     <div class="mt-4">
       <Tabs defaultValue="medication taken" class="w-full">
@@ -47,6 +40,7 @@ const LandingContent = () => {
             title="Mood"
             value={"mood"}
             withMember={true}
+            member={null}
             icon={
               <svg
                 width="11"
@@ -121,6 +115,7 @@ const LandingContent = () => {
                     title="Medication Taken"
                     value={"medication taken"}
                     withMember={true}
+                    member={med.user}
                     icon={
                       <svg
                         width="14"
@@ -191,6 +186,7 @@ const LandingContent = () => {
             title="Notes"
             value={"notes"}
             withMember={false}
+            member={null}
             icon={
               <svg
                 width="12"
@@ -238,6 +234,7 @@ const LandingContent = () => {
             title="Nutrition"
             value={"nutrition"}
             withMember={false}
+            member={null}
             icon={
               <svg
                 width="12"
@@ -301,6 +298,7 @@ const LandingContent = () => {
             title="Sleep"
             value={"sleep"}
             withMember={true}
+            member={null}
             icon={
               <svg
                 width="11"

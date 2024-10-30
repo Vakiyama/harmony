@@ -10,6 +10,7 @@ import {
 import { TabsContent } from "~/components/ui/landing/landing-tabs";
 import Member from "../Member";
 import { Section } from "./Section";
+import { AttachedUser } from "@/schema/Users";
 
 export function JournalCard(props: {
   icon: JSXElement;
@@ -18,6 +19,7 @@ export function JournalCard(props: {
   dateTime: string;
   sections: { title?: string; content: JSXElement }[];
   withMember?: boolean;
+  member: AttachedUser | null;
 }) {
   return (
     <TabsContent value={props.value}>
@@ -39,7 +41,7 @@ export function JournalCard(props: {
           <For each={props.sections}>
             {(section) => <Section {...section} />}
           </For>
-          {props.withMember && <Member />}
+          {props.withMember && <Member member={props.member} />}
         </CardContent>
       </Card>
     </TabsContent>
