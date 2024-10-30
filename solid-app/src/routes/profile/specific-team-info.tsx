@@ -1,7 +1,7 @@
-import TeamHeader from "~/components/profile/TeamHeader";
-import TeamTab from "~/components/profile/TeamTab";
-import TeamMenuBar from "~/components/profile/TeamTab";
-import TeamNav from "~/components/profile/TeamTab";
+import TeamHeader from "~/components/profile/team-header";
+import TeamTab from "~/components/profile/team-tab";
+import TeamMenuBar from "~/components/profile/team-tab";
+import TeamNav from "~/components/profile/team-tab";
 
 export default function SpecificTeamInfo() {
   return (

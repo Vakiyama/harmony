@@ -1,4 +1,4 @@
-import MedDetailCard from "~/components/profile/MedDetailCard";
+import MedDetailCard from "~/components/profile/med-detail-card";
 
 export default function MedDetail() {
   return (

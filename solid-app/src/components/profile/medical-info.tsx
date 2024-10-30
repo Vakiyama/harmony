@@ -3,7 +3,7 @@ import {
   TextFieldLabel,
   TextFieldRoot,
 } from "~/components/ui/textfield";
-import MedicalDetail from "./MedicalDetail";
+import MedicalDetail from "./medical-detail";
 import TextFieldLine from "../shared/TextFieldLine";
 
 export default function MedicalInfo() {

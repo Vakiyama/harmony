@@ -1,5 +1,5 @@
 import { Image, ImageRoot } from "../ui/image";
-import TeamImage from "./TeamImage";
+import TeamImage from "./team-image";
 
 export default function TeamCard(props: {
   teamName: string;

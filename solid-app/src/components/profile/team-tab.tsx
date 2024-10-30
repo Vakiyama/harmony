@@ -13,7 +13,7 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from "~/components/ui/teams/team-menubar";
-import TeamPreview from "./TeamPreview";
+import TeamPreview from "./team-preview";
 import { createSignal } from "solid-js";
 import { A } from "@solidjs/router";
 import {
@@ -22,8 +22,8 @@ import {
   TabsList,
   TabsTrigger,
 } from "~/components/ui/teams/team-tabs";
-import GeneralInfo from "./GeneralInfo";
-import MedicalInfo from "./MedicalInfo";
+import GeneralInfo from "./general-info";
+import MedicalInfo from "./medical-info";
 
 const TeamTab = () => {
   const [activeTab, setActiveTab] = createSignal("teams");
