@@ -3,6 +3,7 @@ import { twMerge } from "tailwind-merge";
 import {
   Select,
   SelectContent,
+  SelectHiddenSelect,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -38,6 +39,7 @@ export default function SelectInput<T>(props: {
         </SelectValue>
       </SelectTrigger>
       <SelectContent />
+      <SelectHiddenSelect />
     </Select>
   );
 }

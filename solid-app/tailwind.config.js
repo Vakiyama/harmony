@@ -4,6 +4,9 @@ module.exports = {
   content: ["src/routes/**/*.{ts,tsx}", "src/components/**/*.{ts,tsx}"],
   prefix: "",
   theme: {
+    fontFamily: {
+      grotesque: ["ES Rebond", "sans-serif"]
+    },
     container: {
       center: true,
       padding: "2rem",
@@ -25,7 +28,9 @@ module.exports = {
         h3: "23px",
         h4: "19px",
         subtitle: "11px",
-        subtitle_13: "13px",
+      },
+      width: {
+        "368": "368px",
       },
       colors: {
         border: "hsl(var(--border))",
@@ -61,6 +66,8 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        lofiGray: "#D9D9D9",
+        black50: "rgb(30,30,30, 0.5)",
       },
       borderRadius: {
         lg: "var(--radius)",

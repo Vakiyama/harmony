@@ -1,24 +1,24 @@
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/landing/landing-card";
-import {
   Tabs,
   TabsContent,
   TabsIndicator,
   TabsList,
   TabsTrigger,
 } from "~/components/ui/landing/landing-tabs";
-
-import { FaSolidPen } from "solid-icons/fa";
 import LandingImage from "./LandingImage";
-import Member from "./Member";
 import { JournalCard } from "./journal-card/JournalCard";
+import { createAsync } from "@solidjs/router";
+import { createMemo, Show } from "solid-js";
+import { getJournalsFromTeamId } from "~/api/journal";
 
 const LandingContent = () => {
+  const getJournals = createAsync(async () => await getJournalsFromTeamId(1), {
+    deferStream: true,
+  });
+  const journalsData = createMemo(() => getJournals());
+  if (journalsData()) {
+    console.log(journalsData());
+  }
   return (
     <div class="mt-4">
       <Tabs defaultValue="medication taken" class="w-full">
@@ -28,7 +28,7 @@ const LandingContent = () => {
               <TabsTrigger value={tabName.toLowerCase()} class="text-md">
                 {tabName}
               </TabsTrigger>
-            ),
+            )
           )}
           <TabsIndicator />
         </TabsList>
@@ -40,6 +40,7 @@ const LandingContent = () => {
             title="Mood"
             value={"mood"}
             withMember={true}
+            member={null}
             icon={
               <svg
                 width="11"
@@ -99,63 +100,85 @@ const LandingContent = () => {
 
           */
           />
-
-          <JournalCard
-            dateTime="Oct 15. - 9:41PM"
-            title="Medication Taken"
-            value={"medication taken"}
-            withMember={true}
-            icon={
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 14 14"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fill-rule="evenodd"
-                  clip-rule="evenodd"
-                  d="M7.4142 1.61292C8.07362 0.953581 8.96796 0.583197 9.90046 0.583252C10.833 0.583307 11.7273 0.953797 12.3866 1.61322C13.046 2.27264 13.4163 3.16697 13.4163 4.09948C13.4162 5.03199 13.0457 5.92628 12.3863 6.58562L6.58503 12.3869C5.92561 13.0463 5.03127 13.4166 4.09876 13.4166C3.16626 13.4165 2.27196 13.046 1.61262 12.3866C0.953276 11.7272 0.582892 10.8329 0.582947 9.90036C0.583002 8.96785 0.953491 8.07356 1.61291 7.41421L7.4142 1.61292ZM11.5571 5.75645L9.07138 8.2428L5.75644 4.92786L8.24279 2.4421C8.45952 2.22042 8.71807 2.04394 9.00348 1.92288C9.28888 1.80181 9.59547 1.73857 9.90548 1.73681C10.2155 1.73505 10.5228 1.7948 10.8095 1.91261C11.0963 2.03043 11.3568 2.20395 11.5761 2.42315C11.7953 2.64235 11.9689 2.90286 12.0868 3.1896C12.2046 3.47634 12.2644 3.78362 12.2627 4.09363C12.261 4.40365 12.1978 4.71025 12.0768 4.99567C11.9558 5.2811 11.7788 5.53968 11.5571 5.75645Z"
-                  fill="#1E1E1E"
-                />
-              </svg>
-            }
-            sections={[
-              {
-                title: "Selected Medication",
-                content: <p class="text-xs">ex. Advil</p>,
-              },
-              {
-                title: "Medication Type",
-                content: <p class="text-xs">Selected Medication Type</p>,
-              },
-              {
-                title: "Date & Time Taken",
-                content: <p class="text-xs">Oct 15. - 8:00PM</p>,
-              },
-              {
-                title: "Additional Notes",
-                content: (
-                  <p class="text-xs">
-                    Random notes about medication, that someone might want other
-                    people to look at and read, etc.
-                  </p>
-                ),
-              },
-              {
-                content: (
-                  <>
-                    {/* Images */}
-                    <div class="flex flex-row gap-x-2">
-                      <LandingImage />
-                      <LandingImage />
-                    </div>
-                  </>
-                ),
-              },
-            ]}
-          />
+          <Show when={journalsData() !== undefined}>
+            {journalsData()?.takenMedications.map((med, index) => {
+              return (
+                <>
+                  <JournalCard
+                    dateTime={`${new Date(med.createdAt).toLocaleDateString(
+                      "en-us",
+                      { month: "short", day: "numeric" }
+                    )} - ${new Date(med.createdAt).toLocaleTimeString("en-US", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}`}
+                    title="Medication Taken"
+                    value={"medication taken"}
+                    withMember={true}
+                    member={med.user}
+                    icon={
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 14 14"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          clip-rule="evenodd"
+                          d="M7.4142 1.61292C8.07362 0.953581 8.96796 0.583197 9.90046 0.583252C10.833 0.583307 11.7273 0.953797 12.3866 1.61322C13.046 2.27264 13.4163 3.16697 13.4163 4.09948C13.4162 5.03199 13.0457 5.92628 12.3863 6.58562L6.58503 12.3869C5.92561 13.0463 5.03127 13.4166 4.09876 13.4166C3.16626 13.4165 2.27196 13.046 1.61262 12.3866C0.953276 11.7272 0.582892 10.8329 0.582947 9.90036C0.583002 8.96785 0.953491 8.07356 1.61291 7.41421L7.4142 1.61292ZM11.5571 5.75645L9.07138 8.2428L5.75644 4.92786L8.24279 2.4421C8.45952 2.22042 8.71807 2.04394 9.00348 1.92288C9.28888 1.80181 9.59547 1.73857 9.90548 1.73681C10.2155 1.73505 10.5228 1.7948 10.8095 1.91261C11.0963 2.03043 11.3568 2.20395 11.5761 2.42315C11.7953 2.64235 11.9689 2.90286 12.0868 3.1896C12.2046 3.47634 12.2644 3.78362 12.2627 4.09363C12.261 4.40365 12.1978 4.71025 12.0768 4.99567C11.9558 5.2811 11.7788 5.53968 11.5571 5.75645Z"
+                          fill="#1E1E1E"
+                        />
+                      </svg>
+                    }
+                    sections={[
+                      {
+                        title: "Selected Medication",
+                        content: <p class="text-xs">{med.medications!.name}</p>,
+                      },
+                      {
+                        title: "Medication Type",
+                        content: <p class="text-xs">{med.type}</p>,
+                      },
+                      {
+                        title: "Date & Time Taken",
+                        content: (
+                          <p class="text-xs">
+                            {`${new Date(med.date).toDateString()} - ${new Date(
+                              med.date
+                            ).toLocaleTimeString("en-US", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}`}
+                          </p>
+                        ),
+                      },
+                      ...(med.note
+                        ? [
+                            {
+                              title: "Additional Notes",
+                              content: <p class="text-xs">{med.note.note}</p>,
+                            },
+                            // {
+                            //   content: (
+                            //     <>
+                            //       Images
+                            //       <div class="flex flex-row gap-x-2">
+                            //         <LandingImage />
+                            //         <LandingImage />
+                            //       </div>
+                            //     </>
+                            //   ),
+                            // },
+                          ]
+                        : []),
+                    ]}
+                  />
+                </>
+              );
+            })}
+          </Show>
 
           {/* tab content for notes */}
           <JournalCard
@@ -163,6 +186,7 @@ const LandingContent = () => {
             title="Notes"
             value={"notes"}
             withMember={false}
+            member={null}
             icon={
               <svg
                 width="12"
@@ -210,6 +234,7 @@ const LandingContent = () => {
             title="Nutrition"
             value={"nutrition"}
             withMember={false}
+            member={null}
             icon={
               <svg
                 width="12"
@@ -273,6 +298,7 @@ const LandingContent = () => {
             title="Sleep"
             value={"sleep"}
             withMember={true}
+            member={null}
             icon={
               <svg
                 width="11"

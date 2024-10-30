@@ -1,6 +1,6 @@
 import { useLocation } from "@solidjs/router";
 import { Component, JSXElement } from "solid-js";
-import TopNav from "~/components/share/TopNav";
+import TopNav from "~/components/shared/TopNav";
 import { LandingHeader } from "./landing/LandingHeader";
 import CalendarTopNav from "./calendar/CalendarTopNav";
 
@@ -18,7 +18,7 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
           rightNavigation=""
         />
       );
-    } else if (location.pathname.startsWith("/journal")) {
+    } else if (location.pathname.startsWith("/team/1/journal/")) {
       return (
         <TopNav
           name=""
@@ -56,7 +56,9 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
           }
         />
       );
-    } else if (location.pathname.startsWith("/harmony")) {
+    } else if (location.pathname.startsWith("/calendar")) {
+      /*
+    } else if (location.pathname.startsWith("/")) {
       return (
         <TopNav
           name="Harmony AI"
@@ -78,7 +80,7 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
           }
         />
       );
-    } else if (location.pathname.startsWith("/calendar")) {
+    } */
       return (
         <CalendarTopNav
           month="October"
@@ -131,9 +133,9 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
   };
 
   return (
-    <div>
+    <div class="h-full">
       {renderTopNav()}
-      <div>{props.children}</div>
+      <div class="h-full">{props.children}</div>
     </div>
   );
 };
