@@ -1,29 +1,18 @@
+import moment from "moment";
+
 export const formatDateToLocaleString = (date: Date | null | undefined) => {
-  return date ? date.toLocaleString() : "Not specified";
+  return date ? moment(date).format("lll") : "Not specified";
 };
 
 export const formatDateToLongForm = (date: Date | null | undefined) => {
-  const options = {
-    month: "short",
-    day: "numeric",
-  } as Intl.DateTimeFormatOptions;
-
   if (!date) return "Not specified";
 
-  const today = new Date();
-  // Reset time components for comparison
-  today.setHours(0, 0, 0, 0);
-  date.setHours(0, 0, 0, 0);
+  const momentDate = moment(date).startOf("day");
+  const today = moment().startOf("day");
 
-  if (date.getTime() === today.getTime()) {
-    return `Today, ${new Intl.DateTimeFormat("en-US", options).format(date)}`;
+  if (momentDate.isSame(today, "day")) {
+    return `Today, ${momentDate.format("MMM D")}`;
   }
 
-  const longOptions = {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  } as Intl.DateTimeFormatOptions;
-
-  return new Intl.DateTimeFormat("en-US", longOptions).format(date);
+  return momentDate.format("dddd, MMMM D");
 };

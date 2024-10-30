@@ -35,16 +35,18 @@ const EventCard = (props: { event: Event }) => {
             <div class="self-stretch h-3 text-[#1e1e1e]/75 text-base font-['SF Pro'] leading-tight">
               {props.event.title}
             </div>
-            <For each={response()}>
-              {(data, i) => (
-                <Show when={data.status !== "yes"}>
-                  <div class="self-stretch h-[9px] text-[#1e1e1e]/50 text-[13px] font-normal font-['SF Pro'] leading-none">
-                    {data.participant.firstName} {data.participant.lastName}
-                    {i() === response.length ? "" : ","}
-                  </div>
-                </Show>
-              )}
-            </For>
+            <div class="flex space-x-1">
+              <For each={response()}>
+                {(data, i) => (
+                  <Show when={data.status !== "yes"}>
+                    <div class="self-stretch h-[9px] text-[#1e1e1e]/50 text-[13px] font-normal font-['SF Pro'] leading-none">
+                      {data.participant.firstName} {data.participant.lastName}
+                      {i() === response.length ? "," : ""}
+                    </div>
+                  </Show>
+                )}
+              </For>
+            </div>
           </div>
           <div class="w-[123px] h-7 flex-col justify-between items-end inline-flex">
             <div class="self-stretch h-2.5 text-right text-[#1e1e1e]/50 text-[13px] font-normal font-['SF Pro'] uppercase leading-none">
