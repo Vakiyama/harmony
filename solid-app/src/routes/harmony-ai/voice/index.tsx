@@ -1,6 +1,7 @@
 import { ImageRoot, Image } from "~/components/ui/image";
 import ArrowBack from "../images/arrow-back.svg";
 import HarmonyMascot from "../images/harmony-mascot-container.svg";
+import HarmonyMascotAnimated from "./harmoy-animated.gif";
 
 import Speaker from "../images/Speaker.svg";
 import EndCall from "../images/end.svg";
@@ -98,11 +99,10 @@ export default function HarmonyVoice() {
   const message = createMemo(
     () =>
       messageIndex() === -1
-        ? { message: "", type: "assistant" } as const
+        ? ({ message: "", type: "assistant" } as const)
         : demoConversation[messageIndex()],
     [messageIndex],
   );
-
 
   async function streamMessage(message: string) {
     console.log("streamMessage");
@@ -123,7 +123,6 @@ export default function HarmonyVoice() {
         .reverse()
         .join("");
       setStreamedMessage(clippedMessage);
-      console.log("setting msg:", clippedMessage);
       if (messageRangeCutoff === message.length) break;
     }
   }
@@ -160,7 +159,14 @@ export default function HarmonyVoice() {
           </h3>
           <h2 class="text-4xl mt-2">Harmony</h2>
           <ImageRoot class="mt-0 ml-4 h-[200px] w-[200px]">
-            <Image class="w-full" src={HarmonyMascot} />
+            <Image
+              class="w-full"
+              src={
+                message().type === "assistant"
+                  ? HarmonyMascotAnimated
+                  : HarmonyMascot
+              }
+            />
           </ImageRoot>
         </div>
       </div>
