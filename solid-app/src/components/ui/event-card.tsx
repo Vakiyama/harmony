@@ -9,7 +9,7 @@ const EventCard = (props: { event: Event }) => {
   const navigate = useNavigate();
   const [response] = createResource(async () => {
     const response = await getEventParticipants(props.event.id);
-    return response;
+    return response ?? [];
   });
 
   const getEventBackground = (event: Event) => {
@@ -41,7 +41,9 @@ const EventCard = (props: { event: Event }) => {
                   <Show when={data.status !== "yes"}>
                     <div class="self-stretch h-[9px] text-[#1e1e1e]/50 text-[13px] font-normal font-['SF Pro'] leading-none">
                       {data.participant.firstName} {data.participant.lastName}
-                      {i() === response.length ? "," : ""}
+                      <Show when={response()!.length > 1}>
+                        {i() === response.length ? "," : ""}
+                      </Show>
                     </div>
                   </Show>
                 )}
