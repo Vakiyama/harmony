@@ -16,13 +16,10 @@ const LandingContent = () => {
     deferStream: true,
   });
   const journalsData = createMemo(() => getJournals());
-  if (journalsData()) {
-    console.log(journalsData());
-  }
   return (
-    <div class="mt-4">
+    <div class="mt-4 h-full">
       <Tabs defaultValue="medication taken" class="w-full">
-        <TabsList class="w-full text-black px-2 overflow-scroll rounded-none">
+        <TabsList class="w-full text-black px-2 overflow-scroll rounded-none pb-2">
           {["Mood", "Medication Taken", "Notes", "Nutrition", "Sleep"].map(
             (tabName) => (
               <TabsTrigger value={tabName.toLowerCase()} class="text-md">
@@ -34,7 +31,8 @@ const LandingContent = () => {
         </TabsList>
 
         {/* tab content for mood */}
-        <div class="p-2">
+        <div class="p-2 overflow-y-scroll pb-[200px] h-[calc(100vh_-_130px)]">
+          {/* this pb and h-calc above is hacky, fix it*/}
           <JournalCard
             dateTime="Oct 15. - 9:41PM"
             title="Mood"
@@ -179,7 +177,6 @@ const LandingContent = () => {
               );
             })}
           </Show>
-
           {/* tab content for notes */}
           <JournalCard
             dateTime="Oct 15. - 9:41PM"

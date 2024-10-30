@@ -17,7 +17,7 @@ export default function Index() {
     // <MetaProvider>
     <div class="mt-4">
       {/* <LandingHeader /> */}
-      <div class="flex flex-row items-center justify-between">
+      <div class="flex flex-row items-center justify-between ">
         <h1 class="mt-8 ml-4 text-2xl">Coming up</h1>
         <p class="mt-8 mr-4 text-neutral-600">see all</p>
       </div>
@@ -31,7 +31,9 @@ export default function Index() {
         </Show>
       </div>
       <p class="text-2xl font-semibold mt-8 ml-4">While you were away...</p>
-      <LandingContent />
+      <div class="pb-[200px] h-[calc(100vh_-_200px)]">
+        <LandingContent />
+      </div>
       <div class="h-[88px]"></div> {/* temporary  */}
     </div>
     // </MetaProvider>

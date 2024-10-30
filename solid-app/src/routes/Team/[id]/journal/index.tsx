@@ -29,40 +29,36 @@ export default function Journal() {
 
   return (
     <MetaProvider>
-      <div class="flex flex-col w-full text-start h-[calc(100%-100px)]">
+      <div class="flex flex-col w-full text-start h-[calc(100%-100px)] overflow-hidden">
         <span class="mt-4">
           <LandingHeader />
         </span>
-        <div class="flex flex-col gap-2 mt-6">
-          <h2 class="font-medium text-[24px] mx-4">Journal Entry</h2>
-          <Suspense fallback={<div>Loading...</div>}>
-            <JournalFeed></JournalFeed>
-          </Suspense>
-          <button
-            onClick={handleButtonClick}
-            class="absolute bottom-24 right-4 flex rounded-full w-14 h-14 bg-white shadow-md items-center justify-center"
-          >
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
+        <div class="w-full flex flex-col gap-2 mt-6">
+          <div class="flex flex-row justify-between items-center mx-2">
+            <h2 class="font-medium text-[24px]">Journal Entry</h2>
+            <button
+              onClick={handleButtonClick}
+              class="flex flex-row gap-1 w-[65px] h-[27px] bg-white items-center justify-center"
             >
-              <g clip-path="url(#clip0_363_263)">
-                <path
-                  d="M17.0015 0.904785L14.7328 3.17353L20.8265 9.26728L23.0953 6.99853C24.2672 5.82666 24.2672 3.92822 23.0953 2.75635L21.2484 0.904785C20.0765 -0.26709 18.1781 -0.26709 17.0062 0.904785H17.0015ZM13.6734 4.23291L2.74686 15.1642C2.25936 15.6517 1.90311 16.2563 1.70623 16.9173L0.0468553 22.5563C-0.0703322 22.9548 0.0374803 23.3813 0.328105 23.672C0.61873 23.9626 1.04529 24.0704 1.43904 23.9579L7.07811 22.2985C7.73904 22.1017 8.34373 21.7454 8.83123 21.2579L19.7672 10.3267L13.6734 4.23291Z"
-                  fill="black"
-                  fill-opacity="0.5"
-                />
-              </g>
-              <defs>
-                <clipPath id="clip0_363_263">
-                  <rect width="24" height="24" fill="white" />
-                </clipPath>
-              </defs>
-            </svg>
-          </button>
+              <p class="text-base">New</p>
+              <svg
+                fill="#7859EA"
+                stroke-width="0"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 512 512"
+                height="27px"
+                width="27px"
+                style="overflow: visible; color: currentcolor;"
+              >
+                <path d="M256 512a256 256 0 1 0 0-512 256 256 0 1 0 0 512zm-24-168v-64h-64c-13.3 0-24-10.7-24-24s10.7-24 24-24h64v-64c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24h-64v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"></path>
+              </svg>
+            </button>
+          </div>
+          <div class="overflow-y-scroll">
+            <Suspense fallback={<div>Loading...</div>}>
+              <JournalFeed></JournalFeed>
+            </Suspense>
+          </div>
 
           {isModalOpen() && (
             <div

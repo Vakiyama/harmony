@@ -33,10 +33,9 @@ export function JournalCard(props: {
       return i === 1 ? c[0].toUpperCase() + c.substring(1) : c;
     })
     .join("")}IconBackground`;
-
   return (
     <TabsContent value={props.value}>
-      <Card class="#FDFDFD">
+      <Card class="bg-[#fdfdfd]">
         <CardHeader>
           <div
             class={`w-full flex flex-row justify-between items-center gap-x-2 rounded-md ${backgroundColor}`}
@@ -62,7 +61,7 @@ export function JournalCard(props: {
           <For each={props.sections}>
             {(section) => <Section {...section} />}
           </For>
-          {props.withMember && props.member && <Member member={props.member} />}
+          {props.withMember && <Member member={props.member} />}
         </CardContent>
       </Card>
     </TabsContent>
