@@ -25,6 +25,8 @@ export default function Member(props: { member: AttachedUser | null }) {
     );
   }
 
+  console.log(props.member.photo);
+
   return (
     <div class="flex flex-row gap-x-2 items-center mb-4">
       <div>
@@ -35,7 +37,7 @@ export default function Member(props: { member: AttachedUser | null }) {
             class="object-cover w-full h-full rounded-full bg-black-300"
           />
           <ImageFallback class="flex items-center justify-center w-full h-full bg-gray-200 rounded-full">
-            HN
+            {`${props.member.firstName[0]}${props.member.lastName[0]}`}
           </ImageFallback>
         </ImageRoot>
       </div>
