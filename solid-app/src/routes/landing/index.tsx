@@ -7,7 +7,7 @@ import Member from "~/components/landing/Member";
 export default function Index() {
   return (
     // <MetaProvider>
-    <div class="mt-4">
+    <div class="mt-4 overflow-y-scroll">
       {/* <LandingHeader /> */}
       <div class="flex flex-row items-center justify-between">
         <h1 class="mt-8 ml-4 text-2xl">Coming up</h1>

@@ -30,9 +30,7 @@ export default function Journal() {
   return (
     <MetaProvider>
       <div class="flex flex-col w-full text-start h-[calc(100%-100px)]">
-        <span class="mt-4">
-          <LandingHeader />
-        </span>
+        <LandingHeader />
         <div class="flex flex-col gap-2 mt-6">
           <h2 class="font-medium text-[24px] mx-4">Journal Entry</h2>
           <Suspense fallback={<div>Loading...</div>}>
