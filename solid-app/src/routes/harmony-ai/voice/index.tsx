@@ -1,6 +1,7 @@
 import { ImageRoot, Image } from "~/components/ui/image";
 // import ArrowBack from "../images/arrow-back.svg";
 import HarmonyMascot from "../images/harmony-mascot-container.svg";
+import HarmonyMascotAnimated from "./harmony-mascot-animated.webp";
 import { createAudio } from "@solid-primitives/audio";
 
 import Speaker from "../images/Speaker.svg";
@@ -14,6 +15,7 @@ import {
   Show,
 } from "solid-js";
 import { A } from "@solidjs/router";
+import { twMerge } from "tailwind-merge";
 
 function toTwoDigits(value: number): string {
   return value.toString().length === 1 ? `0${value}` : `${value}`;
@@ -158,6 +160,7 @@ export default function HarmonyVoice() {
   onMount(() => {
     window.addEventListener("keydown", (e: KeyboardEvent) => {
       if (e.key === "p") {
+        if (audioSource().includes("6")) return;
         nextMessage();
         if (message().type === "assistant") setPlaying(true);
         if (
@@ -184,8 +187,20 @@ export default function HarmonyVoice() {
             {formatCounter(counter())}
           </h3>
           <h2 class="text-4xl mt-2">Harmony</h2>
-          <ImageRoot class="mt-0 ml-4 h-[200px] w-[200px]">
-            <Image class="w-full" src={HarmonyMascot} />
+          <ImageRoot
+            class={twMerge(
+              "mt-0 ml-4 h-[200px] w-[200px]",
+              message().type === "assistant" ? "h-[210px] w-[210px]" : "",
+            )}
+          >
+            <Image
+              class="w-full"
+              src={
+                message().type === "assistant"
+                  ? HarmonyMascotAnimated
+                  : HarmonyMascot
+              }
+            />
           </ImageRoot>
         </div>
       </div>
