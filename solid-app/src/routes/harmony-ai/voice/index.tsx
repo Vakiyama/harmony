@@ -1,6 +1,8 @@
 import { ImageRoot, Image } from "~/components/ui/image";
-import ArrowBack from "../images/arrow-back.svg";
+// import ArrowBack from "../images/arrow-back.svg";
 import HarmonyMascot from "../images/harmony-mascot-container.svg";
+import HarmonyMascotAnimated from "./harmony-mascot-animated.webp";
+import { createAudio } from "@solid-primitives/audio";
 
 import Speaker from "../images/Speaker.svg";
 import EndCall from "../images/end.svg";
@@ -12,7 +14,8 @@ import {
   onMount,
   Show,
 } from "solid-js";
-import { A } from "@solidjs/router";
+import { A, useNavigate } from "@solidjs/router";
+import { twMerge } from "tailwind-merge";
 
 function toTwoDigits(value: number): string {
   return value.toString().length === 1 ? `0${value}` : `${value}`;
@@ -93,19 +96,33 @@ export default function HarmonyVoice() {
   const [streamedMessage, setStreamedMessage] = createSignal(
     "What can I help you with today?",
   );
+
+  const navigate = useNavigate();
   const [messageIndex, setMessageIndex] = createSignal(-1);
 
   const message = createMemo(
     () =>
       messageIndex() === -1
-        ? { message: "", type: "assistant" } as const
+        ? ({ message: "", type: "assistant" } as const)
         : demoConversation[messageIndex()],
     [messageIndex],
   );
 
+  const audioSamples = [
+    "/audio/1.mp3",
+    "/audio/2.mp3",
+    "/audio/3.mp3",
+    "/audio/4.mp3",
+    "/audio/5.mp3",
+    "/audio/6.mp3",
+  ];
+
+  const [audioSource, setAudioSource] = createSignal(audioSamples[0]);
+  const [volume, setVolume] = createSignal(1);
+  const [playing, setPlaying] = createSignal(false);
+  const [audio, controls] = createAudio(audioSource, playing, volume);
 
   async function streamMessage(message: string) {
-    console.log("streamMessage");
     const sleepRange = { low: 30, high: 80 };
     let messageRangeCutoff = 0;
     while (true) {
@@ -123,7 +140,6 @@ export default function HarmonyVoice() {
         .reverse()
         .join("");
       setStreamedMessage(clippedMessage);
-      console.log("setting msg:", clippedMessage);
       if (messageRangeCutoff === message.length) break;
     }
   }
@@ -146,7 +162,21 @@ export default function HarmonyVoice() {
   onMount(() => {
     window.addEventListener("keydown", (e: KeyboardEvent) => {
       if (e.key === "p") {
+        if (audioSource().includes("6")) return navigate("/calendar/create/ai");
         nextMessage();
+        if (message().type === "assistant") setPlaying(true);
+        if (
+          messageIndex() !== -1 &&
+          messageIndex() !== 1 &&
+          message().type === "assistant"
+        ) {
+          setAudioSource(
+            (prevSource) =>
+              audioSamples[
+                audioSamples.findIndex((sample) => sample === prevSource) + 1
+              ],
+          );
+        }
       }
     });
   });
@@ -159,8 +189,20 @@ export default function HarmonyVoice() {
             {formatCounter(counter())}
           </h3>
           <h2 class="text-4xl mt-2">Harmony</h2>
-          <ImageRoot class="mt-0 ml-4 h-[200px] w-[200px]">
-            <Image class="w-full" src={HarmonyMascot} />
+          <ImageRoot
+            class={twMerge(
+              "mt-0 ml-4 h-[200px] w-[200px]",
+              message().type === "assistant" ? "h-[210px] w-[210px]" : "",
+            )}
+          >
+            <Image
+              class="w-full"
+              src={
+                message().type === "assistant"
+                  ? HarmonyMascotAnimated
+                  : HarmonyMascot
+              }
+            />
           </ImageRoot>
         </div>
       </div>

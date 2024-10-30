@@ -7,6 +7,7 @@ import CalendarView from "./CalendarView";
 import WeekCalendarView from "./week-calendar-view";
 import CalendarSideMenu from "./CalendarSideMenu";
 import EventCalendarDisplay from "./EventCalendarDisplay";
+import CalendarTopNav from "~/components/calendar/calendar-top-nav";
 moment.locale("en");
 moment.updateLocale("en", { weekdaysMin: "S_M_T_W_T_F_S".split("_") });
 
@@ -43,11 +44,9 @@ export default function CalendarPage() {
 
   return (
     <div class="relative">
+      <CalendarTopNav month={currentMonth} />
       {/* <CalendarSideMenu /> */}
       <div class="max-w-[vw-50%] flex flex-col ">
-        <div class="text-[#1e1e1e] text-[28px] font-medium font-['ES Rebond Grotesque TRIAL'] leading-[33.60px]">
-          {currentMonth()}
-        </div>
         {/* <CalendarView
           selectedYear={selectedYear}
           setSelectedYear={setSelectedYear}
@@ -71,9 +70,8 @@ export default function CalendarPage() {
           events={events}
         />
         <div class="flex justify-center pt-4">
-          <EventCalendarDisplay events={events()} />
+          <EventCalendarDisplay events={events} />
         </div>
-        <a href="/calendar/create">go create one bro</a>
       </div>
     </div>
   );

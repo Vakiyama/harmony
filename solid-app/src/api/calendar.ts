@@ -86,13 +86,19 @@ export const deleteCalendar = async (calendarId: number) => {
 };
 
 // Events
-export const getAllEvents = async (calendarId: number) => {
+export const getAllEvents = async (calendarId: number, limit?: number) => {
   "use server";
-  return await db
+  const query = db
     .select()
     .from(events)
     .where(eq(events.calendarId, calendarId))
-    .orderBy(events.timeStart);
+    .orderBy(events.timeStart)
+    .$dynamic();
+
+  if (limit) {
+    query.limit(limit);
+  }
+  return await query.execute();
 };
 
 export const getEvent = cache(async (eventId: number) => {
@@ -105,7 +111,6 @@ export const createEvent = async (
   userIds: number[]
 ) => {
   "use server";
-  console.log(eventInput);
   const [newEvent] = await db.insert(events).values(eventInput).returning();
   if (newEvent) {
     for (let userId of userIds) {

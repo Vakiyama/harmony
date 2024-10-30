@@ -322,7 +322,6 @@ const LandingContent = () => {
                           fill="#1E1E1E"
                         />
                       </svg>
-
                       <p>SUPER AWESOME</p>
                     </div>
                   </div>

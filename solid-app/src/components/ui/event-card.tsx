@@ -15,10 +15,14 @@ const EventCard = (props: { event: Event }) => {
   const getEventBackground = (event: Event) => {
     return "bg-[#f1eefc]";
   };
+
+  const concatTitle = (title: string) => {
+    return title.length > 23 ? title.slice(0, 23).concat("...") : title;
+  };
   return (
     <>
       <div
-        class={`self-stretch h-12 pl-1 pr-2 py-1 ${getEventBackground(
+        class={`relative self-stretch h-12 pl-1 pr-2 py-1 ${getEventBackground(
           props.event
         )} rounded-md justify-start items-center gap-1.5 inline-flex`}
         onClick={() => {
@@ -31,9 +35,9 @@ const EventCard = (props: { event: Event }) => {
           <FaRegularCircleCheck class="text-lg ml-0.5" />
         )}
         <div class="grow shrink basis-0 h-7 justify-between items-center flex">
-          <div class="grow shrink basis-0 h-7 flex-col justify-between items-start inline-flex">
+          <div class="grow shrink relative basis-0 h-7 flex-col justify-between items-start inline-flex">
             <div class="self-stretch h-3 text-[#1e1e1e]/75 text-base font-['SF Pro'] leading-tight">
-              {props.event.title}
+              {concatTitle(props.event.title)}
             </div>
             <div class="flex space-x-1">
               <For each={response()}>
@@ -50,7 +54,7 @@ const EventCard = (props: { event: Event }) => {
               </For>
             </div>
           </div>
-          <div class="w-[123px] h-7 flex-col justify-between items-end inline-flex">
+          <div class="w-[123px] h-7 flex-col justify-between absolute right-2 items-end inline-flex">
             <div class="self-stretch h-2.5 text-right text-[#1e1e1e]/50 text-[13px] font-normal font-['SF Pro'] uppercase leading-none">
               {moment(props.event.timeStart).format("h:mm A")}
             </div>
