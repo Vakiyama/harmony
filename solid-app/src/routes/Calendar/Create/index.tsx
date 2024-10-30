@@ -177,6 +177,7 @@ const CalendarCreateEvent = () => {
             Create
           </button>
         </div>
+        <div class="h-[88px]"></div> {/* temporary */}
       </form>
     </div>
   );
