@@ -17,7 +17,7 @@ import { showNotification } from "~/routes/api/notificationStore";
 export default function Medication() {
   const medications = createAsync(
     async () => await getMedicationsFromTeamId(1),
-    { deferStream: true }
+    { deferStream: true },
   );
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
   const [error, setError] = createSignal("");
@@ -31,6 +31,11 @@ export default function Medication() {
       : [];
   };
   const medicationOptions = createMemo(() => formatOptions(medications()));
+  const [selectedMedication, setSelectedMedication] =
+    createSignal<string>("Omeprazole");
+
+  const medicationKeysDebug = ["Omeprazole", "Azithromycin", "Metformin"];
+
   const myAction = useAction(createTakenMedicationAction);
   type CreateMedicationActionResponse = {
     success?: boolean;
@@ -40,7 +45,7 @@ export default function Medication() {
     event.preventDefault();
 
     const result: CreateMedicationActionResponse = await myAction(
-      new FormData(event.target as HTMLFormElement)
+      new FormData(event.target as HTMLFormElement),
     );
 
     if (result.success) {
@@ -97,20 +102,59 @@ export default function Medication() {
             <label>Select Medication</label>
             <SelectInput
               name="medication"
-              options={medicationOptions()}
-              placeholder="Select Medication"
+              class="w-full p-1 rounded-lg py-6 ps-4 "
+              placeholder="Selection a medication"
+              options={
+                [
+                  {
+                    value: "Omeprazole",
+                    label: "Omeprazole",
+                  },
+                  {
+                    value: "Azithromycin",
+                    label: "Azithromycin",
+                  },
+                  {
+                    value: "Metformin",
+                    label: "Metformin",
+                  },
+                ] as const
+              }
+              setSelectedOption={() => {}}
             />
             <label>Medication Type</label>
             <SelectInput
               name="medicationType"
-              options={medicationTypes}
-              placeholder="Select Medication Type"
+              class="w-full p-1 rounded-lg py-6 ps-4 "
+              placeholder="Select a medication type"
+              options={
+                [
+                  {
+                    value: "Pill",
+                    label: "Pill",
+                  },
+                  {
+                    value: "Capsule",
+                    label: "Capsule",
+                  },
+                  {
+                    value: "Tablet",
+                    label: "Tablet",
+                  },
+                ] as const
+              }
+              setSelectedOption={() => {}}
             />
           </div>
-          <div class="flex flex-col gap-2">
+          <div class="flex flex-col gap-2 justify-center">
             <label class="text-h4">Date & Time Taken</label>
-            <div class="flex flex-row gap-2">
-              <DatePickerComponent />
+            <div class="flex flex-row gap-2 items-center">
+              {/*<DatePickerComponent />*/}
+              <input
+                name="date"
+                type="date"
+                class="border border-black50 border-1 rounded p-2 w-full"
+              />
               <TimePicker time={time} setTime={setTime} name="time" />
             </div>
           </div>

@@ -19,9 +19,11 @@ export default function SelectInput<T>(props: {
   placeholder: string;
   setSelectedOption: Setter<T>;
   class?: string; // this styles the select input
+  name?: string;
 }) {
   return (
     <Select
+      name={props.name}
       options={props.options}
       optionValue="value"
       optionTextValue="label"
