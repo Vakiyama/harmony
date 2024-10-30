@@ -16,10 +16,8 @@ export default function App() {
           <MetaProvider>
             <Layout>
               <Suspense>
-                <div class="h-full">
-                  {props.children}
-                  <NavBar />
-                </div>
+                {props.children}
+                <NavBar />
               </Suspense>
             </Layout>
           </MetaProvider>
