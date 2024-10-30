@@ -1,4 +1,3 @@
-import DatePickerComponent from "~/components/shadcn/DatePicker";
 import {
   createTakenMedicationAction,
   getMedicationsFromTeamId,
@@ -17,7 +16,7 @@ import { showNotification } from "~/routes/api/notificationStore";
 export default function Medication() {
   const medications = createAsync(
     async () => await getMedicationsFromTeamId(1),
-    { deferStream: true },
+    { deferStream: true }
   );
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
   const [error, setError] = createSignal("");
@@ -45,7 +44,7 @@ export default function Medication() {
     event.preventDefault();
 
     const result: CreateMedicationActionResponse = await myAction(
-      new FormData(event.target as HTMLFormElement),
+      new FormData(event.target as HTMLFormElement)
     );
 
     if (result.success) {
