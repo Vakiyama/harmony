@@ -16,6 +16,17 @@ const seedData = async () => {
   if (users.length <= 0) {
     throw new Error("Please create a user first using kinde");
   }
+  const grandma = await db
+    .insert(Users)
+    .values({
+      displayName: "grandma",
+      email: "grandma@gmail.com",
+      firstName: "grandma",
+      kindeId: "ajksdlasjdkl",
+      lastName: "",
+      roleType: "User",
+    })
+    .returning();
   // Seed Recipients
   await db.delete(eventParticipants);
   await db.delete(events);
@@ -25,17 +36,17 @@ const seedData = async () => {
   await db.delete(Recipients);
 
   const recipientsData = {
-    firstName: "Max2",
-    lastName: "Test",
-    email: "max@example.com",
+    firstName: "Grandma",
+    lastName: "Lola",
+    email: "grandma@example.com",
     phoneNumber: "1234567890",
     recipientType: "user",
-    gender: "male",
+    gender: "female",
     preferredLanguage: "English",
-    livesWith: "John Doe",
+    livesWith: "Tina",
     hometown: "Hometown",
     employment: "Unemployed",
-    userId: users[0].id,
+    userId: grandma[0].id,
   };
   await db.insert(Recipients).values(recipientsData).onConflictDoNothing();
 
