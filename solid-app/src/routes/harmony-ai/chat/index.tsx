@@ -5,15 +5,11 @@ import { Button } from "~/components/ui/button";
 import { JSXElement } from "solid-js";
 import { twMerge } from "tailwind-merge";
 
-export default function Index() {
-  return (
-    <>
-      {/*<BottomModal>
+/*<BottomModal>
         <OnboardingIntro />
-      </BottomModal>*/}
-      <HarmonyChat />
-    </>
-  );
+      </BottomModal>*/
+export default function Index() {
+  return <HarmonyChat />;
 }
 
 // ignore these components i'll refac it later

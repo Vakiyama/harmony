@@ -56,7 +56,9 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
           }
         />
       );
-    } else if (location.pathname.startsWith("/harmony")) {
+    } else if (location.pathname.startsWith("/calendar")) {
+      /*
+    } else if (location.pathname.startsWith("/")) {
       return (
         <TopNav
           name="Harmony AI"
@@ -78,7 +80,7 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
           }
         />
       );
-    } else if (location.pathname.startsWith("/calendar")) {
+    } */
       return (
         <CalendarTopNav
           month="October"
@@ -131,9 +133,9 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
   };
 
   return (
-    <div>
+    <div class="h-full">
       {renderTopNav()}
-      <div>{props.children}</div>
+      <div class="h-full">{props.children}</div>
     </div>
   );
 };

@@ -1,93 +1,80 @@
-import { createSignal, createEffect } from "solid-js";
+import { createSignal, onMount } from "solid-js";
 import { mightFail } from "might-fail";
-import type { Calendar } from "@/schema/Calendars";
 import type { Event } from "@/schema/Events";
-import { getCalendarsFromTeamId, getEvents } from "~/api";
+import { getAllEvents } from "~/api/calendar";
+import moment from "moment";
+import CalendarView from "./CalendarView";
+import WeekCalendarView from "./week-calendar-view";
+import CalendarSideMenu from "./CalendarSideMenu";
+import EventCalendarDisplay from "./EventCalendarDisplay";
+moment.locale("en");
+moment.updateLocale("en", { weekdaysMin: "S_M_T_W_T_F_S".split("_") });
+
+export type EventFormData = {
+  title: string;
+  notes: string;
+  timeStart: Date | null;
+  timeEnd: Date | null;
+  location: string;
+};
 
 export default function CalendarPage() {
-  const [calendars, setCalendars] = createSignal<Calendar[]>([]);
   const [events, setEvents] = createSignal<Event[]>([]);
-  const [selectedCalendarId, setSelectedCalendarId] = createSignal<
-    number | null
-  >(null);
-
-  const fetchCalendars = async (teamId: number) => {
-    const [calendarError, calendarResult] = await mightFail(
-      getCalendarsFromTeamId(teamId)
-    );
-    if (calendarError) {
-      return console.error(calendarError);
-    }
-    setCalendars(calendarResult);
-  };
+  const [currentdDay, setCurrentDay] = createSignal<number>(moment().date());
+  const [currentMonth, setCurrentMonth] = createSignal(moment().format("MMMM"));
+  const [currentYear, setCurrentYear] = createSignal<number>(moment().year());
+  const [selectedDay, setSelectedDay] = createSignal<number>(moment().date());
+  const [selectedMonth, setSelectedMonth] = createSignal(
+    moment().format("MMMM")
+  );
+  const [selectedYear, setSelectedYear] = createSignal<number>(moment().year());
+  onMount(async () => {
+    // temp get calendar Id
+    await fetchEvents(1);
+  });
 
   const fetchEvents = async (calendarId: number) => {
-    const [eventError, eventResult] = await mightFail(getEvents(calendarId));
+    const [eventError, eventResult] = await mightFail(getAllEvents(calendarId));
     if (eventError) {
       return console.error(eventError);
     }
     setEvents(eventResult);
   };
 
-  createEffect(() => {
-    fetchCalendars(1);
-  });
-
-  const handleCalendarSelect = (id: number) => {
-    setSelectedCalendarId(id);
-    fetchEvents(id);
-  };
-  const formatDate = (date: Date | null) => {
-    return date ? date.toLocaleString() : "Not specified";
-  };
   return (
-    <div class="p-6">
-      <h1 class="text-3xl font-bold mb-4">Calendars</h1>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-        {calendars().map((calendar) => (
-          <div
-            class="bg-white shadow-md rounded-lg p-4 cursor-pointer hover:shadow-lg transition"
-            onClick={() => handleCalendarSelect(calendar.id)}
-          >
-            <h2 class="text-xl font-semibold">{calendar.name}</h2>
-            <p class="text-gray-600">Source: {calendar.source}</p>
-          </div>
-        ))}
-      </div>
-
-      {selectedCalendarId() && (
-        <div class="max-w-[vw-50%]">
-          <h2 class="text-2xl font-bold mb-2">
-            Events for Calendar Name:{" "}
-            {calendars().find((c) => c.id === selectedCalendarId())!.name}
-          </h2>
-          <div class="bg-gray-100 p-4 rounded-lg">
-            {events().length > 0 ? (
-              <ul class="flex flex-col gap-5">
-                {events().map((event) => (
-                  <div class="bg-gray-300 p-4 rounded-lg border">
-                    <li class="mb-2 p-4">
-                      <div class="font-semibold">{event.name}</div>
-                      <p class="text-gray-500">{event.description}</p>
-                      <p class="text-sm text-gray-400">
-                        Start: {formatDate(event.timeStart)} - End:{" "}
-                        {formatDate(event.timeEnd)}
-                      </p>
-                      {event.location && (
-                        <p class="text-sm text-gray-500">
-                          Location: {event.location}
-                        </p>
-                      )}
-                    </li>
-                  </div>
-                ))}
-              </ul>
-            ) : (
-              <p>No events available for this calendar.</p>
-            )}
-          </div>
+    <div class="relative">
+      {/* <CalendarSideMenu /> */}
+      <div class="max-w-[vw-50%] flex flex-col ">
+        <div class="text-[#1e1e1e] text-[28px] font-medium font-['ES Rebond Grotesque TRIAL'] leading-[33.60px]">
+          {currentMonth()}
         </div>
-      )}
+        {/* <CalendarView
+          selectedYear={selectedYear}
+          setSelectedYear={setSelectedYear}
+          selectedMonth={selectedMonth}
+          setSelectedMonth={setSelectedMonth}
+          selectedDay={selectedDay}
+          setSelectedDay={setSelectedDay}
+          events={events}
+        /> */}
+        <WeekCalendarView
+          selectedYear={selectedYear}
+          setSelectedYear={setSelectedYear}
+          selectedMonth={selectedMonth}
+          setSelectedMonth={setSelectedMonth}
+          selectedDay={selectedDay}
+          setSelectedDay={setSelectedDay}
+          currentMonth={currentMonth}
+          currentYear={currentYear}
+          setCurrentMonth={setCurrentMonth}
+          setCurrentYear={setCurrentYear}
+          events={events}
+        />
+        <div class="flex justify-center pt-4">
+          <EventCalendarDisplay events={events()} />
+        </div>
+        <a href="/calendar/create">go create one bro</a>
+      </div>
     </div>
   );
 }
