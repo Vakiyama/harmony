@@ -12,7 +12,6 @@ import { User } from "@/schema/Users";
 import { mightFail } from "might-fail";
 import { isValidEnumValue } from "~/api/dbHelper";
 import SelectMultipleInput from "~/components/shadcn/MultiSelect";
-import moment from "moment";
 
 const CalendarCreateEvent = () => {
   const navigate = useNavigate();
@@ -73,7 +72,7 @@ const CalendarCreateEvent = () => {
     if (timeEnd() <= timeStart()) {
       return alert("End time must be after start time.");
     }
-    console.log(teamMemberIds());
+
     const [createEventError, createEventResult] = await mightFail(
       createEvent(
         {

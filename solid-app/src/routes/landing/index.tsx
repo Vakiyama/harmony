@@ -12,9 +12,7 @@ export default function Index() {
   const events = createAsync(async () => await getAllEvents(1, 3), {
     deferStream: true,
   });
-  if (events()) {
-    console.log(events());
-  }
+
   return (
     // <MetaProvider>
     <div class="mt-4">

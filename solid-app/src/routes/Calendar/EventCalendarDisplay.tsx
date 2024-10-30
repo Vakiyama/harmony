@@ -1,19 +1,17 @@
-import { For } from "solid-js";
+import { Accessor, For } from "solid-js";
 import type { Event } from "@/schema/Events";
 import EventCard from "~/components/ui/event-card";
 import moment from "moment";
 
-const EventCalendarDisplay = (props: { events: Event[] }) => {
+const EventCalendarDisplay = (props: { events: Accessor<Event[]> }) => {
   const getDayName = (date: string) => {
     return moment.weekdaysShort()[moment(date).day()].toUpperCase();
   };
-
   const getDayNumber = (date: string) => {
     return moment(date).date();
   };
-
   const getGroupedEvents = () => {
-    return props.events.reduce((acc, event) => {
+    return props.events().reduce((acc, event) => {
       const date = moment(event.timeStart!).format("YYYY-MM-DD");
       if (!acc[date]) {
         acc[date] = [];
@@ -27,7 +25,7 @@ const EventCalendarDisplay = (props: { events: Event[] }) => {
   };
 
   return (
-    <div class="w-[366px] flex-col justify-start items-end gap-5 inline-flex ">
+    <div class="w-[366px] flex-col justify-start items-end gap-5 inline-flex overflow-scroll max-h-screen">
       <For each={getDates()}>
         {(date) => (
           <div class="self-stretch justify-between items-start inline-flex">

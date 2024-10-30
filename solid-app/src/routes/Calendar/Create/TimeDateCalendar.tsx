@@ -1,4 +1,5 @@
 import { Accessor, Setter } from "solid-js";
+import TimePicker from "~/components/ui/time-picker";
 
 export default function TimeDateCalendar(props: {
   date: Accessor<string | undefined>;
@@ -8,19 +9,19 @@ export default function TimeDateCalendar(props: {
   label: string;
 }) {
   return (
-    <div class="flex justify-between items-center ">
-      <p>{props.label}</p>
+    <div class="flex justify-between items-center">
+      <p class="w-20">{props.label}</p>
       <input
-        class="border px-5 py-3 rounded-lg focus:bg-purple-200 focus:border-none focus:outline-none !select-none "
+        class="border px-2 py-3 rounded-lg focus:bg-purple-200 focus:border-none focus:outline-none !select-none "
         type="date"
         value={props.date()}
         onInput={(e) => props.setDate(e.currentTarget.value)}
       />
-      <input
-        class="border px-2 py-3 rounded-lg focus:bg-purple-200 focus:border-none focus:outline-none !select-none"
-        type="time"
-        value={props.time()}
-        onInput={(e) => props.setTime(e.currentTarget.value)}
+
+      <TimePicker
+        class="border py-6 px-2 rounded-lg focus:bg-purple-200 focus:border-none "
+        setTime={props.setTime}
+        time={props.time}
       />
     </div>
   );
