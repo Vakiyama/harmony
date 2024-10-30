@@ -83,7 +83,7 @@ export function HarmonyChat() {
   return (
     <div class="bg-white h-full relative overflow-hidden text-lg">
       <form onSubmit={handleSubmit} class="h-full">
-        <div class="flex flex-col overflow-scroll h-[calc(100%_-_185px)]">
+        <div class="flex flex-col overflow-scroll h-[calc(100%_-_85px)]">
           <Show
             when={messages().length > 0}
             fallback={

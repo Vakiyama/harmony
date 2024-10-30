@@ -14,6 +14,14 @@ export default function TopNav(props: {
     backLocation = "/team/1/journal";
   }
 
+  if (location.pathname.includes("/harmony-ai/chat")) {
+    backLocation = "/";
+  }
+
+  if (location.pathname.includes("/harmony-ai/voice")) {
+    backLocation = "/harmony-ai/chat";
+  }
+
   return (
     <div class="w-full flex flex-row h-[95px] bg-white shadow-md">
       <div class="w-full flex flex-row justify-between items-end px-4 mb-4">

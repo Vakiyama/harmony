@@ -31,7 +31,7 @@ export default function HarmonyVoice() {
     <div class="flex flex-col items-center justify-between h-full pb-8 border">
       <div class="w-full">
         <A href="/harmony-ai/chat">
-          <ImageRoot class="mt-16 ml-4">
+          <ImageRoot class="mt-5 ml-4">
             <Image class="h-7" src={ArrowBack} />
           </ImageRoot>
         </A>
@@ -42,7 +42,7 @@ export default function HarmonyVoice() {
           <h2 class="text-4xl mt-2">Harmony</h2>
         </div>
       </div>
-      <ImageRoot class="mt-0 ml-4 h-[350px] w-[350px]">
+      <ImageRoot class="mt-0 ml-4 h-[60%] w-[60%]">
         <Image class="w-full border" src={HarmonyMascot} />
       </ImageRoot>
       <div class="flex flex-row w-[90%] justify-between items-center">
