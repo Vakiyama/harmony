@@ -14,7 +14,7 @@ import {
   onMount,
   Show,
 } from "solid-js";
-import { A } from "@solidjs/router";
+import { A, useNavigate } from "@solidjs/router";
 import { twMerge } from "tailwind-merge";
 
 function toTwoDigits(value: number): string {
@@ -96,6 +96,8 @@ export default function HarmonyVoice() {
   const [streamedMessage, setStreamedMessage] = createSignal(
     "What can I help you with today?",
   );
+
+  const navigate = useNavigate();
   const [messageIndex, setMessageIndex] = createSignal(-1);
 
   const message = createMemo(
@@ -160,7 +162,7 @@ export default function HarmonyVoice() {
   onMount(() => {
     window.addEventListener("keydown", (e: KeyboardEvent) => {
       if (e.key === "p") {
-        if (audioSource().includes("6")) return;
+        if (audioSource().includes("6")) return navigate("/calendar/create/ai");
         nextMessage();
         if (message().type === "assistant") setPlaying(true);
         if (
