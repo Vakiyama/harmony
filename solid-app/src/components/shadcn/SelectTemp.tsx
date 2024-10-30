@@ -21,7 +21,7 @@ interface SelectProps {
   name?: string;
 }
 
-const SelectInput = (props: SelectProps) => {
+const SelectInputTemp = (props: SelectProps) => {
   const [selectedOption, setSelectedOption] = createSignal<string | null>(null);
 
   const stringOptions: string[] = Array.isArray(props.options)
@@ -52,4 +52,4 @@ const SelectInput = (props: SelectProps) => {
   );
 };
 
-export default SelectInput;
+export default SelectInputTemp;

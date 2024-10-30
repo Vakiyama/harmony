@@ -9,7 +9,7 @@ import ShowError from "~/routes/Team/[id]/journal/show-error";
 import { Button } from "~/components/ui/button";
 import AddNote from "~/routes/Team/[id]/journal/add-notes";
 import Header from "./header";
-import SelectInput from "~/components/shadcn/Select";
+import SelectInputTemp from "~/components/shadcn/SelectTemp";
 import TimePicker from "~/components/ui/time-picker";
 import { Medications } from "@/schema/Medications";
 import { showNotification } from "~/routes/api/notificationStore";
@@ -95,13 +95,13 @@ export default function Medication() {
           <ShowError error={error()}></ShowError>
           <div class="flex flex-col gap-2 text-h4">
             <label>Select Medication</label>
-            <SelectInput
+            <SelectInputTemp
               name="medication"
               options={medicationOptions()}
               placeholder="Select Medication"
             />
             <label>Medication Type</label>
-            <SelectInput
+            <SelectInputTemp
               name="medicationType"
               options={medicationTypes}
               placeholder="Select Medication Type"
