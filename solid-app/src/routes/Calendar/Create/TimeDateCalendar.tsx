@@ -1,0 +1,27 @@
+import { Accessor, Setter } from "solid-js";
+
+export default function TimeDateCalendar(props: {
+  date: Accessor<string | undefined>;
+  setDate: Setter<string | undefined>;
+  time: Accessor<string>;
+  setTime: Setter<string>;
+  label: string;
+}) {
+  return (
+    <div class="flex justify-between items-center ">
+      <p>{props.label}</p>
+      <input
+        class="border px-5 py-3 rounded-lg focus:bg-purple-200 focus:border-none focus:outline-none !select-none "
+        type="date"
+        value={props.date()}
+        onInput={(e) => props.setDate(e.currentTarget.value)}
+      />
+      <input
+        class="border px-2 py-3 rounded-lg focus:bg-purple-200 focus:border-none focus:outline-none !select-none"
+        type="time"
+        value={props.time()}
+        onInput={(e) => props.setTime(e.currentTarget.value)}
+      />
+    </div>
+  );
+}

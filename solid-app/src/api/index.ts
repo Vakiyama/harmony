@@ -6,11 +6,6 @@ import {
   ParseFormWithClaudeResult,
   parseFormWithClaude,
 } from "./claude/parseForm";
-import {
-  getCalendar as gC,
-  getEvents as gE,
-  getCalendarsFromTeamId as gCFT,
-} from "./calendar";
 
 export const getUser = cache(gU, "user");
 export const loginOrRegister = action(lOR, "loginOrRegister");
@@ -101,7 +96,3 @@ export const answerTweetPrompt = action(async (form: FormData) => {
 
   return formOrQuestion.form;
 }, "answerTweetPrompt");
-
-export const getCalendarsFromTeamId = cache(gCFT, "calenders");
-export const getCalendar = cache(gC, "calender");
-export const getEvents = cache(gE, "events");
