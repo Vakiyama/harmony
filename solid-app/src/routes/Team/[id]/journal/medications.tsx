@@ -12,6 +12,7 @@ import Header from "./header";
 import SelectInput from "~/components/shadcn/Select";
 import TimePicker from "~/components/ui/time-picker";
 import { Medications } from "@/schema/Medications";
+import { showNotification } from "~/routes/api/notificationStore";
 
 export default function Medication() {
   const medications = createAsync(
@@ -45,6 +46,7 @@ export default function Medication() {
     if (result.success) {
       setError("");
       formRef()?.reset();
+      showNotification("Medication Entry Posted");
       navigate("/team/1/journal");
     } else if (result.error) {
       console.error(result.error);
@@ -122,7 +124,7 @@ export default function Medication() {
             type="submit"
           >
             Done
-          </Button>{" "}
+          </Button>
         </form>
       </section>
     </main>

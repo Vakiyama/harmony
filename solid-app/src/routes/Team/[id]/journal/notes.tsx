@@ -7,6 +7,7 @@ import { Button } from "~/components/ui/button";
 import AddNote from "~/routes/Team/[id]/journal/add-notes";
 import Header from "./header";
 import Upload from "./upload";
+import { showNotification } from "~/routes/api/notificationStore";
 
 export default function CreateNote() {
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
@@ -28,6 +29,7 @@ export default function CreateNote() {
     if (result.success) {
       setError("");
       formRef()?.reset();
+      showNotification("Note Entry Posted");
       navigate("/team/1/journal");
     } else if (result.error) {
       console.error(result.error);
