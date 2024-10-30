@@ -39,7 +39,7 @@ export function JournalCard(props: {
       <Card class="#FDFDFD">
         <CardHeader>
           <div
-            class={`w-full flex flex-row justify-between items-center gap-x-2 mx-2 px-4 rounded-md ${backgroundColor}`}
+            class={`w-full flex flex-row justify-between items-center gap-x-2 rounded-md ${backgroundColor}`}
           >
             <div class="flex justify-center items-center p-2">
               <div
