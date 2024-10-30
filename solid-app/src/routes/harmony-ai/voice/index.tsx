@@ -5,7 +5,13 @@ import HarmonyMascot from "../images/harmony-mascot-container.svg";
 import Speaker from "../images/Speaker.svg";
 import EndCall from "../images/end.svg";
 import Mute from "../images/BsMicMuteFill.svg";
-import { createSignal, onMount } from "solid-js";
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  onMount,
+  Show,
+} from "solid-js";
 import { A } from "@solidjs/router";
 
 function toTwoDigits(value: number): string {
@@ -20,64 +26,107 @@ function formatCounter(seconds: number) {
   } else return `00:${toTwoDigits(seconds)}`;
 }
 
+function sleep(ms: number) {
+  return new Promise<void>((res) =>
+    setTimeout(() => {
+      res();
+    }, ms),
+  );
+}
+
+const demoConversation = [
+  {
+    type: "user",
+    message:
+      "Hi Harmony, please create a new calendar event for Grandma's doctor's appointment tomorrow at 10:30 am.",
+  },
+  {
+    type: "assistant",
+    message: "Certainly! What's the location of the appointment?",
+  },
+  {
+    type: "user",
+    message: "555 Seymour St, Vancouver.",
+  },
+  {
+    type: "assistant",
+    message: "Thank you. When does the appointment end?",
+  },
+  {
+    type: "user",
+    message: "At 10:50 am.",
+  },
+  {
+    type: "assistant",
+    message: "Does this appointment repeat?",
+  },
+  {
+    type: "user",
+    message: "No, it's a one-time appointment.",
+  },
+  {
+    type: "assistant",
+    message: "Understood. Who will be taking Grandma to the appointment?",
+  },
+  {
+    type: "user",
+    message: "Tina.",
+  },
+  {
+    type: "assistant",
+    message: "Great. Would you like to add any notes to the event?",
+  },
+  {
+    type: "user",
+    message:
+      "Yes, please add a note to ask the doctor to renew Grandma's medications.",
+  },
+  {
+    type: "assistant",
+    message:
+      "All set! I've added the event to Grandma's calendar for tomorrow from 10:30 am to 10:50 am at 555 Seymour St, Vancouver. Tina will be taking her, and I've included a note to ask the doctor to renew her medications.",
+  },
+] as const;
+
 export default function HarmonyVoice() {
   const [counter, setCounter] = createSignal(0);
-  const [messageIndex, setMessageIndex] = createSignal(0);
+  const [streamedMessage, setStreamedMessage] = createSignal(
+    "What can I help you with today?",
+  );
+  const [messageIndex, setMessageIndex] = createSignal(-1);
 
-  const demoConversation = [
-    {
-      type: "user",
-      message:
-        "Hi Harmony, please create a new calendar event for Grandma's doctor's appointment tomorrow at 10:30 am",
-    },
-    {
-      type: "assistant",
-      message: "What is the location of the doctor's appointment?",
-    },
-    {
-      type: "user",
-      message: "555 Seymour St, Vancouver, BC V6B 3H6",
-    },
-    {
-      type: "assistant",
-      message: "What is the approximate end time for the appointment?",
-    },
-    {
-      type: "user",
-      message: "10:50 am",
-    },
-    {
-      type: "assistant",
-      message: "Does the appointment repeat?",
-    },
-    {
-      type: "user",
-      message: "No",
-    },
-    {
-      type: "assistant",
-      message:
-        "Who will be taking Grandma to her doctor's appointment tomorrow?",
-    },
-    {
-      type: "user",
-      message: "Tina",
-    },
-    {
-      type: "assistant",
-      message:
-        "Are there any notes you would like to make for this appointment?",
-    },
-    {
-      type: "user",
-      message: "Ask doctor to renew Grandma's meds",
-    },
-    {
-      type: "assistant",
-      message:
-        "I have created a new event in Lola's calendar for a doctor's appointment tomorrow at 10:30-10:50am at 555 Seymour St, Vancouver, BC V6B 3H6 that Tina will take her too with a note to ask the doctor to renew Lola's meds",
-    },
-  ];
+  const message = createMemo(
+    () =>
+      messageIndex() === -1
+        ? { message: "", type: "assistant" } as const
+        : demoConversation[messageIndex()],
+    [messageIndex],
+  );
+
+
+  async function streamMessage(message: string) {
+    console.log("streamMessage");
+    const sleepRange = { low: 30, high: 80 };
+    let messageRangeCutoff = 0;
+    while (true) {
+      const speedFactor =
+        demoConversation[messageIndex()].type === "assistant" ? 2.5 : 1;
+      await sleep(
+        (sleepRange.low + Math.floor(sleepRange.high * Math.random())) /
+          speedFactor,
+      );
+      messageRangeCutoff++;
+      const clippedMessage = message
+        .split("")
+        .reverse()
+        .slice(message.length - messageRangeCutoff)
+        .reverse()
+        .join("");
+      setStreamedMessage(clippedMessage);
+      console.log("setting msg:", clippedMessage);
+      if (messageRangeCutoff === message.length) break;
+    }
+  }
 
   onMount(() => {
     setInterval(() => setCounter(counter() + 1), 1000);
@@ -85,32 +134,43 @@ export default function HarmonyVoice() {
 
   function nextMessage() {
     setMessageIndex((prevIndex) =>
-      prevIndex < demoConversation.length - 1 ? prevIndex + 1 : prevIndex
+      prevIndex < demoConversation.length - 1 ? prevIndex + 1 : prevIndex,
     );
   }
 
-  const currentMessage = () => {
-    demoConversation[messageIndex()];
-  };
+  createEffect(() => {
+    if (messageIndex() === -1) return;
+    streamMessage(message().message);
+  }, [message]);
+
+  onMount(() => {
+    window.addEventListener("keydown", (e: KeyboardEvent) => {
+      if (e.key === "p") {
+        nextMessage();
+      }
+    });
+  });
 
   return (
-    <div class="flex flex-col items-center justify-between h-full pb-8 border">
+    <div class="flex flex-col items-center justify-between h-full pb-8 bg-gradient-to-b from-[#987CFF]">
       <div class="w-full">
-        <A href="/harmony-ai/chat">
-          <ImageRoot class="mt-5 ml-4">
-            <Image class="h-7" src={ArrowBack} />
-          </ImageRoot>
-        </A>
-        <div class="flex flex-col items-center">
-          <h3 class="opacity-50 text-xl font-grotesque">
+        <div class="flex flex-col items-center mt-6">
+          <h3 class="text-xl font-grotesque text-black/70">
             {formatCounter(counter())}
           </h3>
           <h2 class="text-4xl mt-2">Harmony</h2>
+          <ImageRoot class="mt-0 ml-4 h-[200px] w-[200px]">
+            <Image class="w-full" src={HarmonyMascot} />
+          </ImageRoot>
         </div>
       </div>
-      <ImageRoot class="mt-0 ml-4 h-[60%] w-[60%]">
-        <Image class="w-full border" src={HarmonyMascot} />
-      </ImageRoot>
+      <div class="px-4">
+        <Show when={streamedMessage().length > 0}>
+          <div class={`bg-white drop-shadow-lg rounded-lg px-4 py-4`}>
+            <p>{streamedMessage()}</p>
+          </div>
+        </Show>
+      </div>
       <div class="flex flex-row w-[90%] justify-between items-center">
         <div class="flex flex-col items-center gap-2">
           <div class="rounded-full bg-[#1E1E1E]/15 w-16 h-16 flex items-center justify-center">
