@@ -80,7 +80,7 @@ module.exports = {
         },
         lofiGray: "#D9D9D9",
         black50: "rgb(30,30,30, 0.5)",
-        
+        "primary-purple-500": "#7859EA",
         notesIconBackground: "#4E412B",
         notesBackground: "#FCEFB4",
         sleepIconBackground: "#091E54",
