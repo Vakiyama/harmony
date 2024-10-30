@@ -29,7 +29,7 @@ const SelectInputTemp = (props: SelectProps) => {
         typeof option === "string" ? option : option.label
       )
     : [];
-
+  console.log(stringOptions);
   return (
     <Select
       value={selectedOption()}
