@@ -1,7 +1,8 @@
 import { ImageRoot, Image } from "~/components/ui/image";
-import ArrowBack from "../images/arrow-back.svg";
+// import ArrowBack from "../images/arrow-back.svg";
 import HarmonyMascot from "../images/harmony-mascot-container.svg";
 import HarmonyMascotAnimated from "./harmoy-animated.gif";
+import { createAudio } from "@solid-primitives/audio";
 
 import Speaker from "../images/Speaker.svg";
 import EndCall from "../images/end.svg";
@@ -104,8 +105,21 @@ export default function HarmonyVoice() {
     [messageIndex],
   );
 
+  const audioSamples = [
+    "/audio/1.mp3",
+    "/audio/2.mp3",
+    "/audio/3.mp3",
+    "/audio/4.mp3",
+    "/audio/5.mp3",
+    "/audio/6.mp3",
+  ];
+
+  const [audioSource, setAudioSource] = createSignal(audioSamples[0]);
+  const [volume, setVolume] = createSignal(1);
+  const [playing, setPlaying] = createSignal(false);
+  const [audio, controls] = createAudio(audioSource, playing, volume);
+
   async function streamMessage(message: string) {
-    console.log("streamMessage");
     const sleepRange = { low: 30, high: 80 };
     let messageRangeCutoff = 0;
     while (true) {
@@ -146,6 +160,19 @@ export default function HarmonyVoice() {
     window.addEventListener("keydown", (e: KeyboardEvent) => {
       if (e.key === "p") {
         nextMessage();
+        if (message().type === "assistant") setPlaying(true);
+        if (
+          messageIndex() !== -1 &&
+          messageIndex() !== 1 &&
+          message().type === "assistant"
+        ) {
+          setAudioSource(
+            (prevSource) =>
+              audioSamples[
+                audioSamples.findIndex((sample) => sample === prevSource) + 1
+              ],
+          );
+        }
       }
     });
   });
