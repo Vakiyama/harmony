@@ -31,10 +31,6 @@ export default function Medication() {
       : [];
   };
   const medicationOptions = createMemo(() => formatOptions(medications()));
-  const [selectedMedication, setSelectedMedication] =
-    createSignal<string>("Omeprazole");
-
-  const medicationKeysDebug = ["Omeprazole", "Azithromycin", "Metformin"];
 
   const myAction = useAction(createTakenMedicationAction);
   type CreateMedicationActionResponse = {
@@ -104,22 +100,7 @@ export default function Medication() {
               name="medication"
               class="w-full p-1 rounded-lg py-6 ps-4 "
               placeholder="Selection a medication"
-              options={
-                [
-                  {
-                    value: "Omeprazole",
-                    label: "Omeprazole",
-                  },
-                  {
-                    value: "Azithromycin",
-                    label: "Azithromycin",
-                  },
-                  {
-                    value: "Metformin",
-                    label: "Metformin",
-                  },
-                ] as const
-              }
+              options={medicationOptions()}
               setSelectedOption={() => {}}
             />
             <label>Medication Type</label>
