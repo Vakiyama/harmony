@@ -12,6 +12,7 @@ import SelectInput from "~/components/shadcn/Select";
 import TimePicker from "~/components/ui/time-picker";
 import { Medications } from "@/schema/Medications";
 import { showNotification } from "~/routes/api/notificationStore";
+import DatePickerComponent from "~/components/shadcn/DatePicker";
 
 export default function Medication() {
   const medications = createAsync(
@@ -148,12 +149,7 @@ export default function Medication() {
           <div class="flex flex-col gap-2 justify-center">
             <label class="text-h4">Date & Time Taken</label>
             <div class="flex flex-row gap-2 items-center">
-              {/*<DatePickerComponent />*/}
-              <input
-                name="date"
-                type="date"
-                class="border border-black50 border-1 rounded p-2 w-full"
-              />
+              <DatePickerComponent />
               <TimePicker time={time} setTime={setTime} name="time" />
             </div>
           </div>

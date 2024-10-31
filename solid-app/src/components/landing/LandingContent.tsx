@@ -228,8 +228,8 @@ const LandingContent = () => {
             member={null}
             icon={
               <svg
-                width="13"
-                height="16"
+                width="15"
+                height="14"
                 viewBox="0 0 13 16"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"

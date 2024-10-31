@@ -33,7 +33,7 @@ export default function Journal() {
         <span class="mt-4">
           <LandingHeader />
         </span>
-        <div class="w-full flex flex-col gap-2 mt-6">
+        <div class="w-full flex flex-col gap-2 mt-6 overflow-hidden">
           <div class="flex flex-row justify-between items-center mx-2">
             <h2 class="font-medium text-[24px]">Journal Entry</h2>
             <button
