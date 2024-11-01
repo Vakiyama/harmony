@@ -89,19 +89,21 @@ export const createTakenMedicationAction = action(
     if (!medication) {
       return { error: "Please select a medication" };
     }
-    // const medicationId = parseInt(formData.get("medicationId") as string) || -1;
     const medicationType = formData.get("medicationType") as string;
     const note = formData.get("note") as string;
     let date: string | Date = formData.get("date") as string;
     const time = formData.get("time") as string;
     let noteId: number | null = null;
-
+    console.log(medication, medicationType);
     const [medicationError, medicationResult] = await mightFail(
       db
         .select()
         .from(medications)
         .where(
-          and(eq(medications.name, medication), eq(medications.teamId, teamId)) //temporary, modify to use id later
+          and(
+            eq(medications.id, parseInt(medication)),
+            eq(medications.teamId, teamId)
+          )
         )
     );
     if (medicationError || !medicationResult.length) {

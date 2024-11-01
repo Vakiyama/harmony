@@ -22,7 +22,7 @@ export const CardHeader = (props: ComponentProps<"div">) => {
   return (
     <div
       class={cn(
-        "flex flex-row justify-between items-center space-y-1.5 p-4",
+        "flex flex-row justify-between items-center space-y-1.5 p-2",
         local.class
       )}
       {...rest}
@@ -36,7 +36,7 @@ export const CardTitle: ParentComponent<ComponentProps<"h1">> = (props) => {
   return (
     <h1
       class={cn(
-        "font-semibold leading-none tracking-tight text-sm",
+        "font-semibold leading-none tracking-tight text-base",
         local.class
       )}
       {...rest}
@@ -55,7 +55,7 @@ export const CardDescription: ParentComponent<ComponentProps<"h3">> = (
 export const CardContent = (props: ComponentProps<"div">) => {
   const [local, rest] = splitProps(props, ["class"]);
 
-  return <div class={cn("p-6 pt-0", local.class)} {...rest} />;
+  return <div class={cn("p-3 pt-0", local.class)} {...rest} />;
 };
 
 export const CardFooter = (props: ComponentProps<"div">) => {

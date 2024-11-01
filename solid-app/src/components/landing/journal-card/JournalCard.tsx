@@ -49,18 +49,21 @@ export function JournalCard(props: {
               <CardTitle class="ml-2">{props.title}</CardTitle>
             </div>
             <div class="flex flex-row gap-2 items-center mx-2">
-              <CardDescription class="text-sm text-black">
+              <CardDescription
+                classList={{ "text-subtitle": true, "text-black": true }}
+              >
                 {props.dateTime}
               </CardDescription>
-              <FaSolidPen size={15} />
+              <FaSolidPen size={11} color="#1E1E1EBF" />
             </div>
           </div>
         </CardHeader>
-        <div class="mx-4 bg-black/15 h-0.5 rounded-full" />
+        <div class="mx-2 bg-black/15 h-0.5 rounded-full" />
         <CardContent class="space-y-2 mt-3 flex flex-col gap-y-2">
           <For each={props.sections}>
             {(section) => <Section {...section} />}
           </For>
+          <div class="mx-0 bg-black/15 h-0.5 rounded-full w-full" />
           {props.withMember && <Member member={props.member} />}
         </CardContent>
       </Card>
