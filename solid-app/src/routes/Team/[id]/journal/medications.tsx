@@ -108,23 +108,8 @@ export default function Medication() {
               name="medicationType"
               class="w-full p-1 rounded-lg py-6 ps-4 "
               placeholder="Select a medication type"
-              options={
-                [
-                  {
-                    value: "Pill",
-                    label: "Pill",
-                  },
-                  {
-                    value: "Capsule",
-                    label: "Capsule",
-                  },
-                  {
-                    value: "Tablet",
-                    label: "Tablet",
-                  },
-                ] as const
-              }
-              setSelectedOption={() => {}}
+              options={medicationTypes}
+              setSelectedOption={() => undefined}
             />
           </div>
           <div class="flex flex-col gap-2 justify-center">
