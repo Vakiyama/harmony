@@ -1,9 +1,13 @@
-export default function SuperAwesome() {
+export default function SuperAwesome(props: {
+  width?: string;
+  height?: string;
+  labelClass?: string;
+}) {
   return (
     <>
       <svg
-        width="32"
-        height="32"
+        width={props.width || "32px"}
+        height={props.height || "32px"}
         viewBox="0 0 35 34"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -25,7 +29,7 @@ export default function SuperAwesome() {
           </clipPath>
         </defs>
       </svg>
-      <p class="mt-1 text-subtitle">SUPER AWESOME</p>
+      <p class={props.labelClass || "mt-1 text-subtitle"}>SUPER AWESOME</p>
     </>
   );
 }

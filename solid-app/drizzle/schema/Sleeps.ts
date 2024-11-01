@@ -5,11 +5,11 @@ import { Teams } from "./Teams";
 import { AttachedUser, Users } from "./Users";
 
 export const qualityEnum = [
-  "Really Terrible",
-  "Somewhat Bad",
-  "Completely Okay",
-  "Pretty Good",
-  "Super Awesome",
+  "REALLY TERRIBLE",
+  "SOMEWHAT BAD",
+  "COMPLETELY OKAY",
+  "PRETTY GOOD",
+  "SUPER AWESOME",
 ] as const;
 export const timeFrameEnumSleeps = ["Day", "Night"] as const;
 

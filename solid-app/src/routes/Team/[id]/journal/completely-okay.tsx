@@ -1,9 +1,13 @@
-export default function CompletelyOkay() {
+export default function CompletelyOkay(props: {
+  width?: string;
+  height?: string;
+  labelClass?: string;
+}) {
   return (
     <>
       <svg
-        width="33"
-        height="33"
+        width={props.width || "33px"}
+        height={props.height || "33px"}
         viewBox="0 0 33 33"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -13,7 +17,7 @@ export default function CompletelyOkay() {
           fill="black"
         />
       </svg>
-      <p class="mt-1 text-subtitle">COMPLETELY OKAY</p>
+      <p class={props.labelClass || "mt-1 text-subtitle"}>COMPLETELY OKAY</p>
     </>
   );
 }

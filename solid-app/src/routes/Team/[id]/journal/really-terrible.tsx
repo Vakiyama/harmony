@@ -1,4 +1,8 @@
-export default function ReallyTerrible() {
+export default function ReallyTerrible(props: {
+  width?: string;
+  height?: string;
+  labelClass?: string;
+}) {
   return (
     <>
       <svg
@@ -6,8 +10,8 @@ export default function ReallyTerrible() {
         stroke-width="2"
         xmlns="http://www.w3.org/2000/svg"
         class="icon icon-tabler icon-tabler-mood-annoyed"
-        width="32px"
-        height="32px"
+        width={props.width || "32px"}
+        height={props.height || "32px"}
         viewBox="2 2 20 20"
         stroke="currentColor"
         stroke-linecap="round"
@@ -20,7 +24,7 @@ export default function ReallyTerrible() {
         <path d="M9 10h-.01"></path>
         <path d="M15 10h-.01"></path>
       </svg>
-      <p class="mt-2 text-subtitle">REALLY TERRIBLE</p>
+      <p class={props.labelClass || "mt-2 text-subtitle"}>REALLY TERRIBLE</p>
     </>
   );
 }
