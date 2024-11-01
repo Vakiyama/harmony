@@ -58,12 +58,12 @@ export function JournalCard(props: {
             </div>
           </div>
         </CardHeader>
-        <div class="mx-2 bg-black/15 h-0.5 rounded-full" />
-        <CardContent class="space-y-2 mt-3 flex flex-col gap-y-2">
+        <div class="mx-3 bg-black/15 h-0.5 rounded-full" />
+        <CardContent class="space-y-2 mt-3 flex flex-col gap-y-2 w-full">
           <For each={props.sections}>
             {(section) => <Section {...section} />}
           </For>
-          <div class="mx-0 bg-black/15 h-0.5 rounded-full w-full" />
+          <div class="bg-black/15 h-0.5 rounded-full" />
           {props.withMember && <Member member={props.member} />}
         </CardContent>
       </Card>
