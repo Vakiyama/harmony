@@ -41,7 +41,7 @@ export default function TeamModal(props: ModalProps) {
         <ModalOption
           title="Join a Team"
           description="Join an existing team"
-          link="/team/1/"
+          link="/profile/join-team/"
           svg={
             <svg
               width="12"

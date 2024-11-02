@@ -28,6 +28,7 @@ export default function ProfileTeamContent() {
           )}
           <TabsIndicator />
         </TabsList>
+
         <div class="flex flex-row space-x-1 justify-end mx-4 mt-2">
           <p class="text-xs text-gray-500">Edit</p>
           <svg
@@ -44,6 +45,7 @@ export default function ProfileTeamContent() {
             />
           </svg>
         </div>
+
         <TabsContent value="general information">
           <GeneralInfo />
         </TabsContent>

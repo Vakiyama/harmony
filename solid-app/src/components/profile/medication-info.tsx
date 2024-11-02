@@ -129,13 +129,13 @@ export default function MedicationInfo() {
           medicineName="Advil"
           medicineDose="200mg"
           medicineInstructions="take after a meal"
-          medicineLink="/profile/med-detail"
+          medicineLink="/profile/medication-detail"
         />
         <MedicalDetail
           medicineName="Vyvanse"
           medicineDose="10mg"
           medicineInstructions="taken with water"
-          medicineLink="/profile/med-detail"
+          medicineLink="/profile/medication-detail"
         />
       </div>
     </div>
