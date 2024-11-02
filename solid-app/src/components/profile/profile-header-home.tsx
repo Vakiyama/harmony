@@ -1,10 +1,10 @@
 export default function ProfileHeaderHome() {
   return (
     <>
-      <div class="w-full flex flex-row items-center justify-end h-[100px]">
+      <div class="w-full flex flex-row items-center justify-end h-[100px] p-2">
         {/* Icon */}
         <div class="flex flex-row space-x-3 items-center">
-          <div>
+          {/* <div>
             <svg
               width="25"
               height="25"
@@ -17,7 +17,7 @@ export default function ProfileHeaderHome() {
                 fill="black"
               />
             </svg>
-          </div>
+          </div> */}
           <div>
             <svg
               width="37"

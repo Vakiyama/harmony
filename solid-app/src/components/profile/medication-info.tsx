@@ -100,8 +100,8 @@ export default function MedicationInfo() {
       />
 
       {/* Medication Details */}
-      <div class="mt-4">
-        <div class="w-full mt-2 flex flex-row justify-between items-center gap-x-2 rounded-md bg-[#D6CDF9]">
+      <div class="mt-4 ">
+        <div class="w-full mt-2 flex flex-row justify-between items-center gap-x-2 rounded-md bg-[#D6CDF9] h-[48px]">
           <div class="flex justify-center items-center p-2">
             <div class="flex items-center justify-center aspect-square rounded-full px-2 bg-[#7859EA]">
               <svg
@@ -117,7 +117,7 @@ export default function MedicationInfo() {
                 />
               </svg>
             </div>
-            <div class="ml-2 font-semibold leading-none tracking-tight text-sm">
+            <div class="ml-2 font-semibold tracking-tight text-sm">
               Medication Details
             </div>
           </div>
