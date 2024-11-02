@@ -9,7 +9,7 @@ const LandingImage = () => {
         class="object-fill w-full"
       />
       <ImageFallback class="flex items-center justify-center w-full h-full bg-gray-200 rounded-full">
-        HN
+        TD
       </ImageFallback>
     </ImageRoot>
   );

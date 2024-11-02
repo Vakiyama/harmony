@@ -1,3 +1,5 @@
+import { Setter } from "solid-js";
+import { twMerge } from "tailwind-merge";
 import {
   Select,
   SelectContent,
@@ -6,50 +8,40 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { createSignal } from "solid-js";
 
-interface SelectOption {
-  value: string;
+export type SelectOptions<T> = {
+  value: T;
   label: string;
-}
+};
 
-type SelectOptions = string[] | SelectOption[];
-
-interface SelectProps {
-  options: SelectOptions;
+export default function SelectInput<T>(props: {
+  options: SelectOptions<T>[];
   placeholder: string;
+  setSelectedOption: Setter<T>;
+  class?: string; // this styles the select input
   name?: string;
-}
-
-const SelectInput = (props: SelectProps) => {
-  const [selectedOption, setSelectedOption] = createSignal<string | null>(null);
-
-  const stringOptions: string[] = Array.isArray(props.options)
-    ? props.options.map((option) =>
-        typeof option === "string" ? option : option.label
-      )
-    : [];
-
+}) {
   return (
     <Select
-      value={selectedOption()}
-      onChange={(value) => setSelectedOption(value)}
-      options={stringOptions}
-      placeholder={props.placeholder}
       name={props.name}
-      itemComponent={(itemProps) => (
-        <SelectItem item={itemProps.item}>
-          {itemProps.item.rawValue}{" "}
-        </SelectItem>
+      options={props.options}
+      optionValue="value"
+      optionTextValue="label"
+      placeholder={props.placeholder}
+      itemComponent={(props) => (
+        <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
       )}
     >
-      <SelectTrigger class={selectedOption() ? "text-black" : "text-gray-400"}>
-        <SelectValue>{selectedOption() || props.placeholder}</SelectValue>
+      <SelectTrigger class={twMerge("w-[180px]", props.class)}>
+        <SelectValue<SelectOptions<T>>>
+          {(state) => {
+            props.setSelectedOption(() => state.selectedOption().value);
+            return state.selectedOption().label;
+          }}
+        </SelectValue>
       </SelectTrigger>
       <SelectContent />
       <SelectHiddenSelect />
     </Select>
   );
-};
-
-export default SelectInput;
+}

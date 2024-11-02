@@ -12,7 +12,7 @@ export default function JournalFeed() {
     console.log(journalsData());
   }
   return (
-    <div>
+    <div class="overflow-hidden">
       <Show when={journalsData()}>
         <LandingContent></LandingContent>
       </Show>
