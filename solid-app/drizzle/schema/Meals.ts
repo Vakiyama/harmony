@@ -3,6 +3,7 @@ import { sql } from "drizzle-orm";
 import { AttachedNote, notes } from "./Notes";
 import { Teams } from "./Teams";
 import { AttachedUser, Users } from "./Users";
+import { AttachedRecipient } from "./Recipients";
 
 export const categoryEnumMeals = [
   "Breakfast",
@@ -47,4 +48,5 @@ export type Meal = typeof meals.$inferSelect;
 export type MealWithNoteUser = Omit<Meal, "userId" | "noteId"> & {
   user: AttachedUser | null;
   note: AttachedNote | null;
+  recipient: AttachedRecipient | null;
 };

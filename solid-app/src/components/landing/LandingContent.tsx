@@ -25,25 +25,61 @@ const LandingContent = () => {
     switch (param) {
       case "REALLY TERRIBLE":
         return (
-          <ReallyTerrible height="15" width="15" labelClass="text-subtitle" />
+          <ReallyTerrible
+            height="15"
+            width="15"
+            labelClass="text-subtitle"
+            iconColour="rgba(0,0,0,0.75)"
+          />
         );
       case "SOMEWHAT BAD":
         return (
-          <SomewhatBad height="15" width="15" labelClass="text-subtitle" />
+          <SomewhatBad
+            height="15"
+            width="15"
+            labelClass="text-subtitle"
+            iconColour="rgba(0,0,0,0.75)"
+          />
         );
       case "COMPLETELY OKAY":
         return (
-          <CompletelyOkay height="15" width="15" labelClass="text-subtitle" />
+          <CompletelyOkay
+            height="15"
+            width="15"
+            labelClass="text-subtitle"
+            iconColour="rgba(0,0,0,0.75)"
+          />
         );
       case "PRETTY GOOD":
-        return <PrettyGood height="15" width="15" labelClass="text-subtitle" />;
+        return (
+          <PrettyGood
+            height="15"
+            width="15"
+            labelClass="text-subtitle"
+            iconColour="rgba(0,0,0,0.75)"
+          />
+        );
       case "SUPER AWESOME":
         return (
-          <SuperAwesome height="15" width="15" labelClass="text-subtitle" />
+          <SuperAwesome
+            height="15"
+            width="15"
+            labelClass="text-subtitle"
+            iconColour="rgba(0,0,0,0.75)"
+          />
         );
       default:
         return;
     }
+  };
+  const formatCreatedDate = (date: Date) => {
+    return `${new Date(date).toLocaleDateString("en-us", {
+      month: "short",
+      day: "numeric",
+    })}. - ${new Date(date).toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    })}`;
   };
   return (
     <div class="mt-4 h-full">
@@ -65,10 +101,7 @@ const LandingContent = () => {
             {journalsData()?.moods.map((mood) => {
               return (
                 <JournalCard
-                  dateTime={`${new Date(mood.date).toLocaleDateString("en-us", {
-                    month: "short",
-                    day: "numeric",
-                  })}`}
+                  dateTime={formatCreatedDate(mood.createdAt)}
                   title="Mood"
                   value={"mood"}
                   withMember={true}
@@ -91,8 +124,8 @@ const LandingContent = () => {
                     {
                       title: "Mood",
                       content: (
-                        <div class="text-xs text-black/75">
-                          <div class="flex flex-row gap-x-2 mt-2 items-center">
+                        <div class="text-subtitle text-black/75">
+                          <div class="flex flex-row gap-x-1 items-center align-middle leading-none">
                             {getWellbeingSVG(mood.wellBeing)}
                           </div>
                         </div>
@@ -101,37 +134,54 @@ const LandingContent = () => {
                     {
                       title: "Time of Day",
                       content: (
-                        <p class="text-xs text-black/75">
-                          Selected Medication Type
+                        <p class="text-subtitle text-black/75">
+                          {mood.timeFrame}
                         </p>
                       ),
                     },
-
                     {
-                      title: "What Tina Noticed",
+                      title: "Date",
                       content: (
-                        <p class="text-xs text-black/75">
-                          Ramdom notes about medication, that someone might want
-                          other people to look at and read n things n wowwowwow!
+                        <p class="text-subtitle text-black/75">
+                          {mood.date.toLocaleDateString("en-us", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
                         </p>
                       ),
                     },
+                    ...(mood.note
+                      ? [
+                          {
+                            title: `What ${mood.user!.firstName} Noticed`,
+                            content: (
+                              <p class="text-subtitle">{mood.note.note}</p>
+                            ),
+                          },
+                          // {
+                          //   content: (
+                          //     <>
+                          //       Images
+                          //       <div class="flex flex-row gap-x-2">
+                          //         <LandingImage />
+                          //         <LandingImage />
+                          //       </div>
+                          //     </>
+                          //   ),
+                          // },
+                        ]
+                      : []),
                   ]}
                 />
               );
             })}
           </Show>
           <Show when={journalsData()}>
-            {journalsData()?.takenMedications.map((med, index) => {
+            {journalsData()?.takenMedications.map((med) => {
               return (
                 <JournalCard
-                  dateTime={`${new Date(med.createdAt).toLocaleDateString(
-                    "en-us",
-                    { month: "short", day: "numeric" }
-                  )} - ${new Date(med.createdAt).toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}`}
+                  dateTime={formatCreatedDate(med.date)}
                   title="Medication Taken"
                   value={"medication taken"}
                   withMember={true}
@@ -166,13 +216,18 @@ const LandingContent = () => {
                     {
                       title: "Date & Time Taken",
                       content: (
-                        <p class="text-xs">
-                          {`${new Date(med.date).toDateString()} - ${new Date(
-                            med.date
-                          ).toLocaleTimeString("en-US", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}`}
+                        <p class="text-subtitle">
+                          {`${new Date(med.date).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })} - ${new Date(med.date).toLocaleTimeString(
+                            "en-US",
+                            {
+                              hour: "numeric",
+                              minute: "2-digit",
+                            }
+                          )}`}
                         </p>
                       ),
                     },
@@ -180,7 +235,9 @@ const LandingContent = () => {
                       ? [
                           {
                             title: "Additional Notes",
-                            content: <p class="text-xs">{med.note.note}</p>,
+                            content: (
+                              <p class="text-subtitle">{med.note.note}</p>
+                            ),
                           },
                           // {
                           //   content: (
@@ -200,18 +257,11 @@ const LandingContent = () => {
               );
             })}
           </Show>
-          {/* tab content for notes */}
           <Show when={journalsData()}>
             {journalsData()?.notes.map((data) => {
               return (
                 <JournalCard
-                  dateTime={`${new Date(data.createdAt).toLocaleDateString(
-                    "en-us",
-                    { month: "short", day: "numeric" }
-                  )} - ${new Date(data.createdAt).toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}`}
+                  dateTime={formatCreatedDate(data.createdAt)}
                   title="Notes"
                   value={"notes"}
                   withMember={true}
@@ -233,7 +283,7 @@ const LandingContent = () => {
                   sections={[
                     {
                       title: "New Update",
-                      content: <p class="text-xs ">{data.note}</p>,
+                      content: <p class="text-subtitle">{data.note}</p>,
                     },
                     // {
                     //   content: (
@@ -251,132 +301,178 @@ const LandingContent = () => {
               );
             })}
           </Show>
-
-          <JournalCard
-            dateTime="Oct 15. - 9:41PM"
-            title="Nutrition"
-            value={"nutrition"}
-            withMember={false}
-            member={null}
-            icon={
-              <svg
-                width="15"
-                height="14"
-                viewBox="0 0 13 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M5.28558 3.49744C5.6967 3.44278 6.46834 3.25285 7.12345 2.59808C7.6121 2.1083 7.92043 1.46745 7.99818 0.779997C8.00263 0.743304 7.99889 0.706081 7.98722 0.671009C7.97555 0.635938 7.95624 0.603892 7.93069 0.57718C7.90515 0.550468 7.87399 0.529755 7.83947 0.516534C7.80495 0.503313 7.76793 0.497913 7.73108 0.500723C7.33401 0.5304 6.58268 0.684094 5.89633 1.37072C5.39203 1.86626 5.07564 2.52165 5.00129 3.22473C4.99744 3.26251 5.00224 3.30067 5.01535 3.33631C5.02845 3.37195 5.0495 3.40414 5.07691 3.43043C5.10431 3.45672 5.13735 3.47642 5.1735 3.48803C5.20966 3.49964 5.24799 3.50286 5.28558 3.49744Z"
-                  fill="#6FC94F"
+          <Show when={journalsData()}>
+            {journalsData()?.meals.map((meal) => {
+              return (
+                <JournalCard
+                  dateTime={formatCreatedDate(meal.createdAt)}
+                  title="Nutrition"
+                  value={"nutrition"}
+                  withMember={true}
+                  member={meal.user}
+                  icon={
+                    <svg
+                      width="15"
+                      height="14"
+                      viewBox="0 0 13 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M5.28558 3.49744C5.6967 3.44278 6.46834 3.25285 7.12345 2.59808C7.6121 2.1083 7.92043 1.46745 7.99818 0.779997C8.00263 0.743304 7.99889 0.706081 7.98722 0.671009C7.97555 0.635938 7.95624 0.603892 7.93069 0.57718C7.90515 0.550468 7.87399 0.529755 7.83947 0.516534C7.80495 0.503313 7.76793 0.497913 7.73108 0.500723C7.33401 0.5304 6.58268 0.684094 5.89633 1.37072C5.39203 1.86626 5.07564 2.52165 5.00129 3.22473C4.99744 3.26251 5.00224 3.30067 5.01535 3.33631C5.02845 3.37195 5.0495 3.40414 5.07691 3.43043C5.10431 3.45672 5.13735 3.47642 5.1735 3.48803C5.20966 3.49964 5.24799 3.50286 5.28558 3.49744Z"
+                        fill="#6FC94F"
+                      />
+                      <path
+                        d="M12.2199 5.20534C11.6364 4.1884 10.7367 3.61888 9.5456 3.5121C8.91492 3.4559 8.32674 3.61732 7.75699 3.77375C7.31476 3.89521 6.89691 4.0098 6.50062 4.0098C6.10433 4.0098 5.68805 3.8949 5.24863 3.77344C4.67732 3.61732 4.08664 3.45309 3.45377 3.51241C2.31647 3.61888 1.40638 4.20276 0.818828 5.20097C0.275651 6.1255 0 7.40565 0 9.00554C0 10.267 0.468795 11.8309 1.25012 13.1895C1.65078 13.8842 2.71901 15.5 3.97413 15.5C4.93579 15.5 5.44771 15.2053 5.8215 14.9901C6.08089 14.8409 6.23747 14.7506 6.49937 14.7506C6.76127 14.7506 6.91785 14.8409 7.17725 14.9901C7.55229 15.2053 8.06327 15.5 9.02586 15.5C10.2813 15.5 11.3492 13.8839 11.7499 13.1895C12.5334 11.8313 13 10.2673 13 9.00554C13.0012 7.36413 12.7456 6.12112 12.2199 5.20534ZM5.2505 11.0038C4.8364 11.0038 4.50043 10.3328 4.50043 9.50511C4.50043 8.67738 4.8364 8.00639 5.2505 8.00639C5.66461 8.00639 6.00057 8.67738 6.00057 9.50511C6.00057 10.3328 5.66461 11.0038 5.2505 11.0038ZM7.75074 11.0038C7.33664 11.0038 7.00067 10.3328 7.00067 9.50511C7.00067 8.67738 7.33664 8.00639 7.75074 8.00639C8.16484 8.00639 8.50081 8.67738 8.50081 9.50511C8.50081 10.3328 8.16484 11.0038 7.75074 11.0038Z"
+                        fill="#6FC94F"
+                      />
+                    </svg>
+                  }
+                  sections={[
+                    {
+                      title: "Meal Type",
+                      content: <p class="text-subtitle">{meal.category}</p>,
+                    },
+                    {
+                      title: `How much did ${meal.recipient!.firstName} eat?`,
+                      content: (
+                        <p class="text-subtitle">
+                          {meal.recipient!.firstName} ate{" "}
+                          {meal.consumption.toLowerCase()} of her meal.
+                        </p>
+                      ),
+                    },
+                    ...(meal.foodName
+                      ? [
+                          {
+                            title: "Food Name",
+                            content: (
+                              <p class="text-subtitle">{meal.foodName}</p>
+                            ),
+                          },
+                        ]
+                      : []),
+                    ...(meal.drinkName
+                      ? [
+                          {
+                            title: "Drink Name",
+                            content: (
+                              <p class="text-subtitle">{meal.drinkName}</p>
+                            ),
+                          },
+                        ]
+                      : []),
+                    {
+                      title: "Date",
+                      content: (
+                        <p class="text-subtitle text-black/75">
+                          {meal.date.toLocaleDateString("en-us", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </p>
+                      ),
+                    },
+                    ...(meal.note
+                      ? [
+                          {
+                            title: "Additional Notes",
+                            content: (
+                              <p class="text-subtitle">{meal.note.note}</p>
+                            ),
+                          },
+                          // {
+                          //   content: (
+                          //     <>
+                          //       {/* Images */}
+                          //       <div class="flex flex-row gap-x-2">
+                          //         <LandingImage />
+                          //         <LandingImage />
+                          //       </div>
+                          //     </>
+                          //   ),
+                          // },
+                        ]
+                      : []),
+                  ]}
                 />
-                <path
-                  d="M12.2199 5.20534C11.6364 4.1884 10.7367 3.61888 9.5456 3.5121C8.91492 3.4559 8.32674 3.61732 7.75699 3.77375C7.31476 3.89521 6.89691 4.0098 6.50062 4.0098C6.10433 4.0098 5.68805 3.8949 5.24863 3.77344C4.67732 3.61732 4.08664 3.45309 3.45377 3.51241C2.31647 3.61888 1.40638 4.20276 0.818828 5.20097C0.275651 6.1255 0 7.40565 0 9.00554C0 10.267 0.468795 11.8309 1.25012 13.1895C1.65078 13.8842 2.71901 15.5 3.97413 15.5C4.93579 15.5 5.44771 15.2053 5.8215 14.9901C6.08089 14.8409 6.23747 14.7506 6.49937 14.7506C6.76127 14.7506 6.91785 14.8409 7.17725 14.9901C7.55229 15.2053 8.06327 15.5 9.02586 15.5C10.2813 15.5 11.3492 13.8839 11.7499 13.1895C12.5334 11.8313 13 10.2673 13 9.00554C13.0012 7.36413 12.7456 6.12112 12.2199 5.20534ZM5.2505 11.0038C4.8364 11.0038 4.50043 10.3328 4.50043 9.50511C4.50043 8.67738 4.8364 8.00639 5.2505 8.00639C5.66461 8.00639 6.00057 8.67738 6.00057 9.50511C6.00057 10.3328 5.66461 11.0038 5.2505 11.0038ZM7.75074 11.0038C7.33664 11.0038 7.00067 10.3328 7.00067 9.50511C7.00067 8.67738 7.33664 8.00639 7.75074 8.00639C8.16484 8.00639 8.50081 8.67738 8.50081 9.50511C8.50081 10.3328 8.16484 11.0038 7.75074 11.0038Z"
-                  fill="#6FC94F"
+              );
+            })}
+          </Show>
+          <Show when={journalsData()}>
+            {journalsData()?.sleeps.map((sleep) => {
+              return (
+                <JournalCard
+                  dateTime="Oct 15. - 9:41PM"
+                  title="Sleep"
+                  value={"sleep"}
+                  withMember={true}
+                  member={sleep.user}
+                  icon={
+                    <svg
+                      width="15"
+                      height="14"
+                      viewBox="0 0 15 14"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M13.3948 4.83074V0H11.9211V1.47368H3.07896V0H1.60528V4.83147C0.728434 5.34211 0.131592 6.28232 0.131592 7.36842V10.3158C0.131592 10.5112 0.209223 10.6986 0.347408 10.8368C0.485593 10.975 0.673011 11.0526 0.868434 11.0526H1.60528V14H3.07896V11.0526H11.9211V14H13.3948V11.0526H14.1316C14.327 11.0526 14.5144 10.975 14.6526 10.8368C14.7908 10.6986 14.8684 10.5112 14.8684 10.3158V7.36842C14.8684 6.28232 14.2709 5.3421 13.3948 4.83074ZM6.76317 4.42105H3.07896V2.94737H6.76317V4.42105ZM11.9211 4.42105H8.23686V2.94737H11.9211V4.42105Z"
+                        fill="#7F99DD"
+                      />
+                    </svg>
+                  }
+                  sections={[
+                    {
+                      title: `How did ${sleep.recipient!.firstName} sleep?`,
+                      content: (
+                        <div class="text-subtitle ">
+                          <div class="flex flex-row gap-x-1">
+                            {getWellbeingSVG(sleep.quality)}
+                          </div>
+                        </div>
+                      ),
+                    },
+                    {
+                      title: "Day or Night?",
+                      content: <p class="text-subtitle ">{sleep.timeFrame}</p>,
+                    },
+                    {
+                      title: "Trouble Going to Sleep?",
+                      content: (
+                        <p class="text-subtitle ">
+                          {sleep.troubleSleeping ? "Yes" : "No"}
+                        </p>
+                      ),
+                    },
+                    {
+                      title: "Date",
+                      content: (
+                        <p class="text-subtitle text-black/75">
+                          {sleep.date.toLocaleDateString("en-us", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </p>
+                      ),
+                    },
+                    ...(sleep.note
+                      ? [
+                          {
+                            title: "Additional Notes",
+                            content: (
+                              <p class="text-subtitle ">{sleep.note.note}</p>
+                            ),
+                          },
+                        ]
+                      : []),
+                  ]}
                 />
-              </svg>
-            }
-            sections={[
-              {
-                title: "Meal Type",
-                content: <p class="text-xs">Drink</p>,
-              },
-              {
-                title: "How much did Lola eat?",
-                content: (
-                  <p class="text-xs ">Lola ate about half of her meal.</p>
-                ),
-              },
-              {
-                title: "Food Name",
-                content: <p class="text-xs ">Hot Pot</p>,
-              },
-              {
-                title: "Drink Name",
-                content: <p class="text-xs ">Hot Tea w/ Lemon</p>,
-              },
-              {
-                title: "Additional Notes",
-                content: (
-                  <p class="text-xs ">
-                    Random notes about the meal, observations, etc.
-                  </p>
-                ),
-              },
-              {
-                content: (
-                  <>
-                    {/* Images */}
-                    <div class="flex flex-row gap-x-2">
-                      <LandingImage />
-                      <LandingImage />
-                    </div>
-                  </>
-                ),
-              },
-            ]}
-          />
-          <JournalCard
-            dateTime="Oct 15. - 9:41PM"
-            title="Sleep"
-            value={"sleep"}
-            withMember={true}
-            member={null}
-            icon={
-              <svg
-                width="15"
-                height="14"
-                viewBox="0 0 15 14"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M13.3948 4.83074V0H11.9211V1.47368H3.07896V0H1.60528V4.83147C0.728434 5.34211 0.131592 6.28232 0.131592 7.36842V10.3158C0.131592 10.5112 0.209223 10.6986 0.347408 10.8368C0.485593 10.975 0.673011 11.0526 0.868434 11.0526H1.60528V14H3.07896V11.0526H11.9211V14H13.3948V11.0526H14.1316C14.327 11.0526 14.5144 10.975 14.6526 10.8368C14.7908 10.6986 14.8684 10.5112 14.8684 10.3158V7.36842C14.8684 6.28232 14.2709 5.3421 13.3948 4.83074ZM6.76317 4.42105H3.07896V2.94737H6.76317V4.42105ZM11.9211 4.42105H8.23686V2.94737H11.9211V4.42105Z"
-                  fill="#7F99DD"
-                />
-              </svg>
-            }
-            sections={[
-              {
-                title: "How did Lola sleep?",
-                content: (
-                  <div class="text-xs ">
-                    <div class="flex flex-row gap-x-2 mt-2">
-                      <svg
-                        width="15"
-                        height="15"
-                        viewBox="0 0 15 15"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M13.5938 7.5C13.5938 5.88384 12.9517 4.33387 11.8089 3.19107C10.6661 2.04827 9.11616 1.40625 7.5 1.40625C5.88384 1.40625 4.33387 2.04827 3.19107 3.19107C2.04827 4.33387 1.40625 5.88384 1.40625 7.5C1.40625 9.11616 2.04827 10.6661 3.19107 11.8089C4.33387 12.9517 5.88384 13.5938 7.5 13.5938C9.11616 13.5938 10.6661 12.9517 11.8089 11.8089C12.9517 10.6661 13.5938 9.11616 13.5938 7.5ZM0 7.5C0 5.51088 0.790176 3.60322 2.1967 2.1967C3.60322 0.790176 5.51088 0 7.5 0C9.48912 0 11.3968 0.790176 12.8033 2.1967C14.2098 3.60322 15 5.51088 15 7.5C15 9.48912 14.2098 11.3968 12.8033 12.8033C11.3968 14.2098 9.48912 15 7.5 15C5.51088 15 3.60322 14.2098 2.1967 12.8033C0.790176 11.3968 0 9.48912 0 7.5ZM3.8291 9.19629C3.70605 8.79785 4.03711 8.4375 4.45312 8.4375H10.6787C11.0947 8.4375 11.4258 8.80078 11.3027 9.19629C10.8105 10.793 9.32227 11.9531 7.56445 11.9531C5.80664 11.9531 4.31836 10.793 3.8291 9.19629ZM6.375 6.70312L6.36914 6.69727C6.36328 6.69141 6.35742 6.68262 6.34863 6.6709C6.33105 6.64746 6.30176 6.6123 6.2666 6.57129C6.19336 6.48926 6.09082 6.37793 5.96777 6.26953C5.70996 6.04102 5.41699 5.85938 5.15625 5.85938C4.89551 5.85938 4.60254 6.04102 4.34473 6.26953C4.22168 6.37793 4.11914 6.48926 4.0459 6.57129C4.01074 6.6123 3.98145 6.64746 3.96387 6.6709C3.95508 6.68262 3.94629 6.69141 3.94336 6.69727L3.9375 6.70312C3.87598 6.78516 3.77051 6.81738 3.67676 6.78516C3.58301 6.75293 3.51562 6.66504 3.51562 6.5625C3.51562 6.03809 3.71191 5.51953 4.00195 5.13281C4.28906 4.75195 4.70215 4.45312 5.15625 4.45312C5.61035 4.45312 6.02344 4.75195 6.31055 5.13281C6.60059 5.51953 6.79688 6.03809 6.79688 6.5625C6.79688 6.66211 6.73242 6.75293 6.63574 6.78516C6.53906 6.81738 6.43359 6.78516 6.375 6.70312ZM11.0625 6.70312L11.0566 6.69727C11.0508 6.69141 11.0449 6.68262 11.0361 6.6709C11.0186 6.64746 10.9893 6.6123 10.9541 6.57129C10.8809 6.48926 10.7783 6.37793 10.6553 6.26953C10.3975 6.04102 10.1045 5.85938 9.84375 5.85938C9.58301 5.85938 9.29004 6.04102 9.03223 6.26953C8.90918 6.37793 8.80664 6.48926 8.7334 6.57129C8.69824 6.6123 8.66895 6.64746 8.65137 6.6709C8.64258 6.68262 8.63379 6.69141 8.63086 6.69727L8.625 6.70312C8.56348 6.78516 8.45801 6.81738 8.36426 6.78516C8.27051 6.75293 8.20312 6.66504 8.20312 6.5625C8.20312 6.03809 8.39941 5.51953 8.68945 5.13281C8.97656 4.75195 9.38965 4.45312 9.84375 4.45312C10.2979 4.45312 10.7109 4.75195 10.998 5.13281C11.2881 5.51953 11.4844 6.03809 11.4844 6.5625C11.4844 6.66211 11.4199 6.75293 11.3232 6.78516C11.2266 6.81738 11.1211 6.78516 11.0625 6.70312Z"
-                          fill="#1E1E1E"
-                        />
-                      </svg>
-                      <p>SUPER AWESOME</p>
-                    </div>
-                  </div>
-                ),
-              },
-              {
-                title: "Day or Night?",
-                content: <p class="text-xs ">Day</p>,
-              },
-              {
-                title: "Trouble Going to Sleep?",
-                content: <p class="text-xs ">No</p>,
-              },
-              {
-                title: "Additional Notes",
-                content: (
-                  <p class="text-xs ">
-                    Random notes about sleep, observations, etc.
-                  </p>
-                ),
-              },
-            ]}
-          />
+              );
+            })}
+          </Show>
         </div>
       </Tabs>
     </div>

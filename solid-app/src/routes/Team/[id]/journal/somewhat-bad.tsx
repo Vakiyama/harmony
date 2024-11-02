@@ -2,6 +2,7 @@ export default function SomewhatBad(props: {
   width?: string;
   height?: string;
   labelClass?: string;
+  iconColour?: string;
 }) {
   return (
     <>
@@ -13,7 +14,7 @@ export default function SomewhatBad(props: {
         width={props.width || "32px"}
         height={props.height || "32px"}
         viewBox="2 2 20 20"
-        stroke="currentColor"
+        stroke={props.iconColour || "currentColor"}
         stroke-linecap="round"
         stroke-linejoin="round"
         style="overflow: visible; color: currentcolor;"

@@ -33,15 +33,7 @@ export const CardHeader = (props: ComponentProps<"div">) => {
 export const CardTitle: ParentComponent<ComponentProps<"h1">> = (props) => {
   const [local, rest] = splitProps(props, ["class"]);
 
-  return (
-    <h1
-      class={cn(
-        "font-semibold leading-none tracking-tight text-base",
-        local.class
-      )}
-      {...rest}
-    />
-  );
+  return <h1 class={cn("font-medium text-base", local.class)} {...rest} />;
 };
 
 export const CardDescription: ParentComponent<ComponentProps<"h3">> = (
@@ -49,7 +41,7 @@ export const CardDescription: ParentComponent<ComponentProps<"h3">> = (
 ) => {
   const [local, rest] = splitProps(props, ["class"]);
 
-  return <h3 class={cn("text-muted-foreground", local.class)} {...rest} />;
+  return <h3 class={cn("text-black/75", local.class)} {...rest} />;
 };
 
 export const CardContent = (props: ComponentProps<"div">) => {

@@ -48,9 +48,14 @@ export function JournalCard(props: {
               </div>
               <CardTitle class="ml-2">{props.title}</CardTitle>
             </div>
-            <div class="flex flex-row gap-2 items-center mx-2">
+            <div class="flex flex-row gap-2 items-center justify-center mx-2">
               <CardDescription
-                classList={{ "text-subtitle": true, "text-black": true }}
+                classList={{
+                  flex: true,
+                  "leading-none": true,
+                  "items-center": true,
+                  "text-subtitle": true,
+                }}
               >
                 {props.dateTime}
               </CardDescription>
@@ -59,7 +64,7 @@ export function JournalCard(props: {
           </div>
         </CardHeader>
         <div class="mx-3 bg-black/15 h-0.5 rounded-full" />
-        <CardContent class="space-y-2 mt-3 flex flex-col gap-y-2 w-full">
+        <CardContent class="mt-3 flex flex-col gap-y-3 w-full">
           <For each={props.sections}>
             {(section) => <Section {...section} />}
           </For>
