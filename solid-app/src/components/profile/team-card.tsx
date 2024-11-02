@@ -7,7 +7,7 @@ export default function TeamCard(props: {
 }) {
   return (
     <>
-      <div class="flex flex-col items-center border-2 border-gray-300 rounded-2xl w-[175px] h-[130px]">
+      <div class="flex flex-col items-center border-2 border-gray-300 rounded-md w-[177px] h-[150px]">
         <div class="">
           <TeamImage teamName="Lola's Care Team" imageUrl="" />
         </div>

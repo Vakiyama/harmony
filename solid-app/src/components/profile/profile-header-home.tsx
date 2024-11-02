@@ -1,7 +1,7 @@
 export default function ProfileHeaderHome() {
   return (
     <>
-      <div class="w-full flex flex-row items-center justify-end px-4">
+      <div class="w-full flex flex-row items-center justify-end h-[100px]">
         {/* Icon */}
         <div class="flex flex-row space-x-3 items-center">
           <div>
