@@ -56,19 +56,18 @@ export default function Profile() {
         <TeamCard
           teamName="Lola's Care Team"
           imageUrl="https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg"
+          href="/profile/specific-team-info"
         />
         <TeamCard
           teamName="Tina's Team"
           imageUrl="https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg"
+          href="/profile/specific-team-info"
         />
         <TeamCard
           teamName="Tina's Team"
           imageUrl="https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg"
+          href="/profile/specific-team-info"
         />
-        {/* <TeamCard
-          teamName="Tina's Team"
-          imageUrl="https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg"
-        /> */}
 
         {isModalOpen() && (
           <div

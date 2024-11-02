@@ -21,7 +21,7 @@ export const ImageRoot = <T extends ValidComponent = "span">(
   return (
     <ImagePrimitive
       class={cn(
-        "relative flex h-20 w-10 shrink-0 overflow-hidden border-t rounded-t-md",
+        "relative flex h-20 w-10 shrink-0 overflow-hidden rounded-t-md",
         local.class
       )}
       {...rest}
@@ -59,7 +59,7 @@ export const ImageFallback = <T extends ValidComponent = "span">(
   return (
     <ImagePrimitive.Fallback
       class={cn(
-        "flex h-full w-full items-center justify-center border-t rounded-t-md bg-muted mt-0 pt-0",
+        "flex h-full w-full items-center justify-center rounded-md bg-muted mt-0 pt-0",
         local.class
       )}
       {...rest}

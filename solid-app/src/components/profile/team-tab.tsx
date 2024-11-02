@@ -23,7 +23,7 @@ import {
   TabsTrigger,
 } from "~/components/ui/teams/team-tabs";
 import GeneralInfo from "./general-info";
-import MedicalInfo from "./medical-info";
+import MedicalInfo from "./medication-info";
 
 const TeamTab = () => {
   const [activeTab, setActiveTab] = createSignal("teams");
