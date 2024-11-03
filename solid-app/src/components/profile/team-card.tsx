@@ -9,10 +9,12 @@ export default function TeamCard(props: {
 }) {
   return (
     <>
-      <div class="flex flex-col items-center border-2 border-gray-300 rounded-md w-[177px] h-[150px]">
-        <div class="">
-          <TeamImage teamName="Lola's Care Team" imageUrl={props.imageUrl} />
-        </div>
+      <div class="flex flex-col items-center border-2 border-gray-300 rounded-md max-w-[191px] max-h-[150px] w-full h-full">
+        <A href={props.href}>
+          <div class="">
+            <TeamImage teamName={props.teamName} imageUrl={props.imageUrl} />
+          </div>
+        </A>
 
         <A href={props.href} class="text-md w-full mt-2 ml-4">
           <div>{props.teamName}</div>

@@ -11,7 +11,10 @@ import GeneralInfo from "./general-info";
 import MedicationInfo from "./medication-info";
 import TeamPreview from "./team-preview";
 import TopNav from "../shared/TopNav";
-export default function ProfileTeamContent() {
+import { TeamFromTeamId } from "@/schema/Teams";
+export default function ProfileTeamContent(props: {
+  data: TeamFromTeamId | undefined;
+}) {
   return (
     <div class="h-full w-full flex items-center justify-center">
       <Tabs defaultValue="team member" class="w-full">
@@ -54,24 +57,18 @@ export default function ProfileTeamContent() {
         </TabsContent>
         <TabsContent value="team member">
           <div class="flex flex-col gap-2 p-4">
-            <TeamPreview
-              memberName="Tina Duong"
-              imageUrl=""
-              description=""
-              userRole="Admin"
-            />
-            <TeamPreview
-              memberName="Tina Duong"
-              imageUrl=""
-              description=""
-              userRole="Admin"
-            />
-            <TeamPreview
-              memberName="Tina Duong"
-              imageUrl=""
-              description=""
-              userRole="Admin"
-            />
+            {props.data?.members.map((member) => {
+              return (
+                <TeamPreview
+                  memberName={`${member.firstName || ""} ${
+                    member.lastName || ""
+                  }`}
+                  imageUrl={member.photo || ""}
+                  description=""
+                  userRole={member.role || ""}
+                />
+              );
+            })}
           </div>
         </TabsContent>
       </Tabs>

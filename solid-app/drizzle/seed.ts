@@ -58,6 +58,8 @@ const seedData = async () => {
   const teamsData = {
     teamName: "Team Alpha",
     recipientId: recipients[0].id, // Adjust based on the recipient ID
+    photo:
+      "https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg",
   };
   await db.insert(Teams).values(teamsData).onConflictDoNothing();
 

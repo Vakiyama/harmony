@@ -1,5 +1,7 @@
-import { useLocation } from "@solidjs/router";
-import { createSignal } from "solid-js";
+import { createAsync, useLocation } from "@solidjs/router";
+import { createMemo, createSignal, Show } from "solid-js";
+import { getUser } from "~/api";
+import { getListOfTeams } from "~/api/team";
 import ProfileHeaderHome from "~/components/profile/profile-header-home";
 import ProfilePopover from "~/components/profile/profile-popover";
 import ProfileUserName from "~/components/profile/profile-user-name";
@@ -10,6 +12,10 @@ import TopNav from "~/components/shared/TopNav";
 export default function Profile() {
   const [isModalOpen, setIsModalOpen] = createSignal(false);
   const location = useLocation();
+  const user = createAsync(async () => await getUser(), { deferStream: true });
+  const teams = createAsync(async () => await getListOfTeams(), {
+    deferStream: true,
+  });
 
   const getHeader = () => {
     const path = location.pathname;
@@ -40,10 +46,13 @@ export default function Profile() {
     <>
       <div>{getHeader()}</div>
       <div class="relative p-4">
-        <ProfileUserName
-          userNameUrl="https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg"
-          userName="Tina Duong"
-        />
+        <Show when={user()}>
+          <ProfileUserName
+            photoUrl={user()?.photo}
+            firstName={user()?.firstName}
+            lastName={user()?.lastName}
+          />
+        </Show>
         <div class="flex flex-row justify-between mt-4 ">
           <h1 class="text-[24px]">Your teams</h1>
           <button
@@ -66,23 +75,18 @@ export default function Profile() {
           {/* <ProfilePopover /> */}
         </div>
         {/* Team Cards */}
-        <div class="w-full flex flex-wrap gap-3 justify-start mt-2">
-          <TeamCard
-            teamName="Lola's Care Team"
-            imageUrl="https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg"
-            href="/profile/specific-team-info"
-          />
-          <TeamCard
-            teamName="Tina's Team"
-            imageUrl="https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg"
-            href="/profile/specific-team-info"
-          />
-          <TeamCard
-            teamName="Tina's Team"
-            imageUrl="https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg"
-            href="/profile/specific-team-info"
-          />
-
+        <div class="w-full flex flex-wrap gap-3 justify-start mt-2 gap-x-4">
+          <Show when={teams()}>
+            {teams()?.map((team) => {
+              return (
+                <TeamCard
+                  teamName={team.team!.name || ""}
+                  imageUrl={team.team!.photo || ""}
+                  href={`/team/${team.team.id}`}
+                />
+              );
+            })}
+          </Show>
           {isModalOpen() && (
             <div
               class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]" //temporary z-60 to override navbar
