@@ -1,9 +1,37 @@
 import { A } from "@solidjs/router";
+import { For } from "solid-js";
+import { createStore } from "solid-js/store";
 import TextFieldLine from "~/components/shared/text-field-line";
 import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
 
-export default function UploadPhoto(props: { recipientName: string }) {
+const formFields = [
+  { name: "gender", label: "Gender", placeholder: "Gender" },
+  {
+    name: "prefered language",
+    label: "Prefered Language",
+    placeholder: "Language",
+  },
+  {
+    name: "lives with",
+    label: "Lives With",
+    placeholder: "Who do they live with?",
+  },
+  {
+    name: "employment",
+    label: "Employment",
+    placeholder: "Where is their current employment",
+  },
+];
+
+export default function UserInfo2(props: { recipientName: string }) {
+  const [formData, setFormData] = createStore({
+    gender: "",
+    language: "",
+    livesWith: "",
+    employment: "",
+  });
+
   return (
     <>
       <TeamTopNav backNavigation="/" cancelNavigation="/" />
@@ -16,19 +44,18 @@ export default function UploadPhoto(props: { recipientName: string }) {
           <p class="text-[30px] font-semi">
             Tell us about "User" {props.recipientName}
           </p>
-          <p class="text-[24px] mt-2">Contact Information</p>
-          <TextFieldLine
-            key=""
-            label="Phone Number"
-            placeholder="Phone Number"
-            classLabel="text-lg"
-          />
-          <TextFieldLine
-            key=""
-            label="Email"
-            placeholder="email@here.com"
-            classLabel="text-lg"
-          />
+          <p class="text-[24px] mt-2">Other Information</p>
+          <For each={formFields}>
+            {(field) => (
+              <TextFieldLine
+                key={field.name}
+                name={field.name}
+                label={field.label}
+                placeholder={field.placeholder}
+                classLabel="text-lg"
+              />
+            )}
+          </For>
         </div>
         {/* space */}
         <div class="flex-grow"></div>

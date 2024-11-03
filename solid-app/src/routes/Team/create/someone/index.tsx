@@ -16,7 +16,12 @@ export default function CreateSomeone() {
         {/* pick person to care */}
         <div class="px-2">
           <p class="text-[23px] font-semi">Who is receiving care?</p>
-          <TextFieldLine key="" label="" placeholder="Enter name" />
+          <TextFieldLine
+            key=""
+            name="recipient name"
+            label=""
+            placeholder="Enter name"
+          />
           <Button class="rounded-full w-full mt-4 bg-[#AE9BF2] text-black h-[50px]">
             Next
           </Button>

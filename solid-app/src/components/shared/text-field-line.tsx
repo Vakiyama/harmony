@@ -6,6 +6,7 @@ import {
 
 export default function TextFieldLine({
   key,
+  name,
   label,
   placeholder,
   value,
@@ -13,6 +14,7 @@ export default function TextFieldLine({
   classLabel,
 }: {
   key: string;
+  name: string;
   label: string;
   placeholder?: string;
   value?: string;
