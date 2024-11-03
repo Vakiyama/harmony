@@ -1,9 +1,10 @@
 import { A } from "@solidjs/router";
 import { onCleanup, onMount, useContext } from "solid-js";
 import TopNav from "~/components/shared/TopNav";
+import TeamTopNav from "~/components/team/team-top-nav";
 import { BottomNavContext } from "~/context/bottom-nav-provider";
 
-export default function CreateTeam() {
+export default function Create() {
   // const { setShowBottomNav } = useContext(BottomNavContext);
 
   // onMount(() => {
@@ -15,25 +16,12 @@ export default function CreateTeam() {
   // });
   return (
     <div class="relative flex flex-col min-h-screen">
-      {/* Header */}
-      <div class="w-full flex flex-row h-[95px] bg-white shadow-md">
-        <div class="w-full flex flex-row justify-between items-end px-4 mb-4">
-          <div class="flex items-center">
-            <a href="/">Back</a>
-          </div>
-          <div class="flex-1 flex justify-center">
-            <h4 class="text-md"></h4>
-          </div>
-          <div class="flex justify-end">
-            <a href="/" class="text-md">
-              Cancel
-            </a>
-          </div>
-        </div>
+      <TeamTopNav backNavigation="/" cancelNavigation="/" />
+
+      <div class="flex items-center justify-center mt-2">
+        <p class="text-xs text-gray-400">1 of 8</p>
       </div>
-      <div class="flex items-center justify-center">
-        <p class="mt-3 text-xs text-gray-500 items-center">1 or 8</p>
-      </div>
+
       {/* Space */}
       <div class="flex-grow"></div>
 
