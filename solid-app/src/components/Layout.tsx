@@ -8,7 +8,10 @@ import { BottomNavContext } from "~/context/bottom-nav-provider";
 const Layout: Component<{ children: JSXElement }> = (props) => {
   const location = useLocation();
   const { showBottomNav } = useContext(BottomNavContext);
-  const hideBottomNav = location.pathname.startsWith("/team/create");
+  const routesWithoutBottomNav = ["/team/create"];
+  const hideBottomNav = routesWithoutBottomNav.some((route) =>
+    location.pathname.startsWith(route)
+  );
 
   const renderTopNav = () => {
     if (location.pathname.startsWith("/landing")) {
