@@ -4,15 +4,15 @@ import TopNav from "~/components/shared/TopNav";
 import { BottomNavContext } from "~/context/bottom-nav-provider";
 
 export default function CreateTeam() {
-  const { setShowBottomNav } = useContext(BottomNavContext);
+  // const { setShowBottomNav } = useContext(BottomNavContext);
 
-  onMount(() => {
-    setShowBottomNav(false);
-  });
+  // onMount(() => {
+  //   setShowBottomNav(false);
+  // });
 
-  onCleanup(() => {
-    setShowBottomNav(true);
-  });
+  // onCleanup(() => {
+  //   setShowBottomNav(true);
+  // });
   return (
     <div class="relative flex flex-col min-h-screen">
       {/* Header */}
@@ -31,13 +31,17 @@ export default function CreateTeam() {
           </div>
         </div>
       </div>
+      <div class="flex items-center justify-center">
+        <p class="mt-3 text-xs text-gray-500 items-center">1 or 8</p>
+      </div>
+      {/* Space */}
       <div class="flex-grow"></div>
 
       {/* pick person to care */}
       <div class="px-2">
         <p class="text-[23px] font-semi">Who is receiving care?</p>
         <div class="relative items-center">
-          <div class="flex h-[70px] border-[1px] rounded-[15px] mt-3 relative items-center">
+          <div class="flex h-[70px] bg-[#E4DEFB] rounded-[15px] mt-3 relative items-center">
             <p class="pl-[20px] font-semi text-md justify-start">Me</p>
             <A
               href="/team/create/me"
@@ -60,7 +64,7 @@ export default function CreateTeam() {
         </div>
 
         <div class="relative items-center">
-          <div class="flex h-[70px] border-[1px] rounded-[15px] mt-3 relative items-center">
+          <div class="flex h-[70px] bg-[#E4DEFB] rounded-[15px] mt-3 relative items-center">
             <p class="pl-[20px] font-semi text-md">Someone Else</p>
             <A
               href="/team/create/someone"
@@ -82,6 +86,9 @@ export default function CreateTeam() {
           </div>
         </div>
       </div>
+
+      {/* Space for bottom */}
+      <div class="h-[32px]"></div>
     </div>
   );
 }
