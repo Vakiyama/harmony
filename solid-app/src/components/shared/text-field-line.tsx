@@ -9,15 +9,19 @@ export default function TextFieldLine({
   label,
   placeholder,
   value,
+  classRoot,
+  classLabel,
 }: {
   key: string;
   label: string;
   placeholder?: string;
   value?: string;
+  classRoot?: string;
+  classLabel?: string;
 }) {
   return (
-    <TextFieldRoot class="space-y-2 mt-3">
-      <TextFieldLabel>{label}</TextFieldLabel>
+    <TextFieldRoot class={`space-y-2 mt-5 ${classRoot || ""}`}>
+      <TextFieldLabel class={`${classLabel}`}>{label}</TextFieldLabel>
       <TextField placeholder={placeholder} value={value} />
     </TextFieldRoot>
   );
