@@ -9,7 +9,7 @@ export default function CreateSomeone() {
       <TeamTopNav backNavigation="/" cancelNavigation="/" />
 
       <div class="flex items-center justify-center mt-2">
-        <p class="text-xs text-gray-400">1 of 8</p>
+        <p class="text-xs text-gray-400">2 of 8</p>
       </div>
 
       {/* Space */}
@@ -19,7 +19,7 @@ export default function CreateSomeone() {
       <div class="px-2">
         <p class="text-[23px] font-semi">Who is receiving care?</p>
         <TextFieldLine key="" label="" placeholder="Enter name" />
-        <Button class="rounded-full w-full mt-4 bg-[#AE9BF2] text-black">
+        <Button class="rounded-full w-full mt-4 bg-[#AE9BF2] text-black h-[50px]">
           Next
         </Button>
       </div>
