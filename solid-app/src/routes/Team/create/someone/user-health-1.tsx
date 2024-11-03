@@ -28,7 +28,7 @@ const formFields = [
   },
 ];
 
-export default function UserHealth(props: { recipientName: string }) {
+export default function UserHealth1(props: { recipientName: string }) {
   const [formData, setFormData] = createStore({
     healthyCondition: "",
     allergies: "",
