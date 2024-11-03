@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   safelist: [
-    "bg-notesIconBackground", 
+    "bg-notesIconBackground",
     "bg-notesBackground",
     "bg-sleepIconBackground",
     "bg-sleepBackground",
@@ -10,14 +10,14 @@ module.exports = {
     "bg-moodBackground",
     "bg-moodIconBackground",
     "bg-nutritionBackground",
-    "bg-nutritionIconBackground"
+    "bg-nutritionIconBackground",
   ],
   darkMode: ["class", '[data-kb-theme="dark"]'],
   content: ["src/routes/**/*.{ts,tsx}", "src/components/**/*.{ts,tsx}"],
   prefix: "",
   theme: {
     fontFamily: {
-      grotesque: ["ES Rebond", "sans-serif"]
+      grotesque: ["ES Rebond", "sans-serif"],
     },
     container: {
       center: true,
@@ -40,9 +40,10 @@ module.exports = {
         h3: "23px",
         h4: "19px",
         subtitle: "11px",
+        subtitle13: "13px",
       },
       width: {
-        "368": "368px",
+        368: "368px",
       },
       colors: {
         border: "hsl(var(--border))",
@@ -80,6 +81,7 @@ module.exports = {
         },
         lofiGray: "#D9D9D9",
         black50: "rgb(30,30,30, 0.5)",
+        black75: "rgb(30,30,30, 0.75)",
         "primary-purple-500": "#7859EA",
         notesIconBackground: "#4E412B",
         notesBackground: "#FCEFB4",
@@ -90,10 +92,9 @@ module.exports = {
         moodBackground: "#FFE6EF",
         moodIconBackground: "#761739",
         nutritionBackground: "#D4EFCA",
-        nutritionIconBackground: "#19370E"
-        
+        nutritionIconBackground: "#19370E",
       },
-    
+
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
@@ -122,7 +123,7 @@ module.exports = {
           "20%,50%": { opacity: "0" },
         },
       },
-  
+
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",

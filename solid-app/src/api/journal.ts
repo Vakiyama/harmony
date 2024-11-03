@@ -33,6 +33,8 @@ import { sessionManager } from "./kinde";
 import { medications } from "../../drizzle/schema/Medications";
 import { TeamMembers } from "../../drizzle/schema/TeamMembers";
 import { Users } from "../../drizzle/schema/Users";
+import { Teams } from "../../drizzle/schema/Teams";
+import { Recipients } from "../../drizzle/schema/Recipients";
 
 const teamId = 1; //temporary
 const mapQuality = (value: number) => {
@@ -89,19 +91,21 @@ export const createTakenMedicationAction = action(
     if (!medication) {
       return { error: "Please select a medication" };
     }
-    // const medicationId = parseInt(formData.get("medicationId") as string) || -1;
     const medicationType = formData.get("medicationType") as string;
     const note = formData.get("note") as string;
     let date: string | Date = formData.get("date") as string;
     const time = formData.get("time") as string;
     let noteId: number | null = null;
-
+    console.log(medication, medicationType);
     const [medicationError, medicationResult] = await mightFail(
       db
         .select()
         .from(medications)
         .where(
-          and(eq(medications.name, medication), eq(medications.teamId, teamId)) //temporary, modify to use id later
+          and(
+            eq(medications.id, parseInt(medication)),
+            eq(medications.teamId, teamId)
+          )
         )
     );
     if (medicationError || !medicationResult.length) {
@@ -477,6 +481,7 @@ export const getJournalsFromTeamId = async (
       .leftJoin(Users, eq(moods.userId, Users.id))
       .leftJoin(notes, eq(moods.noteId, notes.id))
       .where(eq(moods.teamId, teamId))
+      .orderBy(desc(moods.createdAt))
   );
   if (moodsError) {
     return undefined;
@@ -503,11 +508,17 @@ export const getJournalsFromTeamId = async (
         note: {
           note: notes.note,
         },
+        recipient: {
+          firstName: Recipients.firstName,
+        },
       })
       .from(meals)
       .leftJoin(Users, eq(meals.userId, Users.id))
       .leftJoin(notes, eq(meals.noteId, notes.id))
+      .leftJoin(Teams, eq(meals.teamId, Teams.id))
+      .leftJoin(Recipients, eq(Teams.recipientId, Recipients.id))
       .where(eq(meals.teamId, teamId))
+      .orderBy(desc(meals.createdAt))
   );
   if (mealsError) {
     return undefined;
@@ -533,11 +544,17 @@ export const getJournalsFromTeamId = async (
         note: {
           note: notes.note,
         },
+        recipient: {
+          firstName: Recipients.firstName,
+        },
       })
       .from(sleeps)
       .leftJoin(Users, eq(sleeps.userId, Users.id))
       .leftJoin(notes, eq(sleeps.noteId, notes.id))
+      .leftJoin(Teams, eq(sleeps.teamId, Teams.id))
+      .leftJoin(Recipients, eq(Teams.recipientId, Recipients.id))
       .where(eq(sleeps.teamId, teamId))
+      .orderBy(desc(sleeps.createdAt))
   );
   if (sleepsError) {
     return undefined;
@@ -560,6 +577,7 @@ export const getJournalsFromTeamId = async (
       .from(notes)
       .leftJoin(Users, eq(notes.userId, Users.id))
       .where(and(eq(notes.teamId, teamId), eq(notes.category, "general")))
+      .orderBy(desc(notes.createdAt))
   );
   if (notesError) {
     return undefined;

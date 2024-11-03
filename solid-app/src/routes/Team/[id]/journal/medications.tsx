@@ -12,6 +12,7 @@ import SelectInput from "~/components/shadcn/Select";
 import TimePicker from "~/components/ui/time-picker";
 import { Medications } from "@/schema/Medications";
 import { showNotification } from "~/routes/api/notificationStore";
+import DatePickerComponent from "~/components/shadcn/DatePicker";
 
 export default function Medication() {
   const medications = createAsync(
@@ -30,10 +31,6 @@ export default function Medication() {
       : [];
   };
   const medicationOptions = createMemo(() => formatOptions(medications()));
-  const [selectedMedication, setSelectedMedication] =
-    createSignal<string>("Omeprazole");
-
-  const medicationKeysDebug = ["Omeprazole", "Azithromycin", "Metformin"];
 
   const myAction = useAction(createTakenMedicationAction);
   type CreateMedicationActionResponse = {
@@ -103,22 +100,7 @@ export default function Medication() {
               name="medication"
               class="w-full p-1 rounded-lg py-6 ps-4 "
               placeholder="Selection a medication"
-              options={
-                [
-                  {
-                    value: "Omeprazole",
-                    label: "Omeprazole",
-                  },
-                  {
-                    value: "Azithromycin",
-                    label: "Azithromycin",
-                  },
-                  {
-                    value: "Metformin",
-                    label: "Metformin",
-                  },
-                ] as const
-              }
+              options={medicationOptions()}
               setSelectedOption={() => {}}
             />
             <label>Medication Type</label>
@@ -126,34 +108,14 @@ export default function Medication() {
               name="medicationType"
               class="w-full p-1 rounded-lg py-6 ps-4 "
               placeholder="Select a medication type"
-              options={
-                [
-                  {
-                    value: "Pill",
-                    label: "Pill",
-                  },
-                  {
-                    value: "Capsule",
-                    label: "Capsule",
-                  },
-                  {
-                    value: "Tablet",
-                    label: "Tablet",
-                  },
-                ] as const
-              }
-              setSelectedOption={() => {}}
+              options={medicationTypes}
+              setSelectedOption={() => undefined}
             />
           </div>
           <div class="flex flex-col gap-2 justify-center">
             <label class="text-h4">Date & Time Taken</label>
             <div class="flex flex-row gap-2 items-center">
-              {/*<DatePickerComponent />*/}
-              <input
-                name="date"
-                type="date"
-                class="border border-black50 border-1 rounded p-2 w-full"
-              />
+              <DatePickerComponent />
               <TimePicker time={time} setTime={setTime} name="time" />
             </div>
           </div>

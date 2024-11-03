@@ -77,6 +77,7 @@ export default function NutritionTracker() {
               <label>Meal Type</label>
               <SelectInput
                 options={["Breakfast", "Lunch", "Dinner", "Snack"]}
+                setSelectedOption={() => undefined}
                 placeholder="Select Meal Type"
                 name="category"
               />
@@ -106,6 +107,7 @@ export default function NutritionTracker() {
                 "More than half",
                 "All",
               ]}
+              setSelectedOption={() => undefined}
               placeholder="Select Amount Eaten"
               name="consumption"
             />
