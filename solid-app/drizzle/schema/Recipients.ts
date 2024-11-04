@@ -18,3 +18,6 @@ export const Recipients = sqliteTable("recipients", {
 });
 
 export type Recipient = typeof Recipients.$inferSelect;
+export type AttachedRecipient = {
+  firstName: Recipient["firstName"];
+};

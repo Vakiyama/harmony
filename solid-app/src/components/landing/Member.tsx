@@ -26,9 +26,9 @@ export default function Member(props: { member: AttachedUser | null }) {
   }
 
   return (
-    <div class="flex flex-row gap-x-2 items-center mb-4">
+    <div class="flex flex-row gap-x-2 items-center">
       <div>
-        <ImageRoot class="flex items-center justify-center h-12 w-12 bg-black-300 rounded-full overflow-hidden">
+        <ImageRoot class="flex items-center justify-center h-[30px] w-[30px] bg-black-300 rounded-full overflow-hidden">
           <Image
             src={props.member.photo || ""}
             alt={`${props.member.firstName} ${props.member.lastName}`}
@@ -40,10 +40,10 @@ export default function Member(props: { member: AttachedUser | null }) {
         </ImageRoot>
       </div>
       <div>
-        <p class="text-sm font-semibold">
+        <p class="text-subtitle13 font-semibold">
           {props.member.firstName} {props.member.lastName}
         </p>
-        <p class="text-xs text-neutral-400">Granddaughter</p>
+        <p class="text-subtitle text-black50">Granddaughter</p>
       </div>
     </div>
   );
