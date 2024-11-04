@@ -231,6 +231,16 @@ export const createTakenMedicationAction = action(
     if (!medicationId) {
       return { error: "Please enter a medication name" };
     }
+    const takenOrMissed = formData.get("takenOrMissed") as string;
+    if (!takenOrMissed) {
+      return {
+        error: "Please select whether or not they had taken their medication.",
+      };
+    }
+    let hasMissed = false;
+    if (takenOrMissed === "Missed") {
+      hasMissed = true;
+    }
 
     if (!date) {
       return { error: "Please select a date" };
@@ -265,6 +275,7 @@ export const createTakenMedicationAction = action(
       medicationId,
       teamId,
       userId,
+      hasMissed,
       type: medicationType,
     };
 
@@ -296,6 +307,7 @@ export const getTakenMedicationById = async (takenMedicationId: number) => {
         createdAt: takenMedications.createdAt,
         updatedAt: takenMedications.updatedAt,
         type: takenMedications.type,
+        hasMissed: takenMedications.hasMissed,
         note: {
           note: notes.note,
         },
@@ -375,6 +387,16 @@ export const updateTakenMedicationAction = action(
     if (!medicationId) {
       return { error: "Please enter a medication name" };
     }
+    const takenOrMissed = formData.get("takenOrMissed") as string;
+    if (!takenOrMissed) {
+      return {
+        error: "Please select whether or not they had taken their medication.",
+      };
+    }
+    let hasMissed = false;
+    if (takenOrMissed === "Missed") {
+      hasMissed = true;
+    }
 
     if (!date) {
       return { error: "Please select a date" };
@@ -453,6 +475,7 @@ export const updateTakenMedicationAction = action(
     const medicationInput = {
       ...(noteId ? { noteId } : {}),
       date,
+      hasMissed,
       medicationId,
       type: medicationType,
       updatedAt: new Date(Date.now()),
@@ -1115,8 +1138,8 @@ export const createSleepAction = action(async (formData: FormData) => {
     return { error: "Insufficient Permissions" };
   }
   const duration = formData.get("duration") as string;
-  const troubleSleepingResponse = formData.get("troubleSleeping") as string;
   let date: string | Date = formData.get("date") as string;
+  const troubleSleepingResponse = formData.get("troubleSleeping") as string;
   const note = formData.get("note") as string;
   const timeFrame = formData.get("timeFrame") as string;
   const qualityInput = parseInt(formData.get("quality") as string);
@@ -1444,6 +1467,7 @@ export const getJournalsFromTeamId = async (
         createdAt: takenMedications.createdAt,
         updatedAt: takenMedications.updatedAt,
         type: takenMedications.type,
+        hasMissed: takenMedications.hasMissed,
         user: {
           id: Users.id,
           firstName: Users.firstName,

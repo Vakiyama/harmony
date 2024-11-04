@@ -148,6 +148,14 @@ const LandingContent = () => {
                   }
                   sections={[
                     {
+                      title: "Taken or Skipped?",
+                      content: (
+                        <p class="text-subtitle">
+                          {med.hasMissed ? "Missed" : "Taken"}
+                        </p>
+                      ),
+                    },
+                    {
                       title: "Selected Medication",
                       content: (
                         <p class="text-subtitle">{med.medications!.name}</p>

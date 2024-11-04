@@ -140,12 +140,16 @@ export default function Medication() {
         >
           <ShowError error={error()}></ShowError>
           <div class="flex flex-col gap-5 text-h4">
-            <RadioGroupComponent
-              id="takenOrMissed"
-              name="takenOrMissed"
-              options={["Taken", "Missed"]}
-              defaultValue="Taken"
-            />
+            <Show when={(isEditing() && entry()) || !isEditing()}>
+              <RadioGroupComponent
+                id="takenOrMissed"
+                name="takenOrMissed"
+                options={["Taken", "Missed"]}
+                defaultValue={
+                  entry() ? (entry()?.hasMissed ? "Missed" : "Taken") : "Taken"
+                }
+              />
+            </Show>
             <Show
               when={
                 (isEditing() && med()) || (!isEditing() && medicationOptions())
