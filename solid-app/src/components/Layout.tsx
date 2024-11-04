@@ -9,14 +9,14 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
   const renderTopNav = () => {
     if (location.pathname.startsWith("/landing")) {
       return <LandingHeader />;
-    } else if (location.pathname.startsWith("/profile")) {
-      return (
-        <TopNav
-          name="Lola's Care Circle"
-          leftNavigation="Back"
-          rightNavigation=""
-        />
-      );
+      // } else if (location.pathname.startsWith("/profile")) {
+      //   return (
+      //     <TopNav
+      //       name="Lola's Care Circle"
+      //       leftNavigation="Back"
+      //       rightNavigation=""
+      //     />
+      //   );
     } else if (location.pathname.startsWith("/team/1/journal/")) {
       return (
         <TopNav
