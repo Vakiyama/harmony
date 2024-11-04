@@ -174,12 +174,14 @@ export default function EventPage() {
           <div>
             <div class="flex flex-col space-y-1">
               <hr class="border-t border-[#1e1e1e]/20" />
-              <h2 class="text-[#1e1e1e] text-lg font-medium">Notes</h2>
-              <div class="bg-[#f9f9f9] rounded-md p-2 text-[#1e1e1e]/50 text-base leading-tight">
+              <h2 class="text-[#1e1e1e] text-lg font-medium font-grotesque">
+                Notes
+              </h2>
+              <div class=" text-[#1e1e1e]/50 text-base leading-tight font-sf-pro">
                 {event()?.notes}
               </div>
             </div>
-            <div class="flex justify-end space-x-4 bg-[#fcfcfc] border-t border-[#1e1e1e] p-3">
+            <div class="flex justify-end space-x-4 bg-[#fcfcfc] border-t border-[#1e1e1e]/20 p-3 mt-5">
               {["Yes", "No", "Maybe"].map((response) => (
                 <button class="bg-[#1e1e1e]/20 rounded-full px-4 py-2 text-[#1e1e1e] text-lg font-medium">
                   {response}
