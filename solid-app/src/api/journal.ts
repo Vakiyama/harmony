@@ -404,10 +404,20 @@ export const updateTakenMedicationAction = action(
     if (note !== undefined) {
       if (oldEntryResult.noteId) {
         if (note.length === 0) {
+          const [removeError, removeResult] = await mightFail(
+            db
+              .update(takenMedications)
+              .set({ noteId: null })
+              .where(eq(takenMedications.id, takenMedicationId))
+          );
+          if (removeError) {
+            return { error: "failed to detach note" };
+          }
           const [delError, delResult] = await mightFail(
             db.delete(notes).where(eq(notes.id, oldEntryResult.noteId))
           );
           if (delError) {
+            console.log(delError);
             return { error: "Failed to update note." };
           }
         } else {
@@ -452,7 +462,10 @@ export const updateTakenMedicationAction = action(
     };
 
     const [takenMedicationError, takenMedicationResult] = await mightFail(
-      db.insert(takenMedications).values(medicationInput)
+      db
+        .update(takenMedications)
+        .set(medicationInput)
+        .where(eq(takenMedications.id, takenMedicationId))
     );
     if (takenMedicationError) {
       console.error("Database insertion error:", takenMedicationError);
