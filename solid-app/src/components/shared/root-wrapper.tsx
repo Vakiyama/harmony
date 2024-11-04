@@ -6,7 +6,13 @@ function RootWrapper(props: ParentProps) {
   const content = children(() => props.children);
   return (
     <div
-      class={location.pathname.startsWith("/harmony-ai") ? "h-full border" : ""}
+      class={
+        ["harmony-ai", "calendar"].filter((path) =>
+          location.pathname.includes(path)
+        ).length !== 0
+          ? "h-full border"
+          : ""
+      }
     >
       {content()}
     </div>
