@@ -16,15 +16,6 @@ const userRole = [
   },
 ];
 export default function TeamUserRole() {
-  // const { setShowBottomNav } = useContext(BottomNavContext);
-
-  // onMount(() => {
-  //   setShowBottomNav(false);
-  // });
-
-  // onCleanup(() => {
-  //   setShowBottomNav(true);
-  // });
   return (
     <div class="relative flex flex-col min-h-screen">
       <TeamTopNav backNavigation="/" cancelNavigation="/" />
