@@ -5,7 +5,7 @@ import TeamTopNav from "~/components/team/team-top-nav";
 import UserType from "~/components/team/user-type";
 import { BottomNavContext } from "~/context/bottom-nav-provider";
 
-export default function Create() {
+export default function UserTypePick() {
   // const { setShowBottomNav } = useContext(BottomNavContext);
 
   // onMount(() => {
@@ -29,12 +29,12 @@ export default function Create() {
       {/* pick person to care */}
       <div class="px-2">
         <p class="text-[23px] font-semi">Who is receiving care?</p>
-        <UserType name="Me" link="team/create/me" />
-        <UserType name="Someone Else" link="team/create/someone" />
+        <UserType name="I work in healthcare a setting" link="" />
+        <UserType name="I am a family, friend, or neighbour" link="" />
+        <UserType name="I play another role" link="" />
+        {/* Space for bottom */}
+        <div class="h-[32px]"></div>
       </div>
-
-      {/* Space for bottom */}
-      <div class="h-[32px]"></div>
     </div>
   );
 }
