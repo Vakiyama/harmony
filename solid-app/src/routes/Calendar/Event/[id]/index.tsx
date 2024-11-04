@@ -53,7 +53,7 @@ export default function EventPage() {
 
   return (
     <Show when={event()}>
-      <EventDetailsTopNav />
+      <EventDetailsTopNav eventType={event()?.type!} />
       <div class="h-full flex flex-col p-4 justify-between">
         <div class="flex flex-col gap-3">
           <div class="flex flex-col gap-1 ">
