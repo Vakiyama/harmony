@@ -1,4 +1,4 @@
-export default function HealthCareRoleComponent({
+export default function UserRole({
   key,
   role,
   onClick,

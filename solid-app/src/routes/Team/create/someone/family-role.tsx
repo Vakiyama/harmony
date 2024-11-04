@@ -4,19 +4,15 @@ import TeamTopNav from "~/components/team/team-top-nav";
 import UserRole from "~/components/team/user-role";
 
 const healthcareRoles = [
-  "Nurse(LPN/LVN)",
-  "Nurse(RN)",
-  "Program Director",
-  "Occupational Therapist",
-  "Physical Therapist",
-  "Therapy Aide",
-  "Program Assistant",
-  "Activities Coordinator",
-  "Social Worker",
-  "Physician",
-  "Nurse(NP)",
-  "Physical Assistant",
-  "Medical Assistant",
+  "Spouse",
+  "Daughter",
+  "Son",
+  "Brother",
+  "Sister",
+  "Granddaughter",
+  "Grandson",
+  "Niece",
+  "Nephew",
   "Other",
 ];
 export default function HealthCareRole() {
