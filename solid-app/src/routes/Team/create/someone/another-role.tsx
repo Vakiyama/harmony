@@ -13,7 +13,6 @@ export default function AnotherRole() {
         </div>
         {/* Space */}
         <div class="flex-grow"></div>
-        {/* pick person to care */}
         <div class="px-2">
           <p class="text-[23px] font-semi">Please Specify</p>
           <TextFieldLine
