@@ -1,4 +1,4 @@
-import { useLocation } from "@solidjs/router";
+import { useLocation, useParams } from "@solidjs/router";
 import { createMemo, For } from "solid-js";
 import HarmonyIcon from "~/components/icon/harmony-icon";
 import NavBarItem from "./nav-bar-item";
@@ -11,12 +11,17 @@ import { twMerge } from "tailwind-merge";
 export default function NavBar() {
   const location = useLocation();
   const currentPath = createMemo(() => location.pathname);
+  const params = useParams();
 
   const routes = [
     { icon: <HomeIcon />, label: "Home", href: "/landing" },
     { icon: <CalendarIcon />, label: "Calendar", href: "/calendar" },
     { icon: <HarmonyIcon />, label: "Harmony", href: "/harmony-ai/chat" },
-    { icon: <JournalIcon />, label: "Journal", href: "/team/1/journal" }, //Temporary
+    {
+      icon: <JournalIcon />,
+      label: "Journal",
+      href: `/team/${params.id}/journal`,
+    },
     { icon: <ProfileIcon />, label: "Profile", href: "/profile" },
   ];
 
@@ -24,7 +29,10 @@ export default function NavBar() {
     <nav
       class={twMerge(
         "fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-md z-50",
-        currentPath().includes("/harmony-ai/") ? "hidden" : ""
+        currentPath().includes("/harmony-ai/") ||
+          currentPath().includes(`/team/${params.id}/journal/`)
+          ? "hidden"
+          : ""
       )}
     >
       <div class="max-w-screen-lg mx-auto px-4">

@@ -5,9 +5,12 @@ import { db } from "./db";
 import { medications } from "../../drizzle/schema/Medications";
 import { isMemberOfTeam } from "./dbHelper";
 import { getUserIdFromSession } from "./server";
+import { and, eq } from "drizzle-orm";
+import { TeamFromTeamId, Teams } from "../../drizzle/schema/Teams";
+import { Users } from "../../drizzle/schema/Users";
 import { Recipients } from "../../drizzle/schema/Recipients";
-import { eq } from "drizzle-orm";
-import { Teams } from "../../drizzle/schema/Teams";
+import { getMedicationsFromTeamId } from "./journal";
+import { TeamMembers } from "../../drizzle/schema/TeamMembers";
 
 export const createMedicationAction = action(async (formData: FormData) => {
   "use server";
@@ -102,4 +105,96 @@ export const getRecipientName = async (teamId: number) => {
     return undefined;
   }
   return recipientResult;
+};
+
+export const getListOfTeams = async () => {
+  "use server";
+  const manager = await sessionManager();
+  const session = await manager.getSession();
+  const userId: number = session.data.userId;
+  if (!userId) {
+    return [];
+  }
+  console.log(userId);
+  const [teamsError, teamsResult] = await mightFail(
+    db
+      .select({
+        team: {
+          id: TeamMembers.teamId,
+          name: Teams.teamName,
+          photo: Teams.photo,
+        },
+      })
+      .from(TeamMembers)
+      .leftJoin(Teams, eq(TeamMembers.teamId, Teams.id))
+      .where(eq(TeamMembers.userId, userId))
+  );
+  console.log(teamsResult);
+  if (teamsError || !teamsResult.length) {
+    return [];
+  }
+  return teamsResult;
+};
+
+export const getTeamFromTeamId = async (teamId: number) => {
+  "use server";
+  const manager = await sessionManager();
+  const session = await manager.getSession();
+  const userId: number = session.data.userId;
+  if (!userId) {
+    return undefined;
+  }
+
+  //validate user is a member of the team
+  const [memberError, memberResult] = await mightFail(
+    db
+      .select()
+      .from(TeamMembers)
+      .where(
+        and(eq(TeamMembers.userId, userId), eq(TeamMembers.teamId, teamId))
+      )
+  );
+  if (memberError || !memberResult.length) {
+    memberError ? console.error(memberError) : "";
+    return undefined;
+  }
+
+  const [teamError, teamResult] = await mightFail(
+    db
+      .select()
+      .from(Teams)
+      .leftJoin(Recipients, eq(Teams.recipientId, Recipients.id))
+      .where(eq(Teams.id, teamId))
+      .then((res) => res[0])
+  );
+  if (teamError || !teamResult) {
+    teamError ? console.error(teamError) : "";
+    return undefined;
+  }
+  const [teamMembersError, teamMembersResult] = await mightFail(
+    db
+      .select({
+        id: Users.id,
+        photo: Users.photo,
+        firstName: Users.firstName,
+        lastName: Users.lastName,
+        role: TeamMembers.role,
+      })
+      .from(TeamMembers)
+      .leftJoin(Users, eq(TeamMembers.userId, Users.id))
+      .where(eq(TeamMembers.teamId, teamId))
+  );
+  if (teamMembersError || !teamMembersResult) {
+    teamMembersError ? console.error(teamMembersError) : "";
+    return undefined;
+  }
+  console.log(teamResult);
+  const medications = await getMedicationsFromTeamId(teamId);
+  const data: TeamFromTeamId = {
+    data: teamResult,
+    members: teamMembersResult,
+    medications,
+  };
+
+  return data;
 };
