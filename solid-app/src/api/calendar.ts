@@ -157,6 +157,7 @@ export const getEventParticipants = async (eventId: number) => {
     .select({
       participant: Users,
       status: eventParticipants.status,
+      eventParticipantId: eventParticipants.id,
       role: TeamMembers.role,
     })
     .from(eventParticipants)
@@ -176,6 +177,14 @@ export const createEventParticipant = async (
     .values({ eventId, userId })
     .returning();
   return newEventParticipant;
+};
+
+export const deleteEventParticipant = async (eventParticipantId: number) => {
+  "use server";
+  await db
+    .delete(eventParticipants)
+    .where(eq(eventParticipants.id, eventParticipantId))
+    .execute();
 };
 
 export const getEventsWithUserId = async (

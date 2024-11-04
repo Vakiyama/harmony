@@ -159,12 +159,11 @@ const CalendarCreateEvent = () => {
           }
           setSelectedOption={setRepeat}
         />
-        <p class="text-lg font-semibold">Invitee</p>
+        <p class="text-lg font-semibold">Person</p>
 
         <SelectMultipleInput
           class="w-full p-1 rounded-lg py-6 ps-4 "
           placeholder="Person"
-          multiple={true}
           options={teamMemberOptions()}
           setSelectedOptions={setTeamMemberIds}
         />

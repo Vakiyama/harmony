@@ -4,6 +4,7 @@ import ModalOption from "~/components/shared/modal-option";
 export default function UpdateEventModal(props: {
   onClose?: () => void;
   children: JSX.Element;
+  update: () => void;
 }) {
   const handleClose = () => {
     if (props.onClose) {
@@ -20,7 +21,7 @@ export default function UpdateEventModal(props: {
         class="flex flex-col w-full bg-white rounded-t-[50px] p-[22px] items-center gap-2 z-10"
         onClick={(e) => e.stopPropagation()}
       >
-        <button class="flex items-center mb-3 z-10" onClick={handleClose}>
+        <button class="flex mb-3 z-10" onClick={handleClose}>
           <svg
             width="122"
             height="2"
@@ -45,7 +46,10 @@ export default function UpdateEventModal(props: {
           <p class="text-[#1e1e1e] text-[19px] font-medium font-grotesque leading-[22.80px]">
             Editing Details
           </p>
-          <button class="text-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
+          <button
+            class="text-[#1e1e1e] text-base font-normal font-sf-pro leading-tight"
+            onclick={props.update}
+          >
             Done
           </button>
         </div>

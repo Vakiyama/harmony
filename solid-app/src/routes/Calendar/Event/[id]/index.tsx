@@ -1,5 +1,6 @@
-import { createAsync, useParams } from "@solidjs/router";
+import { createAsync, useNavigate, useParams } from "@solidjs/router";
 import {
+  createMemo,
   createResource,
   createSignal,
   For,
@@ -7,7 +8,15 @@ import {
   Show,
   Switch,
 } from "solid-js";
-import { getEvent, getEventParticipants } from "~/api/calendar";
+import {
+  createEventParticipant,
+  deleteEvent,
+  deleteEventParticipant,
+  getEvent,
+  getEventParticipants,
+  getTeamMembersFromTeamId,
+  updateEvent,
+} from "~/api/calendar";
 import { FaSolidAngleDown } from "solid-icons/fa";
 import { formatDateToLongForm } from "~/lib/formateDateLocal";
 import BsQuestionCircleFill from "~/components/svg/BsQuestionCircleFill";
@@ -15,15 +24,30 @@ import IoCheckmarkCircle from "~/components/svg/IoCheckmarkCircle";
 import FaSolidCircleXmark from "~/components/svg/FaSolidCircleXmark";
 import EventDetailsTopNav from "~/components/calendar/calendar-detail-top-nav";
 import FaSolidLocationDot from "~/components/icon/location-icon";
-import UpdateEventModal from "../update-modal";
+import UpdateEventModal from "./update-modal";
 import placeholder from "./placeholder.png";
 import TextInput from "../../Create/TextInput";
+import SelectInput from "~/components/shadcn/Select";
+import { TeamMember } from "@/schema/TeamMembers";
+import { User } from "@/schema/Users";
+import SelectMultipleInput from "~/components/shadcn/MultiSelect";
+import TextArea from "../../Create/TextAreaInput";
+import { mightFail } from "might-fail";
+
 export default function EventPage() {
   const params = useParams();
+  const navigate = useNavigate();
 
-  const event = createAsync(async () => await getEvent(parseInt(params.id)), {
-    deferStream: true,
-  });
+  const event = createAsync(
+    async () => await getEvent(parseInt(params.id)),
+    {}
+  );
+  const teamMembers = createAsync(
+    // temp get teamId first
+    async () => await getTeamMembersFromTeamId(1),
+    { deferStream: true }
+  );
+
   const [participants] = createResource(async () => {
     const response = await getEventParticipants(parseInt(params.id));
     return response;
@@ -31,10 +55,33 @@ export default function EventPage() {
 
   const [isTeamMembersOpen, setIsTeamMembersOpen] = createSignal(false);
   const [isModalOpen, setIsModalOpen] = createSignal(false);
-  const [title, setTitle] = createSignal(event()?.title!);
-  const [location, setLocation] = createSignal(event()?.location!);
+  const [title, setTitle] = createSignal(event()?.title ?? "");
+  const [location, setLocation] = createSignal(event()?.location ?? "");
+  const [repeat, setRepeat] = createSignal<
+    "never" | "daily" | "weekly" | "monthly"
+  >(event()?.repeat ?? "never");
+  const [teamMemberIds, setTeamMemberIds] = createSignal<number[]>(
+    participants()?.map((p) => p.participant.id) ?? []
+  );
+  const [notes, setNotes] = createSignal(event()?.notes ?? "");
 
-  const handleButtonClick = () => {
+  const parseTeamMemberToOption = (
+    data: { teammembers: TeamMember; users: User }[] | undefined
+  ) =>
+    data
+      ? data.map((data) => {
+          return {
+            value: data.teammembers.userId,
+            label: data.users.displayName,
+          };
+        })
+      : [];
+
+  const teamMemberOptions = createMemo(() =>
+    parseTeamMemberToOption(teamMembers())
+  );
+
+  const openModal = () => {
     setIsModalOpen((prev) => !prev);
   };
 
@@ -46,6 +93,59 @@ export default function EventPage() {
     if (e.target === e.currentTarget) {
       closeModal();
     }
+  };
+
+  const handleDeleteEvent = async () => {
+    const [deleteEventError, deleteEventResult] = await mightFail(
+      deleteEvent(event()?.id!)
+    );
+    if (deleteEventError) {
+      return console.error(deleteEventError);
+    }
+    navigate("/calendar");
+  };
+
+  const handleUpdateEvent = async () => {
+    console.log("help");
+    const [updateEventError, updateEventResult] = await mightFail(
+      updateEvent(event()?.id!, {
+        location: location(),
+        notes: notes(),
+        repeat: repeat(),
+        title: title(),
+      })
+    );
+    if (updateEventError) {
+      return console.error(updateEventError);
+    }
+
+    const deletedMembers =
+      participants()
+        ?.map((p) => p.eventParticipantId)
+        .filter((id) => !teamMemberIds().includes(id)) ?? [];
+
+    for (const deletedMember of deletedMembers) {
+      const [deletedMemberError, deletedMemberResult] = await mightFail(
+        deleteEventParticipant(deletedMember)
+      );
+      if (deletedMemberError) {
+        return console.error(deletedMemberError);
+      }
+    }
+    const newMembers =
+      participants()
+        ?.map((p) => p.participant.id)
+        .filter((id) => teamMemberIds().includes(id)) ?? [];
+
+    for (const newMember of newMembers) {
+      const [newMemberError, newMemberResult] = await mightFail(
+        createEventParticipant(event()?.id!, newMember)
+      );
+      if (newMemberError) {
+        return console.error(newMemberError);
+      }
+    }
+    console.log("kasjd");
   };
 
   const statusCount = {
@@ -72,10 +172,7 @@ export default function EventPage() {
 
   return (
     <Show when={event()}>
-      <EventDetailsTopNav
-        eventType={event()?.type!}
-        setModalOpen={handleButtonClick}
-      />
+      <EventDetailsTopNav eventType={event()?.type!} setModalOpen={openModal} />
       <div class="h-full flex flex-col p-4 justify-between">
         <div class="flex flex-col gap-3">
           <div class="flex flex-col gap-1 ">
@@ -217,19 +314,67 @@ export default function EventPage() {
             class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]" //temp z-60 to override navbar
             onClick={handleBackdropClick}
           >
-            <UpdateEventModal onClose={closeModal}>
-              <TextInput
-                label="Title"
-                placeholder="Title"
-                value={title}
-                setValue={setTitle}
+            <UpdateEventModal onClose={closeModal} update={handleUpdateEvent}>
+              <div class="w-full flex flex-col gap-2">
+                <TextInput
+                  label="Title"
+                  placeholder="Title"
+                  value={title}
+                  setValue={setTitle}
+                />
+                <TextInput
+                  label="Location"
+                  placeholder="Location"
+                  setValue={setLocation}
+                  value={location}
+                />
+                <p class="text-lg  font-grotesque">Repeat</p>
+                <SelectInput
+                  defaultValue={{
+                    value: repeat(),
+                    label:
+                      repeat()[0].toUpperCase() +
+                      repeat().slice(1, repeat.length),
+                  }}
+                  class="w-full p-1 rounded-lg py-6 ps-4"
+                  placeholder="Never"
+                  options={
+                    [
+                      { value: "never", label: "Never" },
+                      { value: "daily", label: "Daily" },
+                      { value: "weekly", label: "Weekly" },
+                      { value: "monthly", label: "Monthly" },
+                    ] as const
+                  }
+                  setSelectedOption={setRepeat}
+                />
+                <p class="text-lg font-grotesque">Person</p>
+
+                <SelectMultipleInput
+                  defaultValue={participants()?.map((p) => {
+                    return {
+                      value: p.participant.id,
+                      label: p.participant.displayName,
+                    };
+                  })}
+                  class="w-full p-1 rounded-lg py-6 ps-4 "
+                  placeholder="Person"
+                  options={teamMemberOptions()}
+                  setSelectedOptions={setTeamMemberIds}
+                />
+              </div>
+              <TextArea
+                label="Notes"
+                placeholder="Notes"
+                value={notes}
+                setValue={setNotes}
               />
-              <TextInput
-                label="Location"
-                placeholder="Location"
-                setValue={setLocation}
-                value={location}
-              />
+              <button
+                class="bg-[#1e1e1e]/10 font-sf-pro w-[367px] text-[#fe463c] rounded-full h-[48px]"
+                onClick={handleDeleteEvent}
+              >
+                Delete Event
+              </button>
             </UpdateEventModal>
           </div>
         )}
