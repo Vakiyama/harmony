@@ -15,7 +15,9 @@ import IoCheckmarkCircle from "~/components/svg/IoCheckmarkCircle";
 import FaSolidCircleXmark from "~/components/svg/FaSolidCircleXmark";
 import EventDetailsTopNav from "~/components/calendar/calendar-detail-top-nav";
 import FaSolidLocationDot from "~/components/icon/location-icon";
+import UpdateEventModal from "../update-modal";
 import placeholder from "./placeholder.png";
+import TextInput from "../../Create/TextInput";
 export default function EventPage() {
   const params = useParams();
 
@@ -27,7 +29,24 @@ export default function EventPage() {
     return response;
   });
 
-  const [isOpen, setIsOpen] = createSignal(false);
+  const [isTeamMembersOpen, setIsTeamMembersOpen] = createSignal(false);
+  const [isModalOpen, setIsModalOpen] = createSignal(false);
+  const [title, setTitle] = createSignal(event()?.title!);
+  const [location, setLocation] = createSignal(event()?.location!);
+
+  const handleButtonClick = () => {
+    setIsModalOpen((prev) => !prev);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleBackdropClick = (e: Event) => {
+    if (e.target === e.currentTarget) {
+      closeModal();
+    }
+  };
 
   const statusCount = {
     yes: 0,
@@ -53,7 +72,10 @@ export default function EventPage() {
 
   return (
     <Show when={event()}>
-      <EventDetailsTopNav eventType={event()?.type!} />
+      <EventDetailsTopNav
+        eventType={event()?.type!}
+        setModalOpen={handleButtonClick}
+      />
       <div class="h-full flex flex-col p-4 justify-between">
         <div class="flex flex-col gap-3">
           <div class="flex flex-col gap-1 ">
@@ -110,7 +132,7 @@ export default function EventPage() {
           <div class="flex flex-col space-y-3">
             <button
               class="flex justify-between items-center"
-              onClick={() => setIsOpen(!isOpen())}
+              onClick={() => setIsTeamMembersOpen(!isTeamMembersOpen())}
             >
               <div class="flex flex-col ">
                 <div class="text-[#1e1e1e] text-left text-lg font-medium leading-7 font-grotesque">
@@ -124,7 +146,7 @@ export default function EventPage() {
               </div>
               <FaSolidAngleDown />
             </button>
-            <Show when={isOpen()}>
+            <Show when={isTeamMembersOpen()}>
               <div class="space-y-2">
                 <For each={participants()}>
                   {(participant) => (
@@ -190,6 +212,27 @@ export default function EventPage() {
             </div>
           </div>
         </div>
+        {isModalOpen() && (
+          <div
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]" //temp z-60 to override navbar
+            onClick={handleBackdropClick}
+          >
+            <UpdateEventModal onClose={closeModal}>
+              <TextInput
+                label="Title"
+                placeholder="Title"
+                value={title}
+                setValue={setTitle}
+              />
+              <TextInput
+                label="Location"
+                placeholder="Location"
+                setValue={setLocation}
+                value={location}
+              />
+            </UpdateEventModal>
+          </div>
+        )}
         {/* temp */}
         <div class="h-[60px]"></div>
       </div>

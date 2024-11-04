@@ -8,7 +8,7 @@ export default function TextInput(props: {
   placeholder: string;
 }) {
   return (
-    <TextField class="flex flex-col ">
+    <TextField class="flex flex-col w-full">
       <TextField.Label class="text-lg font-semibold">
         {props.label}
       </TextField.Label>

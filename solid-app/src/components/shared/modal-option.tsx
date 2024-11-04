@@ -4,7 +4,7 @@ interface ModalOptionProps {
   title: string;
   description: string;
   link: string;
-  svg: JSXElement;
+  svg?: JSXElement;
 }
 
 export default function ModalOption(props: ModalOptionProps) {
