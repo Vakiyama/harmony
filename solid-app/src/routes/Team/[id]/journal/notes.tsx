@@ -1,7 +1,18 @@
 "use client";
-import { createNoteAction } from "~/api/journal";
-import { createSignal } from "solid-js";
-import { useAction, useNavigate } from "@solidjs/router";
+import {
+  createNoteAction,
+  deleteNoteAction,
+  getNoteById,
+  updateNoteAction,
+} from "~/api/journal";
+import { createMemo, createSignal } from "solid-js";
+import {
+  createAsync,
+  useAction,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "@solidjs/router";
 import ShowError from "~/routes/Team/[id]/journal/show-error";
 import { Button } from "~/components/ui/button";
 import AddNote from "~/routes/Team/[id]/journal/add-notes";
@@ -10,27 +21,52 @@ import Upload from "./upload";
 import { showNotification } from "~/routes/api/notificationStore";
 
 export default function CreateNote() {
+  const params = useParams();
+  const location = useLocation();
+  const existingNote = location.search.split("?edit=")[1];
+  const noteData = createAsync(
+    async () => await getNoteById(parseInt(existingNote)),
+    {
+      deferStream: true,
+    }
+  );
+  const [isEditing, setIsEditing] = createSignal<boolean>(false);
+  if (existingNote) {
+    setIsEditing(true);
+  }
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
+  const [noteValue, setNoteValue] = createSignal<string | undefined>();
   const [error, setError] = createSignal("");
   const navigate = useNavigate();
-
-  const myAction = useAction(createNoteAction);
-  type CreateNoteActionResponse = {
-    success?: boolean;
+  createMemo(() => {
+    setNoteValue(noteData()?.note);
+  });
+  const createAction = useAction(createNoteAction);
+  const updateAction = useAction(updateNoteAction);
+  const deleteAction = useAction(deleteNoteAction);
+  type NoteActionResponse = {
     error?: string;
+    success?: boolean;
+    message?: string;
   };
   const handleSubmit = async (event: SubmitEvent) => {
     event.preventDefault();
 
-    const result: CreateNoteActionResponse = await myAction(
-      new FormData(event.target as HTMLFormElement)
-    );
+    const formData = new FormData(event.target as HTMLFormElement);
+    formData.append("teamId", params.id);
+    let result: NoteActionResponse;
+    if (isEditing()) {
+      formData.append("noteId", existingNote);
+      result = await updateAction(formData);
+    } else {
+      result = await createAction(formData);
+    }
 
     if (result.success) {
       setError("");
       formRef()?.reset();
       showNotification("Note Entry Posted");
-      navigate("/team/1/journal");
+      navigate(`/team/${params.id}/journal`);
     } else if (result.error) {
       console.error(result.error);
       setError(result.error);
@@ -54,7 +90,7 @@ export default function CreateNote() {
               />
             </svg>
             <Header
-              title="Note"
+              title={isEditing() ? "Edit Entry" : "Note"}
               description="Add personal notes to note details and observations for the day."
             />
           </div>
@@ -66,7 +102,11 @@ export default function CreateNote() {
               method="post"
               class="flex flex-col gap-2"
             >
-              <AddNote title="New Update" placeholder="User Input" />
+              <AddNote
+                title="New Update"
+                placeholder="User Input"
+                content={noteValue()}
+              />
               <label class="text-h4">Add Media</label>
               <div class="flex flex-row w-full gap-2">
                 <Upload description="Tap to add a photo" />
@@ -79,6 +119,12 @@ export default function CreateNote() {
               >
                 Done
               </Button>
+              {/* Change this to show a confirmation */}
+              {isEditing() ? (
+                <button onClick={() => deleteAction(parseInt(existingNote))}>
+                  Delete Entry
+                </button>
+              ) : null}
             </form>
           </div>
         </section>

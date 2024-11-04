@@ -11,6 +11,7 @@ import { TabsContent } from "~/components/ui/landing/landing-tabs";
 import Member from "../Member";
 import { Section } from "./Section";
 import { AttachedUser } from "@/schema/Users";
+import { A, useParams } from "@solidjs/router";
 
 export function JournalCard(props: {
   icon: JSXElement;
@@ -20,6 +21,7 @@ export function JournalCard(props: {
   sections: { title?: string; content: JSXElement }[];
   withMember?: boolean;
   member: AttachedUser | null;
+  entryId: number;
 }) {
   const backgroundColor = `bg-${props.value
     .split(" ")
@@ -33,6 +35,8 @@ export function JournalCard(props: {
       return i === 1 ? c[0].toUpperCase() + c.substring(1) : c;
     })
     .join("")}IconBackground`;
+
+  const teamId = useParams().id;
   return (
     <TabsContent value={props.value}>
       <Card class="bg-[#fdfdfd]">
@@ -59,7 +63,15 @@ export function JournalCard(props: {
               >
                 {props.dateTime}
               </CardDescription>
-              <FaSolidPen size={11} color="#1E1E1EBF" />
+              <A
+                href={`/team/${teamId}/journal/${
+                  props.value === "medication taken"
+                    ? "medications"
+                    : props.value
+                }?edit=${props.entryId}`}
+              >
+                <FaSolidPen size={11} color="#1E1E1EBF" />
+              </A>
             </div>
           </div>
         </CardHeader>

@@ -110,3 +110,10 @@ export async function checkAuthenticated() {
 
   return manager;
 }
+
+export async function getUserIdFromSession() {
+  const manager = await sessionManager();
+  const session = await manager.getSession();
+  const userId: number | undefined = session.data.userId;
+  return userId;
+}

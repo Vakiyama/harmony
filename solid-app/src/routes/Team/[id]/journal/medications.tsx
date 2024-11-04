@@ -1,24 +1,53 @@
 import {
   createTakenMedicationAction,
   getMedicationsFromTeamId,
+  getTakenMedicationById,
+  updateTakenMedicationAction,
 } from "~/api/journal";
-import { createMemo, createSignal } from "solid-js";
-import { createAsync, useNavigate, useAction } from "@solidjs/router";
+import { createMemo, createSignal, Show } from "solid-js";
+import {
+  createAsync,
+  useNavigate,
+  useAction,
+  useParams,
+  useLocation,
+} from "@solidjs/router";
 import ShowError from "~/routes/Team/[id]/journal/show-error";
 import { Button } from "~/components/ui/button";
 import AddNote from "~/routes/Team/[id]/journal/add-notes";
 import Header from "./header";
-import SelectInput from "~/components/shadcn/Select";
+import SelectInput, { SelectOptions } from "~/components/shadcn/Select";
 import TimePicker from "~/components/ui/time-picker";
 import { Medications } from "@/schema/Medications";
 import { showNotification } from "~/routes/api/notificationStore";
 import DatePickerComponent from "~/components/shadcn/DatePicker";
+import {
+  TakenMedications,
+  TakenMedsWithNoteUser,
+} from "@/schema/TakenMedications";
+import { formatTimeForPicker } from "~/lib/formateDateLocal";
 
 export default function Medication() {
+  const params = useParams();
+  const location = useLocation();
+  const existingEntry = location.search.split("?edit=")[1];
+  const medicationData = createAsync(
+    async () => await getTakenMedicationById(parseInt(existingEntry)),
+    {
+      deferStream: true,
+    }
+  );
   const medications = createAsync(
     async () => await getMedicationsFromTeamId(1),
     { deferStream: true }
   );
+  const [isEditing, setIsEditing] = createSignal<boolean>(false);
+  if (existingEntry) {
+    setIsEditing(true);
+  }
+  const [entry, setEntry] = createSignal<
+    Omit<TakenMedsWithNoteUser, "user"> | undefined
+  >(undefined);
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
   const [error, setError] = createSignal("");
   const [time, setTime] = createSignal("");
@@ -30,25 +59,54 @@ export default function Medication() {
         })
       : [];
   };
+  const [med, setMed] = createSignal<SelectOptions<string> | undefined>(
+    undefined
+  );
+  const [medType, setMedType] = createSignal<SelectOptions<string> | undefined>(
+    undefined
+  );
   const medicationOptions = createMemo(() => formatOptions(medications()));
-
-  const myAction = useAction(createTakenMedicationAction);
-  type CreateMedicationActionResponse = {
+  createMemo(() => {
+    setEntry(medicationData());
+    if (entry()) {
+      const time = formatTimeForPicker(entry()?.date);
+      if (time) {
+        setTime(time);
+      }
+      const med = medicationOptions().filter((med) => {
+        if (med.label === entry()!.medications!.name) {
+          return med;
+        }
+      })[0];
+      setMedType({ value: entry()!.type, label: entry()!.type });
+      setMed(med);
+    }
+  });
+  const createAction = useAction(createTakenMedicationAction);
+  const updateAction = useAction(updateTakenMedicationAction);
+  // const deleteAction = useAction(deleteTakenMedicationAction);
+  type MedicationActionResponse = {
     success?: boolean;
     error?: string;
+    message?: string;
   };
   const handleSubmit = async (event: SubmitEvent) => {
     event.preventDefault();
-
-    const result: CreateMedicationActionResponse = await myAction(
-      new FormData(event.target as HTMLFormElement)
-    );
+    const formData = new FormData(event.target as HTMLFormElement);
+    formData.append("teamId", params.id);
+    let result: MedicationActionResponse;
+    if (isEditing()) {
+      formData.append("takenMedicationId", existingEntry);
+      result = await updateAction(formData);
+    } else {
+      result = await createAction(formData);
+    }
 
     if (result.success) {
       setError("");
       formRef()?.reset();
       showNotification("Medication Entry Posted");
-      navigate("/team/1/journal");
+      navigate(`/team/${params.id}/journal`);
     } else if (result.error) {
       console.error(result.error);
       setError(result.error);
@@ -83,7 +141,7 @@ export default function Medication() {
             />
           </svg>
           <Header
-            title="Medication Taken"
+            title={isEditing() ? "Edit Entry" : "Medication Taken"}
             description="Log medication taken to keep track of the treatment schedule."
           />
         </div>
@@ -95,33 +153,54 @@ export default function Medication() {
         >
           <ShowError error={error()}></ShowError>
           <div class="flex flex-col gap-2 text-h4">
-            <label>Select Medication</label>
-            <SelectInput
-              name="medication"
-              class="w-full p-1 rounded-lg py-6 ps-4 "
-              placeholder="Selection a medication"
-              options={medicationOptions()}
-              setSelectedOption={() => {}}
-            />
-            <label>Medication Type</label>
-            <SelectInput
-              name="medicationType"
-              class="w-full p-1 rounded-lg py-6 ps-4 "
-              placeholder="Select a medication type"
-              options={medicationTypes}
-              setSelectedOption={() => undefined}
-            />
+            <Show
+              when={
+                (isEditing() && med()) || (!isEditing() && medicationOptions())
+              }
+            >
+              <label>Select Medication</label>
+              <SelectInput
+                name="medication"
+                class="w-full p-1 rounded-lg py-6 ps-4 "
+                placeholder="Selection a medication"
+                options={medicationOptions()}
+                defaultValue={med()}
+                setSelectedOption={() => {}}
+              />
+            </Show>
+            <Show
+              when={
+                (isEditing() && medType()) || (!isEditing() && medicationTypes)
+              }
+            >
+              <label>Medication Type</label>
+              <SelectInput
+                name="medicationType"
+                class="w-full p-1 rounded-lg py-6 ps-4 "
+                placeholder="Select a medication type"
+                options={medicationTypes}
+                defaultValue={medType()}
+                setSelectedOption={() => undefined}
+              />
+            </Show>
           </div>
           <div class="flex flex-col gap-2 justify-center">
             <label class="text-h4">Date & Time Taken</label>
             <div class="flex flex-row gap-2 items-center">
-              <DatePickerComponent />
+              <DatePickerComponent
+                value={entry()?.date.toLocaleDateString("en-us", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              />
               <TimePicker time={time} setTime={setTime} name="time" />
             </div>
           </div>
           <AddNote
             title="Additional Notes"
             placeholder="i.e. Take two tablets up to 4 times daily with food."
+            content={entry()?.note?.note || ""}
           />
           <Button
             class="rounded-[100px] h-12 w-full mb-4 bg-lofiGray text-black"
@@ -130,6 +209,12 @@ export default function Medication() {
           >
             Done
           </Button>
+          {/* Change this to show a confirmation */}
+          {/* {isEditing() ? (
+            <button onClick={() => deleteAction(parseInt(existingEntry))}>
+              Delete Entry
+            </button>
+          ) : null} */}
         </form>
       </section>
     </main>

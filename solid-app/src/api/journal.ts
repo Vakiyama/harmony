@@ -22,7 +22,7 @@ import {
   timeFrameEnumSleeps,
   SleepWithNoteUser,
 } from "../../drizzle/schema/Sleeps";
-import { isValidEnumValue } from "~/api/dbHelper";
+import { isMemberOfTeam, isValidEnumValue } from "~/api/dbHelper";
 import {
   categoryEnumMeals,
   consumptionEnum,
@@ -31,23 +31,28 @@ import {
 } from "../../drizzle/schema/Meals";
 import { sessionManager } from "./kinde";
 import { medications } from "../../drizzle/schema/Medications";
-import { TeamMembers } from "../../drizzle/schema/TeamMembers";
 import { Users } from "../../drizzle/schema/Users";
 import { Teams } from "../../drizzle/schema/Teams";
 import { Recipients } from "../../drizzle/schema/Recipients";
+import { getUserIdFromSession } from "./server";
 
-const teamId = 1; //temporary
 const mapQuality = (value: number) => {
   return qualityEnum[value - 1];
 };
 
 export const createNoteAction = action(async (formData: FormData) => {
   "use server";
-  const manager = await sessionManager();
-  const session = await manager.getSession();
-  const userId: number = session.data.userId;
-  if (!userId) {
+  const userId = await getUserIdFromSession();
+  if (userId === undefined) {
     return { error: "User is not Authenticated" };
+  }
+  const teamId = parseInt(formData.get("teamId") as string);
+  if (!teamId) {
+    return { error: "Missing Team ID" };
+  }
+  const isMember = await isMemberOfTeam(userId, teamId);
+  if (!isMember) {
+    return { error: "Insufficient Permissions" };
   }
   const note = formData.get("note")?.toString();
   const category = formData.get("category")?.toString() || null;
@@ -78,14 +83,126 @@ export const createNoteAction = action(async (formData: FormData) => {
   return { success: true, message: "Note successfully created." };
 }, "createNoteAction");
 
+export const getNoteById = async (noteId: number) => {
+  "use server";
+  const userId = await getUserIdFromSession();
+  if (userId === undefined) {
+    return undefined;
+  }
+
+  const [noteError, noteResult] = await mightFail(
+    db
+      .select()
+      .from(notes)
+      .where(and(eq(notes.id, noteId), eq(notes.userId, userId)))
+      .then((res) => res[0])
+  );
+  if (noteError || !noteResult) {
+    return undefined;
+  }
+
+  const isMember = await isMemberOfTeam(userId, noteResult.teamId);
+  if (!isMember) {
+    return undefined;
+  }
+
+  return noteResult;
+};
+
+export const updateNoteAction = action(async (formData: FormData) => {
+  "use server";
+  //signed in
+  const userId = await getUserIdFromSession();
+  if (userId === undefined) {
+    return { error: "User is not Authenticated" };
+  }
+  const noteId = parseInt(formData.get("noteId") as string);
+  if (!noteId) {
+    return { error: "Missing Note ID" };
+  }
+  //owner of the note
+  const [originalNoteError, originalNoteResult] = await mightFail(
+    db
+      .select()
+      .from(notes)
+      .where(and(eq(notes.id, noteId), eq(notes.userId, userId)))
+      .then((res) => res[0])
+  );
+  if (originalNoteError || !originalNoteResult) {
+    return { error: "Could not find existing note" };
+  }
+  //member of the team
+  const isMember = await isMemberOfTeam(userId, originalNoteResult.teamId);
+  if (!isMember) {
+    return { error: "Insufficient Permissions" };
+  }
+  const note = formData.get("note")?.toString();
+
+  if (!note) {
+    return { error: "Please enter a note" };
+  }
+
+  if (note.length < 6 && note.length !== 0) {
+    return { error: "Please enter a note that is at least 6 characters" };
+  }
+
+  const notesInput = { note, updatedAt: new Date(Date.now()) };
+
+  const [noteError, noteResult] = await mightFail(
+    db.update(notes).set(notesInput).where(eq(notes.id, noteId))
+  );
+  if (noteError) {
+    console.error("Update error:", noteError);
+    return { error: "Failed to update note." };
+  }
+  return { success: true, message: "Note successfully updated." };
+}, "updateNoteAction");
+
+export const deleteNoteAction = action(async (noteId: number) => {
+  "use server";
+  const userId = await getUserIdFromSession();
+  if (userId === undefined) {
+    return { error: "User is not Authenticated" };
+  }
+  if (!noteId) {
+    return { error: "Missing Note ID" };
+  }
+  const [originalNoteError, originalNoteResult] = await mightFail(
+    db
+      .select()
+      .from(notes)
+      .where(and(eq(notes.id, noteId), eq(notes.userId, userId)))
+      .then((res) => res[0])
+  );
+  if (originalNoteError || !originalNoteResult) {
+    return { error: "Could not find existing note" };
+  }
+  const isMember = await isMemberOfTeam(userId, originalNoteResult.teamId);
+  if (!isMember) {
+    return { error: "Insufficient Permissions" };
+  }
+  const [deleteError, deleteResult] = await mightFail(
+    db.delete(notes).where(eq(notes.id, noteId))
+  );
+  if (deleteError) {
+    return { error: "Could not delete note" };
+  }
+}, "deleteNoteAction");
+
 export const createTakenMedicationAction = action(
   async (formData: FormData) => {
     "use server";
-    const manager = await sessionManager();
-    const session = await manager.getSession();
-    const userId: number = session.data.userId;
-    if (!userId) {
+    const teamId = parseInt(formData.get("teamId") as string);
+    if (!teamId) {
+      return { error: "Missing Team ID" };
+    }
+    const userId = await getUserIdFromSession();
+    if (userId === undefined) {
       return { error: "User is not Authenticated" };
+    }
+    const isMember = await isMemberOfTeam(userId, teamId);
+    if (!isMember) {
+      return { error: "Insufficient Permissions" };
     }
     const medication = formData.get("medication") as string;
     if (!medication) {
@@ -164,13 +281,198 @@ export const createTakenMedicationAction = action(
   "createTakenMedicationAction"
 );
 
+export const getTakenMedicationById = async (takenMedicationId: number) => {
+  "use server";
+  const userId = await getUserIdFromSession();
+  if (userId === undefined) {
+    return undefined;
+  }
+
+  const [takenMedicationError, takenMedicationResult] = await mightFail(
+    db
+      .select({
+        date: takenMedications.date,
+        id: takenMedications.id,
+        teamId: takenMedications.teamId,
+        createdAt: takenMedications.createdAt,
+        updatedAt: takenMedications.updatedAt,
+        type: takenMedications.type,
+        note: {
+          note: notes.note,
+        },
+        medications: {
+          name: medications.name,
+        },
+      })
+      .from(takenMedications)
+      .leftJoin(notes, eq(takenMedications.noteId, notes.id))
+      .leftJoin(medications, eq(takenMedications.medicationId, medications.id))
+      .leftJoin(Users, eq(takenMedications.userId, Users.id))
+      .where(
+        and(
+          eq(takenMedications.id, takenMedicationId),
+          eq(takenMedications.userId, userId)
+        )
+      )
+      .then((res) => res[0])
+  );
+  if (takenMedicationError || !takenMedicationResult) {
+    console.log(takenMedicationError);
+    return undefined;
+  }
+
+  const isMember = await isMemberOfTeam(userId, takenMedicationResult.teamId);
+  if (!isMember) {
+    return undefined;
+  }
+
+  return takenMedicationResult;
+};
+
+export const updateTakenMedicationAction = action(
+  async (formData: FormData) => {
+    "use server";
+    const teamId = parseInt(formData.get("teamId") as string);
+    if (!teamId) {
+      return { error: "Missing Team ID" };
+    }
+    const userId = await getUserIdFromSession();
+    if (userId === undefined) {
+      return { error: "User is not Authenticated" };
+    }
+    const isMember = await isMemberOfTeam(userId, teamId);
+    if (!isMember) {
+      return { error: "Insufficient Permissions" };
+    }
+    const medication = formData.get("medication") as string;
+    if (!medication) {
+      return { error: "Please select a medication" };
+    }
+    const takenMedicationId = parseInt(
+      formData.get("takenMedicationId") as string
+    );
+    if (!takenMedicationId) {
+      return { error: "Missing Note ID" };
+    }
+    const medicationType = formData.get("medicationType") as string;
+    const note = formData.get("note") as string;
+    let date: string | Date = formData.get("date") as string;
+    const time = formData.get("time") as string;
+    let noteId: number | null = null;
+    const [medicationError, medicationResult] = await mightFail(
+      db
+        .select()
+        .from(medications)
+        .where(
+          and(
+            eq(medications.id, parseInt(medication)),
+            eq(medications.teamId, teamId)
+          )
+        )
+    );
+    if (medicationError || !medicationResult.length) {
+      return { error: "Invalid medication selection" };
+    }
+    const medicationId = medicationResult[0].id;
+    if (!medicationId) {
+      return { error: "Please enter a medication name" };
+    }
+
+    if (!date) {
+      return { error: "Please select a date" };
+    }
+    if (!time) {
+      return { error: "Please select a time" };
+    }
+    date = new Date(`${date} ${time}`);
+
+    const [oldEntryError, oldEntryResult] = await mightFail(
+      db
+        .select()
+        .from(takenMedications)
+        .where(
+          and(
+            eq(takenMedications.id, takenMedicationId),
+            eq(takenMedications.userId, userId)
+          )
+        )
+        .then((res) => res[0])
+    );
+    if (oldEntryError || !oldEntryResult) {
+      return { error: "Could not find existing journal entry" };
+    }
+    if (note !== undefined) {
+      if (oldEntryResult.noteId) {
+        if (note.length === 0) {
+          const [delError, delResult] = await mightFail(
+            db.delete(notes).where(eq(notes.id, oldEntryResult.noteId))
+          );
+          if (delError) {
+            return { error: "Failed to update note." };
+          }
+        } else {
+          const [updateError, updateResult] = await mightFail(
+            db
+              .update(notes)
+              .set({
+                note: note,
+                updatedAt: new Date(Date.now()),
+              })
+              .where(eq(notes.id, oldEntryResult.noteId))
+          );
+
+          if (updateError) {
+            return { error: "Failed to update note." };
+          }
+        }
+      } else {
+        if (note.length !== 0) {
+          const [newError, newResult] = await mightFail(
+            db
+              .insert(notes)
+              .values({ note, category: "medication", userId, teamId })
+              .returning()
+              .then((res) => res[0])
+          );
+
+          if (newError) {
+            return { error: "Failed to create note." };
+          }
+          noteId = newResult.id;
+        }
+      }
+    }
+
+    const medicationInput = {
+      ...(noteId ? { noteId } : {}),
+      date,
+      medicationId,
+      type: medicationType,
+      updatedAt: new Date(Date.now()),
+    };
+
+    const [takenMedicationError, takenMedicationResult] = await mightFail(
+      db.insert(takenMedications).values(medicationInput)
+    );
+    if (takenMedicationError) {
+      console.error("Database insertion error:", takenMedicationError);
+      return { error: "Failed to insert medication entry." };
+    }
+    return { success: true, message: "Medication successfully created." };
+  },
+  "updateTakenMedicationAction"
+);
+
 export const createMoodAction = action(async (formData: FormData) => {
   "use server";
-  const manager = await sessionManager();
-  const session = await manager.getSession();
-  const userId: number = session.data.userId;
-  if (!userId) {
+  const teamId = 1; //temporary
+  const userId = await getUserIdFromSession();
+  if (userId === undefined) {
     return { error: "User is not Authenticated" };
+  }
+  const isMember = await isMemberOfTeam(userId, teamId);
+  if (!isMember) {
+    return { error: "Insufficient Permissions" };
   }
   const wellBeingInput = parseInt(formData.get("wellBeing") as string);
   const timeFrame = formData.get("timeFrame") as string;
@@ -230,11 +532,14 @@ export const createMoodAction = action(async (formData: FormData) => {
 
 export const createMealAction = action(async (formData: FormData) => {
   "use server";
-  const manager = await sessionManager();
-  const session = await manager.getSession();
-  const userId: number = session.data.userId;
-  if (!userId) {
+  const teamId = 1; //temporary
+  const userId = await getUserIdFromSession();
+  if (userId === undefined) {
     return { error: "User is not Authenticated" };
+  }
+  const isMember = await isMemberOfTeam(userId, teamId);
+  if (!isMember) {
+    return { error: "Insufficient Permissions" };
   }
   const category = formData.get("category") as string;
   const foodName = formData.get("foodName") as string;
@@ -307,11 +612,14 @@ export const createMealAction = action(async (formData: FormData) => {
 
 export const createSleepAction = action(async (formData: FormData) => {
   "use server";
-  const manager = await sessionManager();
-  const session = await manager.getSession();
-  const userId: number = session.data.userId;
-  if (!userId) {
+  const teamId = 1; //temporary
+  const userId = await getUserIdFromSession();
+  if (userId === undefined) {
     return { error: "User is not Authenticated" };
+  }
+  const isMember = await isMemberOfTeam(userId, teamId);
+  if (!isMember) {
+    return { error: "Insufficient Permissions" };
   }
   const duration = formData.get("duration") as string;
   const troubleSleepingResponse = formData.get("troubleSleeping") as string;
@@ -388,21 +696,12 @@ export const createSleepAction = action(async (formData: FormData) => {
 
 export const getMedicationsFromTeamId = async (teamId: number) => {
   "use server";
-  const manager = await sessionManager();
-  const session = await manager.getSession();
-  const userId: number = session.data.userId;
-  if (!userId) {
+  const userId = await getUserIdFromSession();
+  if (userId === undefined) {
     return [];
   }
-  const [memberError, memberResult] = await mightFail(
-    db
-      .select()
-      .from(TeamMembers)
-      .where(
-        and(eq(TeamMembers.userId, userId), eq(TeamMembers.teamId, teamId))
-      )
-  );
-  if (memberError || !memberResult.length) {
+  const isMember = await isMemberOfTeam(userId, teamId);
+  if (!isMember) {
     return [];
   }
   const [medicationsError, medicationsResult] = await mightFail(
@@ -419,12 +718,11 @@ export const getJournalsFromTeamId = async (
   teamId: number
 ): Promise<AllJournals | undefined> => {
   "use server";
-  const manager = await sessionManager();
-  const session = await manager.getSession();
-  const userId: number = session.data.userId;
-  if (!userId) {
+  const userId = await getUserIdFromSession();
+  if (userId === undefined) {
     return undefined;
   }
+
   const [takenMedicationsError, takenMedicationsResult] = await mightFail(
     db
       .select({

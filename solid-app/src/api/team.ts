@@ -1,13 +1,14 @@
-import { action, useParams } from "@solidjs/router";
+import { action } from "@solidjs/router";
 import { sessionManager } from "./kinde";
 import { mightFail } from "might-fail";
 import { db } from "./db";
-import { Medications, medications } from "../../drizzle/schema/Medications";
-import { TeamMembers } from "../../drizzle/schema/TeamMembers";
+import { medications } from "../../drizzle/schema/Medications";
+import { isMemberOfTeam } from "./dbHelper";
+import { TeamMembers } from "@/schema/TeamMembers";
+import { TeamFromTeamId, Teams } from "@/schema/Teams";
+import { Recipients } from "@/schema/Recipients";
 import { and, eq } from "drizzle-orm";
-import { Team, TeamFromTeamId, Teams } from "../../drizzle/schema/Teams";
-import { AttachedUserWithTeamRole, Users } from "../../drizzle/schema/Users";
-import { Recipient, Recipients } from "../../drizzle/schema/Recipients";
+import { Users } from "@/schema/Users";
 import { getMedicationsFromTeamId } from "./journal";
 
 export const createMedicationAction = action(async (formData: FormData) => {
@@ -25,16 +26,8 @@ export const createMedicationAction = action(async (formData: FormData) => {
   }
 
   //validate user is a member of the team
-  const [memberError, memberResult] = await mightFail(
-    db
-      .select()
-      .from(TeamMembers)
-      .where(
-        and(eq(TeamMembers.userId, userId), eq(TeamMembers.teamId, teamId))
-      )
-  );
-  if (memberError || !memberResult.length) {
-    memberError ? console.error(memberError) : "";
+  const isMember = await isMemberOfTeam(userId, teamId);
+  if (!isMember) {
     return { error: "Insufficient Permissions" };
   }
 
