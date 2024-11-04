@@ -19,13 +19,10 @@ import AddNote from "~/routes/Team/[id]/journal/add-notes";
 import Header from "./header";
 import SelectInput, { SelectOptions } from "~/components/shadcn/Select";
 import TimePicker from "~/components/ui/time-picker";
-import { Medications } from "@/schema/Medications";
+import { type Medications } from "@/schema/Medications";
 import { showNotification } from "~/routes/api/notificationStore";
 import DatePickerComponent from "~/components/shadcn/DatePicker";
-import {
-  TakenMedications,
-  TakenMedsWithNoteUser,
-} from "@/schema/TakenMedications";
+import { TakenMedsWithNoteUser } from "@/schema/TakenMedications";
 import { formatTimeForPicker } from "~/lib/formateDateLocal";
 
 export default function Medication() {
@@ -186,36 +183,40 @@ export default function Medication() {
             </Show>
           </div>
           <div class="flex flex-col gap-2 justify-center">
-            <label class="text-h4">Date & Time Taken</label>
-            <div class="flex flex-row gap-2 items-center">
-              <DatePickerComponent
-                value={entry()?.date.toLocaleDateString("en-us", {
-                  month: "long",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-              />
-              <TimePicker time={time} setTime={setTime} name="time" />
-            </div>
+            <Show when={(isEditing() && entry()) || !isEditing()}>
+              <label class="text-h4">Date & Time Taken</label>
+              <div class="flex flex-row gap-2 items-center">
+                <DatePickerComponent
+                  value={entry()?.date.toLocaleDateString("en-us", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                />
+                <TimePicker time={time} setTime={setTime} name="time" />
+              </div>
+            </Show>
           </div>
-          <AddNote
-            title="Additional Notes"
-            placeholder="i.e. Take two tablets up to 4 times daily with food."
-            content={entry()?.note?.note || ""}
-          />
-          <Button
-            class="rounded-[100px] h-12 w-full mb-4 bg-lofiGray text-black"
-            variant="default"
-            type="submit"
-          >
-            Done
-          </Button>
-          {/* Change this to show a confirmation */}
-          {isEditing() ? (
-            <button onClick={() => deleteAction(parseInt(existingEntry))}>
-              Delete Entry
-            </button>
-          ) : null}
+          <Show when={(isEditing() && entry()) || !isEditing()}>
+            <AddNote
+              title="Additional Notes"
+              placeholder="i.e. Take two tablets up to 4 times daily with food."
+              content={entry()?.note?.note || ""}
+            />
+            <Button
+              class="rounded-[100px] h-12 w-full mb-4 bg-lofiGray text-black"
+              variant="default"
+              type="submit"
+            >
+              Done
+            </Button>
+            {/* Change this to show a confirmation */}
+            {isEditing() ? (
+              <button onClick={() => deleteAction(parseInt(existingEntry))}>
+                Delete Entry
+              </button>
+            ) : null}
+          </Show>
         </form>
       </section>
     </main>

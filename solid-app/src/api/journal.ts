@@ -623,10 +623,8 @@ export const getMoodById = async (moodId: number) => {
         },
       })
       .from(moods)
-      .leftJoin(Users, eq(moods.userId, Users.id))
       .leftJoin(notes, eq(moods.noteId, notes.id))
       .where(and(eq(moods.id, moodId), eq(moods.userId, userId)))
-      .orderBy(desc(moods.createdAt))
       .then((res) => res[0])
   );
   if (moodError || !moodResult) {
@@ -637,7 +635,6 @@ export const getMoodById = async (moodId: number) => {
   if (!isMember) {
     return undefined;
   }
-
   return moodResult;
 };
 
@@ -756,9 +753,9 @@ export const updateMoodAction = action(async (formData: FormData) => {
   );
   if (moodError) {
     console.error("Database insertion error:", moodError);
-    return { error: "Failed to create mood entry." };
+    return { error: "Failed to update mood entry." };
   }
-  return { success: true, message: "Mood entry created successfully" };
+  return { success: true, message: "Mood entry updated successfully" };
 }, "updateMoodAction");
 
 export const deleteMoodAction = action(async (moodId: number) => {
@@ -768,7 +765,7 @@ export const deleteMoodAction = action(async (moodId: number) => {
     return { error: "User is not Authenticated" };
   }
   if (!moodId) {
-    return { error: "Missing Taken Medication ID" };
+    return { error: "Missing Mood ID" };
   }
   const [originalError, originalResult] = await mightFail(
     db
@@ -778,7 +775,7 @@ export const deleteMoodAction = action(async (moodId: number) => {
       .then((res) => res[0])
   );
   if (originalError || !originalResult) {
-    return { error: "Could not find existing Taken Medication entry" };
+    return { error: "Could not find existing Mood entry" };
   }
   const isMember = await isMemberOfTeam(userId, originalResult.teamId);
   if (!isMember) {
@@ -808,7 +805,10 @@ export const deleteMoodAction = action(async (moodId: number) => {
 
 export const createMealAction = action(async (formData: FormData) => {
   "use server";
-  const teamId = 1; //temporary
+  const teamId = parseInt(formData.get("teamId") as string);
+  if (!teamId) {
+    return { error: "Missing Team ID" };
+  }
   const userId = await getUserIdFromSession();
   if (userId === undefined) {
     return { error: "User is not Authenticated" };
@@ -886,9 +886,226 @@ export const createMealAction = action(async (formData: FormData) => {
   return { success: true, message: "Meal entry created successfully" };
 }, "createMealAction");
 
+export const getMealById = async (mealId: number) => {
+  "use server";
+  const userId = await getUserIdFromSession();
+  if (userId === undefined) {
+    return undefined;
+  }
+
+  const [mealError, mealResult] = await mightFail(
+    db
+      .select({
+        id: meals.id,
+        photo: meals.photo,
+        category: meals.category,
+        foodName: meals.foodName,
+        drinkName: meals.drinkName,
+        consumption: meals.consumption,
+        date: meals.date,
+        createdAt: meals.createdAt,
+        updatedAt: meals.updatedAt,
+        teamId: meals.teamId,
+        note: {
+          note: notes.note,
+        },
+      })
+      .from(meals)
+      .leftJoin(notes, eq(meals.noteId, notes.id))
+      .where(and(eq(meals.id, mealId), eq(meals.userId, userId)))
+      .then((res) => res[0])
+  );
+  if (mealError || !mealResult) {
+    return undefined;
+  }
+
+  const isMember = await isMemberOfTeam(userId, mealResult.teamId);
+  if (!isMember) {
+    return undefined;
+  }
+
+  return mealResult;
+};
+
+export const updateMealAction = action(async (formData: FormData) => {
+  "use server";
+  const teamId = parseInt(formData.get("teamId") as string);
+  if (!teamId) {
+    return { error: "Missing Team ID" };
+  }
+  const userId = await getUserIdFromSession();
+  if (userId === undefined) {
+    return { error: "User is not Authenticated" };
+  }
+  const isMember = await isMemberOfTeam(userId, teamId);
+  if (!isMember) {
+    return { error: "Insufficient Permissions" };
+  }
+  const mealId = parseInt(formData.get("mealId") as string);
+  if (!mealId) {
+    return { error: "Missing Sleep ID" };
+  }
+  const category = formData.get("category") as string;
+  const foodName = formData.get("foodName") as string;
+  const drinkName = formData.get("drinkName") as string;
+  const consumption = formData.get("consumption") as string;
+  let date: string | Date = formData.get("date") as string;
+  const note = formData.get("note") as string;
+  let noteId: number | null = null;
+
+  if (!category) {
+    return { error: "Please select a category." };
+  }
+
+  if (!isValidEnumValue(category, categoryEnumMeals)) {
+    return { error: "Invalid category." };
+  }
+
+  if (!foodName && !drinkName) {
+    return { error: "Please enter either a food or drink name." };
+  }
+
+  if (!consumption) {
+    return { error: "Please select a consumption level." };
+  }
+
+  if (!isValidEnumValue(consumption, consumptionEnum)) {
+    return { error: "Invalid consumption level." };
+  }
+
+  if (!date) {
+    return { error: "Please select a date." };
+  }
+
+  date = new Date(date);
+
+  const [oldEntryError, oldEntryResult] = await mightFail(
+    db
+      .select()
+      .from(meals)
+      .where(and(eq(meals.id, mealId), eq(meals.userId, userId)))
+      .then((res) => res[0])
+  );
+  if (oldEntryError || !oldEntryResult) {
+    return { error: "Could not find existing journal entry" };
+  }
+  if (note !== undefined) {
+    if (oldEntryResult.noteId) {
+      if (note.length === 0) {
+        const [removeError, removeResult] = await mightFail(
+          db.update(meals).set({ noteId: null }).where(eq(meals.id, mealId))
+        );
+        if (removeError) {
+          return { error: "failed to detach note" };
+        }
+        const [delError, delResult] = await mightFail(
+          db.delete(notes).where(eq(notes.id, oldEntryResult.noteId))
+        );
+        if (delError) {
+          return { error: "Failed to update note." };
+        }
+      } else {
+        const [updateError, updateResult] = await mightFail(
+          db
+            .update(notes)
+            .set({
+              note: note,
+              updatedAt: new Date(Date.now()),
+            })
+            .where(eq(notes.id, oldEntryResult.noteId))
+        );
+
+        if (updateError) {
+          return { error: "Failed to update note." };
+        }
+      }
+    } else {
+      if (note.length !== 0) {
+        const [newError, newResult] = await mightFail(
+          db
+            .insert(notes)
+            .values({ note, category: "meal", userId, teamId })
+            .returning()
+            .then((res) => res[0])
+        );
+
+        if (newError) {
+          return { error: "Failed to create note." };
+        }
+        noteId = newResult.id;
+      }
+    }
+  }
+  const mealInput = {
+    ...(noteId ? { noteId } : {}),
+    updatedAt: new Date(Date.now()),
+    category,
+    foodName,
+    drinkName,
+    consumption,
+    date,
+  };
+  const [mealError, mealResult] = await mightFail(
+    db.update(meals).set(mealInput).where(eq(meals.id, mealId))
+  );
+  if (mealError) {
+    console.error("Database insertion error:", mealError);
+    return { error: "Failed to update meal entry." };
+  }
+  return { success: true, message: "Meal entry updated successfully" };
+}, "updateMealAction");
+
+export const deleteMealAction = action(async (mealId: number) => {
+  "use server";
+  const userId = await getUserIdFromSession();
+  if (userId === undefined) {
+    return { error: "User is not Authenticated" };
+  }
+  if (!mealId) {
+    return { error: "Missing Meal ID" };
+  }
+  const [originalError, originalResult] = await mightFail(
+    db
+      .select()
+      .from(meals)
+      .where(and(eq(meals.id, mealId), eq(meals.userId, userId)))
+      .then((res) => res[0])
+  );
+  if (originalError || !originalResult) {
+    return { error: "Could not find existing Meal entry" };
+  }
+  const isMember = await isMemberOfTeam(userId, originalResult.teamId);
+  if (!isMember) {
+    return { error: "Insufficient Permissions" };
+  }
+  if (originalResult.noteId) {
+    const [removeError, removeResult] = await mightFail(
+      db.update(meals).set({ noteId: null }).where(eq(meals.id, mealId))
+    );
+    if (removeError) {
+      return { error: "failed to detach note" };
+    }
+    const [deleteNoteError, deleteNoteResult] = await mightFail(
+      db.delete(notes).where(eq(notes.id, originalResult.noteId))
+    );
+    if (deleteNoteError) {
+      return { error: "Could not delete note" };
+    }
+  }
+  const [deleteMoodError, deleteMoodResult] = await mightFail(
+    db.delete(meals).where(eq(meals.id, mealId))
+  );
+  if (deleteMoodError) {
+    return { error: "Could not delete Meal" };
+  }
+}, "deleteMealAction");
+
 export const createSleepAction = action(async (formData: FormData) => {
   "use server";
-  const teamId = 1; //temporary
+  const teamId = parseInt(formData.get("teamId") as string);
+  if (!teamId) {
+    return { error: "Missing Team ID" };
+  }
   const userId = await getUserIdFromSession();
   if (userId === undefined) {
     return { error: "User is not Authenticated" };
@@ -969,6 +1186,225 @@ export const createSleepAction = action(async (formData: FormData) => {
 
   return { success: true, message: "Sleep entry created successfully" }; // Return success message
 }, "createSleepAction");
+
+export const getSleepById = async (sleepId: number) => {
+  "use server";
+  const userId = await getUserIdFromSession();
+  if (userId === undefined) {
+    return undefined;
+  }
+
+  const [sleepError, sleepResult] = await mightFail(
+    db
+      .select({
+        id: sleeps.id,
+        quality: sleeps.quality,
+        timeFrame: sleeps.timeFrame,
+        duration: sleeps.duration,
+        troubleSleeping: sleeps.troubleSleeping,
+        date: sleeps.date,
+        createdAt: sleeps.createdAt,
+        updatedAt: sleeps.updatedAt,
+        teamId: sleeps.teamId,
+        note: {
+          note: notes.note,
+        },
+      })
+      .from(sleeps)
+      .leftJoin(notes, eq(sleeps.noteId, notes.id))
+      .where(and(eq(sleeps.id, sleepId), eq(sleeps.userId, userId)))
+      .then((res) => res[0])
+  );
+  if (sleepError || !sleepResult) {
+    return undefined;
+  }
+
+  const isMember = await isMemberOfTeam(userId, sleepResult.teamId);
+  if (!isMember) {
+    return undefined;
+  }
+
+  return sleepResult;
+};
+
+export const updateSleepAction = action(async (formData: FormData) => {
+  "use server";
+  const teamId = parseInt(formData.get("teamId") as string);
+  if (!teamId) {
+    return { error: "Missing Team ID" };
+  }
+  const userId = await getUserIdFromSession();
+  if (userId === undefined) {
+    return { error: "User is not Authenticated" };
+  }
+  const isMember = await isMemberOfTeam(userId, teamId);
+  if (!isMember) {
+    return { error: "Insufficient Permissions" };
+  }
+  const sleepId = parseInt(formData.get("sleepId") as string);
+  if (!sleepId) {
+    return { error: "Missing Sleep ID" };
+  }
+  const duration = formData.get("duration") as string;
+  const troubleSleepingResponse = formData.get("troubleSleeping") as string;
+  let date: string | Date = formData.get("date") as string;
+  const note = formData.get("note") as string;
+  const timeFrame = formData.get("timeFrame") as string;
+  const qualityInput = parseInt(formData.get("quality") as string);
+  let noteId: number | null = null;
+
+  if (!duration) {
+    return { error: "Please enter a duration." };
+  }
+  if (!troubleSleepingResponse) {
+    return { error: "Please select whether or not they had trouble sleeping." };
+  }
+  let troubleSleeping = false;
+  if (troubleSleepingResponse === "Yes") {
+    troubleSleeping = true;
+  }
+  if (!date) {
+    return { error: "Please select a date." };
+  }
+
+  if (!timeFrame) {
+    return { error: "Please enter a time frame." };
+  }
+
+  if (!qualityInput || qualityInput < 1 || qualityInput > 5) {
+    return { error: "Please select a valid quality state." };
+  }
+
+  const quality = mapQuality(qualityInput);
+
+  if (!isValidEnumValue(timeFrame, timeFrameEnumSleeps)) {
+    return { error: "Invalid time frame." };
+  }
+
+  date = new Date(date);
+
+  const [oldEntryError, oldEntryResult] = await mightFail(
+    db
+      .select()
+      .from(sleeps)
+      .where(and(eq(sleeps.id, sleepId), eq(sleeps.userId, userId)))
+      .then((res) => res[0])
+  );
+  if (oldEntryError || !oldEntryResult) {
+    return { error: "Could not find existing journal entry" };
+  }
+  if (note !== undefined) {
+    if (oldEntryResult.noteId) {
+      if (note.length === 0) {
+        const [removeError, removeResult] = await mightFail(
+          db.update(sleeps).set({ noteId: null }).where(eq(sleeps.id, sleepId))
+        );
+        if (removeError) {
+          return { error: "failed to detach note" };
+        }
+        const [delError, delResult] = await mightFail(
+          db.delete(notes).where(eq(notes.id, oldEntryResult.noteId))
+        );
+        if (delError) {
+          return { error: "Failed to update note." };
+        }
+      } else {
+        const [updateError, updateResult] = await mightFail(
+          db
+            .update(notes)
+            .set({
+              note: note,
+              updatedAt: new Date(Date.now()),
+            })
+            .where(eq(notes.id, oldEntryResult.noteId))
+        );
+
+        if (updateError) {
+          return { error: "Failed to update note." };
+        }
+      }
+    } else {
+      if (note.length !== 0) {
+        const [newError, newResult] = await mightFail(
+          db
+            .insert(notes)
+            .values({ note, category: "sleep", userId, teamId })
+            .returning()
+            .then((res) => res[0])
+        );
+
+        if (newError) {
+          return { error: "Failed to create note." };
+        }
+        noteId = newResult.id;
+      }
+    }
+  }
+
+  const sleepInput = {
+    quality,
+    timeFrame,
+    troubleSleeping,
+    duration,
+    date,
+    ...(noteId ? { noteId } : {}),
+    updatedAt: new Date(Date.now()),
+  };
+
+  const [sleepError, sleepResult] = await mightFail(
+    db.update(sleeps).set(sleepInput).where(eq(sleeps.id, sleepId))
+  );
+  if (sleepError) {
+    console.error("Database update error:", sleepError);
+    return { error: "Failed to update sleep entry." };
+  }
+  return { success: true, message: "Sleep entry updated successfully" };
+}, "updateSleepAction");
+
+export const deleteSleepAction = action(async (sleepId: number) => {
+  "use server";
+  const userId = await getUserIdFromSession();
+  if (userId === undefined) {
+    return { error: "User is not Authenticated" };
+  }
+  if (!sleepId) {
+    return { error: "Missing sleep ID" };
+  }
+  const [originalError, originalResult] = await mightFail(
+    db
+      .select()
+      .from(sleeps)
+      .where(and(eq(sleeps.id, sleepId), eq(sleeps.userId, userId)))
+      .then((res) => res[0])
+  );
+  if (originalError || !originalResult) {
+    return { error: "Could not find existing sleep entry" };
+  }
+  const isMember = await isMemberOfTeam(userId, originalResult.teamId);
+  if (!isMember) {
+    return { error: "Insufficient Permissions" };
+  }
+  if (originalResult.noteId) {
+    const [removeError, removeResult] = await mightFail(
+      db.update(sleeps).set({ noteId: null }).where(eq(sleeps.id, sleepId))
+    );
+    if (removeError) {
+      return { error: "failed to detach note" };
+    }
+    const [deleteNoteError, deleteNoteResult] = await mightFail(
+      db.delete(notes).where(eq(notes.id, originalResult.noteId))
+    );
+    if (deleteNoteError) {
+      return { error: "Could not delete note" };
+    }
+  }
+  const [deleteMoodError, deleteMoodResult] = await mightFail(
+    db.delete(sleeps).where(eq(sleeps.id, sleepId))
+  );
+  if (deleteMoodError) {
+    return { error: "Could not delete Meal" };
+  }
+}, "deleteSleepAction");
 
 export const getMedicationsFromTeamId = async (teamId: number) => {
   "use server";

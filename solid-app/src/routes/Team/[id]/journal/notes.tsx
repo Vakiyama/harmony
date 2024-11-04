@@ -5,7 +5,7 @@ import {
   getNoteById,
   updateNoteAction,
 } from "~/api/journal";
-import { createMemo, createSignal } from "solid-js";
+import { createMemo, createSignal, Show } from "solid-js";
 import {
   createAsync,
   useAction,
@@ -102,29 +102,31 @@ export default function CreateNote() {
               method="post"
               class="flex flex-col gap-2"
             >
-              <AddNote
-                title="New Update"
-                placeholder="User Input"
-                content={noteValue()}
-              />
-              <label class="text-h4">Add Media</label>
-              <div class="flex flex-row w-full gap-2">
-                <Upload description="Tap to add a photo" />
-                <Upload description="Tap to upload a file" />
-              </div>
-              <Button
-                class="rounded-[100px] h-12 w-full mb-4 bg-lofiGray text-black"
-                variant="default"
-                type="submit"
-              >
-                Done
-              </Button>
-              {/* Change this to show a confirmation */}
-              {isEditing() ? (
-                <button onClick={() => deleteAction(parseInt(existingNote))}>
-                  Delete Entry
-                </button>
-              ) : null}
+              <Show when={(isEditing() && noteValue()) || !isEditing()}>
+                <AddNote
+                  title="New Update"
+                  placeholder="User Input"
+                  content={noteValue()}
+                />
+                <label class="text-h4">Add Media</label>
+                <div class="flex flex-row w-full gap-2">
+                  <Upload description="Tap to add a photo" />
+                  <Upload description="Tap to upload a file" />
+                </div>
+                <Button
+                  class="rounded-[100px] h-12 w-full mb-4 bg-lofiGray text-black"
+                  variant="default"
+                  type="submit"
+                >
+                  Done
+                </Button>
+                {/* Change this to show a confirmation */}
+                {isEditing() ? (
+                  <button onClick={() => deleteAction(parseInt(existingNote))}>
+                    Delete Entry
+                  </button>
+                ) : null}
+              </Show>
             </form>
           </div>
         </section>

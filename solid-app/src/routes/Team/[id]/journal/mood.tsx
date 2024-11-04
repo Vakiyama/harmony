@@ -22,6 +22,7 @@ import { Slider } from "~/components/ui/slider";
 import { showNotification } from "~/routes/api/notificationStore";
 import { MoodsWithNoteUser } from "@/schema/Moods";
 import { qualityEnum } from "../../../../../drizzle/schema/Sleeps";
+import { getRecipientName } from "~/api/team";
 
 export default function MoodTracker() {
   const params = useParams();
@@ -38,17 +39,20 @@ export default function MoodTracker() {
   const [entry, setEntry] = createSignal<
     Omit<MoodsWithNoteUser, "user"> | undefined
   >();
+  const recipient = createAsync(
+    async () => await getRecipientName(parseInt(params.id))
+  );
   const moodData = createAsync(
     async () => await getMoodById(parseInt(existingEntry))
   );
   createMemo(() => {
     setEntry(moodData());
-    console.log(moodData());
     const index = qualityEnum.findIndex((str) => {
       return str === moodData()?.wellBeing;
     });
     setWellBeing(index + 1);
   });
+  const recipientData = createMemo(() => recipient());
   const createAction = useAction(createMoodAction);
   const updateAction = useAction(updateMoodAction);
   const deleteAction = useAction(deleteMoodAction);
@@ -117,8 +121,16 @@ export default function MoodTracker() {
             class="flex flex-col mt-2 gap-2"
           >
             <div class="flex flex-col gap-2 items-center justify-center">
-              <Show when={(isEditing() && entry()) || !isEditing()}>
-                <label class="text-h4">How is Lola doing?</label>
+              <Show
+                when={
+                  (isEditing() && entry() && recipientData()) ||
+                  (!isEditing() && recipientData())
+                }
+              >
+                <label class="text-h4">{`How is ${
+                  recipientData()?.recipient?.firstName ||
+                  recipientData()?.recipient?.lastName
+                } doing?`}</label>
                 <Slider
                   id="wellBeing"
                   name="wellBeing"
@@ -128,43 +140,43 @@ export default function MoodTracker() {
                 />
               </Show>
             </div>
-            <label class="text-h4">Time of Day</label>
             <Show when={(isEditing() && entry()) || !isEditing()}>
+              <label class="text-h4">Time of Day</label>
               <RadioGroupComponent
                 id="timeFrame"
                 name="timeFrame"
                 options={["Morning", "Afternoon", "Night"]}
                 defaultValue={entry()?.timeFrame}
               />
-            </Show>
-            <div class="flex flex-col gap-2">
-              <label class="text-h4">Date</label>
-              <DatePickerComponent
-                value={entry()?.date.toLocaleDateString("en-us", {
-                  month: "long",
-                  day: "numeric",
-                  year: "numeric",
-                })}
+              <div class="flex flex-col gap-2">
+                <label class="text-h4">Date</label>
+                <DatePickerComponent
+                  value={entry()?.date.toLocaleDateString("en-us", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                />
+              </div>
+              <AddNote
+                title="What have you noticed?"
+                placeholder="Describe the situation"
+                content={entry()?.note?.note || ""}
               />
-            </div>
-            <AddNote
-              title="What have you noticed?"
-              placeholder="Describe the situation"
-              content={entry()?.note?.note || ""}
-            />
-            <Button
-              class="rounded-[100px] h-12 w-full mb-4 bg-lofiGray text-black"
-              variant="default"
-              type="submit"
-            >
-              Done
-            </Button>
-            {/* Change this to show a confirmation */}
-            {isEditing() ? (
-              <button onClick={() => deleteAction(parseInt(existingEntry))}>
-                Delete Entry
-              </button>
-            ) : null}
+              <Button
+                class="rounded-[100px] h-12 w-full mb-4 bg-lofiGray text-black"
+                variant="default"
+                type="submit"
+              >
+                Done
+              </Button>
+              {/* Change this to show a confirmation */}
+              {isEditing() ? (
+                <button onClick={() => deleteAction(parseInt(existingEntry))}>
+                  Delete Entry
+                </button>
+              ) : null}
+            </Show>
           </form>
         </div>
       </section>

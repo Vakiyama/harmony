@@ -1,37 +1,85 @@
 import RadioGroupComponent from "~/components/shadcn/RadioGroup";
 import DatePickerComponent from "~/components/shadcn/DatePicker";
-import { createSleepAction } from "~/api/journal";
-import { useAction, useNavigate } from "@solidjs/router";
-import { createSignal } from "solid-js";
+import {
+  createSleepAction,
+  deleteSleepAction,
+  getSleepById,
+  updateSleepAction,
+} from "~/api/journal";
+import {
+  createAsync,
+  useAction,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "@solidjs/router";
+import { createMemo, createSignal, Show } from "solid-js";
 import ShowError from "~/routes/Team/[id]/journal/show-error";
 import { Button } from "~/components/ui/button";
 import AddNote from "~/routes/Team/[id]/journal/add-notes";
 import Header from "./header";
 import { Slider } from "~/components/ui/slider";
 import { showNotification } from "~/routes/api/notificationStore";
+import { getRecipientName } from "~/api/team";
+import {
+  qualityEnum,
+  SleepWithNoteUser,
+} from "../../../../../drizzle/schema/Sleeps";
 
 export default function SleepTracker() {
+  const params = useParams();
+  const location = useLocation();
+  const existingEntry = location.search.split("?edit=")[1];
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
   const [error, setError] = createSignal("");
   const navigate = useNavigate();
-
-  const myAction = useAction(createSleepAction);
-  type CreateSleepActionResponse = {
+  const [isEditing, setIsEditing] = createSignal<boolean>(false);
+  const [wellBeing, setWellBeing] = createSignal<number | undefined>();
+  if (existingEntry) {
+    setIsEditing(true);
+  }
+  const [entry, setEntry] = createSignal<
+    Omit<SleepWithNoteUser, "user" | "recipient"> | undefined
+  >();
+  const recipient = createAsync(
+    async () => await getRecipientName(parseInt(params.id))
+  );
+  const sleepData = createAsync(
+    async () => await getSleepById(parseInt(existingEntry))
+  );
+  const recipientData = createMemo(() => recipient());
+  createMemo(() => {
+    setEntry(sleepData());
+    const index = qualityEnum.findIndex((str) => {
+      return str === sleepData()?.quality;
+    });
+    setWellBeing(index + 1);
+  });
+  const createAction = useAction(createSleepAction);
+  const updateAction = useAction(updateSleepAction);
+  const deleteAction = useAction(deleteSleepAction);
+  type SleepActionResponse = {
     success?: boolean;
     error?: string;
   };
   const handleSubmit = async (event: SubmitEvent) => {
     event.preventDefault();
 
-    const result: CreateSleepActionResponse = await myAction(
-      new FormData(event.target as HTMLFormElement)
-    );
+    let result: SleepActionResponse;
+    const formData = new FormData(event.target as HTMLFormElement);
+    formData.append("teamId", params.id);
+    if (isEditing()) {
+      formData.append("sleepId", existingEntry);
+      result = await updateAction(formData);
+    } else {
+      result = await createAction(formData);
+    }
 
     if (result.success) {
       setError("");
       formRef()?.reset();
       showNotification("Sleep Entry Posted");
-      navigate("/team/1/journal");
+      navigate(`/team/${params.id}/journal`);
     } else if (result.error) {
       console.error(result.error);
       setError(result.error);
@@ -54,7 +102,7 @@ export default function SleepTracker() {
             />
           </svg>
           <Header
-            title="Sleep"
+            title={isEditing() ? "Edit Entry" : "Sleep"}
             description="Log sleep hours to track nightly rest patterns."
           />
         </div>
@@ -67,47 +115,76 @@ export default function SleepTracker() {
             method="post"
           >
             <div class="flex flex-col gap-2 justify-center">
-              <label class="text-h4">Sleep Quality</label>
-              <Slider
-                id="quality"
-                name="quality"
-                minValue={1}
-                maxValue={5}
-                defaultValue={3}
-              />
-              <label class="text-h4">Night or Day</label>
-              <RadioGroupComponent
-                id="timeFrame"
-                name="timeFrame"
-                options={["Night", "Day"]}
-              />
-              <label class="text-h4">Hours Slept</label>
-              <input
-                name="duration"
-                type="number"
-                class="border border-black50 rounded-md text-center p-2"
-                placeholder="00:00"
-              />
-              <label class="text-h4">Date</label>
-              <DatePickerComponent />
-              <label>Trouble going to sleep or staying up?</label>
-              <RadioGroupComponent
-                id="troubleSleeping"
-                name="troubleSleeping"
-                options={["Yes", "No"]}
-              />
+              <Show when={(isEditing() && entry()) || !isEditing()}>
+                <label class="text-h4">Sleep Quality</label>
+                <Slider
+                  id="quality"
+                  name="quality"
+                  minValue={1}
+                  maxValue={5}
+                  defaultValue={wellBeing() || 3}
+                />
+                <label class="text-h4">Night or Day</label>
+                <RadioGroupComponent
+                  id="timeFrame"
+                  name="timeFrame"
+                  options={["Night", "Day"]}
+                  defaultValue={entry()?.timeFrame}
+                />
+                <label class="text-h4">Hours Slept</label>
+                <input
+                  name="duration"
+                  type="number"
+                  class="border border-black50 rounded-md text-center p-2"
+                  placeholder="00:00"
+                  value={entry()?.duration}
+                />
+                <label class="text-h4">Date</label>
+                <DatePickerComponent
+                  value={entry()?.date.toLocaleDateString("en-us", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                />
+                <label>Trouble going to sleep or staying up?</label>
+                <RadioGroupComponent
+                  id="troubleSleeping"
+                  name="troubleSleeping"
+                  options={["Yes", "No"]}
+                  defaultValue={
+                    entry()
+                      ? entry()?.troubleSleeping
+                        ? "Yes"
+                        : "No"
+                      : undefined
+                  }
+                />
+              </Show>
             </div>
-            <AddNote title="Add Notes" placeholder="User Input" />
-            <div class="flex justify-center">
-              <Button
-                class="rounded-[100px] h-12 w-full mb-4 bg-lofiGray text-black"
-                variant="default"
-                type="submit"
-              >
-                Done
-              </Button>
-            </div>
-            <div class="h-[88px]"></div> {/* temporary  */}
+            <Show when={(isEditing() && entry()) || !isEditing()}>
+              <AddNote
+                title="Add Notes"
+                placeholder="User Input"
+                content={entry()?.note?.note || ""}
+              />
+              <div class="flex justify-center">
+                <Button
+                  class="rounded-[100px] h-12 w-full mb-4 bg-lofiGray text-black"
+                  variant="default"
+                  type="submit"
+                >
+                  Done
+                </Button>
+              </div>
+              {/* Change this to show a confirmation */}
+              {isEditing() ? (
+                <button onClick={() => deleteAction(parseInt(existingEntry))}>
+                  Delete Entry
+                </button>
+              ) : null}
+              <div class="h-[88px]"></div> {/* temporary  */}
+            </Show>
           </form>
         </div>
       </section>
