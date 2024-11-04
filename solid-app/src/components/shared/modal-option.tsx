@@ -1,3 +1,5 @@
+import { JSXElement } from "solid-js";
+
 interface ModalOptionProps {
   title: string;
   description: string;

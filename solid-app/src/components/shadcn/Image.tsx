@@ -4,7 +4,7 @@ const ImageDemo = () => {
   return (
     <ImageRoot class="flex items-center justify-center h-48 w-48 bg-blue-300 rounded-full overflow-hidden">
       <Image
-        src="https://github.com/hngngn.png"
+        src=""
         alt="hngngn"
         class="object-cover w-full h-full rounded-full bg-blue-300"
       />
