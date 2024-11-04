@@ -29,9 +29,18 @@ export default function UserTypePick() {
       {/* pick person to care */}
       <div class="px-2">
         <p class="text-[23px] font-semi">Who is receiving care?</p>
-        <UserType name="I work in healthcare a setting" link="" />
-        <UserType name="I am a family, friend, or neighbour" link="" />
-        <UserType name="I play another role" link="" />
+        <UserType
+          name="I work in healthcare a setting"
+          link="/team/create/someone/healthcare-role"
+        />
+        <UserType
+          name="I am a family, friend, or neighbour"
+          link="/team/create/someone/family-role"
+        />
+        <UserType
+          name="I play another role"
+          link="/team/create/someone/another-role"
+        />
         {/* Space for bottom */}
         <div class="h-[32px]"></div>
       </div>
