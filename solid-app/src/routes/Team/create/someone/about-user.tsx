@@ -35,7 +35,7 @@ export default function AboutUser(props: { recipientName: string }) {
       <TeamTopNav backNavigation="/" cancelNavigation="/" />
       <div class="relative flex flex-col min-h-screen mx-2">
         <div class="flex items-center justify-center mt-2">
-          <p class="text-xs text-gray-400">5 of 8</p>
+          <p class="text-xs text-gray-400">8 of 8</p>
         </div>
         {/* upload photo part */}
         <div class="px-2 mt-6 flex flex-col flex-grow">

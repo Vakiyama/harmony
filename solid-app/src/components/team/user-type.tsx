@@ -2,18 +2,27 @@ import { A } from "@solidjs/router";
 
 export default function UserType({
   name,
+  description,
   link,
+  onClick,
 }: {
   name: string;
-  link: string;
+  description?: string;
+  link?: string;
+  onClick?: () => void;
 }) {
   return (
     <>
       <div class="relative items-center">
         <div class="flex h-[70px] bg-[#E4DEFB] rounded-[15px] mt-3 relative items-center">
-          <p class="pl-[20px] font-semi text-md justify-start">{name}</p>
+          <div class="flex flex-col">
+            <p class="pl-[20px] font-semi text-md justify-start">{name}</p>
+            <p class="pl-[20px] font-semi text-xs text-gray-500 justify-start">
+              {description}
+            </p>
+          </div>
           <A
-            href={link}
+            href={link || "/"}
             class="absolute right-4 top-1/2 transform -translate-y-1/2"
           >
             <svg
