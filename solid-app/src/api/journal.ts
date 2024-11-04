@@ -213,7 +213,6 @@ export const createTakenMedicationAction = action(
     let date: string | Date = formData.get("date") as string;
     const time = formData.get("time") as string;
     let noteId: number | null = null;
-    console.log(medication, medicationType);
     const [medicationError, medicationResult] = await mightFail(
       db
         .select()
@@ -317,7 +316,6 @@ export const getTakenMedicationById = async (takenMedicationId: number) => {
       .then((res) => res[0])
   );
   if (takenMedicationError || !takenMedicationResult) {
-    console.log(takenMedicationError);
     return undefined;
   }
 
@@ -417,7 +415,6 @@ export const updateTakenMedicationAction = action(
             db.delete(notes).where(eq(notes.id, oldEntryResult.noteId))
           );
           if (delError) {
-            console.log(delError);
             return { error: "Failed to update note." };
           }
         } else {
@@ -468,17 +465,78 @@ export const updateTakenMedicationAction = action(
         .where(eq(takenMedications.id, takenMedicationId))
     );
     if (takenMedicationError) {
-      console.error("Database insertion error:", takenMedicationError);
-      return { error: "Failed to insert medication entry." };
+      console.error("Database update error:", takenMedicationError);
+      return { error: "Failed to update medication entry." };
     }
-    return { success: true, message: "Medication successfully created." };
+    return { success: true, message: "Medication successfully updated." };
   },
   "updateTakenMedicationAction"
 );
 
+export const deleteTakenMedicationAction = action(
+  async (takenMedicationId: number) => {
+    "use server";
+    const userId = await getUserIdFromSession();
+    if (userId === undefined) {
+      return { error: "User is not Authenticated" };
+    }
+    if (!takenMedicationId) {
+      return { error: "Missing Taken Medication ID" };
+    }
+    const [originalError, originalResult] = await mightFail(
+      db
+        .select()
+        .from(takenMedications)
+        .where(
+          and(
+            eq(takenMedications.id, takenMedicationId),
+            eq(takenMedications.userId, userId)
+          )
+        )
+        .then((res) => res[0])
+    );
+    if (originalError || !originalResult) {
+      return { error: "Could not find existing Taken Medication entry" };
+    }
+    const isMember = await isMemberOfTeam(userId, originalResult.teamId);
+    if (!isMember) {
+      return { error: "Insufficient Permissions" };
+    }
+    if (originalResult.noteId) {
+      const [removeError, removeResult] = await mightFail(
+        db
+          .update(takenMedications)
+          .set({ noteId: null })
+          .where(eq(takenMedications.id, takenMedicationId))
+      );
+      if (removeError) {
+        return { error: "failed to detach note" };
+      }
+      const [deleteNoteError, deleteNoteResult] = await mightFail(
+        db.delete(notes).where(eq(notes.id, originalResult.noteId))
+      );
+      if (deleteNoteError) {
+        return { error: "Could not delete note" };
+      }
+    }
+    const [deleteMedError, deleteMedResult] = await mightFail(
+      db
+        .delete(takenMedications)
+        .where(eq(takenMedications.id, takenMedicationId))
+    );
+    if (deleteMedError) {
+      return { error: "Could not delete taken medication" };
+    }
+  },
+  "deleteTakenMedicationAction"
+);
+
 export const createMoodAction = action(async (formData: FormData) => {
   "use server";
-  const teamId = 1; //temporary
+  const teamId = parseInt(formData.get("teamId") as string);
+  if (!teamId) {
+    return { error: "Missing Team ID" };
+  }
   const userId = await getUserIdFromSession();
   if (userId === undefined) {
     return { error: "User is not Authenticated" };
@@ -537,11 +595,216 @@ export const createMoodAction = action(async (formData: FormData) => {
     db.insert(moods).values(moodInput)
   );
   if (moodError) {
+    console.error("Database update error:", moodError);
+    return { error: "Failed to update mood entry." };
+  }
+  return { success: true, message: "Mood entry updated successfully" };
+}, "createMoodAction");
+
+export const getMoodById = async (moodId: number) => {
+  "use server";
+  const userId = await getUserIdFromSession();
+  if (userId === undefined) {
+    return undefined;
+  }
+
+  const [moodError, moodResult] = await mightFail(
+    db
+      .select({
+        id: moods.id,
+        wellBeing: moods.wellBeing,
+        timeFrame: moods.timeFrame,
+        date: moods.date,
+        createdAt: moods.createdAt,
+        updatedAt: moods.updatedAt,
+        teamId: moods.teamId,
+        note: {
+          note: notes.note,
+        },
+      })
+      .from(moods)
+      .leftJoin(Users, eq(moods.userId, Users.id))
+      .leftJoin(notes, eq(moods.noteId, notes.id))
+      .where(and(eq(moods.id, moodId), eq(moods.userId, userId)))
+      .orderBy(desc(moods.createdAt))
+      .then((res) => res[0])
+  );
+  if (moodError || !moodResult) {
+    return undefined;
+  }
+
+  const isMember = await isMemberOfTeam(userId, moodResult.teamId);
+  if (!isMember) {
+    return undefined;
+  }
+
+  return moodResult;
+};
+
+export const updateMoodAction = action(async (formData: FormData) => {
+  "use server";
+  const teamId = parseInt(formData.get("teamId") as string);
+  if (!teamId) {
+    return { error: "Missing Team ID" };
+  }
+  const userId = await getUserIdFromSession();
+  if (userId === undefined) {
+    return { error: "User is not Authenticated" };
+  }
+  const isMember = await isMemberOfTeam(userId, teamId);
+  if (!isMember) {
+    return { error: "Insufficient Permissions" };
+  }
+  const moodId = parseInt(formData.get("moodId") as string);
+  if (!moodId) {
+    return { error: "Missing Mood ID" };
+  }
+  const wellBeingInput = parseInt(formData.get("wellBeing") as string);
+  const timeFrame = formData.get("timeFrame") as string;
+  let date: string | Date = formData.get("date") as string;
+  const note = formData.get("note") as string;
+  let noteId: number | null = null;
+
+  if (!wellBeingInput || wellBeingInput < 1 || wellBeingInput > 5) {
+    return { error: "Please enter a valid well-being state." };
+  }
+  const wellBeing = mapQuality(wellBeingInput);
+  if (!timeFrame) {
+    return { error: "Please enter a time frame" };
+  }
+
+  if (!isValidEnumValue(timeFrame, timeFrameEnumMoods)) {
+    return { error: "Please enter a valid time frame." };
+  }
+
+  if (!date) {
+    return { error: "Please select a date" };
+  }
+
+  date = new Date(date);
+
+  if (!date) {
+    return { error: "Please select a date" };
+  }
+
+  const [oldEntryError, oldEntryResult] = await mightFail(
+    db
+      .select()
+      .from(moods)
+      .where(and(eq(moods.id, moodId), eq(moods.userId, userId)))
+      .then((res) => res[0])
+  );
+  if (oldEntryError || !oldEntryResult) {
+    return { error: "Could not find existing journal entry" };
+  }
+  if (note !== undefined) {
+    if (oldEntryResult.noteId) {
+      if (note.length === 0) {
+        const [removeError, removeResult] = await mightFail(
+          db.update(moods).set({ noteId: null }).where(eq(moods.id, moodId))
+        );
+        if (removeError) {
+          return { error: "failed to detach note" };
+        }
+        const [delError, delResult] = await mightFail(
+          db.delete(notes).where(eq(notes.id, oldEntryResult.noteId))
+        );
+        if (delError) {
+          return { error: "Failed to update note." };
+        }
+      } else {
+        const [updateError, updateResult] = await mightFail(
+          db
+            .update(notes)
+            .set({
+              note: note,
+              updatedAt: new Date(Date.now()),
+            })
+            .where(eq(notes.id, oldEntryResult.noteId))
+        );
+
+        if (updateError) {
+          return { error: "Failed to update note." };
+        }
+      }
+    } else {
+      if (note.length !== 0) {
+        const [newError, newResult] = await mightFail(
+          db
+            .insert(notes)
+            .values({ note, category: "mood", userId, teamId })
+            .returning()
+            .then((res) => res[0])
+        );
+
+        if (newError) {
+          return { error: "Failed to create note." };
+        }
+        noteId = newResult.id;
+      }
+    }
+  }
+  const moodInput = {
+    ...(noteId ? { noteId } : {}),
+    updatedAt: new Date(Date.now()),
+    wellBeing,
+    timeFrame,
+    date,
+  };
+  const [moodError, moodResult] = await mightFail(
+    db.update(moods).set(moodInput).where(eq(moods.id, moodId))
+  );
+  if (moodError) {
     console.error("Database insertion error:", moodError);
     return { error: "Failed to create mood entry." };
   }
   return { success: true, message: "Mood entry created successfully" };
-}, "createMoodAction");
+}, "updateMoodAction");
+
+export const deleteMoodAction = action(async (moodId: number) => {
+  "use server";
+  const userId = await getUserIdFromSession();
+  if (userId === undefined) {
+    return { error: "User is not Authenticated" };
+  }
+  if (!moodId) {
+    return { error: "Missing Taken Medication ID" };
+  }
+  const [originalError, originalResult] = await mightFail(
+    db
+      .select()
+      .from(moods)
+      .where(and(eq(moods.id, moodId), eq(moods.userId, userId)))
+      .then((res) => res[0])
+  );
+  if (originalError || !originalResult) {
+    return { error: "Could not find existing Taken Medication entry" };
+  }
+  const isMember = await isMemberOfTeam(userId, originalResult.teamId);
+  if (!isMember) {
+    return { error: "Insufficient Permissions" };
+  }
+  if (originalResult.noteId) {
+    const [removeError, removeResult] = await mightFail(
+      db.update(moods).set({ noteId: null }).where(eq(moods.id, moodId))
+    );
+    if (removeError) {
+      return { error: "failed to detach note" };
+    }
+    const [deleteNoteError, deleteNoteResult] = await mightFail(
+      db.delete(notes).where(eq(notes.id, originalResult.noteId))
+    );
+    if (deleteNoteError) {
+      return { error: "Could not delete note" };
+    }
+  }
+  const [deleteMoodError, deleteMoodResult] = await mightFail(
+    db.delete(moods).where(eq(moods.id, moodId))
+  );
+  if (deleteMoodError) {
+    return { error: "Could not delete Mood" };
+  }
+}, "deleteMoodAction");
 
 export const createMealAction = action(async (formData: FormData) => {
   "use server";

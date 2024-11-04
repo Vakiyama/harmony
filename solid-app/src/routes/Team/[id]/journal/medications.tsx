@@ -1,5 +1,6 @@
 import {
   createTakenMedicationAction,
+  deleteTakenMedicationAction,
   getMedicationsFromTeamId,
   getTakenMedicationById,
   updateTakenMedicationAction,
@@ -38,7 +39,7 @@ export default function Medication() {
     }
   );
   const medications = createAsync(
-    async () => await getMedicationsFromTeamId(1),
+    async () => await getMedicationsFromTeamId(parseInt(params.id)),
     { deferStream: true }
   );
   const [isEditing, setIsEditing] = createSignal<boolean>(false);
@@ -84,7 +85,7 @@ export default function Medication() {
   });
   const createAction = useAction(createTakenMedicationAction);
   const updateAction = useAction(updateTakenMedicationAction);
-  // const deleteAction = useAction(deleteTakenMedicationAction);
+  const deleteAction = useAction(deleteTakenMedicationAction);
   type MedicationActionResponse = {
     success?: boolean;
     error?: string;
@@ -210,11 +211,11 @@ export default function Medication() {
             Done
           </Button>
           {/* Change this to show a confirmation */}
-          {/* {isEditing() ? (
+          {isEditing() ? (
             <button onClick={() => deleteAction(parseInt(existingEntry))}>
               Delete Entry
             </button>
-          ) : null} */}
+          ) : null}
         </form>
       </section>
     </main>

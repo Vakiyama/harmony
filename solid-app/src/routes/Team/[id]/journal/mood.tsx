@@ -1,37 +1,80 @@
 import RadioGroupComponent from "~/components/shadcn/RadioGroup";
 import DatePickerComponent from "~/components/shadcn/DatePicker";
-import { createMoodAction } from "~/api/journal";
-import { createSignal } from "solid-js";
-import { useAction, useNavigate } from "@solidjs/router";
+import {
+  createMoodAction,
+  deleteMoodAction,
+  getMoodById,
+  updateMoodAction,
+} from "~/api/journal";
+import { createMemo, createSignal, Show } from "solid-js";
+import {
+  createAsync,
+  useAction,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "@solidjs/router";
 import ShowError from "~/routes/Team/[id]/journal/show-error";
 import { Button } from "~/components/ui/button";
 import AddNote from "~/routes/Team/[id]/journal/add-notes";
 import Header from "./header";
 import { Slider } from "~/components/ui/slider";
 import { showNotification } from "~/routes/api/notificationStore";
+import { MoodsWithNoteUser } from "@/schema/Moods";
+import { qualityEnum } from "../../../../../drizzle/schema/Sleeps";
 
 export default function MoodTracker() {
+  const params = useParams();
+  const location = useLocation();
+  const existingEntry = location.search.split("?edit=")[1];
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
   const [error, setError] = createSignal("");
   const navigate = useNavigate();
-
-  const myAction = useAction(createMoodAction);
-  type CreateMoodActionResponse = {
+  const [isEditing, setIsEditing] = createSignal<boolean>(false);
+  const [wellBeing, setWellBeing] = createSignal<number | undefined>();
+  if (existingEntry) {
+    setIsEditing(true);
+  }
+  const [entry, setEntry] = createSignal<
+    Omit<MoodsWithNoteUser, "user"> | undefined
+  >();
+  const moodData = createAsync(
+    async () => await getMoodById(parseInt(existingEntry))
+  );
+  createMemo(() => {
+    setEntry(moodData());
+    console.log(moodData());
+    const index = qualityEnum.findIndex((str) => {
+      return str === moodData()?.wellBeing;
+    });
+    setWellBeing(index + 1);
+  });
+  const createAction = useAction(createMoodAction);
+  const updateAction = useAction(updateMoodAction);
+  const deleteAction = useAction(deleteMoodAction);
+  type MoodActionResponse = {
     success?: boolean;
     error?: string;
+    message?: string;
   };
   const handleSubmit = async (event: SubmitEvent) => {
     event.preventDefault();
 
-    const result: CreateMoodActionResponse = await myAction(
-      new FormData(event.target as HTMLFormElement)
-    );
+    let result: MoodActionResponse;
+    const formData = new FormData(event.target as HTMLFormElement);
+    formData.append("teamId", params.id);
+    if (isEditing()) {
+      formData.append("moodId", existingEntry);
+      result = await updateAction(formData);
+    } else {
+      result = await createAction(formData);
+    }
 
     if (result.success) {
       setError("");
       formRef()?.reset();
       showNotification("Mood Entry Posted");
-      navigate("/team/1/journal");
+      navigate(`/team/${params.id}/journal`);
     } else if (result.error) {
       console.error(result.error);
       setError(result.error);
@@ -61,7 +104,7 @@ export default function MoodTracker() {
             </defs>
           </svg>
           <Header
-            title="Mood"
+            title={isEditing() ? "Edit Entry" : "Mood"}
             description="Keep track of daily moods to see how the day went."
           />
         </div>
@@ -74,28 +117,40 @@ export default function MoodTracker() {
             class="flex flex-col mt-2 gap-2"
           >
             <div class="flex flex-col gap-2 items-center justify-center">
-              <label class="text-h4">How is Lola doing?</label>
-              <Slider
-                id="wellBeing"
-                name="wellBeing"
-                minValue={1}
-                maxValue={5}
-                defaultValue={3}
-              />
+              <Show when={(isEditing() && entry()) || !isEditing()}>
+                <label class="text-h4">How is Lola doing?</label>
+                <Slider
+                  id="wellBeing"
+                  name="wellBeing"
+                  minValue={1}
+                  maxValue={5}
+                  defaultValue={wellBeing() || 3}
+                />
+              </Show>
             </div>
             <label class="text-h4">Time of Day</label>
-            <RadioGroupComponent
-              id="timeFrame"
-              name="timeFrame"
-              options={["Morning", "Afternoon", "Night"]}
-            />
+            <Show when={(isEditing() && entry()) || !isEditing()}>
+              <RadioGroupComponent
+                id="timeFrame"
+                name="timeFrame"
+                options={["Morning", "Afternoon", "Night"]}
+                defaultValue={entry()?.timeFrame}
+              />
+            </Show>
             <div class="flex flex-col gap-2">
               <label class="text-h4">Date</label>
-              <DatePickerComponent />
+              <DatePickerComponent
+                value={entry()?.date.toLocaleDateString("en-us", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              />
             </div>
             <AddNote
               title="What have you noticed?"
               placeholder="Describe the situation"
+              content={entry()?.note?.note || ""}
             />
             <Button
               class="rounded-[100px] h-12 w-full mb-4 bg-lofiGray text-black"
@@ -104,6 +159,12 @@ export default function MoodTracker() {
             >
               Done
             </Button>
+            {/* Change this to show a confirmation */}
+            {isEditing() ? (
+              <button onClick={() => deleteAction(parseInt(existingEntry))}>
+                Delete Entry
+              </button>
+            ) : null}
           </form>
         </div>
       </section>
