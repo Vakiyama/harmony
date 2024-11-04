@@ -119,8 +119,15 @@ export default function Medication() {
             <div class="flex flex-col gap-2 justify-center">
               <label class="text-h4">Date & Time Taken</label>
               <div class="flex flex-row gap-2 items-center">
-                <DatePickerComponent />
-                <TimePicker time={time} setTime={setTime} name="time" />
+                <div class="flex-1">
+                  <DatePickerComponent />
+                </div>
+                <TimePicker
+                  time={time}
+                  setTime={setTime}
+                  name="time"
+                  class="flex-1"
+                />
               </div>
             </div>
             <AddNote

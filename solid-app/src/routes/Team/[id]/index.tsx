@@ -23,7 +23,7 @@ export default function SpecificTeamInfo() {
     console.log(team());
   }
   return (
-    <div class="w-full">
+    <div class="w-full mt-28">
       {/* header */}
       <Show when={teamData()}>
         <div>
