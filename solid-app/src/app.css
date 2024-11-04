@@ -19,6 +19,10 @@ p {
   font-family: "SF Pro";
 }
 
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: brightness(0) saturate(100%) opacity(50%);
+}
+
 @font-face {
   font-family: "SF Pro";
   src: url("../public/fonts/SF-Pro.ttf") format("truetype");
