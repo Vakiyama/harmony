@@ -7,7 +7,7 @@ import {
 } from "~/components/ui/landing/landing-tabs";
 import LandingImage from "./LandingImage";
 import { JournalCard } from "./journal-card/JournalCard";
-import { createAsync } from "@solidjs/router";
+import { createAsync, useParams } from "@solidjs/router";
 import { createMemo, Show } from "solid-js";
 import { getJournalsFromTeamId } from "~/api/journal";
 import ReallyTerrible from "~/routes/Team/[id]/journal/really-terrible";
@@ -17,9 +17,13 @@ import PrettyGood from "~/routes/Team/[id]/journal/pretty-good";
 import SuperAwesome from "~/routes/Team/[id]/journal/super-awesome";
 
 const LandingContent = () => {
-  const getJournals = createAsync(async () => await getJournalsFromTeamId(1), {
-    deferStream: true,
-  });
+  const teamId = useParams().id;
+  const getJournals = createAsync(
+    async () => await getJournalsFromTeamId(parseInt(teamId)),
+    {
+      deferStream: true,
+    }
+  );
   const journalsData = createMemo(() => getJournals());
   const getWellbeingSVG = (param: string) => {
     switch (param) {
@@ -106,6 +110,7 @@ const LandingContent = () => {
                   value={"mood"}
                   withMember={true}
                   member={mood.user}
+                  entryId={mood.id}
                   icon={
                     <svg
                       width="15"
@@ -186,6 +191,7 @@ const LandingContent = () => {
                   value={"medication taken"}
                   withMember={true}
                   member={med.user}
+                  entryId={med.id}
                   icon={
                     <svg
                       width="15"
@@ -266,6 +272,7 @@ const LandingContent = () => {
                   value={"notes"}
                   withMember={true}
                   member={data.user}
+                  entryId={data.id}
                   icon={
                     <svg
                       width="15"
@@ -310,6 +317,7 @@ const LandingContent = () => {
                   value={"nutrition"}
                   withMember={true}
                   member={meal.user}
+                  entryId={meal.id}
                   icon={
                     <svg
                       width="15"
@@ -409,6 +417,7 @@ const LandingContent = () => {
                   value={"sleep"}
                   withMember={true}
                   member={sleep.user}
+                  entryId={sleep.id}
                   icon={
                     <svg
                       width="15"

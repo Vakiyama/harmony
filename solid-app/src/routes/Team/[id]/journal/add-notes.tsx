@@ -1,6 +1,7 @@
 interface AddNoteProps {
   title: string;
   placeholder: string;
+  content: string | undefined;
 }
 
 export default function AddNote(props: AddNoteProps) {
@@ -12,6 +13,7 @@ export default function AddNote(props: AddNoteProps) {
         name="note"
         class="border border-black50 rounded-md p-2 min-h-[111px]"
         placeholder={props.placeholder}
+        value={props.content}
       ></textarea>
     </div>
   );

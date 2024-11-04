@@ -26,6 +26,8 @@ export default function SelectInput<T>(props: {
   setSelectedOption: Setter<T>;
   class?: string;
   name?: string;
+  value?: string;
+  defaultValue?: SelectOptions<T>;
 }) {
   const mappedOptions = () => {
     if (isStringArray(props.options)) {
@@ -38,6 +40,7 @@ export default function SelectInput<T>(props: {
   };
   return (
     <Select
+      defaultValue={props.defaultValue}
       name={props.name}
       options={mappedOptions()}
       optionValue="value"
