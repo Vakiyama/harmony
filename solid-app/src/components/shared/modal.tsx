@@ -1,3 +1,4 @@
+import { useParams } from "@solidjs/router";
 import ModalOption from "./modal-option";
 
 interface ModalProps {
@@ -5,6 +6,8 @@ interface ModalProps {
 }
 
 export default function Modal(props: ModalProps) {
+  const params = useParams();
+
   const handleClose = () => {
     if (props.onClose) {
       props.onClose();
@@ -17,7 +20,7 @@ export default function Modal(props: ModalProps) {
       onClick={handleClose}
     >
       <div
-        class="flex flex-col w-full bg-white rounded-t-[50px] p-[22px] items-center gap-2 z-10"
+        class="flex flex-col w-full bg-white rounded-t-[50px] p-[22px] items-center gap-[18px] z-10"
         onClick={(e) => e.stopPropagation()}
       >
         <button class="flex items-center mb-6 z-10" onClick={handleClose}>
@@ -41,27 +44,37 @@ export default function Modal(props: ModalProps) {
         <ModalOption
           title="Medication"
           description="Log to keep track of the medication schedule."
-          link="/team/1/journal/medications"
+          link={`/team/${params.id}/journal/medications`}
+          background="medicationTakenBackground"
+          iconBackground="#5B0E00"
         />
         <ModalOption
           title="Mood"
           description="Keep track of daily moods to see how the day went."
-          link="/team/1/journal/mood"
+          link={`/team/${params.id}/journal/mood`}
+          background="moodBackground"
+          iconBackground="#761739"
         />
         <ModalOption
           title="Nutrition"
           description="Log meals to track nutrition throughout the day."
-          link="/team/1/journal/nutrition"
+          link={`/team/${params.id}/journal/nutrition`}
+          background="nutritionBackground"
+          iconBackground="#19370E"
         />
         <ModalOption
           title="Sleep"
           description="Log sleep hours to track nightly rest patterns."
-          link="/team/1/journal/sleep"
+          link={`/team/${params.id}/journal/sleep`}
+          background="sleepBackground"
+          iconBackground="#091E54"
         />
         <ModalOption
           title="Note"
           description="Add personal notes for observations and details."
-          link="/team/1/journal/notes"
+          link={`/team/${params.id}/journal/notes`}
+          background="notesBackground"
+          iconBackground="#4E412B"
         />
       </div>
     </div>
