@@ -12,17 +12,35 @@ export default function AddMedication(props: { recipientName: string }) {
         <div class="flex items-center justify-center mt-2">
           <p class="text-xs text-gray-400">6 of 8</p>
         </div>
-        {/* upload photo part */}
         <div class="px-2 mt-6 flex flex-col flex-grow">
           <p class="text-[30px] font-semi">
             Tell us about "User's" {props.recipientName} Medication{" "}
           </p>
           <p class="text-lg font-semibold mt-4">Medication Details</p>
+          {/* only show when medication added */}
+          <div>
+            <div class="border-[1px] rounded-lg flex flex-row items-center justify-between h-[47px] mt-4">
+              <p class="text-lg m-4">Advil</p>
+              <svg
+                width="12"
+                height="19"
+                viewBox="0 0 12 19"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                class="m-4"
+              >
+                <path
+                  d="M11.291 8.39648C11.9014 9.00683 11.9014 9.99805 11.291 10.6084L3.47852 18.4209C2.86816 19.0312 1.87695 19.0312 1.2666 18.4209C0.65625 17.8105 0.65625 16.8193 1.2666 16.209L7.97559 9.5L1.27148 2.79102C0.661133 2.18066 0.661133 1.18945 1.27148 0.579102C1.88184 -0.03125 2.87305 -0.03125 3.4834 0.579102L11.2959 8.3916L11.291 8.39648Z"
+                  fill="#1E1E1E"
+                  fill-opacity="0.5"
+                />
+              </svg>
+            </div>
+          </div>
 
           {/* add med */}
-          <div class="border-[1px] w-full h-[65px] rounded-lg mt-6 grid grid-rows-3">
-            <div></div>
-            <div class="flex flex-col items-center justify-center space-y-2">
+          <div class="border-[1px] w-full h-[65px] rounded-lg mt-4 items-center">
+            <div class="flex flex-col items-center justify-center space-y-2 mt-3">
               <svg
                 width="17"
                 height="17"
@@ -31,7 +49,7 @@ export default function AddMedication(props: { recipientName: string }) {
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  d="M8.88843 1V15.0625"
+                  d="M8.38843 1V15.0625"
                   stroke="#1E1E1E"
                   stroke-opacity="0.5"
                   stroke-width="2"
@@ -39,7 +57,7 @@ export default function AddMedication(props: { recipientName: string }) {
                   stroke-linejoin="round"
                 />
                 <path
-                  d="M15.5625 8.03125H1.5"
+                  d="M15.0625 8.03125H1"
                   stroke="#1E1E1E"
                   stroke-opacity="0.5"
                   stroke-width="2"
@@ -48,12 +66,7 @@ export default function AddMedication(props: { recipientName: string }) {
                 />
               </svg>
 
-              <a
-                href="/team/create/someone/medication-detail"
-                class="text-xs text-gray-400"
-              >
-                Add Medication
-              </a>
+              <p class="text-xs text-gray-400">Add Medication</p>
             </div>
           </div>
 
