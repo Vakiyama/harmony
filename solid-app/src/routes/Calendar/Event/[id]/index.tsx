@@ -5,6 +5,7 @@ import {
   createSignal,
   For,
   Match,
+  onMount,
   Show,
   Switch,
 } from "solid-js";
@@ -33,24 +34,62 @@ import { User } from "@/schema/Users";
 import SelectMultipleInput from "~/components/shadcn/MultiSelect";
 import TextArea from "../../Create/TextAreaInput";
 import { mightFail } from "might-fail";
+import { EventParticipants } from "@/schema/EventParticipants";
+
+type Participant = {
+  participant: {
+    id: number;
+    photo: string | null;
+    firstName: string;
+    lastName: string;
+    email: string;
+    kindeId: string;
+    displayName: string;
+    createdAt: Date;
+    updatedAt: Date;
+    roleType: string;
+    birthDate: Date | null;
+  };
+  status: "yes" | "maybe" | "no" | null;
+  eventParticipantId: number;
+  role: string | null;
+};
+
+const parseTeamMemberToOption = (
+  data: { teammembers: TeamMember; users: User }[] | undefined
+) =>
+  data
+    ? data.map((data) => {
+        return {
+          value: data.teammembers.userId,
+          label: data.users.displayName,
+        };
+      })
+    : [];
 
 export default function EventPage() {
   const params = useParams();
   const navigate = useNavigate();
 
-  const event = createAsync(
-    async () => await getEvent(parseInt(params.id)),
-    {}
+  const [event, { refetch }] = createResource(
+    async () => await getEvent(parseInt(params.id))
   );
+
   const teamMembers = createAsync(
     // temp get teamId first
     async () => await getTeamMembersFromTeamId(1),
     { deferStream: true }
   );
 
-  const [participants] = createResource(async () => {
-    const response = await getEventParticipants(parseInt(params.id));
-    return response;
+  const [participants, setParticipants] = createSignal<Participant[]>([]);
+
+  const fetchParticipants = async () => {
+    const participants = await getEventParticipants(parseInt(params.id));
+    setParticipants(participants);
+  };
+
+  onMount(async () => {
+    await fetchParticipants();
   });
 
   const [isTeamMembersOpen, setIsTeamMembersOpen] = createSignal(false);
@@ -64,18 +103,6 @@ export default function EventPage() {
     participants()?.map((p) => p.participant.id) ?? []
   );
   const [notes, setNotes] = createSignal(event()?.notes ?? "");
-
-  const parseTeamMemberToOption = (
-    data: { teammembers: TeamMember; users: User }[] | undefined
-  ) =>
-    data
-      ? data.map((data) => {
-          return {
-            value: data.teammembers.userId,
-            label: data.users.displayName,
-          };
-        })
-      : [];
 
   const teamMemberOptions = createMemo(() =>
     parseTeamMemberToOption(teamMembers())
@@ -96,6 +123,15 @@ export default function EventPage() {
   };
 
   const handleDeleteEvent = async () => {
+    for (const participant of participants()) {
+      const [deleteEventParticipantsError, deleteEventParticipantsResult] =
+        await mightFail(
+          deleteEventParticipant(participant.participant.id, event()?.id!)
+        );
+      if (deleteEventParticipantsError) {
+        return console.error(deleteEventParticipantsError);
+      }
+    }
     const [deleteEventError, deleteEventResult] = await mightFail(
       deleteEvent(event()?.id!)
     );
@@ -106,7 +142,6 @@ export default function EventPage() {
   };
 
   const handleUpdateEvent = async () => {
-    console.log("help");
     const [updateEventError, updateEventResult] = await mightFail(
       updateEvent(event()?.id!, {
         location: location(),
@@ -118,24 +153,23 @@ export default function EventPage() {
     if (updateEventError) {
       return console.error(updateEventError);
     }
+    const participantIds = participants()?.map((p) => p.participant.id)!;
 
     const deletedMembers =
-      participants()
-        ?.map((p) => p.eventParticipantId)
-        .filter((id) => !teamMemberIds().includes(id)) ?? [];
+      participantIds.filter((id) => teamMemberIds().includes(id)) ?? [];
 
     for (const deletedMember of deletedMembers) {
       const [deletedMemberError, deletedMemberResult] = await mightFail(
-        deleteEventParticipant(deletedMember)
+        deleteEventParticipant(deletedMember, event()?.id!)
       );
       if (deletedMemberError) {
         return console.error(deletedMemberError);
       }
     }
-    const newMembers =
-      participants()
-        ?.map((p) => p.participant.id)
-        .filter((id) => teamMemberIds().includes(id)) ?? [];
+
+    const newMembers = teamMemberIds()?.filter(
+      (id) => !participantIds.includes(id)
+    );
 
     for (const newMember of newMembers) {
       const [newMemberError, newMemberResult] = await mightFail(
@@ -145,7 +179,10 @@ export default function EventPage() {
         return console.error(newMemberError);
       }
     }
-    console.log("kasjd");
+    await refetch();
+    await fetchParticipants();
+    closeModal();
+    // temp need to invalidate
   };
 
   const statusCount = {

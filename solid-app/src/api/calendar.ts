@@ -179,11 +179,19 @@ export const createEventParticipant = async (
   return newEventParticipant;
 };
 
-export const deleteEventParticipant = async (eventParticipantId: number) => {
+export const deleteEventParticipant = async (
+  userId: number,
+  eventId: number
+) => {
   "use server";
   await db
     .delete(eventParticipants)
-    .where(eq(eventParticipants.id, eventParticipantId))
+    .where(
+      and(
+        eq(eventParticipants.userId, userId),
+        eq(eventParticipants.eventId, eventId)
+      )
+    )
     .execute();
 };
 

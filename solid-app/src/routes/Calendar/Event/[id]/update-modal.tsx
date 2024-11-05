@@ -40,7 +40,10 @@ export default function UpdateEventModal(props: {
           </svg>
         </button>
         <div class="flex justify-between w-full mb-3">
-          <button class="text-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
+          <button
+            class="text-[#1e1e1e] text-base font-normal font-sf-pro leading-tight"
+            onclick={props.onClose}
+          >
             Back
           </button>
           <p class="text-[#1e1e1e] text-[19px] font-medium font-grotesque leading-[22.80px]">
