@@ -35,6 +35,7 @@ import SelectMultipleInput from "~/components/shadcn/MultiSelect";
 import TextArea from "../../Create/TextAreaInput";
 import { mightFail } from "might-fail";
 import { EventParticipants } from "@/schema/EventParticipants";
+import DeleteConfirmation from "~/components/shared/delete-confirmation";
 
 type Participant = {
   participant: {
@@ -104,6 +105,7 @@ export default function EventPage() {
   );
   const [notes, setNotes] = createSignal(event()?.notes ?? "");
 
+  const [isDeleteOpen, setIsDeleteOpen] = createSignal(false);
   const teamMemberOptions = createMemo(() =>
     parseTeamMemberToOption(teamMembers())
   );
@@ -116,12 +118,16 @@ export default function EventPage() {
     setIsModalOpen(false);
   };
 
-  const handleBackdropClick = (e: Event) => {
+  const handleBackdropModalClick = (e: Event) => {
     if (e.target === e.currentTarget) {
       closeModal();
     }
   };
-
+  const handleBackdropDeleteClick = (e: Event) => {
+    if (e.target === e.currentTarget) {
+      setIsDeleteOpen(false);
+    }
+  };
   const handleDeleteEvent = async () => {
     for (const participant of participants()) {
       const [deleteEventParticipantsError, deleteEventParticipantsResult] =
@@ -349,7 +355,7 @@ export default function EventPage() {
         {isModalOpen() && (
           <div
             class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]" //temp z-60 to override navbar
-            onClick={handleBackdropClick}
+            onClick={handleBackdropModalClick}
           >
             <UpdateEventModal onClose={closeModal} update={handleUpdateEvent}>
               <div class="w-full flex flex-col gap-2">
@@ -408,11 +414,26 @@ export default function EventPage() {
               />
               <button
                 class="bg-[#1e1e1e]/10 font-sf-pro w-[367px] text-[#fe463c] rounded-full h-[48px]"
-                onClick={handleDeleteEvent}
+                onClick={() => setIsDeleteOpen(!isDeleteOpen())}
               >
                 Delete Event
               </button>
             </UpdateEventModal>
+          </div>
+        )}
+        {isDeleteOpen() && (
+          <div
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]" //temp z-60 to override navbar
+            onClick={handleBackdropDeleteClick}
+          >
+            <DeleteConfirmation
+              onDelete={handleDeleteEvent}
+              buttonText=" Event"
+              description="Are you sure you want to delete this event"
+              onCancel={() => {}}
+              onClose={() => setIsDeleteOpen(false)}
+              title="Event"
+            />
           </div>
         )}
         {/* temp */}
