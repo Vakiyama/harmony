@@ -1,7 +1,7 @@
 import { integer, text, sqliteTable } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
-import { Teams } from "./Teams";
-import { Users } from "./Users";
+import { teams } from "./Teams";
+import { users } from "./Users";
 
 export const medications = sqliteTable("medications", {
   id: integer("id").primaryKey().unique().notNull(),
@@ -20,7 +20,7 @@ export const medications = sqliteTable("medications", {
     .notNull()
     .default(sql`(unixepoch())`),
   teamId: integer("team_id")
-    .references(() => Teams.id)
+    .references(() => teams.id)
     .notNull(),
 });
 

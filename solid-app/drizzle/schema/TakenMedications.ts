@@ -1,8 +1,8 @@
 import { integer, text, sqliteTable } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 import { AttachedNote, notes } from "./Notes";
-import { Teams } from "./Teams";
-import { AttachedUser, Users } from "./Users";
+import { teams } from "./Teams";
+import { AttachedUser, users } from "./Users";
 import { Medications, medications } from "./Medications";
 
 export const takenMedications = sqliteTable("taken_medications", {

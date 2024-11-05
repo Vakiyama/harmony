@@ -2,32 +2,40 @@ import { A } from "@solidjs/router";
 import TextFieldLine from "~/components/shared/text-field-line";
 import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
+import UploadPhoto from "./upload-photo";
+import { createSignal } from "solid-js";
 
 export default function CreateSomeone() {
+  const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
   return (
     <>
       <TeamTopNav backNavigation="/" cancelNavigation="/" />
-      <div class="relative flex flex-col min-h-screen mx-4">
-        <div class="flex items-center justify-center mt-2">
-          <p class="text-xs text-gray-400">2 of 8</p>
-        </div>
-        {/* Space */}
-        <div class="flex-grow"></div>
-        {/* pick person to care */}
-        <div class="px-2">
-          <p class="text-[23px] font-semi">Who is receiving care?</p>
-          <TextFieldLine
-            key=""
-            name="recipient name"
-            label=""
-            placeholder="Enter name"
-          />
-          <Button class="rounded-full w-full mt-4 bg-[#AE9BF2] text-black h-[50px]">
-            Next
-          </Button>
-        </div>
-        {/* Space for bottom */}
-        <div class="h-[122px]"></div> {/* temporary */}
+      <div>
+        <form ref={setFormRef}>
+          <div class="relative flex flex-col min-h-screen mx-4">
+            <div class="flex items-center justify-center mt-2">
+              <p class="text-xs text-gray-400">2 of 8</p>
+            </div>
+            {/* Space */}
+            <div class="flex-grow"></div>
+            {/* pick person to care */}
+            <div class="px-2">
+              <p class="text-[23px] font-semi">Who is receiving care?</p>
+              <TextFieldLine
+                key=""
+                name="recipient name"
+                label=""
+                placeholder="Enter name"
+              />
+              <Button class="rounded-full w-full mt-4 bg-[#AE9BF2] text-black h-[50px]">
+                Next
+              </Button>
+            </div>
+            {/* Space for bottom */}
+            <div class="h-[122px]"></div> {/* temporary */}
+          </div>
+          {/* <UploadPhoto></UploadPhoto> */}
+        </form>
       </div>
     </>
   );

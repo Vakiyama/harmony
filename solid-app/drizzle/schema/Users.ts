@@ -15,7 +15,7 @@ export const Users = sqliteTable("users", {
   updatedAt: integer("updated_at", { mode: "timestamp" })
     .notNull()
     .default(sql`(unixepoch())`),
-  roleType: text("role_type").notNull(), // family/neighbor - company - other
+  // roleType: text("role_type").notNull(), // family/neighbor - company - other
   birthDate: integer("birth_date", { mode: "timestamp" }),
 });
 

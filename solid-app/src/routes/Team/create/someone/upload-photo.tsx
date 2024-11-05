@@ -3,7 +3,7 @@ import TextFieldLine from "~/components/shared/text-field-line";
 import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
 
-export default function UploadPhoto(props: { recipientName: string }) {
+export default function UploadPhoto() {
   return (
     <>
       <TeamTopNav backNavigation="/" cancelNavigation="/" />
@@ -14,9 +14,7 @@ export default function UploadPhoto(props: { recipientName: string }) {
         </div>
         {/* upload photo part */}
         <div class="px-2 mt-6 flex flex-col flex-grow">
-          <p class="text-[30px] font-semi">
-            Upload a photo of "User" {props.recipientName}
-          </p>
+          <p class="text-[30px] font-semi">Upload a photo of "User"</p>
           <p class="text-xs text-gray-400">
             Choose your team's cover photo to identify your team and make it
             recognizable

@@ -1,6 +1,6 @@
 import { sqliteTable, integer, text } from "drizzle-orm/sqlite-core";
 import { events } from "./Events";
-import { Users } from "./Users";
+import { users } from "./Users";
 
 export const eventStatusesEnum = ["yes", "maybe", "no"] as const;
 export type EventStatusesEnum = typeof eventStatusesEnum;
@@ -11,7 +11,7 @@ export const eventParticipants = sqliteTable("event_participants", {
     .references(() => events.id)
     .notNull(),
   userId: integer("user_id")
-    .references(() => Users.id)
+    .references(() => users.id)
     .notNull(),
   status: text("status", { enum: eventStatusesEnum }),
 });
