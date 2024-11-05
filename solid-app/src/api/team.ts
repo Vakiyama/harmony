@@ -1,14 +1,16 @@
-import { action, useParams } from "@solidjs/router";
+import { action } from "@solidjs/router";
 import { sessionManager } from "./kinde";
 import { mightFail } from "might-fail";
 import { db } from "./db";
-import { Medications, medications } from "../../drizzle/schema/Medications";
-import { TeamMembers } from "../../drizzle/schema/TeamMembers";
+import { medications } from "../../drizzle/schema/Medications";
+import { isMemberOfTeam } from "./dbHelper";
+import { getUserIdFromSession } from "./server";
 import { and, eq } from "drizzle-orm";
-import { Team, TeamFromTeamId, Teams } from "../../drizzle/schema/Teams";
-import { AttachedUserWithTeamRole, Users } from "../../drizzle/schema/Users";
-import { Recipient, Recipients } from "../../drizzle/schema/Recipients";
+import { TeamFromTeamId, Teams } from "../../drizzle/schema/Teams";
+import { Users } from "../../drizzle/schema/Users";
+import { Recipients } from "../../drizzle/schema/Recipients";
 import { getMedicationsFromTeamId } from "./journal";
+import { TeamMembers } from "../../drizzle/schema/TeamMembers";
 
 export const createMedicationAction = action(async (formData: FormData) => {
   "use server";
@@ -25,16 +27,8 @@ export const createMedicationAction = action(async (formData: FormData) => {
   }
 
   //validate user is a member of the team
-  const [memberError, memberResult] = await mightFail(
-    db
-      .select()
-      .from(TeamMembers)
-      .where(
-        and(eq(TeamMembers.userId, userId), eq(TeamMembers.teamId, teamId))
-      )
-  );
-  if (memberError || !memberResult.length) {
-    memberError ? console.error(memberError) : "";
+  const isMember = await isMemberOfTeam(userId, teamId);
+  if (!isMember) {
     return { error: "Insufficient Permissions" };
   }
 
@@ -74,7 +68,6 @@ export const createMedicationAction = action(async (formData: FormData) => {
     ...(pharmacyImg ? { pharmacyImg } : {}),
   };
 
-  console.log(medicationInput);
   const [medicationError, medicationResult] = await mightFail(
     db.insert(medications).values(medicationInput)
   );
@@ -84,6 +77,35 @@ export const createMedicationAction = action(async (formData: FormData) => {
   }
   return { success: true, message: "Medication successfully created." };
 }, "createMedicationAction");
+
+export const getRecipientName = async (teamId: number) => {
+  "use server";
+  const userId = await getUserIdFromSession();
+  if (userId === undefined) {
+    return undefined;
+  }
+  const isMember = await isMemberOfTeam(userId, teamId);
+  if (!isMember) {
+    return undefined;
+  }
+  const [recipientError, recipientResult] = await mightFail(
+    db
+      .select({
+        recipient: {
+          firstName: Recipients.firstName,
+          lastName: Recipients.lastName,
+        },
+      })
+      .from(Teams)
+      .where(eq(Teams.id, teamId))
+      .leftJoin(Recipients, eq(Teams.recipientId, Recipients.id))
+      .then((res) => res[0])
+  );
+  if (recipientError || !recipientResult) {
+    return undefined;
+  }
+  return recipientResult;
+};
 
 export const getListOfTeams = async () => {
   "use server";

@@ -1,4 +1,5 @@
 import { twMerge } from "tailwind-merge";
+import { formatTimeForPicker } from "~/lib/formateDateLocal";
 
 interface TimeProps {
   time: () => string | null; // Time can initially be null to simulate the placeholder
@@ -8,9 +9,7 @@ interface TimeProps {
 }
 
 export default function TimePicker(props: TimeProps) {
-  const hour = new Date(Date.now()).getHours();
-  const mins = new Date(Date.now()).getMinutes();
-  const placeholderTime = `${hour}:${mins}`.toString();
+  const placeholderTime = formatTimeForPicker(new Date(Date.now()));
 
   return (
     <input

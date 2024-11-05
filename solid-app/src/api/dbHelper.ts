@@ -1,3 +1,27 @@
-export function isValidEnumValue<T extends readonly string[]>(value: string, enumArray: T): value is T[number] {
+import { mightFail } from "might-fail";
+import { db } from "./db";
+import { TeamMembers } from "../../drizzle/schema/TeamMembers";
+import { and, eq } from "drizzle-orm";
+
+export function isValidEnumValue<T extends readonly string[]>(
+  value: string,
+  enumArray: T
+): value is T[number] {
   return (enumArray as readonly string[]).includes(value);
+}
+
+export async function isMemberOfTeam(userId: number, teamId: number) {
+  "use server";
+  const [memberError, memberResult] = await mightFail(
+    db
+      .select()
+      .from(TeamMembers)
+      .where(
+        and(eq(TeamMembers.userId, userId), eq(TeamMembers.teamId, teamId))
+      )
+  );
+  if (memberError || !memberResult.length) {
+    return false;
+  }
+  return true;
 }

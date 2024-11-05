@@ -1,7 +1,18 @@
 "use client";
-import { createNoteAction } from "~/api/journal";
-import { createSignal } from "solid-js";
-import { useAction, useNavigate, useParams } from "@solidjs/router";
+import {
+  createNoteAction,
+  deleteNoteAction,
+  getNoteById,
+  updateNoteAction,
+} from "~/api/journal";
+import { createMemo, createSignal, Show } from "solid-js";
+import {
+  createAsync,
+  useAction,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "@solidjs/router";
 import ShowError from "~/routes/Team/[id]/journal/show-error";
 import { Button } from "~/components/ui/button";
 import AddNote from "~/routes/Team/[id]/journal/add-notes";
@@ -11,22 +22,46 @@ import { showNotification } from "~/routes/api/notificationStore";
 import NotesIcon from "~/components/icon/notes-icon";
 
 export default function CreateNote() {
+  const params = useParams();
+  const location = useLocation();
+  const existingNote = location.search.split("?edit=")[1];
+  const noteData = createAsync(
+    async () => await getNoteById(parseInt(existingNote)),
+    {
+      deferStream: true,
+    }
+  );
+  const [isEditing, setIsEditing] = createSignal<boolean>(false);
+  if (existingNote) {
+    setIsEditing(true);
+  }
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
+  const [noteValue, setNoteValue] = createSignal<string | undefined>();
   const [error, setError] = createSignal("");
   const navigate = useNavigate();
-  const params = useParams();
-
-  const myAction = useAction(createNoteAction);
-  type CreateNoteActionResponse = {
-    success?: boolean;
+  createMemo(() => {
+    setNoteValue(noteData()?.note);
+  });
+  const createAction = useAction(createNoteAction);
+  const updateAction = useAction(updateNoteAction);
+  const deleteAction = useAction(deleteNoteAction);
+  type NoteActionResponse = {
     error?: string;
+    success?: boolean;
+    message?: string;
   };
   const handleSubmit = async (event: SubmitEvent) => {
     event.preventDefault();
 
-    const result: CreateNoteActionResponse = await myAction(
-      new FormData(event.target as HTMLFormElement)
-    );
+    const formData = new FormData(event.target as HTMLFormElement);
+    formData.append("teamId", params.id);
+    let result: NoteActionResponse;
+    if (isEditing()) {
+      formData.append("noteId", existingNote);
+      result = await updateAction(formData);
+    } else {
+      result = await createAction(formData);
+    }
 
     if (result.success) {
       setError("");
@@ -45,7 +80,7 @@ export default function CreateNote() {
           <div class="flex flex-col items-center gap-1 mt-16">
             <NotesIcon iconColor="#F7D844" bgColor="#4E412B" />
             <Header
-              title="Note"
+              title={isEditing() ? "Edit Entry" : "Note"}
               description="Add personal notes to note details and observations for the day."
             />
           </div>
@@ -57,22 +92,31 @@ export default function CreateNote() {
               method="post"
               class="flex flex-col gap-5"
             >
-              <AddNote
-                title="New Update"
-                placeholder="Add your notes for the day!"
-              />
-              <label class="text-h4">Add Media</label>
-              <div class="flex flex-row w-full gap-2">
-                <Upload description="Tap to add a photo" />
-                <Upload description="Tap to upload a file" />
-              </div>
-              <Button
-                class="rounded-[100px] h-12 w-full mb-4 bg-primary-purple-300 text-black"
-                variant="default"
-                type="submit"
-              >
-                Finish Entry
-              </Button>
+              <Show when={(isEditing() && noteValue()) || !isEditing()}>
+                <AddNote
+                  title="New Update"
+                  placeholder="Add your notes for the day!"
+                  content={noteValue()}
+                />
+                <label class="text-h4">Add Media</label>
+                <div class="flex flex-row w-full gap-2">
+                  <Upload description="Tap to add a photo" />
+                  <Upload description="Tap to upload a file" />
+                </div>
+                <Button
+                  class="rounded-[100px] h-12 w-full mb-4 bg-primary-purple-300 text-black"
+                  variant="default"
+                  type="submit"
+                >
+                  Finish Entry
+                </Button>
+                {/* Change this to show a confirmation */}
+                {isEditing() ? (
+                  <button onClick={() => deleteAction(parseInt(existingNote))}>
+                    Delete Entry
+                  </button>
+                ) : null}
+              </Show>
             </form>
           </div>
         </section>

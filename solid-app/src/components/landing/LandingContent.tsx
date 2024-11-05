@@ -6,7 +6,7 @@ import {
   TabsTrigger,
 } from "~/components/ui/landing/landing-tabs";
 import { JournalCard } from "./journal-card/JournalCard";
-import { createAsync } from "@solidjs/router";
+import { createAsync, useParams } from "@solidjs/router";
 import { createMemo, Show } from "solid-js";
 import { getJournalsFromTeamId } from "~/api/journal";
 import ReallyTerrible from "~/routes/Team/[id]/journal/really-terrible";
@@ -22,9 +22,13 @@ import NutritionIcon from "../icon/nutrition-icon";
 import SleepIcon from "../icon/sleep-icon";
 
 const LandingContent = () => {
-  const getJournals = createAsync(async () => await getJournalsFromTeamId(1), {
-    deferStream: true,
-  });
+  const teamId = useParams().id;
+  const getJournals = createAsync(
+    async () => await getJournalsFromTeamId(parseInt(teamId)),
+    {
+      deferStream: true,
+    }
+  );
   const journalsData = createMemo(() => getJournals());
 
   const getTabIcon = (tabName: string) => {
@@ -134,6 +138,7 @@ const LandingContent = () => {
                   value={"medication taken"}
                   withMember={true}
                   member={med.user}
+                  entryId={med.id}
                   icon={
                     <MedicationIcon
                       height="15"
@@ -142,6 +147,14 @@ const LandingContent = () => {
                     />
                   }
                   sections={[
+                    {
+                      title: "Taken or Skipped?",
+                      content: (
+                        <p class="text-subtitle">
+                          {med.hasMissed ? "Missed" : "Taken"}
+                        </p>
+                      ),
+                    },
                     {
                       title: "Selected Medication",
                       content: (
@@ -205,6 +218,7 @@ const LandingContent = () => {
                   value={"mood"}
                   withMember={true}
                   member={mood.user}
+                  entryId={mood.id}
                   icon={<MoodIcon width="14" height="14" iconColor="#FE83B0" />}
                   sections={[
                     {
@@ -263,6 +277,7 @@ const LandingContent = () => {
               );
             })}
           </Show>
+
           <Show when={journalsData()}>
             {journalsData()?.notes.map((data) => {
               return (
@@ -272,6 +287,7 @@ const LandingContent = () => {
                   value={"notes"}
                   withMember={true}
                   member={data.user}
+                  entryId={data.id}
                   icon={
                     <NotesIcon
                       width="14"
@@ -310,6 +326,7 @@ const LandingContent = () => {
                   value={"nutrition"}
                   withMember={true}
                   member={meal.user}
+                  entryId={meal.id}
                   icon={
                     <NutritionIcon
                       width="14"
@@ -399,6 +416,7 @@ const LandingContent = () => {
                   value={"sleep"}
                   withMember={true}
                   member={sleep.user}
+                  entryId={sleep.id}
                   icon={
                     <SleepIcon
                       height="15"

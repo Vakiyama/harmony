@@ -20,7 +20,7 @@ export default function NavBar() {
     {
       icon: <JournalIcon />,
       label: "Journal",
-      href: `/team/${params.id}/journal`,
+      href: `/team/1/journal`, //temp until we set through app
     },
     { icon: <ProfileIcon />, label: "Profile", href: "/profile" },
   ];

@@ -18,7 +18,7 @@ import {
 import { Index } from "solid-js";
 import { Portal } from "solid-js/web";
 
-const DatePickerComponent = (props: { required?: boolean }) => {
+const DatePickerComponent = (props: { required?: boolean; value?: string }) => {
   return (
     <DatePicker>
       <DatePickerInput
@@ -26,6 +26,7 @@ const DatePickerComponent = (props: { required?: boolean }) => {
         name="date"
         placeholder="Pick a date"
         required={props.required}
+        value={props.value}
       />
       <Portal>
         <DatePickerContent>
