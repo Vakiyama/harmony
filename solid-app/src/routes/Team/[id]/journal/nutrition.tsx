@@ -24,6 +24,7 @@ import { showNotification } from "~/routes/api/notificationStore";
 import NutritionIcon from "~/components/icon/nutrition-icon";
 import { MealWithNoteUser } from "@/schema/Meals";
 import { getRecipientName } from "~/api/team";
+import DeleteConfirmation from "~/components/shared/delete-confirmation";
 
 export default function NutritionTracker() {
   const params = useParams();
@@ -38,6 +39,10 @@ export default function NutritionTracker() {
       deferStream: true,
     }
   );
+
+  const [showDeleteConfirmation, setShowDeleteConfirmation] =
+    createSignal(false);
+
   const [isEditing, setIsEditing] = createSignal<boolean>(false);
   if (existingEntry) {
     setIsEditing(true);
@@ -75,13 +80,26 @@ export default function NutritionTracker() {
     if (result.success) {
       setError("");
       formRef()?.reset();
-      showNotification("Nutrition Entry Posted");
+      showNotification(
+        isEditing() ? "Nutrition Entry Updated" : "Nutrition Entry Posted"
+      );
       navigate(`/team/${params.id}/journal`);
     } else if (result.error) {
       console.error(result.error);
       setError(result.error);
     }
   };
+
+  const handleDelete = async () => {
+    const result = await deleteAction(parseInt(existingEntry));
+    if (result.success) {
+      showNotification("Nutrition Entry Deleted");
+      navigate(`/team/${params.id}/journal`);
+    } else {
+      console.error("Error deleting entry:", result.error);
+    }
+  };
+
   return (
     <main class="w-full h-full p-4 flex flex-col items-center justify-center space-y-2">
       <section class="mt-8 mb-8 flex flex-col w-full h-full justify-center text-start">
@@ -184,21 +202,33 @@ export default function NutritionTracker() {
                 content={entry()?.note?.note || ""}
               />
               <Button
-                class="rounded-[100px] h-12 w-full mb-4 bg-primary-purple-300 text-black"
+                class="rounded-[100px] h-12 w-full bg-primary-purple-300 text-black"
                 variant="default"
                 type="submit"
               >
                 Finish Entry
               </Button>
-              {/* Change this to show a confirmation */}
-              {isEditing() ? (
-                <button onClick={() => deleteAction(parseInt(existingEntry))}>
+              {isEditing() && (
+                <Button
+                  onClick={() => setShowDeleteConfirmation(true)}
+                  class="bg-transparent shadow-none font-sf-pro font-medium text-base text-error hover:bg-transparent"
+                >
                   Delete Entry
-                </button>
-              ) : null}
+                </Button>
+              )}
             </Show>
           </form>
         </div>
+        <Show when={showDeleteConfirmation()}>
+          <DeleteConfirmation
+            title="Journal Entry"
+            description="this entry"
+            buttonText="Entry"
+            onCancel={() => setShowDeleteConfirmation(false)}
+            onClose={() => setShowDeleteConfirmation(false)}
+            onDelete={handleDelete}
+          />
+        </Show>
       </section>
     </main>
   );

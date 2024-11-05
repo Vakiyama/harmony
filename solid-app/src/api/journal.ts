@@ -187,6 +187,8 @@ export const deleteNoteAction = action(async (noteId: number) => {
   if (deleteError) {
     return { error: "Could not delete note" };
   }
+
+  return { success: true, message: "Note successfully deleted" };
 }, "deleteNoteAction");
 
 export const createTakenMedicationAction = action(
@@ -550,6 +552,8 @@ export const deleteTakenMedicationAction = action(
     if (deleteMedError) {
       return { error: "Could not delete taken medication" };
     }
+
+    return { success: true, message: "Medication successfully deleted" };
   },
   "deleteTakenMedicationAction"
 );
@@ -658,6 +662,7 @@ export const getMoodById = async (moodId: number) => {
   if (!isMember) {
     return undefined;
   }
+
   return moodResult;
 };
 
@@ -824,6 +829,7 @@ export const deleteMoodAction = action(async (moodId: number) => {
   if (deleteMoodError) {
     return { error: "Could not delete Mood" };
   }
+  return { success: true, message: "Mood entry deleted successfully" };
 }, "deleteMoodAction");
 
 export const createMealAction = action(async (formData: FormData) => {
@@ -1115,12 +1121,14 @@ export const deleteMealAction = action(async (mealId: number) => {
       return { error: "Could not delete note" };
     }
   }
-  const [deleteMoodError, deleteMoodResult] = await mightFail(
+  const [deleteMealError, deleteMealResult] = await mightFail(
     db.delete(meals).where(eq(meals.id, mealId))
   );
-  if (deleteMoodError) {
+  if (deleteMealError) {
     return { error: "Could not delete Meal" };
   }
+
+  return { success: true, message: "Nutrition entry deleted successfully" };
 }, "deleteMealAction");
 
 export const createSleepAction = action(async (formData: FormData) => {
@@ -1421,12 +1429,14 @@ export const deleteSleepAction = action(async (sleepId: number) => {
       return { error: "Could not delete note" };
     }
   }
-  const [deleteMoodError, deleteMoodResult] = await mightFail(
+  const [deleteSleepError, deleteSleepResult] = await mightFail(
     db.delete(sleeps).where(eq(sleeps.id, sleepId))
   );
-  if (deleteMoodError) {
-    return { error: "Could not delete Meal" };
+  if (deleteSleepError) {
+    return { error: "Could not delete Sleep" };
   }
+
+  return { success: true, message: "Sleep entry deleted successfully" };
 }, "deleteSleepAction");
 
 export const getMedicationsFromTeamId = async (teamId: number) => {
