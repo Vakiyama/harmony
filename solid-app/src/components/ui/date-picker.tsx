@@ -239,7 +239,7 @@ export const DatePickerInput = (props: DatePickerInputProps) => {
   const [local, rest] = splitProps(props, ["class", "children"]);
 
   return (
-    <DatePickerPrimitive.Control class="flex h-9 w-full rounded-md border border-black50 bg-background px-3 py-1 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-[1.5px] focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50">
+    <DatePickerPrimitive.Control class="flex h-9 w-full rounded-md border border-lofiGray bg-background px-3 py-1 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-[1.5px] focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50">
       <DatePickerPrimitive.Input
         class={cn(
           "w-full appearance-none bg-transparent outline-none",
@@ -255,7 +255,7 @@ export const DatePickerInput = (props: DatePickerInputProps) => {
         >
           <path
             fill="none"
-            stroke="currentColor"
+            stroke="rgb(30,30,30, 0.5)"
             stroke-linecap="round"
             stroke-linejoin="round"
             stroke-width="2"

@@ -83,6 +83,8 @@ module.exports = {
         black50: "rgb(30,30,30, 0.5)",
         black75: "rgb(30,30,30, 0.75)",
         "primary-purple-500": "#7859EA",
+        "primary-purple-300": "#AE9BF2",
+        "primary-purple-150": "#D6CDF9",
         notesIconBackground: "#4E412B",
         notesBackground: "#FCEFB4",
         sleepIconBackground: "#091E54",
@@ -93,6 +95,7 @@ module.exports = {
         moodIconBackground: "#761739",
         nutritionBackground: "#D4EFCA",
         nutritionIconBackground: "#19370E",
+        error: "#FE463C"
       },
 
       borderRadius: {

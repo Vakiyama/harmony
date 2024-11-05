@@ -11,7 +11,7 @@ export default function AddNote(props: AddNoteProps) {
       <textarea
         id="note"
         name="note"
-        class="border border-black50 rounded-md p-2 min-h-[111px]"
+        class="border border-lofiGray text-base rounded-md p-2 min-h-[198px]"
         placeholder={props.placeholder}
         value={props.content}
       ></textarea>

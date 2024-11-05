@@ -15,8 +15,8 @@ export default function TimePicker(props: TimeProps) {
     <input
       name={props.name}
       class={twMerge(
-        `h-9 border border-black50 px-4 py-3 rounded-md focus:bg-purple-200 focus:border-none focus:outline-none !select-none ${
-          props.time() ? "text-black" : "text-gray-400"
+        `h-9 border border-lofiGray text-base px-4 py-3 rounded-md !select-none ${
+          props.time() ? "text-black50" : "text-gray-400"
         }`,
         props.class
       )}
