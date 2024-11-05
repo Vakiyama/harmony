@@ -3,10 +3,10 @@ import TextFieldLine from "~/components/shared/text-field-line";
 import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
 
-export default function UploadPhoto() {
+export default function UploadPhoto({ onClick }: { onClick: () => void }) {
   return (
     <>
-      <TeamTopNav backNavigation="/" cancelNavigation="/" />
+      {/* <TeamTopNav backNavigation="/" cancelNavigation="/" /> */}
 
       <div class="relative flex flex-col min-h-screen mx-2">
         <div class="flex items-center justify-center mt-2">
@@ -56,7 +56,11 @@ export default function UploadPhoto() {
           <div class="flex-grow"></div>
 
           <div class="flex flex-col items-center justify-center">
-            <Button class="rounded-full w-full mt-4 bg-[#AE9BF2] text-black h-[50px]">
+            <Button
+              type="button"
+              onClick={onClick}
+              class="rounded-full w-full mt-4 bg-[#AE9BF2] text-black h-[50px]"
+            >
               Next
             </Button>
             <A href="/" class="text-xs p-2">

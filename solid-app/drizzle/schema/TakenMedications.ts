@@ -18,10 +18,10 @@ export const takenMedications = sqliteTable("taken_medications", {
     .default(sql`(unixepoch())`),
   noteId: integer("note_id").references(() => notes.id),
   teamId: integer("team_id")
-    .references(() => Teams.id)
+    .references(() => teams.id)
     .notNull(),
   userId: integer("user_id")
-    .references(() => Users.id)
+    .references(() => users.id)
     .notNull(),
   medicationId: integer("medication_id")
     .references(() => medications.id)

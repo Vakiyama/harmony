@@ -1,10 +1,10 @@
 // Must make a user first!!!!!!!!!!!!!
 
 import { db } from "~/api/db";
-import { Users } from "./schema/Users";
-import { Recipients } from "./schema/Recipients";
-import { Teams } from "./schema/Teams";
-import { TeamMembers } from "./schema/TeamMembers";
+import { users } from "./schema/Users";
+import { recipients } from "./schema/Recipients";
+import { teams } from "./schema/Teams";
+import { teamMembers } from "./schema/TeamMembers";
 import { calendars } from "./schema/Calendars";
 import { EventInput, events } from "./schema/Events";
 import { alarms } from "./schema/Alarms";
@@ -13,12 +13,12 @@ import { eventParticipants } from "./schema/EventParticipants";
 import moment from "moment";
 
 const seedData = async () => {
-  const users = await db.select().from(Users);
-  if (users.length <= 0) {
+  const usersData = await db.select().from(users);
+  if (usersData.length <= 0) {
     throw new Error("Please create a user first using kinde");
   }
   const grandma = await db
-    .insert(Users)
+    .insert(users)
     .values({
       displayName: "grandma",
       email: "grandma@gmail.com",
@@ -32,9 +32,9 @@ const seedData = async () => {
   await db.delete(eventParticipants);
   await db.delete(events);
   await db.delete(calendars);
-  await db.delete(TeamMembers);
-  await db.delete(Teams);
-  await db.delete(Recipients);
+  await db.delete(teamMembers);
+  await db.delete(teams);
+  await db.delete(recipients);
 
   const recipientsData = {
     firstName: "Grandma",
@@ -49,37 +49,37 @@ const seedData = async () => {
     employment: "Unemployed",
     userId: grandma[0].id,
   };
-  await db.insert(Recipients).values(recipientsData).onConflictDoNothing();
+  await db.insert(recipients).values(recipientsData).onConflictDoNothing();
 
-  const recipients = await db.select().from(Recipients);
+  const recipientsData2 = await db.select().from(recipients);
   console.log(recipients);
 
   // Seed Teams
   const teamsData = {
     teamName: "Team Alpha",
-    recipientId: recipients[0].id, // Adjust based on the recipient ID
+    recipientId: recipientsData[0].id, // Adjust based on the recipient ID
   };
-  await db.insert(Teams).values(teamsData).onConflictDoNothing();
+  await db.insert(teams).values(teamsData).onConflictDoNothing();
 
-  const teams = await db.select().from(Teams);
+  const teamsData = await db.select().from(teams);
   console.log(teams);
 
   // Seed TeamMembers
   const teamMembersData = {
-    teamId: teams[0].id,
-    userId: users[0].id,
+    teamId: teamsData[0].id,
+    userId: usersData[0].id,
     role: "admin",
   };
-  await db.insert(TeamMembers).values(teamMembersData).onConflictDoNothing();
+  await db.insert(teamMembers).values(teamMembersData).onConflictDoNothing();
 
   // Seed Calendars
   const calendarsData = [
     {
-      teamId: teams[0].id,
+      teamId: teamsData[0].id,
       name: "Team Alpha Calendar",
     },
     {
-      teamId: teams[0].id,
+      teamId: teamsData[0].id,
       name: "Team Beta Calendar",
     },
   ];

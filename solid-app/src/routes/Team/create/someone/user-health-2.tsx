@@ -4,7 +4,7 @@ import TextFieldLine from "~/components/shared/text-field-line";
 import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
 
-export default function UserHealth2(props: { recipientName: string }) {
+export default function UserHealth2({ onClick }: { onClick: () => void }) {
   const [surgeries, setSurgeries] = createSignal<
     { name: string; year: string; details: string }[]
   >([{ name: "", year: "", details: "" }]);
@@ -25,16 +25,14 @@ export default function UserHealth2(props: { recipientName: string }) {
 
   return (
     <>
-      <TeamTopNav backNavigation="/" cancelNavigation="/" />
+      {/* <TeamTopNav backNavigation="/" cancelNavigation="/" /> */}
       <div class="relative flex flex-col min-h-screen mx-2">
         <div class="flex items-center justify-center mt-2">
           <p class="text-xs text-gray-400">5 of 8</p>
         </div>
         {/* Health profile part */}
         <div class="px-2 mt-6 flex flex-col flex-grow">
-          <p class="text-[30px] font-semi">
-            Tell us about "User's" {props.recipientName} Health
-          </p>
+          <p class="text-[30px] font-semi">Tell us about "User's" Health</p>
           <p class="text-[24px] mt-2">Health Profile</p>
           <div>
             <p class="text-lg font-semibold">Important Surgeries</p>
@@ -95,7 +93,11 @@ export default function UserHealth2(props: { recipientName: string }) {
         <div class="flex-grow"></div>
         {/* Next button */}
         <div class="flex flex-col items-center justify-center">
-          <Button class="rounded-full w-full bg-[#AE9BF2] text-black h-[50px]">
+          <Button
+            type="button"
+            onClick={onClick}
+            class="rounded-full w-full bg-[#AE9BF2] text-black h-[50px]"
+          >
             Next
           </Button>
           <A href="/" class="text-xs p-2">

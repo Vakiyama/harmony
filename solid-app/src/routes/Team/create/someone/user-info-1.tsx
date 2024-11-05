@@ -13,7 +13,12 @@ const formFields = [
     placeholder: "email@here.com",
   },
 ];
-export default function UserInfo1(props: { recipientName: string }) {
+export default function UserInfo1({
+  onClick,
+}: {
+  // recipientName: string;
+  onClick: () => void;
+}) {
   const [formData, setFormData] = createStore({
     phoneNumber: "",
     email: "",
@@ -30,16 +35,14 @@ export default function UserInfo1(props: { recipientName: string }) {
 
   return (
     <>
-      <TeamTopNav backNavigation="/" cancelNavigation="/" />
+      {/* <TeamTopNav backNavigation={onClick} cancelNavigation="/" /> */}
       <div class="relative flex flex-col min-h-screen mx-2">
         <div class="flex items-center justify-center mt-2">
           <p class="text-xs text-gray-400">4 of 8</p>
         </div>
         <form onSubmit={() => {}} class="px-2 mt-6 flex flex-col flex-grow">
           <div>
-            <p class="text-[30px] font-semi">
-              Tell us about "User" {props.recipientName}
-            </p>
+            <p class="text-[30px] font-semi">Tell us about "User"</p>
             <p class="text-[24px] mt-2">Contact Information</p>
             <For each={formFields}>
               {(field) => (
@@ -57,7 +60,11 @@ export default function UserInfo1(props: { recipientName: string }) {
           {/* space */}
           <div class="flex-grow"></div>
           <div class="flex flex-col items-center justify-center">
-            <Button class="rounded-full w-full bg-[#AE9BF2] text-black h-[50px]">
+            <Button
+              type="button"
+              onClick={onClick}
+              class="rounded-full w-full bg-[#AE9BF2] text-black h-[50px]"
+            >
               Next
             </Button>
             <A href="/" class="text-xs p-2">

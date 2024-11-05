@@ -28,7 +28,7 @@ const formFields = [
   },
 ];
 
-export default function UserHealth1(props: { recipientName: string }) {
+export default function UserHealth1({ onClick }: { onClick: () => void }) {
   const [formData, setFormData] = createStore({
     healthyCondition: "",
     allergies: "",
@@ -38,16 +38,14 @@ export default function UserHealth1(props: { recipientName: string }) {
 
   return (
     <>
-      <TeamTopNav backNavigation="/" cancelNavigation="/" />
+      {/* <TeamTopNav backNavigation="/" cancelNavigation="/" /> */}
       <div class="relative flex flex-col min-h-screen mx-2">
         <div class="flex items-center justify-center mt-2">
           <p class="text-xs text-gray-400">5 of 8</p>
         </div>
         {/* upload photo part */}
         <div class="px-2 mt-6 flex flex-col flex-grow">
-          <p class="text-[30px] font-semi">
-            Tell us about "User's" {props.recipientName} Health
-          </p>
+          <p class="text-[30px] font-semi">Tell us about "User's" Health</p>
           <p class="text-[24px] mt-2">Health Profile</p>
           <For each={formFields}>
             {(field) => (
@@ -64,7 +62,11 @@ export default function UserHealth1(props: { recipientName: string }) {
         {/* space */}
         <div class="flex-grow"></div>
         <div class="flex flex-col items-center justify-center">
-          <Button class="rounded-full w-full bg-[#AE9BF2] text-black h-[50px]">
+          <Button
+            type="button"
+            onClick={onClick}
+            class="rounded-full w-full bg-[#AE9BF2] text-black h-[50px]"
+          >
             Next
           </Button>
           <A href="/" class="text-xs p-2">
