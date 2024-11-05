@@ -26,6 +26,7 @@ import { TakenMedsWithNoteUser } from "@/schema/TakenMedications";
 import { formatTimeForPicker } from "~/lib/formateDateLocal";
 import MedicationIcon from "~/components/icon/medication-icon";
 import RadioGroupComponent from "~/components/shadcn/RadioGroup";
+import DeleteConfirmation from "~/components/shared/delete-confirmation";
 
 export default function Medication() {
   const params = useParams();
@@ -45,6 +46,9 @@ export default function Medication() {
   if (existingEntry) {
     setIsEditing(true);
   }
+  const [showDeleteConfirmation, setShowDeleteConfirmation] =
+    createSignal(false);
+
   const [entry, setEntry] = createSignal<
     Omit<TakenMedsWithNoteUser, "user"> | undefined
   >(undefined);
@@ -105,11 +109,23 @@ export default function Medication() {
     if (result.success) {
       setError("");
       formRef()?.reset();
-      showNotification("Medication Entry Posted");
+      showNotification(
+        isEditing() ? "Medication Entry Updated" : "Medication Entry Posted"
+      );
       navigate(`/team/${params.id}/journal`);
     } else if (result.error) {
       console.error(result.error);
       setError(result.error);
+    }
+  };
+
+  const handleDelete = async () => {
+    const result = await deleteAction(parseInt(existingEntry));
+    if (result.success) {
+      showNotification("Medication Entry Deleted");
+      navigate(`/team/${params.id}/journal`);
+    } else {
+      console.error("Error deleting entry:", result.error);
     }
   };
 
@@ -214,21 +230,33 @@ export default function Medication() {
                 content={entry()?.note?.note || ""}
               />
               <Button
-                class="rounded-[100px] h-12 w-full mb-4 bg-primary-purple-300 text-black"
+                class="rounded-[100px] h-12 w-full bg-primary-purple-300 text-black"
                 variant="default"
                 type="submit"
               >
                 Finish Entry
               </Button>
-              {/* Change this to show a confirmation */}
-              {isEditing() ? (
-                <button onClick={() => deleteAction(parseInt(existingEntry))}>
+              {isEditing() && (
+                <Button
+                  onClick={() => setShowDeleteConfirmation(true)}
+                  class="bg-transparent shadow-none font-sf-pro font-medium text-base text-error hover:bg-transparent"
+                >
                   Delete Entry
-                </button>
-              ) : null}
+                </Button>
+              )}
             </Show>
           </div>
         </form>
+        <Show when={showDeleteConfirmation()}>
+          <DeleteConfirmation
+            title="Journal Entry"
+            description="this entry"
+            buttonText="Entry"
+            onCancel={() => setShowDeleteConfirmation(false)}
+            onClose={() => setShowDeleteConfirmation(false)}
+            onDelete={handleDelete}
+          />
+        </Show>
       </section>
     </main>
   );

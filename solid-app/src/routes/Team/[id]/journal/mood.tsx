@@ -24,6 +24,7 @@ import MoodIcon from "~/components/icon/mood-icon";
 import { MoodsWithNoteUser } from "@/schema/Moods";
 import { qualityEnum } from "../../../../../drizzle/schema/Sleeps";
 import { getRecipientName } from "~/api/team";
+import DeleteConfirmation from "~/components/shared/delete-confirmation";
 
 export default function MoodTracker() {
   const params = useParams();
@@ -34,6 +35,9 @@ export default function MoodTracker() {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = createSignal<boolean>(false);
   const [wellBeing, setWellBeing] = createSignal<number | undefined>();
+  const [showDeleteConfirmation, setShowDeleteConfirmation] =
+    createSignal(false);
+
   if (existingEntry) {
     setIsEditing(true);
   }
@@ -78,13 +82,26 @@ export default function MoodTracker() {
     if (result.success) {
       setError("");
       formRef()?.reset();
-      showNotification("Mood Entry Posted");
+      showNotification(
+        isEditing() ? "Mood Entry Updated" : "Mood Entry Posted"
+      );
       navigate(`/team/${params.id}/journal`);
     } else if (result.error) {
       console.error(result.error);
       setError(result.error);
     }
   };
+
+  const handleDelete = async () => {
+    const result = await deleteAction(parseInt(existingEntry));
+    if (result.success) {
+      showNotification("Mood Entry Deleted");
+      navigate(`/team/${params.id}/journal`);
+    } else {
+      console.error("Error deleting entry:", result.error);
+    }
+  };
+
   return (
     <main class="w-full h-full p-4 flex flex-col items-center justify-center space-y-2">
       <section class="mt-8 mb-8 flex flex-col w-full justify-center text-start">
@@ -149,21 +166,33 @@ export default function MoodTracker() {
                 content={entry()?.note?.note || ""}
               />
               <Button
-                class="rounded-[100px] h-12 w-full mb-4 bg-primary-purple-300 text-black"
+                class="rounded-[100px] h-12 w-full bg-primary-purple-300 text-black"
                 variant="default"
                 type="submit"
               >
                 Finish Entry
               </Button>
-              {/* Change this to show a confirmation */}
-              {isEditing() ? (
-                <button onClick={() => deleteAction(parseInt(existingEntry))}>
+              {isEditing() && (
+                <Button
+                  onClick={() => setShowDeleteConfirmation(true)}
+                  class="bg-transparent shadow-none font-sf-pro font-medium text-base text-error hover:bg-transparent"
+                >
                   Delete Entry
-                </button>
-              ) : null}
+                </Button>
+              )}
             </Show>
           </form>
         </div>
+        <Show when={showDeleteConfirmation()}>
+          <DeleteConfirmation
+            title="Journal Entry"
+            description="this entry"
+            buttonText="Entry"
+            onCancel={() => setShowDeleteConfirmation(false)}
+            onClose={() => setShowDeleteConfirmation(false)}
+            onDelete={handleDelete}
+          />
+        </Show>
       </section>
     </main>
   );

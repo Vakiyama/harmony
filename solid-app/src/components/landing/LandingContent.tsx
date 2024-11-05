@@ -411,7 +411,7 @@ const LandingContent = () => {
             {journalsData()?.sleeps.map((sleep) => {
               return (
                 <JournalCard
-                  dateTime="Oct 15. - 9:41PM"
+                  dateTime={formatCreatedDate(sleep.createdAt)}
                   title="Sleep"
                   value={"sleep"}
                   withMember={true}

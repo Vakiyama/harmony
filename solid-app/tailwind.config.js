@@ -95,6 +95,7 @@ module.exports = {
         moodIconBackground: "#761739",
         nutritionBackground: "#D4EFCA",
         nutritionIconBackground: "#19370E",
+        error: "#FE463C"
       },
 
       borderRadius: {

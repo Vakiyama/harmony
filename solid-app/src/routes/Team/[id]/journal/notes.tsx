@@ -20,6 +20,7 @@ import Header from "./header";
 import Upload from "./upload";
 import { showNotification } from "~/routes/api/notificationStore";
 import NotesIcon from "~/components/icon/notes-icon";
+import DeleteConfirmation from "~/components/shared/delete-confirmation";
 
 export default function CreateNote() {
   const params = useParams();
@@ -31,6 +32,8 @@ export default function CreateNote() {
       deferStream: true,
     }
   );
+  const [showDeleteConfirmation, setShowDeleteConfirmation] =
+    createSignal(false);
   const [isEditing, setIsEditing] = createSignal<boolean>(false);
   if (existingNote) {
     setIsEditing(true);
@@ -66,13 +69,26 @@ export default function CreateNote() {
     if (result.success) {
       setError("");
       formRef()?.reset();
-      showNotification("Note Entry Posted");
+      showNotification(
+        isEditing() ? "Note Entry Updated" : "Note Entry Posted"
+      );
       navigate(`/team/${params.id}/journal`);
     } else if (result.error) {
       console.error(result.error);
       setError(result.error);
     }
   };
+
+  const handleDelete = async () => {
+    const result = await deleteAction(parseInt(existingNote));
+    if (result.success) {
+      showNotification("Note Entry Deleted");
+      navigate(`/team/${params.id}/journal`);
+    } else {
+      console.error("Error deleting entry:", result.error);
+    }
+  };
+
   return (
     <>
       <main class="w-full h-full p-4 flex flex-col items-center justify-center space-y-2">
@@ -104,21 +120,33 @@ export default function CreateNote() {
                   <Upload description="Tap to upload a file" />
                 </div>
                 <Button
-                  class="rounded-[100px] h-12 w-full mb-4 bg-primary-purple-300 text-black"
+                  class="rounded-[100px] h-12 w-full bg-primary-purple-300 text-black"
                   variant="default"
                   type="submit"
                 >
                   Finish Entry
                 </Button>
-                {/* Change this to show a confirmation */}
-                {isEditing() ? (
-                  <button onClick={() => deleteAction(parseInt(existingNote))}>
+                {isEditing() && (
+                  <Button
+                    onClick={() => setShowDeleteConfirmation(true)}
+                    class="bg-transparent shadow-none font-sf-pro font-medium text-base text-error hover:bg-transparent"
+                  >
                     Delete Entry
-                  </button>
-                ) : null}
+                  </Button>
+                )}
               </Show>
             </form>
           </div>
+          <Show when={showDeleteConfirmation()}>
+            <DeleteConfirmation
+              title="Journal Entry"
+              description="this entry"
+              buttonText="Entry"
+              onCancel={() => setShowDeleteConfirmation(false)}
+              onClose={() => setShowDeleteConfirmation(false)}
+              onDelete={handleDelete}
+            />
+          </Show>
         </section>
       </main>
     </>
