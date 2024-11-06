@@ -6,7 +6,8 @@
     "build": "vinxi build --preset node-server",
     "start": "vinxi start --preset node-server",
     "test": "vitest",
-    "seed": "bun ./drizzle/seed.ts "
+    "seed": "bun ./drizzle/seed.ts ",
+    "push": "bun drizzle-kit push"
   },
   "devDependencies": {
     "@solidjs/testing-library": "^0.8.10",
@@ -37,6 +38,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.31.4",
+    "effect": "^3.10.12",
     "might-fail": "^0.6.3",
     "moment": "^2.30.1",
     "socket.io": "^4.8.1",
