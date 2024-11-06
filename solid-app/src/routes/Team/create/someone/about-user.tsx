@@ -23,7 +23,7 @@ const formFields = [
   },
 ];
 
-export default function AboutUser(props: { recipientName: string }) {
+export default function AboutUser({ onClick }: { onClick: () => void }) {
   const [formData, setFormData] = createStore({
     email: "",
     address: "",
@@ -32,16 +32,14 @@ export default function AboutUser(props: { recipientName: string }) {
 
   return (
     <>
-      <TeamTopNav backNavigation="/" cancelNavigation="/" />
+      {/* <TeamTopNav backNavigation="/" cancelNavigation="/" /> */}
       <div class="relative flex flex-col min-h-screen mx-2">
         <div class="flex items-center justify-center mt-2">
           <p class="text-xs text-gray-400">8 of 8</p>
         </div>
         {/* upload photo part */}
         <div class="px-2 mt-6 flex flex-col flex-grow">
-          <p class="text-[30px] font-semi">
-            Tell us about yourself {props.recipientName}
-          </p>
+          <p class="text-[30px] font-semi">Tell us about yourself</p>
           <p class="text-[24px] mt-2">Overview</p>
           <For each={formFields}>
             {(field) => (
@@ -58,7 +56,11 @@ export default function AboutUser(props: { recipientName: string }) {
         {/* space */}
         <div class="flex-grow"></div>
         <div class="flex flex-col items-center justify-center">
-          <Button class="rounded-full w-full bg-[#AE9BF2] text-black h-[50px]">
+          <Button
+            type="button"
+            onClick={onClick}
+            class="rounded-full w-full bg-[#AE9BF2] text-black h-[50px]"
+          >
             Next
           </Button>
         </div>

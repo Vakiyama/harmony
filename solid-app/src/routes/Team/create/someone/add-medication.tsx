@@ -3,19 +3,17 @@ import TextFieldLine from "~/components/shared/text-field-line";
 import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
 
-export default function AddMedication(props: { recipientName: string }) {
+export default function AddMedication({ onClick }: { onClick: () => void }) {
   return (
     <>
-      <TeamTopNav backNavigation="/" cancelNavigation="/" />
+      {/* <TeamTopNav backNavigation="/" cancelNavigation="/" /> */}
 
       <div class="relative flex flex-col min-h-screen mx-2">
         <div class="flex items-center justify-center mt-2">
           <p class="text-xs text-gray-400">6 of 8</p>
         </div>
         <div class="px-2 mt-6 flex flex-col flex-grow">
-          <p class="text-[30px] font-semi">
-            Tell us about "User's" {props.recipientName} Medication{" "}
-          </p>
+          <p class="text-[30px] font-semi">Tell us about "User's" Medication</p>
           <p class="text-lg font-semibold mt-4">Medication Details</p>
           {/* only show when medication added */}
           <div>
@@ -74,7 +72,11 @@ export default function AddMedication(props: { recipientName: string }) {
           <div class="flex-grow"></div>
 
           <div class="flex flex-col items-center justify-center">
-            <Button class="rounded-full w-full mt-4 bg-[#AE9BF2] text-black h-[50px]">
+            <Button
+              type="button"
+              onClick={onClick}
+              class="rounded-full w-full mt-4 bg-[#AE9BF2] text-black h-[50px]"
+            >
               Next
             </Button>
             <A href="/" class="text-xs p-2">

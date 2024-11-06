@@ -15,13 +15,13 @@ const userRole = [
     description: "Can manage the team and can edit care recipient info",
   },
 ];
-export default function TeamUserRole() {
+export default function TeamUserRole({ onClick }: { onClick: () => void }) {
   return (
     <div class="relative flex flex-col min-h-screen">
-      <TeamTopNav backNavigation="/" cancelNavigation="/" />
+      {/* <TeamTopNav backNavigation="/" cancelNavigation="/" /> */}
 
       <div class="flex items-center justify-center mt-2">
-        <p class="text-xs text-gray-400">1 of 8</p>
+        <p class="text-xs text-gray-400">7 of 8</p>
       </div>
 
       {/* Space */}

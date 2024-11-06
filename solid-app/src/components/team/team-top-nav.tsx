@@ -1,6 +1,8 @@
+import { Component, JSXElement } from "solid-js";
+
 export default function TeamTopNav(props: {
   backNavigation: () => void;
-  cancelNavigation: string;
+  cancelNavigation: JSXElement;
 }) {
   return (
     <div class="w-full flex flex-row h-[95px] bg-white shadow-md">
@@ -10,9 +12,9 @@ export default function TeamTopNav(props: {
         </div>
 
         <div class="flex justify-end">
-          <a href={props.cancelNavigation} class="text-md">
-            Cancel
-          </a>
+          <button type="button" class="text-md">
+            {props.cancelNavigation}
+          </button>
         </div>
       </div>
     </div>

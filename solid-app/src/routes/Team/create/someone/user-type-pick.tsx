@@ -17,7 +17,7 @@ export default function UserTypePick() {
   // });
   return (
     <div class="relative flex flex-col min-h-screen">
-      <TeamTopNav backNavigation="/" cancelNavigation="/" />
+      {/* <TeamTopNav backNavigation="/" cancelNavigation="/" /> */}
 
       <div class="flex items-center justify-center mt-2">
         <p class="text-xs text-gray-400">1 of 8</p>
@@ -31,7 +31,7 @@ export default function UserTypePick() {
         <p class="text-[23px] font-semi">Who is receiving care?</p>
         <UserType
           name="I work in healthcare a setting"
-          link="/team/create/someone/healthcare-role"
+          link="/team/create/someone/health-care-role"
         />
         <UserType
           name="I am a family, friend, or neighbour"
