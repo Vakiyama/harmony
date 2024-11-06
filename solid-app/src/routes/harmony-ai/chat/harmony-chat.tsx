@@ -1,6 +1,5 @@
 import { Show, createEffect, createSignal } from "solid-js";
 import { twMerge } from "tailwind-merge";
-import { Message } from "~/api/claude/apiCalls";
 import { Image, ImageRoot } from "~/components/ui/image";
 import Tail from "../images/Tail.svg";
 import HarmonyMascot from "../images/harmony-mascot-container.svg";
@@ -9,17 +8,27 @@ import { harmonyChat } from "~/api/claude/chat";
 import SolidMarkdown from "@zentered/solid-markdown";
 import "./markdown.css";
 import { A } from "@solidjs/router";
+import { ArrayMessage, wrapMessages } from "~/api/claude/effectGraph/messages";
+import { Option } from "effect";
 
 export function HarmonyChat() {
-  const [messages, setMessages] = createSignal<Message[]>([]);
+  const [messages, setMessages] = createSignal<ArrayMessage[]>([]);
   const [input, setInput] = createSignal<string>("");
   const [lastMessage, setLastMessage] = createSignal<HTMLDivElement>();
 
-  async function handleConversation(messages: Message[]) {
-    const response = await harmonyChat(messages);
+  async function handleConversation(messages: ArrayMessage[]) {
+    console.log("call claude");
+    const response = await harmonyChat(messages, "1");
+    console.log("hresponse");
+    console.log(response);
+    if (!response) return;
+    if (response.length === messages.length) {
+      console.log("recurse!");
+      return handleConversation(messages);
+    }
     const newMessages = [
       ...messages,
-      { role: "assistant", content: response.content[0].text } as const,
+      { role: "assistant", content: response![0].content } as const,
     ];
     setMessages(newMessages);
   }
@@ -41,7 +50,10 @@ export function HarmonyChat() {
       ...messages(),
       { role: "user", content: input() } as const,
     ];
-    setMessages(newMessages);
+    setMessages((oldMessages) => [
+      ...oldMessages,
+      { role: "user", content: input() } as const,
+    ]);
     setInput("");
 
     handleConversation(newMessages);

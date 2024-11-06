@@ -1,11 +1,11 @@
-import { Effect, pipe } from 'effect';
+import { Effect, pipe } from "effect";
 import {
   callClaudeWithFormat,
   callClaudeWithoutFormat,
   defaultClaudeSettings,
-} from './callClaude';
-import { createMessage } from './messages';
-import { z } from 'zod';
+} from "./callClaude";
+import { createMessage } from "./messages";
+import { z } from "zod";
 
 type ExtractEffectError<T> = T extends Effect.Effect<any, infer E> ? E : never;
 
@@ -18,7 +18,7 @@ type Graph<K extends string, E, C> = {
 
 type GraphDefinition<K extends string, E, C> = {
   [P in K]: (
-    state: C
+    state: C,
   ) => Effect.Effect<
     { key: K; state: C },
     E extends ExtractEffectError<ReturnType<(state: C) => Effect.Effect<K, E>>>
@@ -27,74 +27,80 @@ type GraphDefinition<K extends string, E, C> = {
   >;
 };
 
-function createGraph<C>() {
+export function createGraph<C>() {
   return function <K extends string, E>(
-    definition: GraphDefinition<K, E, C>
+    definition: GraphDefinition<K, E, C>,
   ): Graph<K, E, C> {
     return Object.fromEntries(
       (
         Object.entries(definition) as [K, (state: C) => Effect.Effect<any, E>][]
-      ).map(([key, value]) => [key, value])
+      ).map(([key, value]) => [key, value]),
     ) as Graph<K, E, C>;
   };
 }
 
-type State<G extends Graph<string, any, any>> = {
-  nextNode: keyof G | 'exit';
+export type State<G extends Graph<string, any, any>> = {
+  key: keyof G;
 } & ExtractContext<G>;
 
-function nextGraph<G extends Graph<string, any, any>>(params: {
+export function nextGraph<G extends Graph<string, any, any>>(params: {
   state: State<G>;
   graph: G;
 }): Effect.Effect<State<G>, ExtractError<G>> {
+  console.log(params);
   return pipe(
     params,
-    (params) => params.graph[params.state.nextNode],
-    (p) => p(params.state)
+    (params) => {
+      console.log(params.graph, params.state.key, "???");
+      return params.graph[params.state.key];
+    },
+    (p) => {
+      console.log(p);
+      return p;
+    },
+    (p) => p(params.state),
   ) as Effect.Effect<State<G>, ExtractError<G>>;
 }
 
-type Context = {
-  test: string;
-};
-
+/*
 const graph = createGraph<Context>()({
   start: (c) =>
     pipe(
       callClaudeWithoutFormat({
-        type: 'default',
+        type: "default",
         claudeSettings: defaultClaudeSettings,
         system: `Respond with a fun joke. Please describe your joke creation process step by step.
 Before answering, explain your reasoning step-by-step in tags.
         `,
         messages: createMessage({
-          role: 'user',
-          content: 'Give me a joke about rain.',
+          role: "user",
+          content: "Give me a joke about rain.",
         }),
         retryCount: 5,
       }),
-      Effect.map((response) => ({ key: 'start', state: { test: 'endStart' } }))
+      Effect.map((response) => ({ key: "start", state: { test: "endStart" } })),
     ),
   end: (c) =>
     pipe(
       callClaudeWithFormat({
-        type: 'format',
+        type: "format",
         claudeSettings: defaultClaudeSettings,
         system: `Respond with a fun joke. Please describe your joke creation process step by step.
 Before answering, explain your reasoning step-by-step in tags.
         `,
         messages: createMessage({
-          role: 'user',
-          content: 'Give me a joke about rain.',
+          role: "user",
+          content: "Give me a joke about rain.",
         }),
         retryCount: 5,
         jsonFormat: { retryLimit: 5, format: z.object({ joke: z.string() }) },
       }),
-      Effect.map((response) => ({ key: 'end', state: { test: 'endEnd' } }))
+      Effect.map((response) => ({ key: "end", state: { test: "endEnd" } })),
     ),
 });
 
-const next = nextGraph({ state: { test: '', nextNode: 'start' }, graph });
+const next = nextGraph({ state: { test: "", key: "start" }, graph });
 
 const result = await Effect.runPromise(next);
 console.log(result);
+*/

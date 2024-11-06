@@ -44,53 +44,89 @@
 // Have data structures for "Agents", "Messages" and so forth that are stateless functional constructs
 // because we should have nice things. Also, OOP patterns in langgraph make me cry.
 
-import { AnthropicBedrock } from '@anthropic-ai/bedrock-sdk';
-import { type ZodTypeAny, z } from 'zod';
+import { type ZodTypeAny, z } from "zod";
 export type ZodObjectAny = z.ZodObject<any, any, any, any>;
 import {
   createMessage,
   getFirst,
   getLast,
-  unwrapMessages,
   type AssistantMessage,
   type Message,
   type UserMessage,
-} from './messages';
-import { pipe, Option, Match, Effect, Either, Context } from 'effect';
-import { type Tool } from './toolUse';
-import type { APIPromise } from '@anthropic-ai/sdk/core.mjs';
+  unwrapMessages,
+  wrapMessages,
+} from "./messages";
+import { pipe, Option, Match, Effect, Either, Context } from "effect";
+import { type Tool } from "./toolUse";
+
+export function makeClaudeAPICall(body: ReturnType<typeof getRequestBody>) {
+  return pipe(
+    body,
+    Either.merge,
+    (body) => {
+      console.log(body);
+      return body;
+    },
+    (body) =>
+      pipe(
+        Effect.try(() => JSON.stringify(body)),
+        Effect.mapError((_) => StringifyError()),
+        Effect.flatMap((stringified) =>
+          pipe(
+            Effect.tryPromise({
+              try: () =>
+                fetch("https://api.anthropic.com/v1/messages", {
+                  method: "POST",
+                  headers: {
+                    "x-api-key": process.env.ANTHROPIC_API_KEY!,
+                    "anthropic-version": "2023-06-01",
+                    "content-type": "application/json",
+                  },
+                  body: stringified,
+                }),
+              catch: (error) => FetchError(error as Error),
+            }),
+          ),
+        ),
+      ),
+    Effect.flatMap((response) =>
+      Effect.tryPromise({
+        try: () => response.json() as Promise<AssistantResponse>,
+        catch: (e) => JsonParseError(e as Error),
+      }),
+    ),
+  );
+}
 
 export const defaultClaudeSettings = {
-  model: 'anthropic.claude-3-5-sonnet-20240620-v1:0',
+  model: "claude-3-5-sonnet-20240620",
   maxTokens: 1000,
 };
 
-const client = new AnthropicBedrock({
-  awsSecretKey: process.env.BEDROCK_AWS_SECRET!,
-  awsAccessKey: process.env.BEDROCK_AWS_ACCESS_KEY!,
-  awsRegion: process.env.BEDROCK_AWS_REGION,
-});
-
-export class ClaudeApi extends Context.Tag('ClaudeApi')<
+export class ClaudeApi extends Context.Tag("ClaudeApi")<
   ClaudeApi,
   {
     readonly fetchFromApi: (
-      body: ReturnType<typeof getRequestBody>
-    ) => Effect.Effect<AssistantResponse, FetchError>;
+      body: ReturnType<typeof getRequestBody>,
+    ) => Effect.Effect<
+      AssistantResponse,
+      StringifyError | FetchError | JsonParseError,
+      never
+    >;
   }
 >() { }
 
-type TextResponse = { type: 'text'; text: string };
-type ToolUse = { type: 'tool_use'; input: any; name: string };
+export type TextResponse = { type: "text"; text: string };
+export type ToolUse = { type: "tool_use"; input: any; name: string };
 
 type AssistantResponse = {
   content: [TextResponse] | [TextResponse, ToolUse] | [ToolUse];
   id: string;
   model: string;
-  role: 'assistant';
+  role: "assistant";
   stop_reason: string;
   stop_sequence: null;
-  type: 'message';
+  type: "message";
   usage: {
     input_tokens: number;
     output_tokens: number;
@@ -115,29 +151,29 @@ type BaseParams = {
 };
 
 type CallClaude = {
-  type: 'default';
+  type: "default";
 } & BaseParams;
 
 type ToolChoice =
-  | { type: 'tool'; name: string }
-  | { type: 'auto' }
-  | { type: 'any' };
+  | { type: "tool"; name: string }
+  | { type: "auto" }
+  | { type: "any" };
 
 type CallClaudeTools = {
-  type: 'tools';
+  type: "tools";
   tools: Tool[];
   toolChoice: ToolChoice;
 } & BaseParams;
 
 type CallClaudeWithFormat<F extends ZodObjectAny> = {
-  type: 'format';
+  type: "format";
   jsonFormat: ClaudeFormatParams<F>;
 } & BaseParams;
 
 type ClaudeBody = {
-  model: BaseParams['claudeSettings']['model'];
-  max_tokens: BaseParams['claudeSettings']['maxTokens'];
-  messages: BaseParams['messages'];
+  model: BaseParams["claudeSettings"]["model"];
+  max_tokens: BaseParams["claudeSettings"]["maxTokens"];
+  messages: BaseParams["messages"];
   system: string;
 };
 
@@ -147,82 +183,68 @@ type ClaudeBodyWithTools = {
 } & ClaudeBody;
 
 function getRequestBody<F extends ZodObjectAny>(
-  params: CallClaudeWithFormat<F> | CallClaude | CallClaudeTools
+  params: CallClaudeWithFormat<F> | CallClaude | CallClaudeTools,
 ) {
   return pipe(
     params,
     Match.type<CallClaudeWithFormat<F> | CallClaude | CallClaudeTools>().pipe(
-      Match.when({ type: 'format' }, (params) =>
-        Either.left(getResponsePrompt(params.jsonFormat.format))
+      Match.when({ type: "format" }, (params) =>
+        Either.left(getResponsePrompt(params.jsonFormat.format)),
       ),
-      Match.when({ type: 'default' }, (params) => Either.left(params.system)),
-      Match.when({ type: 'tools' }, (params) =>
+      Match.when({ type: "default" }, (params) => Either.left(params.system)),
+      Match.when({ type: "tools" }, (params) =>
         Either.right({
           tools: params.tools,
           tool_choice: params.toolChoice,
-        })
+        }),
       ),
-      Match.exhaustive
+      Match.exhaustive,
     ),
     Either.mapBoth({
       onLeft: (system) => ({
         model: params.claudeSettings.model,
         max_tokens: params.claudeSettings.maxTokens,
-        messages: params.messages,
+        messages: unwrapMessages(params.messages),
         system,
       }),
-      onRight: (tools) =>
-        ({
-          model: params.claudeSettings.model,
-          max_tokens: params.claudeSettings.maxTokens,
-          messages: params.messages,
-          system: params.system,
-          ...tools,
-        }) as ClaudeBodyWithTools,
-    })
+      onRight: (tools) => ({
+        model: params.claudeSettings.model,
+        max_tokens: params.claudeSettings.maxTokens,
+        messages: unwrapMessages(params.messages),
+        system: params.system,
+        ...tools,
+      }),
+    }),
   );
 }
 
 type StringifyError = {
-  readonly _tag: 'stringify';
+  readonly _tag: "stringify";
 };
 
-const StringifyError = (): StringifyError => ({ _tag: 'stringify' });
+const StringifyError = (): StringifyError => ({ _tag: "stringify" });
 
 type FetchError = {
-  readonly _tag: 'fetch';
+  readonly _tag: "fetch";
   error: Error;
 };
 
-const FetchError = (error: Error): FetchError => ({ _tag: 'fetch', error });
+const FetchError = (error: Error): FetchError => ({ _tag: "fetch", error });
 
 type JsonFetchError = {
-  readonly _tag: 'jsonFetch';
+  readonly _tag: "jsonFetch";
   error: Error;
 };
 
 const JsonFetchError = (error: Error): JsonFetchError => ({
-  _tag: 'jsonFetch',
+  _tag: "jsonFetch",
   error,
 });
-
-export function makeClaudeAPICall(body: ReturnType<typeof getRequestBody>) {
-  return pipe(body, Either.merge, (body) =>
-    Effect.tryPromise({
-      try: () =>
-        client.messages.create({
-          ...body,
-          messages: unwrapMessages(body.messages),
-        }) as APIPromise<AssistantResponse>,
-      catch: (error) => FetchError(error as Error),
-    })
-  );
-}
 
 function handleRetryParse<F extends ZodObjectAny>(
   error: string,
   params: CallClaudeWithFormat<F>,
-  assistantResponse: any
+  assistantResponse: any,
 ) {
   return parseWithFormat(
     {
@@ -230,7 +252,7 @@ function handleRetryParse<F extends ZodObjectAny>(
       retryCount: params.retryCount - 1,
       messages: pipe(params.messages, getLast, (last) => {
         const newMessage = createMessage<UserMessage>({
-          role: 'user',
+          role: "user",
           content: error,
         });
         newMessage.prev = Option.some(last as AssistantMessage);
@@ -238,14 +260,14 @@ function handleRetryParse<F extends ZodObjectAny>(
         return getFirst(params.messages);
       }),
     },
-    assistantResponse
+    assistantResponse,
   );
 }
 
 function handleJsonOrError<F extends ZodObjectAny>(
   jsonOrError: Either.Either<any, RetryLimitError | JsonParseError>,
   params: CallClaudeWithFormat<F>,
-  assitantResponse: any
+  assitantResponse: any,
 ) {
   return Either.match(jsonOrError, {
     onRight: (json: any) =>
@@ -262,24 +284,24 @@ function handleJsonOrError<F extends ZodObjectAny>(
 
               Please correct your mistakes and try again.`,
         params,
-        assitantResponse
+        assitantResponse,
       ),
   });
 }
 
 type JsonParseError = {
-  readonly _tag: 'jsonParse';
+  readonly _tag: "jsonParse";
   error: Error;
 };
 
 const JsonParseError = (error: Error): JsonParseError => ({
-  _tag: 'jsonParse',
+  _tag: "jsonParse",
   error,
 });
 
 function parseWithFormat<F extends ZodObjectAny>(
   params: CallClaudeWithFormat<F>,
-  assistantResponse: any
+  assistantResponse: any,
 ): Effect.Effect<z.output<F>, JsonParseError> {
   return pipe(
     params,
@@ -291,13 +313,13 @@ function parseWithFormat<F extends ZodObjectAny>(
       pipe(
         responseText,
         (responseText) => Effect.try(() => JSON.parse(responseText)),
-        Effect.mapError(JsonParseError)
-      )
+        Effect.mapError(JsonParseError),
+      ),
     ),
     Effect.either,
     Effect.flatMap((jsonOrError) =>
-      handleJsonOrError(jsonOrError, params, assistantResponse)
-    )
+      handleJsonOrError(jsonOrError, params, assistantResponse),
+    ),
   );
 }
 
@@ -310,7 +332,7 @@ function getResponsePrompt(format: ZodObjectAny): string {
     Don't give any reasoning or explanations.
 
 
-    ${format.description ? `Description of object: ${format.description}` : ''}
+    ${format.description ? `Description of object: ${format.description}` : ""}
     Descriptions of fields:
 
     ## Format
@@ -324,7 +346,7 @@ function schemaToString(schema: ZodTypeAny): string {
   const typeName = schema._def.typeName;
 
   // Get the description if available
-  const description = schema.description ? ` // ${schema.description}` : '';
+  const description = schema.description ? ` // ${schema.description}` : "";
 
   switch (typeName) {
     case z.ZodFirstPartyTypeKind.ZodString:
@@ -336,16 +358,16 @@ function schemaToString(schema: ZodTypeAny): string {
     case z.ZodFirstPartyTypeKind.ZodLiteral:
       return `${JSON.stringify(schema._def.value)}${description}`;
     case z.ZodFirstPartyTypeKind.ZodEnum:
-      return `${schema._def.values.map((v: any) => JSON.stringify(v)).join(' | ')}${description}`;
+      return `${schema._def.values.map((v: any) => JSON.stringify(v)).join(" | ")}${description}`;
     case z.ZodFirstPartyTypeKind.ZodUnion:
-      return `(${schema._def.options.map(schemaToString).join(' | ')})${description}`;
+      return `(${schema._def.options.map(schemaToString).join(" | ")})${description}`;
     case z.ZodFirstPartyTypeKind.ZodArray:
       return `Array<${schemaToString(schema._def.type)}>${description}`;
     case z.ZodFirstPartyTypeKind.ZodObject:
       const shape = schema._def.shape();
       const fields = Object.keys(shape)
         .map((key) => `${key}: ${schemaToString(shape[key])}`)
-        .join(',\n');
+        .join(",\n");
       return `{\n${fields}\n}${description}`;
     case z.ZodFirstPartyTypeKind.ZodOptional:
       return `${schemaToString(schema._def.innerType)} | undefined${description}`;
@@ -362,7 +384,7 @@ function schemaToString(schema: ZodTypeAny): string {
     case z.ZodFirstPartyTypeKind.ZodNever:
       return `never${description}`;
     case z.ZodFirstPartyTypeKind.ZodTuple:
-      const items = schema._def.items.map(schemaToString).join(', ');
+      const items = schema._def.items.map(schemaToString).join(", ");
       return `[${items}]${description}`;
     case z.ZodFirstPartyTypeKind.ZodRecord:
       return `{ [key: string]: ${schemaToString(schema._def.valueType)} }${description}`;
@@ -373,7 +395,7 @@ function schemaToString(schema: ZodTypeAny): string {
     case z.ZodFirstPartyTypeKind.ZodDate:
       return `Date${description}`;
     case z.ZodFirstPartyTypeKind.ZodFunction:
-      const args = schema._def.args.items.map(schemaToString).join(', ');
+      const args = schema._def.args.items.map(schemaToString).join(", ");
       const returns = schemaToString(schema._def.returns);
       return `(${args}) => ${returns}${description}`;
     case z.ZodFirstPartyTypeKind.ZodLazy:
@@ -398,12 +420,12 @@ export function callClaudeWithoutFormat(params: CallClaude) {
     Effect.provideService(ClaudeApi, {
       fetchFromApi: makeClaudeAPICall,
     }),
-    (result) => Effect.retry(result, { times: params.retryCount }) // handle this, json or request error!
+    (result) => Effect.retry(result, { times: params.retryCount }), // handle this, json or request error!
   );
 }
 
 export function callClaudeWithFormat<F extends ZodObjectAny>(
-  params: CallClaudeWithFormat<F>
+  params: CallClaudeWithFormat<F>,
 ) {
   return pipe(
     params,
@@ -412,43 +434,43 @@ export function callClaudeWithFormat<F extends ZodObjectAny>(
       fetchFromApi: makeClaudeAPICall,
     }),
     Effect.flatMap((assistantResponse) =>
-      parseWithFormat(params, assistantResponse)
-    )
+      parseWithFormat(params, assistantResponse),
+    ),
   );
 }
 
 type RetryLimitError = {
-  readonly _tag: 'retryLimit';
+  readonly _tag: "retryLimit";
 };
 
 const RetryLimitError = (): RetryLimitError => ({
-  _tag: 'retryLimit',
+  _tag: "retryLimit",
 });
 
 type InvalidToolCallError = {
-  readonly _tag: 'invalidToolCall';
+  readonly _tag: "invalidToolCall";
 };
 
 const InvalidToolCallError = (): InvalidToolCallError => ({
-  _tag: 'invalidToolCall',
+  _tag: "invalidToolCall",
 });
 
 type ToolCall<T extends Tool[]> = {
-  name: T[number]['name'];
+  name: T[number]["name"];
   params: any;
   reasoning: Option.Option<string>;
 };
 
 function getToolCallFromResponse<T extends Tool[]>({
   content,
-}: AssistantResponse) {
+}: AssistantResponse): Effect.Effect<ToolCall<T>, InvalidToolCallError> {
   return content.length === 2
     ? Effect.succeed({
       reasoning: Option.some(content[0].text),
       params: (content[1] as ToolUse).input,
       name: (content[1] as ToolUse).name,
     } as ToolCall<T>)
-    : content[0].type === 'tool_use'
+    : content[0].type === "tool_use"
       ? Effect.succeed({
         reasoning: Option.none(),
         params: (content[0] as ToolUse).input,
@@ -467,19 +489,37 @@ export function callClaudeWithTools<T extends Tool[]>(params: CallClaudeTools) {
     Effect.provideService(ClaudeApi, {
       fetchFromApi: makeClaudeAPICall,
     }),
+    Effect.tap((res) => console.log(res, "claude res")),
     Effect.flatMap((assistantResponse) =>
-      getToolCallFromResponse<T>(assistantResponse)
-    )
+      pipe(
+        Effect.if(
+          assistantResponse.content.findIndex(
+            (message) => message.type === "tool_use",
+          ) === -1,
+          {
+            onTrue: () => Effect.succeed(Either.left(assistantResponse)),
+            onFalse: () =>
+              pipe(
+                getToolCallFromResponse<T>(assistantResponse),
+                Effect.map((item) => Either.right(item)),
+              ),
+          },
+        ),
+        Effect.map((p) =>
+          Either.mapBoth(p, { onLeft: (p) => p, onRight: (p) => p }),
+        ),
+      ),
+    ),
   );
 }
 
 function callClaude<F extends ZodObjectAny>(
-  params: CallClaudeWithFormat<F> | CallClaude | CallClaudeTools
+  params: CallClaudeWithFormat<F> | CallClaude | CallClaudeTools,
 ) {
   return pipe(params, getRequestBody, (body) =>
     pipe(
       ClaudeApi,
-      Effect.flatMap((value) => value.fetchFromApi(body))
-    )
+      Effect.flatMap((value) => value.fetchFromApi(body)),
+    ),
   );
 }
