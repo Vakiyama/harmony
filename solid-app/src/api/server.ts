@@ -89,7 +89,12 @@ export async function getUser() {
       .where(eq(Users.id, userId))
       .get();
     if (!user) throw redirect("/api/auth/landing");
-    return { id: user.id, displayName: user.displayName };
+    return {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      photo: user.photo,
+    };
   } catch {
     throw logout();
   }
@@ -104,4 +109,11 @@ export async function checkAuthenticated() {
   }
 
   return manager;
+}
+
+export async function getUserIdFromSession() {
+  const manager = await sessionManager();
+  const session = await manager.getSession();
+  const userId: number | undefined = session.data.userId;
+  return userId;
 }

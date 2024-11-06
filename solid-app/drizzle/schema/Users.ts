@@ -21,8 +21,12 @@ export const Users = sqliteTable("users", {
 
 export type User = typeof Users.$inferSelect;
 export type AttachedUser = {
-  id: User["id"];
-  firstName: User["firstName"];
-  lastName: User["lastName"];
-  photo: User["photo"];
+  id: User["id"] | null;
+  firstName: User["firstName"] | null;
+  lastName: User["lastName"] | null;
+  photo: User["photo"] | null;
 };
+
+export interface AttachedUserWithTeamRole extends AttachedUser {
+  role: string | null;
+}

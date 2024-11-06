@@ -5,346 +5,476 @@ import {
   TabsList,
   TabsTrigger,
 } from "~/components/ui/landing/landing-tabs";
-import LandingImage from "./LandingImage";
 import { JournalCard } from "./journal-card/JournalCard";
-import { createAsync } from "@solidjs/router";
+import { createAsync, useParams } from "@solidjs/router";
 import { createMemo, Show } from "solid-js";
 import { getJournalsFromTeamId } from "~/api/journal";
+import ReallyTerrible from "~/routes/Team/[id]/journal/really-terrible";
+import SomewhatBad from "~/routes/Team/[id]/journal/somewhat-bad";
+import CompletelyOkay from "~/routes/Team/[id]/journal/completely-okay";
+import PrettyGood from "~/routes/Team/[id]/journal/pretty-good";
+import SuperAwesome from "~/routes/Team/[id]/journal/super-awesome";
+import MedicationIcon from "../icon/medication-icon";
+import MoodIcon from "../icon/mood-icon";
+import NotesIcon from "../icon/notes-icon";
+import LandingImage from "./LandingImage";
+import NutritionIcon from "../icon/nutrition-icon";
+import SleepIcon from "../icon/sleep-icon";
 
 const LandingContent = () => {
-  const getJournals = createAsync(async () => await getJournalsFromTeamId(1), {
-    deferStream: true,
-  });
+  const teamId = useParams().id;
+  const getJournals = createAsync(
+    async () => await getJournalsFromTeamId(parseInt(teamId)),
+    {
+      deferStream: true,
+    }
+  );
   const journalsData = createMemo(() => getJournals());
+
+  const getTabIcon = (tabName: string) => {
+    switch (tabName) {
+      case "Medication Taken":
+        return (
+          <MedicationIcon height="15" width="15" iconColor="currentColor" />
+        );
+      case "Nutrition": {
+        return (
+          <NutritionIcon height="15" width="15" iconColor="currentColor" />
+        );
+      }
+      case "Sleep": {
+        return <SleepIcon height="15" width="15" iconColor="currentColor" />;
+      }
+      case "Mood":
+        return <MoodIcon height="15" width="15" iconColor="currentColor" />;
+      case "Notes":
+        return <NotesIcon height="15" width="15" iconColor="currentColor" />;
+    }
+  };
+
+  const getWellbeingSVG = (param: string) => {
+    switch (param) {
+      case "REALLY TERRIBLE":
+        return (
+          <ReallyTerrible
+            height="15"
+            width="15"
+            labelClass="text-subtitle"
+            iconColour="rgba(0,0,0,0.75)"
+          />
+        );
+      case "SOMEWHAT BAD":
+        return (
+          <SomewhatBad
+            height="15"
+            width="15"
+            labelClass="text-subtitle"
+            iconColour="rgba(0,0,0,0.75)"
+          />
+        );
+      case "COMPLETELY OKAY":
+        return (
+          <CompletelyOkay
+            height="15"
+            width="15"
+            labelClass="text-subtitle"
+            iconColour="rgba(0,0,0,0.75)"
+          />
+        );
+      case "PRETTY GOOD":
+        return (
+          <PrettyGood
+            height="15"
+            width="15"
+            labelClass="text-subtitle"
+            iconColour="rgba(0,0,0,0.75)"
+          />
+        );
+      case "SUPER AWESOME":
+        return (
+          <SuperAwesome
+            height="15"
+            width="15"
+            labelClass="text-subtitle"
+            iconColour="rgba(0,0,0,0.75)"
+          />
+        );
+      default:
+        return;
+    }
+  };
+  const formatCreatedDate = (date: Date) => {
+    return `${new Date(date).toLocaleDateString("en-us", {
+      month: "short",
+      day: "numeric",
+    })}. - ${new Date(date).toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    })}`;
+  };
   return (
-    <div class="mt-4 h-full">
+    <div class="">
       <Tabs defaultValue="medication taken" class="w-full">
         <TabsList class="w-full text-black px-2 overflow-scroll rounded-none pb-2">
-          {["Mood", "Medication Taken", "Notes", "Nutrition", "Sleep"].map(
+          {["Medication Taken", "Nutrition", "Sleep", "Mood", "Notes"].map(
             (tabName) => (
               <TabsTrigger value={tabName.toLowerCase()} class="text-md">
-                {tabName}
+                {getTabIcon(tabName)}
+                <span class="ml-1">{tabName}</span>
               </TabsTrigger>
             )
           )}
           <TabsIndicator />
         </TabsList>
 
-        {/* tab content for mood */}
-        <div class="p-2 overflow-y-scroll pb-[200px] h-[calc(100vh_-_130px)]">
+        <div class="p-2 overflow-y-scroll h-[calc(100vh_-_330px)]">
           {/* this pb and h-calc above is hacky, fix it*/}
-          <JournalCard
-            dateTime="Oct 15. - 9:41PM"
-            title="Mood"
-            value={"mood"}
-            withMember={true}
-            member={null}
-            icon={
-              <svg
-                width="15"
-                height="14"
-                viewBox="0 0 15 14"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M7.5 0C3.63438 0 0.5 3.13438 0.5 7C0.5 10.8656 3.63438 14 7.5 14C11.3656 14 14.5 10.8656 14.5 7C14.5 3.13438 11.3656 0 7.5 0ZM4 5.57812C4.00401 5.38186 4.08478 5.19499 4.225 5.05761C4.36522 4.92023 4.5537 4.84328 4.75 4.84328C4.9463 4.84328 5.13478 4.92023 5.275 5.05761C5.41522 5.19499 5.49599 5.38186 5.5 5.57812C5.49599 5.77439 5.41522 5.96126 5.275 6.09864C5.13478 6.23602 4.9463 6.31297 4.75 6.31297C4.5537 6.31297 4.36522 6.23602 4.225 6.09864C4.08478 5.96126 4.00401 5.77439 4 5.57812ZM7.5 9.82812C6.16406 9.82812 5.06875 8.77656 5 7.45938C4.99915 7.44244 5.00176 7.42551 5.00766 7.40962C5.01356 7.39372 5.02263 7.3792 5.03433 7.36692C5.04602 7.35464 5.06009 7.34487 5.07568 7.3382C5.09126 7.33153 5.10805 7.3281 5.125 7.32812H5.87656C5.94219 7.32812 5.99844 7.37813 6.00313 7.44375C6.0625 8.21719 6.71094 8.82812 7.5 8.82812C8.28906 8.82812 8.93906 8.21719 8.99687 7.44375C9.00156 7.37813 9.05781 7.32812 9.12344 7.32812H9.875C9.89195 7.3281 9.90874 7.33153 9.92432 7.3382C9.93991 7.34487 9.95398 7.35464 9.96567 7.36692C9.97737 7.3792 9.98644 7.39372 9.99234 7.40962C9.99824 7.42551 10.0008 7.44244 10 7.45938C9.93125 8.77656 8.83594 9.82812 7.5 9.82812ZM10.25 6.32812C10.0537 6.32412 9.86687 6.24334 9.72948 6.10312C9.5921 5.96291 9.51515 5.77443 9.51515 5.57812C9.51515 5.38182 9.5921 5.19334 9.72948 5.05313C9.86687 4.91291 10.0537 4.83213 10.25 4.82812C10.4463 4.83213 10.6331 4.91291 10.7705 5.05313C10.9079 5.19334 10.9848 5.38182 10.9848 5.57812C10.9848 5.77443 10.9079 5.96291 10.7705 6.10312C10.6331 6.24334 10.4463 6.32412 10.25 6.32812Z"
-                  fill="#FE83B0"
-                />
-              </svg>
-            }
-            sections={[
-              {
-                title: "Mood",
-                content: (
-                  <div class="text-xs text-black/75">
-                    <div class="flex flex-row gap-x-2 mt-2">
-                      <svg
-                        width="15"
-                        height="16"
-                        viewBox="0 0 15 16"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M13.5938 8.10132C13.5938 6.48516 12.9517 4.93519 11.8089 3.79239C10.6661 2.64959 9.11616 2.00757 7.5 2.00757C5.88384 2.00757 4.33387 2.64959 3.19107 3.79239C2.04827 4.93519 1.40625 6.48516 1.40625 8.10132C1.40625 9.71748 2.04827 11.2675 3.19107 12.4103C4.33387 13.5531 5.88384 14.1951 7.5 14.1951C9.11616 14.1951 10.6661 13.5531 11.8089 12.4103C12.9517 11.2675 13.5938 9.71748 13.5938 8.10132ZM0 8.10132C0 6.11219 0.790176 4.20454 2.1967 2.79802C3.60322 1.39149 5.51088 0.601318 7.5 0.601318C9.48912 0.601318 11.3968 1.39149 12.8033 2.79802C14.2098 4.20454 15 6.11219 15 8.10132C15 10.0904 14.2098 11.9981 12.8033 13.4046C11.3968 14.8111 9.48912 15.6013 7.5 15.6013C5.51088 15.6013 3.60322 14.8111 2.1967 13.4046C0.790176 11.9981 0 10.0904 0 8.10132ZM3.8291 9.79761C3.70605 9.39917 4.03711 9.03882 4.45312 9.03882H10.6787C11.0947 9.03882 11.4258 9.4021 11.3027 9.79761C10.8105 11.3943 9.32227 12.5544 7.56445 12.5544C5.80664 12.5544 4.31836 11.3943 3.8291 9.79761ZM6.375 7.30444L6.36914 7.29858C6.36328 7.29272 6.35742 7.28394 6.34863 7.27222C6.33105 7.24878 6.30176 7.21362 6.2666 7.17261C6.19336 7.09058 6.09082 6.97925 5.96777 6.87085C5.70996 6.64233 5.41699 6.46069 5.15625 6.46069C4.89551 6.46069 4.60254 6.64233 4.34473 6.87085C4.22168 6.97925 4.11914 7.09058 4.0459 7.17261C4.01074 7.21362 3.98145 7.24878 3.96387 7.27222C3.95508 7.28394 3.94629 7.29272 3.94336 7.29858L3.9375 7.30444C3.87598 7.38647 3.77051 7.4187 3.67676 7.38647C3.58301 7.35425 3.51562 7.26636 3.51562 7.16382C3.51562 6.6394 3.71191 6.12085 4.00195 5.73413C4.28906 5.35327 4.70215 5.05444 5.15625 5.05444C5.61035 5.05444 6.02344 5.35327 6.31055 5.73413C6.60059 6.12085 6.79688 6.6394 6.79688 7.16382C6.79688 7.26343 6.73242 7.35425 6.63574 7.38647C6.53906 7.4187 6.43359 7.38647 6.375 7.30444ZM11.0625 7.30444L11.0566 7.29858C11.0508 7.29272 11.0449 7.28394 11.0361 7.27222C11.0186 7.24878 10.9893 7.21362 10.9541 7.17261C10.8809 7.09058 10.7783 6.97925 10.6553 6.87085C10.3975 6.64233 10.1045 6.46069 9.84375 6.46069C9.58301 6.46069 9.29004 6.64233 9.03223 6.87085C8.90918 6.97925 8.80664 7.09058 8.7334 7.17261C8.69824 7.21362 8.66895 7.24878 8.65137 7.27222C8.64258 7.28394 8.63379 7.29272 8.63086 7.29858L8.625 7.30444C8.56348 7.38647 8.45801 7.4187 8.36426 7.38647C8.27051 7.35425 8.20312 7.26636 8.20312 7.16382C8.20312 6.6394 8.39941 6.12085 8.68945 5.73413C8.97656 5.35327 9.38965 5.05444 9.84375 5.05444C10.2979 5.05444 10.7109 5.35327 10.998 5.73413C11.2881 6.12085 11.4844 6.6394 11.4844 7.16382C11.4844 7.26343 11.4199 7.35425 11.3232 7.38647C11.2266 7.4187 11.1211 7.38647 11.0625 7.30444Z"
-                          fill="#1E1E1E"
-                        />
-                      </svg>
-                      <p>SUPER AWESOME</p>
-                    </div>
-                  </div>
-                ),
-              },
-              {
-                title: "Time of Day",
-                content: (
-                  <p class="text-xs text-black/75">Selected Medication Type</p>
-                ),
-              },
-
-              {
-                title: "What Tina Noticed",
-                content: (
-                  <p class="text-xs text-black/75">
-                    Ramdom notes about medication, that someone might want other
-                    people to look at and read n things n wowwowwow!
-                  </p>
-                ),
-              },
-            ]}
-            /*
-           
-
-          */
-          />
-          <Show when={journalsData() !== undefined}>
-            {journalsData()?.takenMedications.map((med, index) => {
+          <Show when={journalsData()}>
+            {journalsData()?.takenMedications.map((med) => {
               return (
-                <>
-                  <JournalCard
-                    dateTime={`${new Date(med.createdAt).toLocaleDateString(
-                      "en-us",
-                      { month: "short", day: "numeric" }
-                    )} - ${new Date(med.createdAt).toLocaleTimeString("en-US", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}`}
-                    title="Medication Taken"
-                    value={"medication taken"}
-                    withMember={true}
-                    member={med.user}
-                    icon={
-                      <svg
-                        width="15"
-                        height="14"
-                        viewBox="0 0 15 14"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M7.95228 1.12328C8.67165 0.403996 9.64728 -5.99356e-05 10.6646 6.66845e-09C11.6818 5.9949e-05 12.6574 0.404231 13.3767 1.1236C14.096 1.84297 14.5001 2.81861 14.5 3.83589C14.4999 4.85317 14.0958 5.82876 13.3764 6.54804L7.04772 12.8767C6.32835 13.596 5.35272 14.0001 4.33544 14C3.31815 13.9999 2.34256 13.5958 1.62328 12.8764C0.903996 12.157 0.49994 11.1814 0.5 10.1641C0.50006 9.14683 0.904231 8.17124 1.6236 7.45196L7.95228 1.12328ZM12.4718 5.64349L9.76011 8.35587L6.14381 4.73957L8.85619 2.02783C9.09262 1.786 9.37468 1.59348 9.68603 1.46141C9.99738 1.32934 10.3318 1.26035 10.67 1.25842C11.0082 1.2565 11.3435 1.32169 11.6563 1.45021C11.9691 1.57873 12.2533 1.76804 12.4925 2.00716C12.7317 2.24629 12.921 2.53048 13.0496 2.84329C13.1782 3.1561 13.2434 3.49131 13.2416 3.82951C13.2397 4.16771 13.1708 4.50217 13.0388 4.81355C12.9067 5.12492 12.7136 5.40701 12.4718 5.64349Z"
-                          fill="#FE7258"
-                        />
-                      </svg>
-                    }
-                    sections={[
-                      {
-                        title: "Selected Medication",
-                        content: <p class="text-xs">{med.medications!.name}</p>,
-                      },
-                      {
-                        title: "Medication Type",
-                        content: <p class="text-xs">{med.type}</p>,
-                      },
-                      {
-                        title: "Date & Time Taken",
-                        content: (
-                          <p class="text-xs">
-                            {`${new Date(med.date).toDateString()} - ${new Date(
-                              med.date
-                            ).toLocaleTimeString("en-US", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}`}
-                          </p>
-                        ),
-                      },
-                      ...(med.note
-                        ? [
+                <JournalCard
+                  dateTime={formatCreatedDate(med.date)}
+                  title="Medication Taken"
+                  value={"medication taken"}
+                  withMember={true}
+                  member={med.user}
+                  entryId={med.id}
+                  icon={
+                    <MedicationIcon
+                      height="15"
+                      width="15"
+                      iconColor="#FE7258"
+                    />
+                  }
+                  sections={[
+                    {
+                      title: "Taken or Skipped?",
+                      content: (
+                        <p class="text-subtitle">
+                          {med.hasMissed ? "Missed" : "Taken"}
+                        </p>
+                      ),
+                    },
+                    {
+                      title: "Selected Medication",
+                      content: (
+                        <p class="text-subtitle">{med.medications!.name}</p>
+                      ),
+                    },
+                    {
+                      title: "Medication Type",
+                      content: <p class="text-subtitle">{med.type}</p>,
+                    },
+                    {
+                      title: "Date & Time Taken",
+                      content: (
+                        <p class="text-subtitle">
+                          {`${new Date(med.date).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })} - ${new Date(med.date).toLocaleTimeString(
+                            "en-US",
                             {
-                              title: "Additional Notes",
-                              content: <p class="text-xs">{med.note.note}</p>,
-                            },
-                            // {
-                            //   content: (
-                            //     <>
-                            //       Images
-                            //       <div class="flex flex-row gap-x-2">
-                            //         <LandingImage />
-                            //         <LandingImage />
-                            //       </div>
-                            //     </>
-                            //   ),
-                            // },
-                          ]
-                        : []),
-                    ]}
-                  />
-                </>
+                              hour: "numeric",
+                              minute: "2-digit",
+                            }
+                          )}`}
+                        </p>
+                      ),
+                    },
+                    ...(med.note
+                      ? [
+                          {
+                            title: "Additional Notes",
+                            content: (
+                              <p class="text-subtitle">{med.note.note}</p>
+                            ),
+                          },
+                          // {
+                          //   content: (
+                          //     <>
+                          //       Images
+                          //       <div class="flex flex-row gap-x-2">
+                          //         <LandingImage />
+                          //         <LandingImage />
+                          //       </div>
+                          //     </>
+                          //   ),
+                          // },
+                        ]
+                      : []),
+                  ]}
+                />
               );
             })}
           </Show>
-          {/* tab content for notes */}
-          <JournalCard
-            dateTime="Oct 15. - 9:41PM"
-            title="Notes"
-            value={"notes"}
-            withMember={false}
-            member={null}
-            icon={
-              <svg
-                width="15"
-                height="14"
-                viewBox="0 0 15 14"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M2.5 0C1.39688 0 0.5 0.896875 0.5 2V12C0.5 13.1031 1.39688 14 2.5 14H9.5V10.5C9.5 9.67188 10.1719 9 11 9H14.5V2C14.5 0.896875 13.6031 0 12.5 0H2.5ZM14.5 10H11C10.725 10 10.5 10.225 10.5 10.5V14L11.5 13L13.5 11L14.5 10Z"
-                  fill="#F7D844"
+          <Show when={journalsData()}>
+            {journalsData()?.moods.map((mood) => {
+              return (
+                <JournalCard
+                  dateTime={formatCreatedDate(mood.createdAt)}
+                  title="Mood"
+                  value={"mood"}
+                  withMember={true}
+                  member={mood.user}
+                  entryId={mood.id}
+                  icon={<MoodIcon width="14" height="14" iconColor="#FE83B0" />}
+                  sections={[
+                    {
+                      title: "Mood",
+                      content: (
+                        <div class="text-subtitle text-black/75">
+                          <div class="flex flex-row gap-x-1 items-center align-middle leading-none">
+                            {getWellbeingSVG(mood.wellBeing)}
+                          </div>
+                        </div>
+                      ),
+                    },
+                    {
+                      title: "Time of Day",
+                      content: (
+                        <p class="text-subtitle text-black/75">
+                          {mood.timeFrame}
+                        </p>
+                      ),
+                    },
+                    {
+                      title: "Date",
+                      content: (
+                        <p class="text-subtitle text-black/75">
+                          {mood.date.toLocaleDateString("en-us", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </p>
+                      ),
+                    },
+                    ...(mood.note
+                      ? [
+                          {
+                            title: `What ${mood.user!.firstName} Noticed`,
+                            content: (
+                              <p class="text-subtitle">{mood.note.note}</p>
+                            ),
+                          },
+                          // {
+                          //   content: (
+                          //     <>
+                          //       Images
+                          //       <div class="flex flex-row gap-x-2">
+                          //         <LandingImage />
+                          //         <LandingImage />
+                          //       </div>
+                          //     </>
+                          //   ),
+                          // },
+                        ]
+                      : []),
+                  ]}
                 />
-              </svg>
-            }
-            sections={[
-              {
-                title: "New Update",
-                content: (
-                  <p class="text-xs ">
-                    Random notes that someone might want others to read.
-                  </p>
-                ),
-              },
-              {
-                content: (
-                  <>
-                    {/* Images */}
-                    <div class="flex flex-row gap-x-2">
-                      <LandingImage />
-                      <LandingImage />
-                    </div>
-                  </>
-                ),
-              },
-            ]}
-          />
-          <JournalCard
-            dateTime="Oct 15. - 9:41PM"
-            title="Nutrition"
-            value={"nutrition"}
-            withMember={false}
-            member={null}
-            icon={
-              <svg
-                width="13"
-                height="16"
-                viewBox="0 0 13 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M5.28558 3.49744C5.6967 3.44278 6.46834 3.25285 7.12345 2.59808C7.6121 2.1083 7.92043 1.46745 7.99818 0.779997C8.00263 0.743304 7.99889 0.706081 7.98722 0.671009C7.97555 0.635938 7.95624 0.603892 7.93069 0.57718C7.90515 0.550468 7.87399 0.529755 7.83947 0.516534C7.80495 0.503313 7.76793 0.497913 7.73108 0.500723C7.33401 0.5304 6.58268 0.684094 5.89633 1.37072C5.39203 1.86626 5.07564 2.52165 5.00129 3.22473C4.99744 3.26251 5.00224 3.30067 5.01535 3.33631C5.02845 3.37195 5.0495 3.40414 5.07691 3.43043C5.10431 3.45672 5.13735 3.47642 5.1735 3.48803C5.20966 3.49964 5.24799 3.50286 5.28558 3.49744Z"
-                  fill="#6FC94F"
+              );
+            })}
+          </Show>
+
+          <Show when={journalsData()}>
+            {journalsData()?.notes.map((data) => {
+              return (
+                <JournalCard
+                  dateTime={formatCreatedDate(data.createdAt)}
+                  title="Notes"
+                  value={"notes"}
+                  withMember={true}
+                  member={data.user}
+                  entryId={data.id}
+                  icon={
+                    <NotesIcon
+                      width="14"
+                      height="14"
+                      iconColor="#F7D844"
+                      bgColor="#4E412B"
+                    />
+                  }
+                  sections={[
+                    {
+                      title: "New Update",
+                      content: <p class="text-subtitle">{data.note}</p>,
+                    },
+                    // {
+                    //   content: (
+                    //     <>
+                    //       {/* Images */}
+                    //       <div class="flex flex-row gap-x-2">
+                    //         <LandingImage />
+                    //         <LandingImage />
+                    //       </div>
+                    //     </>
+                    //   ),
+                    // },
+                  ]}
                 />
-                <path
-                  d="M12.2199 5.20534C11.6364 4.1884 10.7367 3.61888 9.5456 3.5121C8.91492 3.4559 8.32674 3.61732 7.75699 3.77375C7.31476 3.89521 6.89691 4.0098 6.50062 4.0098C6.10433 4.0098 5.68805 3.8949 5.24863 3.77344C4.67732 3.61732 4.08664 3.45309 3.45377 3.51241C2.31647 3.61888 1.40638 4.20276 0.818828 5.20097C0.275651 6.1255 0 7.40565 0 9.00554C0 10.267 0.468795 11.8309 1.25012 13.1895C1.65078 13.8842 2.71901 15.5 3.97413 15.5C4.93579 15.5 5.44771 15.2053 5.8215 14.9901C6.08089 14.8409 6.23747 14.7506 6.49937 14.7506C6.76127 14.7506 6.91785 14.8409 7.17725 14.9901C7.55229 15.2053 8.06327 15.5 9.02586 15.5C10.2813 15.5 11.3492 13.8839 11.7499 13.1895C12.5334 11.8313 13 10.2673 13 9.00554C13.0012 7.36413 12.7456 6.12112 12.2199 5.20534ZM5.2505 11.0038C4.8364 11.0038 4.50043 10.3328 4.50043 9.50511C4.50043 8.67738 4.8364 8.00639 5.2505 8.00639C5.66461 8.00639 6.00057 8.67738 6.00057 9.50511C6.00057 10.3328 5.66461 11.0038 5.2505 11.0038ZM7.75074 11.0038C7.33664 11.0038 7.00067 10.3328 7.00067 9.50511C7.00067 8.67738 7.33664 8.00639 7.75074 8.00639C8.16484 8.00639 8.50081 8.67738 8.50081 9.50511C8.50081 10.3328 8.16484 11.0038 7.75074 11.0038Z"
-                  fill="#6FC94F"
+              );
+            })}
+          </Show>
+          <Show when={journalsData()}>
+            {journalsData()?.meals.map((meal) => {
+              return (
+                <JournalCard
+                  dateTime={formatCreatedDate(meal.createdAt)}
+                  title="Nutrition"
+                  value={"nutrition"}
+                  withMember={true}
+                  member={meal.user}
+                  entryId={meal.id}
+                  icon={
+                    <NutritionIcon
+                      width="14"
+                      height="14"
+                      iconColor="#6FC94F"
+                      bgColor="#19370E"
+                    />
+                  }
+                  sections={[
+                    {
+                      title: "Meal Type",
+                      content: <p class="text-subtitle">{meal.category}</p>,
+                    },
+                    {
+                      title: `How much did ${meal.recipient!.firstName} eat?`,
+                      content: (
+                        <p class="text-subtitle">
+                          {meal.recipient!.firstName} ate{" "}
+                          {meal.consumption.toLowerCase()} of her meal.
+                        </p>
+                      ),
+                    },
+                    ...(meal.foodName
+                      ? [
+                          {
+                            title: "Food Name",
+                            content: (
+                              <p class="text-subtitle">{meal.foodName}</p>
+                            ),
+                          },
+                        ]
+                      : []),
+                    ...(meal.drinkName
+                      ? [
+                          {
+                            title: "Drink Name",
+                            content: (
+                              <p class="text-subtitle">{meal.drinkName}</p>
+                            ),
+                          },
+                        ]
+                      : []),
+                    {
+                      title: "Date",
+                      content: (
+                        <p class="text-subtitle text-black/75">
+                          {meal.date.toLocaleDateString("en-us", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </p>
+                      ),
+                    },
+                    ...(meal.note
+                      ? [
+                          {
+                            title: "Additional Notes",
+                            content: (
+                              <p class="text-subtitle">{meal.note.note}</p>
+                            ),
+                          },
+                          // {
+                          //   content: (
+                          //     <>
+                          //       {/* Images */}
+                          //       <div class="flex flex-row gap-x-2">
+                          //         <LandingImage />
+                          //         <LandingImage />
+                          //       </div>
+                          //     </>
+                          //   ),
+                          // },
+                        ]
+                      : []),
+                  ]}
                 />
-              </svg>
-            }
-            sections={[
-              {
-                title: "Meal Type",
-                content: <p class="text-xs">Drink</p>,
-              },
-              {
-                title: "How much did Lola eat?",
-                content: (
-                  <p class="text-xs ">Lola ate about half of her meal.</p>
-                ),
-              },
-              {
-                title: "Food Name",
-                content: <p class="text-xs ">Hot Pot</p>,
-              },
-              {
-                title: "Drink Name",
-                content: <p class="text-xs ">Hot Tea w/ Lemon</p>,
-              },
-              {
-                title: "Additional Notes",
-                content: (
-                  <p class="text-xs ">
-                    Random notes about the meal, observations, etc.
-                  </p>
-                ),
-              },
-              {
-                content: (
-                  <>
-                    {/* Images */}
-                    <div class="flex flex-row gap-x-2">
-                      <LandingImage />
-                      <LandingImage />
-                    </div>
-                  </>
-                ),
-              },
-            ]}
-          />
-          <JournalCard
-            dateTime="Oct 15. - 9:41PM"
-            title="Sleep"
-            value={"sleep"}
-            withMember={true}
-            member={null}
-            icon={
-              <svg
-                width="15"
-                height="14"
-                viewBox="0 0 15 14"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M13.3948 4.83074V0H11.9211V1.47368H3.07896V0H1.60528V4.83147C0.728434 5.34211 0.131592 6.28232 0.131592 7.36842V10.3158C0.131592 10.5112 0.209223 10.6986 0.347408 10.8368C0.485593 10.975 0.673011 11.0526 0.868434 11.0526H1.60528V14H3.07896V11.0526H11.9211V14H13.3948V11.0526H14.1316C14.327 11.0526 14.5144 10.975 14.6526 10.8368C14.7908 10.6986 14.8684 10.5112 14.8684 10.3158V7.36842C14.8684 6.28232 14.2709 5.3421 13.3948 4.83074ZM6.76317 4.42105H3.07896V2.94737H6.76317V4.42105ZM11.9211 4.42105H8.23686V2.94737H11.9211V4.42105Z"
-                  fill="#7F99DD"
+              );
+            })}
+          </Show>
+          <Show when={journalsData()}>
+            {journalsData()?.sleeps.map((sleep) => {
+              return (
+                <JournalCard
+                  dateTime={formatCreatedDate(sleep.createdAt)}
+                  title="Sleep"
+                  value={"sleep"}
+                  withMember={true}
+                  member={sleep.user}
+                  entryId={sleep.id}
+                  icon={
+                    <SleepIcon
+                      height="15"
+                      width="15"
+                      iconColor="#7F99DD"
+                      bgColor="#091E54"
+                    />
+                  }
+                  sections={[
+                    {
+                      title: `How did ${sleep.recipient!.firstName} sleep?`,
+                      content: (
+                        <div class="text-subtitle ">
+                          <div class="flex flex-row gap-x-1">
+                            {getWellbeingSVG(sleep.quality)}
+                          </div>
+                        </div>
+                      ),
+                    },
+                    {
+                      title: "Day or Night?",
+                      content: <p class="text-subtitle ">{sleep.timeFrame}</p>,
+                    },
+                    {
+                      title: "Trouble Going to Sleep?",
+                      content: (
+                        <p class="text-subtitle ">
+                          {sleep.troubleSleeping ? "Yes" : "No"}
+                        </p>
+                      ),
+                    },
+                    {
+                      title: "Date",
+                      content: (
+                        <p class="text-subtitle text-black/75">
+                          {sleep.date.toLocaleDateString("en-us", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </p>
+                      ),
+                    },
+                    ...(sleep.note
+                      ? [
+                          {
+                            title: "Additional Notes",
+                            content: (
+                              <p class="text-subtitle ">{sleep.note.note}</p>
+                            ),
+                          },
+                        ]
+                      : []),
+                  ]}
                 />
-              </svg>
-            }
-            sections={[
-              {
-                title: "How did Lola sleep?",
-                content: (
-                  <div class="text-xs ">
-                    <div class="flex flex-row gap-x-2 mt-2">
-                      <svg
-                        width="15"
-                        height="15"
-                        viewBox="0 0 15 15"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M13.5938 7.5C13.5938 5.88384 12.9517 4.33387 11.8089 3.19107C10.6661 2.04827 9.11616 1.40625 7.5 1.40625C5.88384 1.40625 4.33387 2.04827 3.19107 3.19107C2.04827 4.33387 1.40625 5.88384 1.40625 7.5C1.40625 9.11616 2.04827 10.6661 3.19107 11.8089C4.33387 12.9517 5.88384 13.5938 7.5 13.5938C9.11616 13.5938 10.6661 12.9517 11.8089 11.8089C12.9517 10.6661 13.5938 9.11616 13.5938 7.5ZM0 7.5C0 5.51088 0.790176 3.60322 2.1967 2.1967C3.60322 0.790176 5.51088 0 7.5 0C9.48912 0 11.3968 0.790176 12.8033 2.1967C14.2098 3.60322 15 5.51088 15 7.5C15 9.48912 14.2098 11.3968 12.8033 12.8033C11.3968 14.2098 9.48912 15 7.5 15C5.51088 15 3.60322 14.2098 2.1967 12.8033C0.790176 11.3968 0 9.48912 0 7.5ZM3.8291 9.19629C3.70605 8.79785 4.03711 8.4375 4.45312 8.4375H10.6787C11.0947 8.4375 11.4258 8.80078 11.3027 9.19629C10.8105 10.793 9.32227 11.9531 7.56445 11.9531C5.80664 11.9531 4.31836 10.793 3.8291 9.19629ZM6.375 6.70312L6.36914 6.69727C6.36328 6.69141 6.35742 6.68262 6.34863 6.6709C6.33105 6.64746 6.30176 6.6123 6.2666 6.57129C6.19336 6.48926 6.09082 6.37793 5.96777 6.26953C5.70996 6.04102 5.41699 5.85938 5.15625 5.85938C4.89551 5.85938 4.60254 6.04102 4.34473 6.26953C4.22168 6.37793 4.11914 6.48926 4.0459 6.57129C4.01074 6.6123 3.98145 6.64746 3.96387 6.6709C3.95508 6.68262 3.94629 6.69141 3.94336 6.69727L3.9375 6.70312C3.87598 6.78516 3.77051 6.81738 3.67676 6.78516C3.58301 6.75293 3.51562 6.66504 3.51562 6.5625C3.51562 6.03809 3.71191 5.51953 4.00195 5.13281C4.28906 4.75195 4.70215 4.45312 5.15625 4.45312C5.61035 4.45312 6.02344 4.75195 6.31055 5.13281C6.60059 5.51953 6.79688 6.03809 6.79688 6.5625C6.79688 6.66211 6.73242 6.75293 6.63574 6.78516C6.53906 6.81738 6.43359 6.78516 6.375 6.70312ZM11.0625 6.70312L11.0566 6.69727C11.0508 6.69141 11.0449 6.68262 11.0361 6.6709C11.0186 6.64746 10.9893 6.6123 10.9541 6.57129C10.8809 6.48926 10.7783 6.37793 10.6553 6.26953C10.3975 6.04102 10.1045 5.85938 9.84375 5.85938C9.58301 5.85938 9.29004 6.04102 9.03223 6.26953C8.90918 6.37793 8.80664 6.48926 8.7334 6.57129C8.69824 6.6123 8.66895 6.64746 8.65137 6.6709C8.64258 6.68262 8.63379 6.69141 8.63086 6.69727L8.625 6.70312C8.56348 6.78516 8.45801 6.81738 8.36426 6.78516C8.27051 6.75293 8.20312 6.66504 8.20312 6.5625C8.20312 6.03809 8.39941 5.51953 8.68945 5.13281C8.97656 4.75195 9.38965 4.45312 9.84375 4.45312C10.2979 4.45312 10.7109 4.75195 10.998 5.13281C11.2881 5.51953 11.4844 6.03809 11.4844 6.5625C11.4844 6.66211 11.4199 6.75293 11.3232 6.78516C11.2266 6.81738 11.1211 6.78516 11.0625 6.70312Z"
-                          fill="#1E1E1E"
-                        />
-                      </svg>
-                      <p>SUPER AWESOME</p>
-                    </div>
-                  </div>
-                ),
-              },
-              {
-                title: "Day or Night?",
-                content: <p class="text-xs ">Day</p>,
-              },
-              {
-                title: "Trouble Going to Sleep?",
-                content: <p class="text-xs ">No</p>,
-              },
-              {
-                title: "Additional Notes",
-                content: (
-                  <p class="text-xs ">
-                    Random notes about sleep, observations, etc.
-                  </p>
-                ),
-              },
-            ]}
-          />
+              );
+            })}
+          </Show>
         </div>
       </Tabs>
     </div>
