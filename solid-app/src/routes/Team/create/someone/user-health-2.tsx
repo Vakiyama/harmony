@@ -3,6 +3,7 @@ import { createSignal, For } from "solid-js";
 import TextFieldLine from "~/components/shared/text-field-line";
 import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
+import { useTeam } from "~/context/team-context";
 
 export default function UserHealth2({
   onClick,
@@ -17,13 +18,14 @@ export default function UserHealth2({
   ) => void;
   addMore: () => void;
 }) {
+  const team = useTeam();
   const [surgeries, setSurgeries] = createSignal<
     { name: string; year: string; details: string }[]
   >([{ name: "", year: "", details: "" }]);
 
-  // const addMoreSurgeries = () => {
-  //   setSurgeries([...surgeries(), { name: "", year: "", details: "" }]);
-  // };
+  const addMoreSurgeries = () => {
+    setSurgeries([...surgeries(), { name: "", year: "", details: "" }]);
+  };
 
   // const updateSurgery = (
   //   index: number,
@@ -57,21 +59,21 @@ export default function UserHealth2({
                     <input
                       type="text"
                       value={surgery.name}
-                      onInput={(e) =>
-                        onInput(index(), "name", e.currentTarget.value)
-                      }
                       // onInput={(e) =>
-                      //   updateSurgery(index(), "name", e.currentTarget.value)}
-
+                      //   onInput(index(), "name", e.currentTarget.value)
+                      // }
+                      // onInput={(e) =>
+                      //   updateSurgery(index(), "name", e.currentTarget.value)
+                      // }
                       class="p-2 border rounded-lg w-full text-sm"
                       placeholder="Surgery Name"
                     />
                     <input
                       type="text"
                       value={surgery.year}
-                      onInput={(e) =>
-                        onInput(index(), "year", e.currentTarget.value)
-                      }
+                      // onInput={(e) =>
+                      //   onInput(index(), "year", e.currentTarget.value)
+                      // }
                       // onInput={(e) =>
                       //   updateSurgery(index(), "year", e.currentTarget.value)
                       // }
@@ -81,9 +83,9 @@ export default function UserHealth2({
                   </div>
                   <textarea
                     value={surgery.details}
-                    onInput={(e) =>
-                      onInput(index(), "details", e.currentTarget.value)
-                    }
+                    // onInput={(e) =>
+                    //   onInput(index(), "details", e.currentTarget.value)
+                    // }
                     // onInput={(e) =>
                     //   updateSurgery(index(), "details", e.currentTarget.value)
                     // }
@@ -95,7 +97,7 @@ export default function UserHealth2({
             </For>
 
             <button
-              onClick={addMore}
+              onClick={addMoreSurgeries}
               class="w-full mt-2 border-[1px] text-black px-4 py-2 rounded-lg text-sm"
             >
               Add more
@@ -116,7 +118,7 @@ export default function UserHealth2({
         <div class="flex flex-col items-center justify-center">
           <Button
             type="button"
-            onClick={onClick}
+            onClick={team.nextStep}
             class="rounded-full w-full bg-[#AE9BF2] text-black h-[50px]"
           >
             Next

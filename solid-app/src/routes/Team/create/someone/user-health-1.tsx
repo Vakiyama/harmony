@@ -4,6 +4,7 @@ import { createStore } from "solid-js/store";
 import TextFieldLine from "~/components/shared/text-field-line";
 import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
+import { useTeam } from "~/context/team-context";
 
 const formFields = [
   {
@@ -29,12 +30,13 @@ const formFields = [
 ];
 
 export default function UserHealth1({ onClick }: { onClick: () => void }) {
-  const [formData, setFormData] = createStore({
-    healthyCondition: "",
-    allergies: "",
-    dietaryRestrictions: "",
-    pastInjuries: "",
-  });
+  const team = useTeam();
+  // const [formData, setFormData] = createStore({
+  //   healthyCondition: "",
+  //   allergies: "",
+  //   dietaryRestrictions: "",
+  //   pastInjuries: "",
+  // });
 
   return (
     <>

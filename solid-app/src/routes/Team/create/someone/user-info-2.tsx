@@ -25,12 +25,12 @@ const formFields = [
 ];
 
 export default function UserInfo2({ onClick }: { onClick: () => void }) {
-  const [formData, setFormData] = createStore({
-    gender: "",
-    language: "",
-    livesWith: "",
-    employment: "",
-  });
+  // const [formData, setFormData] = createStore({
+  //   gender: "",
+  //   language: "",
+  //   livesWith: "",
+  //   employment: "",
+  // });
 
   return (
     <>
@@ -39,7 +39,6 @@ export default function UserInfo2({ onClick }: { onClick: () => void }) {
         <div class="flex items-center justify-center mt-2">
           <p class="text-xs text-gray-400">4 of 8</p>
         </div>
-        {/* upload photo part */}
         <div class="px-2 mt-6 flex flex-col flex-grow">
           <p class="text-[30px] font-semi">Tell us about "User"</p>
           <p class="text-[24px] mt-2">Other Information</p>

@@ -2,8 +2,11 @@ import { A } from "@solidjs/router";
 import TextFieldLine from "~/components/shared/text-field-line";
 import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
+import { useTeam } from "~/context/team-context";
 
 export default function UploadPhoto({ onClick }: { onClick: () => void }) {
+  const team = useTeam();
+
   return (
     <>
       {/* <TeamTopNav backNavigation="/" cancelNavigation="/" /> */}
@@ -48,6 +51,7 @@ export default function UploadPhoto({ onClick }: { onClick: () => void }) {
               type="file"
               accept="image/*"
               class="hidden"
+              name="photo"
             />
             <div></div>
           </div>

@@ -4,7 +4,7 @@ import { users } from "./Users";
 export const recipients = sqliteTable("recipients", {
   id: integer("id").primaryKey({ autoIncrement: true }).notNull().unique(),
   firstName: text("first_name").notNull(),
-  lastName: text("last_name").notNull(),
+  lastName: text("last_name"),
   email: text("email").unique(), // email of a recipient's family member
   phoneNumber: text("phone_number").unique(), // emergency contact
   // recipientType: text('recipient_type').notNull(), // 'user' or 'non_user'
@@ -13,7 +13,7 @@ export const recipients = sqliteTable("recipients", {
   preferredLanguage: text("preferred_language").notNull(),
   healthCondition: text("health_condition").notNull(),
   livesWith: text("lives_with"),
-  hometown: text("hometown"),
+  // hometown: text("hometown"),
   employment: text("employment"),
   allergies: text("allergies"),
   dietaryRestrictions: text("dietary_restrictions"),

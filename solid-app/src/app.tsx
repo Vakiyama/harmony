@@ -12,26 +12,29 @@ import {
   BottomNavContext,
   BottomNavProvider,
 } from "./context/bottom-nav-provider";
+import { TeamProvider } from "./context/team-context";
 
 export default function App() {
   return (
     <BottomNavProvider>
-      <Router
-        root={(props) => (
-          <RootWrapper>
-            <MetaProvider>
-              <Layout>
-                <Suspense>
-                  {props.children}
-                  {/* <NavBar /> */}
-                </Suspense>
-              </Layout>
-            </MetaProvider>
-          </RootWrapper>
-        )}
-      >
-        <FileRoutes />
-      </Router>
+      <TeamProvider>
+        <Router
+          root={(props) => (
+            <RootWrapper>
+              <MetaProvider>
+                <Layout>
+                  <Suspense>
+                    {props.children}
+                    {/* <NavBar /> */}
+                  </Suspense>
+                </Layout>
+              </MetaProvider>
+            </RootWrapper>
+          )}
+        >
+          <FileRoutes />
+        </Router>
+      </TeamProvider>
     </BottomNavProvider>
   );
 }

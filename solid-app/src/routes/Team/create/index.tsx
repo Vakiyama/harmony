@@ -6,18 +6,9 @@ import UserType from "~/components/team/user-type";
 import { BottomNavContext } from "~/context/bottom-nav-provider";
 
 export default function Create() {
-  // const { setShowBottomNav } = useContext(BottomNavContext);
-
-  // onMount(() => {
-  //   setShowBottomNav(false);
-  // });
-
-  // onCleanup(() => {
-  //   setShowBottomNav(true);
-  // });
   return (
     <div class="relative flex flex-col min-h-screen">
-      <TeamTopNav backNavigation="/" cancelNavigation="/" />
+      <TeamTopNav backNavigation={() => {}} cancelNavigation="/" />
 
       <div class="flex items-center justify-center mt-2">
         <p class="text-xs text-gray-400">1 of 8</p>
@@ -29,8 +20,8 @@ export default function Create() {
       {/* pick person to care */}
       <div class="px-2">
         <p class="text-[23px] font-semi">Who is receiving care?</p>
-        <UserType name="Me" link="team/create/me" />
-        <UserType name="Someone Else" link="team/create/someone" />
+        <UserType name="Me" link="/team/create/me" />
+        <UserType name="Someone Else" link="/team/create/someone" />
       </div>
 
       {/* Space for bottom */}

@@ -31,8 +31,8 @@ import {
 } from "../../drizzle/schema/Meals";
 import { sessionManager } from "./kinde";
 import { medications } from "../../drizzle/schema/Medications";
-import { TeamMembers } from "../../drizzle/schema/TeamMembers";
-import { Users } from "../../drizzle/schema/Users";
+import { teamMembers } from "../../drizzle/schema/TeamMembers";
+import { users } from "../../drizzle/schema/Users";
 
 const teamId = 1; //temporary
 const mapQuality = (value: number) => {
@@ -393,9 +393,9 @@ export const getMedicationsFromTeamId = async (teamId: number) => {
   const [memberError, memberResult] = await mightFail(
     db
       .select()
-      .from(TeamMembers)
+      .from(teamMembers)
       .where(
-        and(eq(TeamMembers.userId, userId), eq(TeamMembers.teamId, teamId))
+        and(eq(teamMembers.userId, userId), eq(teamMembers.teamId, teamId))
       )
   );
   if (memberError || !memberResult.length) {
@@ -431,10 +431,10 @@ export const getJournalsFromTeamId = async (
         updatedAt: takenMedications.updatedAt,
         type: takenMedications.type,
         user: {
-          id: Users.id,
-          firstName: Users.firstName,
-          lastName: Users.lastName,
-          photo: Users.photo,
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          photo: users.photo,
         },
         note: {
           note: notes.note,
@@ -444,7 +444,7 @@ export const getJournalsFromTeamId = async (
         },
       })
       .from(takenMedications)
-      .leftJoin(Users, eq(takenMedications.userId, Users.id))
+      .leftJoin(users, eq(takenMedications.userId, users.id))
       .leftJoin(medications, eq(takenMedications.medicationId, medications.id))
       .leftJoin(notes, eq(takenMedications.noteId, notes.id))
       .where(eq(takenMedications.teamId, teamId))
@@ -464,17 +464,17 @@ export const getJournalsFromTeamId = async (
         updatedAt: moods.updatedAt,
         teamId: moods.teamId,
         user: {
-          id: Users.id,
-          firstName: Users.firstName,
-          lastName: Users.lastName,
-          photo: Users.photo,
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          photo: users.photo,
         },
         note: {
           note: notes.note,
         },
       })
       .from(moods)
-      .leftJoin(Users, eq(moods.userId, Users.id))
+      .leftJoin(users, eq(moods.userId, users.id))
       .leftJoin(notes, eq(moods.noteId, notes.id))
       .where(eq(moods.teamId, teamId))
   );
@@ -495,17 +495,17 @@ export const getJournalsFromTeamId = async (
         updatedAt: meals.updatedAt,
         teamId: meals.teamId,
         user: {
-          id: Users.id,
-          firstName: Users.firstName,
-          lastName: Users.lastName,
-          photo: Users.photo,
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          photo: users.photo,
         },
         note: {
           note: notes.note,
         },
       })
       .from(meals)
-      .leftJoin(Users, eq(meals.userId, Users.id))
+      .leftJoin(users, eq(meals.userId, users.id))
       .leftJoin(notes, eq(meals.noteId, notes.id))
       .where(eq(meals.teamId, teamId))
   );
@@ -525,17 +525,17 @@ export const getJournalsFromTeamId = async (
         updatedAt: sleeps.updatedAt,
         teamId: sleeps.teamId,
         user: {
-          id: Users.id,
-          firstName: Users.firstName,
-          lastName: Users.lastName,
-          photo: Users.photo,
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          photo: users.photo,
         },
         note: {
           note: notes.note,
         },
       })
       .from(sleeps)
-      .leftJoin(Users, eq(sleeps.userId, Users.id))
+      .leftJoin(users, eq(sleeps.userId, users.id))
       .leftJoin(notes, eq(sleeps.noteId, notes.id))
       .where(eq(sleeps.teamId, teamId))
   );
@@ -551,14 +551,14 @@ export const getJournalsFromTeamId = async (
         updatedAt: notes.updatedAt,
         teamId: notes.teamId,
         user: {
-          id: Users.id,
-          firstName: Users.firstName,
-          lastName: Users.lastName,
-          photo: Users.photo,
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          photo: users.photo,
         },
       })
       .from(notes)
-      .leftJoin(Users, eq(notes.userId, Users.id))
+      .leftJoin(users, eq(notes.userId, users.id))
       .where(and(eq(notes.teamId, teamId), eq(notes.category, "general")))
   );
   if (notesError) {
