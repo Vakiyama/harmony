@@ -39,7 +39,7 @@ export default function CreateSomeone() {
 
   const handleSubmit = async (event: SubmitEvent) => {
     event.preventDefault();
-    console.log(team.state);
+    console.log(team.state.recipient);
 
     // const result: CreateRecipientActionResponse = await myAction(
     //   new FormData(event.target as HTMLFormElement)
@@ -65,7 +65,7 @@ export default function CreateSomeone() {
       <div>
         <form onSubmit={handleSubmit}>
           {/* step 1: team Name */}
-          <Show when={team.currentStep === 1}>
+          <Show when={team.currentStep() === 1}>
             <div class="relative flex flex-col min-h-screen mx-4">
               <div class="flex items-center justify-center mt-2">
                 <p class="text-xs text-gray-400">2 of 8</p>
@@ -91,15 +91,7 @@ export default function CreateSomeone() {
                   type="button"
                   // onClick={team.nextStep}
                   onClick={() => {
-                    console.log(
-                      "Next button clicked. Current step:",
-                      team.currentStep
-                    );
                     team.nextStep();
-                    console.log(
-                      "Current step after calling nextStep:",
-                      team.currentStep
-                    );
                   }}
                   class="rounded-full w-full mt-4 bg-[#AE9BF2] text-black h-[50px]"
                 >
@@ -112,23 +104,23 @@ export default function CreateSomeone() {
           </Show>
 
           {/* step 2: upload photo */}
-          <Show when={team.currentStep === 2}>
-            <UploadPhoto onClick={() => team.nextStep} />
+          <Show when={team.currentStep() === 2}>
+            <UploadPhoto onClick={() => team.nextStep()} />
           </Show>
 
           {/* step 3: team Name */}
-          <Show when={team.currentStep === 3}>
-            <UserInfo1 onClick={() => team.nextStep} />
+          <Show when={team.currentStep() === 3}>
+            <UserInfo1 onClick={() => team.nextStep()} />
           </Show>
 
           {/* step 4: team Name */}
-          <Show when={team.currentStep === 4}>
-            <UserInfo2 onClick={team.nextStep} />
+          <Show when={team.currentStep() === 4}>
+            <UserInfo2 onClick={() => team.nextStep()} />
           </Show>
 
           {/* step 5: team Name */}
-          <Show when={team.currentStep === 5}>
-            <UserHealth1 onClick={team.nextStep} />
+          <Show when={team.currentStep() === 5}>
+            <UserHealth1 onClick={() => team.nextStep()} />
           </Show>
 
           {/* step 6: team Name */}

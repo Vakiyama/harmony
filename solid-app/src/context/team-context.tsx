@@ -4,6 +4,7 @@ import {
   useContext,
   JSX,
   createSignal,
+  Accessor,
 } from "solid-js";
 import { createStore } from "solid-js/store";
 
@@ -67,7 +68,7 @@ interface FormContextValue {
     value: string
   ) => void;
   removeMedication: (index: number) => void;
-  currentStep: number;
+  currentStep: Accessor<number>;
   nextStep: () => void;
   prevStep: () => void;
   resetForm: () => void;
@@ -89,10 +90,11 @@ export const TeamProvider: ParentComponent = (props) => {
   });
 
   // const [currentStep, setCurrentStep] = createSignal(1);
-  const [currentStep, setCurrentStep] = createStore({ value: 1 });
+  const [currentStep, setCurrentStep] = createSignal(1);
 
   const contextValue: FormContextValue = {
     state,
+
     updateField: (section, field, value) => {
       setState(section as any, field as any, value);
     },
@@ -141,12 +143,11 @@ export const TeamProvider: ParentComponent = (props) => {
     removeMedication: (index) => {
       setState("medications", (prev) => prev.filter((_, i) => i !== index));
     },
-    currentStep: currentStep.value,
+    currentStep: currentStep, //currentStep()
     nextStep: () => {
-      setCurrentStep("value", (prev) => prev + 1);
-      console.log("Step after increment:", currentStep.value);
+      setCurrentStep((prev) => prev + 1);
     },
-    prevStep: () => setCurrentStep("value", (prev) => prev - 1),
+    prevStep: () => setCurrentStep((prev) => prev - 1),
     resetForm: () => {
       setState({
         teamName: "",
@@ -159,12 +160,12 @@ export const TeamProvider: ParentComponent = (props) => {
         importantSurgeries: [],
         medications: [],
       });
-      setCurrentStep({ value: 1 });
+      setCurrentStep(1);
     },
   };
   const nextStep = () => {
     console.log("Current step before incrementing:", currentStep);
-    setCurrentStep("value", (prev) => prev + 1);
+    setCurrentStep((prev) => prev + 1);
     console.log("Current step after incrementing:", currentStep);
   };
 
