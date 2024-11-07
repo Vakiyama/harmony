@@ -176,11 +176,7 @@ const chatNode = (state: GraphState) => {
   );
 };
 
-const chatGraph = createGraph<GraphState>()({
-  chat: chatNode,
-});
-
-const chatStates: (State<typeof chatGraph> & { id: string })[] = [];
+const chatStates: (GraphState & { id: string })[] = [];
 
 export const harmonyChat = async (message: ArrayMessage[], id: string) => {
   const index = chatStates.findIndex((state) => state.id === id);
@@ -193,10 +189,10 @@ export const harmonyChat = async (message: ArrayMessage[], id: string) => {
     });
   }
 
-  const result = nextGraph({
-    state: index === -1 ? chatStates.at(-1)! : chatStates.at(-1)!,
-    graph: chatGraph,
+  const result = chatNode({
+    ...(index === -1 ? chatStates.at(-1)! : chatStates.at(-1)!),
   });
+
   const next = await Effect.runPromiseExit(result);
   console.log("called!");
 
@@ -206,15 +202,10 @@ export const harmonyChat = async (message: ArrayMessage[], id: string) => {
         cause.pipe(Cause.pretty, console.log);
       },
       onSuccess: (next) => {
-        if (index === -1) chatStates[chatStates.length - 1] = { ...next, id };
-        else chatStates[chatStates.length - 1] = { ...next, id };
+        if (index === -1)
+          chatStates[chatStates.length - 1] = { ...next.state, id };
+        else chatStates[chatStates.length - 1] = { ...next.state, id };
 
-        console.log(next, "next!");
-        // @ts-ignore;
-        console.log(next.state.messages);
-        // @ts-ignore;
-        console.log(getLast(next.state.messages), "get last!");
-        // @ts-ignore;
         const unwrapped = unwrapMessages(getLast(next.state.messages));
         console.log(unwrapped, "unwrapped");
         return unwrapped;

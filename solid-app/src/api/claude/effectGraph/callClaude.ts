@@ -91,9 +91,21 @@ export function makeClaudeAPICall(body: ReturnType<typeof getRequestBody>) {
       ),
     Effect.flatMap((response) =>
       Effect.tryPromise({
-        try: () => response.json() as Promise<AssistantResponse>,
+        try: () =>
+          response.json() as Promise<AssistantResponse | ErrorResponse>,
         catch: (e) => JsonParseError(e as Error),
       }),
+    ),
+    Effect.flatMap((response) =>
+      Match.value(response).pipe(
+        Match.when({ type: "message" }, (assistantResponse) =>
+          Effect.succeed(assistantResponse as AssistantResponse),
+        ),
+        Match.when({ type: "error" }, (error) =>
+          Effect.fail(error as ErrorResponse),
+        ),
+        Match.exhaustive,
+      ),
     ),
   );
 }
@@ -110,7 +122,7 @@ export class ClaudeApi extends Context.Tag("ClaudeApi")<
       body: ReturnType<typeof getRequestBody>,
     ) => Effect.Effect<
       AssistantResponse,
-      StringifyError | FetchError | JsonParseError,
+      StringifyError | FetchError | JsonParseError | ErrorResponse,
       never
     >;
   }
@@ -130,6 +142,14 @@ type AssistantResponse = {
   usage: {
     input_tokens: number;
     output_tokens: number;
+  };
+};
+
+type ErrorResponse = {
+  type: "error";
+  error: {
+    type: string;
+    message: string;
   };
 };
 
