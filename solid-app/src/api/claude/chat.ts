@@ -60,8 +60,10 @@ const queryJournalToolSchema = z.object({
 const queryJournalToolDefinition = Effect.runSync(
   createTool({
     name: "getJournalEntries",
-    description:
-      "Use this tool to get all journal entries related to the recepient for a given category.",
+    description: `Use this tool to get all journal entries related to the recepient for a given category.
+      If you're given an empty array as your query, there are no journal entries.
+      Only call this tool if you need that information, otherwise, just assist the user.
+      `,
     schema: queryJournalToolSchema,
   }),
 );
@@ -117,7 +119,6 @@ function queryJournalTool(params: z.infer<typeof queryJournalToolSchema>) {
 type GraphState = {
   messages: Message;
   queries: { category: (typeof categories)[number]; value: string }[];
-  readonly key: string;
 };
 
 const chatNode = (state: GraphState) => {
@@ -130,7 +131,7 @@ const chatNode = (state: GraphState) => {
         retryCount: 5,
         messages: messages,
         type: "tools",
-        toolChoice: { type: "any" },
+        toolChoice: { type: "auto" },
         tools: [queryJournalToolDefinition],
       }),
     Effect.flatMap((result) =>
@@ -139,7 +140,7 @@ const chatNode = (state: GraphState) => {
         Either.match({
           onLeft: (result) => {
             const newMessage = createMessage({
-              role: "user",
+              role: "assistant",
               content: (result.content[0] as TextResponse).text,
               prev: Option.some(state.messages),
             });
@@ -157,7 +158,7 @@ const chatNode = (state: GraphState) => {
                 return {
                   key: "chat" as const,
                   state: {
-                    ...state,
+                    messages: state.messages,
                     queries: [
                       ...state.queries,
                       {
@@ -193,12 +194,18 @@ export const harmonyChat = async (message: ArrayMessage[], id: string) => {
     });
   }
 
+  // console.log(chatStates.at(-1), "current chat state!");
+
+  if (index !== -1) {
+    chatStates.at(-1)!.messages = Option.getOrThrow(wrapMessages(message));
+  }
+  // console.log(chatStates.at(-1), "new chat state");
   const result = nextGraph({
     state: index === -1 ? chatStates.at(-1)! : chatStates.at(-1)!,
     graph: chatGraph,
   });
+
   const next = await Effect.runPromiseExit(result);
-  console.log("called!");
 
   return next.pipe(
     Exit.match({
@@ -206,17 +213,22 @@ export const harmonyChat = async (message: ArrayMessage[], id: string) => {
         cause.pipe(Cause.pretty, console.log);
       },
       onSuccess: (next) => {
-        if (index === -1) chatStates[chatStates.length - 1] = { ...next, id };
-        else chatStates[chatStates.length - 1] = { ...next, id };
+        if (index === -1)
+          chatStates[chatStates.length - 1] = {
+            key: next.key,
+            ...next.state,
+            id,
+          };
+        else
+          chatStates[chatStates.length - 1] = {
+            key: next.key,
+            ...next.state,
+            id,
+          };
 
-        console.log(next, "next!");
-        // @ts-ignore;
-        console.log(next.state.messages);
-        // @ts-ignore;
-        console.log(getLast(next.state.messages), "get last!");
-        // @ts-ignore;
+        // console.log(getLast(next.state.messages), "get last!");
         const unwrapped = unwrapMessages(getLast(next.state.messages));
-        console.log(unwrapped, "unwrapped");
+        // console.log(unwrapped, "response");
         return unwrapped;
       },
     }),
