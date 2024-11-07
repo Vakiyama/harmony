@@ -4,16 +4,21 @@ import { createStore } from "solid-js/store";
 import TextFieldLine from "~/components/shared/text-field-line";
 import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
+import { FormState, useTeam } from "~/context/team-context";
 
-const formFields = [
+const formFields: {
+  name: keyof FormState["recipient"];
+  label: string;
+  placeholder: string;
+}[] = [
   { name: "gender", label: "Gender", placeholder: "Gender" },
   {
-    name: "prefered language",
-    label: "Prefered Language",
+    name: "preferredLanguage",
+    label: "Preferred Language",
     placeholder: "Language",
   },
   {
-    name: "lives with",
+    name: "livesWith",
     label: "Lives With",
     placeholder: "Who do they live with?",
   },
@@ -25,6 +30,7 @@ const formFields = [
 ];
 
 export default function UserInfo2({ onClick }: { onClick: () => void }) {
+  const team = useTeam();
   // const [formData, setFormData] = createStore({
   //   gender: "",
   //   language: "",
@@ -50,6 +56,9 @@ export default function UserInfo2({ onClick }: { onClick: () => void }) {
                 label={field.label}
                 placeholder={field.placeholder}
                 classLabel="text-lg"
+                onInput={(e) =>
+                  team.updateRecipientField(field.name, e.currentTarget.value)
+                }
               />
             )}
           </For>

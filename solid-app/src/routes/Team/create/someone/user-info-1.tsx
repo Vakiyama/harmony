@@ -5,8 +5,13 @@ import TextFieldLine from "~/components/shared/text-field-line";
 import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
 import { useTeam } from "~/context/team-context";
+import { FormState } from "~/context/team-context"; // Import the type if needed
 
-const formFields = [
+const formFields: {
+  name: keyof FormState["recipient"];
+  label: string;
+  placeholder: string;
+}[] = [
   { name: "phoneNumber", label: "Phone Number", placeholder: "Phone Number" },
   {
     name: "email",
@@ -52,7 +57,9 @@ export default function UserInfo1({
                 name={field.name}
                 label={field.label}
                 placeholder={field.placeholder}
-                // onInput={handleInput}
+                onInput={(e) =>
+                  team.updateRecipientField(field.name, e.currentTarget.value)
+                }
               />
             )}
           </For>

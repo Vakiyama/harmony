@@ -12,6 +12,7 @@ export default function TextFieldLine({
   value,
   classRoot,
   classLabel,
+  onInput,
 }: {
   key: string;
   name: string;
@@ -20,11 +21,18 @@ export default function TextFieldLine({
   value?: string;
   classRoot?: string;
   classLabel?: string;
+  onInput?: (event: InputEvent & { currentTarget: HTMLInputElement }) => void;
 }) {
   return (
     <TextFieldRoot class={`space-y-2 mt-5 ${classRoot || ""}`}>
       <TextFieldLabel class={`${classLabel}`}>{label}</TextFieldLabel>
-      <TextField placeholder={placeholder} value={value} />
+      <TextField
+        type="text"
+        name={name}
+        placeholder={placeholder}
+        value={value}
+        onInput={onInput}
+      />
     </TextFieldRoot>
   );
 }

@@ -1,5 +1,4 @@
 import { A, useAction } from "@solidjs/router";
-import TextFieldLine from "~/components/shared/text-field-line";
 import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
 import UploadPhoto from "./upload-photo";
@@ -21,9 +20,14 @@ import { teams } from "../../../../../drizzle/schema/Teams";
 import { importantSurgeries } from "../../../../../drizzle/schema/ImportantSurgeries";
 import { medications } from "../../../../../drizzle/schema/Medications";
 import { createRecipientAction } from "~/api/team";
+import {
+  TextField,
+  TextFieldLabel,
+  TextFieldRoot,
+} from "~/components/ui/textfield";
 
 export default function CreateSomeone() {
-  const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
+  // const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
   const [error, setError] = createSignal();
   const team = useTeam();
 
@@ -32,23 +36,25 @@ export default function CreateSomeone() {
     success?: boolean;
     error?: string;
   };
+
   const handleSubmit = async (event: SubmitEvent) => {
     event.preventDefault();
+    console.log(team.state);
 
-    const result: CreateRecipientActionResponse = await myAction(
-      new FormData(event.target as HTMLFormElement)
-    );
+    // const result: CreateRecipientActionResponse = await myAction(
+    //   new FormData(event.target as HTMLFormElement)
+    // );
 
-    if (result.success) {
-      setError("");
-      formRef()?.reset();
-      console.log("Success");
-      // showNotification("Note Entry Posted");
-      // navigate("/team/1/journal");
-    } else if (result.error) {
-      console.error(result.error);
-      setError(result.error);
-    }
+    // if (result.success) {
+    //   setError("");
+    //   // formRef()?.reset();
+    //   console.log("Success");
+    //   // showNotification("Note Entry Posted");
+    //   // navigate("/team/1/journal");
+    // } else if (result.error) {
+    //   console.error(result.error);
+    //   setError(result.error);
+    // }
   };
   return (
     <>
@@ -57,9 +63,9 @@ export default function CreateSomeone() {
         cancelNavigation={aiButton()}
       />
       <div>
-        <form ref={setFormRef} onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit}>
           {/* step 1: team Name */}
-          <Show when={team.state.currentStep === 1}>
+          <Show when={team.currentStep === 1}>
             <div class="relative flex flex-col min-h-screen mx-4">
               <div class="flex items-center justify-center mt-2">
                 <p class="text-xs text-gray-400">2 of 8</p>
@@ -69,15 +75,32 @@ export default function CreateSomeone() {
               {/* pick person to care */}
               <div class="px-2">
                 <p class="text-[23px] font-semi">Who is receiving care?</p>
-                <TextFieldLine
-                  key=""
-                  name="firstName"
-                  label=""
-                  placeholder="Enter name"
-                />
+                <TextFieldRoot class="space-y-2 mt-5">
+                  <TextField
+                    name="firstName"
+                    placeholder="Enter name"
+                    onInput={(e) =>
+                      team.updateRecipientField(
+                        "firstName",
+                        e.currentTarget.value
+                      )
+                    }
+                  />
+                </TextFieldRoot>
                 <Button
                   type="button"
-                  onClick={team.nextStep}
+                  // onClick={team.nextStep}
+                  onClick={() => {
+                    console.log(
+                      "Next button clicked. Current step:",
+                      team.currentStep
+                    );
+                    team.nextStep();
+                    console.log(
+                      "Current step after calling nextStep:",
+                      team.currentStep
+                    );
+                  }}
                   class="rounded-full w-full mt-4 bg-[#AE9BF2] text-black h-[50px]"
                 >
                   Next
@@ -89,22 +112,22 @@ export default function CreateSomeone() {
           </Show>
 
           {/* step 2: upload photo */}
-          <Show when={team.state.currentStep === 2}>
-            <UploadPhoto onClick={team.nextStep} />
+          <Show when={team.currentStep === 2}>
+            <UploadPhoto onClick={() => team.nextStep} />
           </Show>
 
           {/* step 3: team Name */}
-          <Show when={team.state.currentStep === 3}>
-            <UserInfo1 onClick={team.nextStep} />
+          <Show when={team.currentStep === 3}>
+            <UserInfo1 onClick={() => team.nextStep} />
           </Show>
 
           {/* step 4: team Name */}
-          <Show when={team.state.currentStep === 4}>
+          <Show when={team.currentStep === 4}>
             <UserInfo2 onClick={team.nextStep} />
           </Show>
 
           {/* step 5: team Name */}
-          <Show when={team.state.currentStep === 5}>
+          <Show when={team.currentStep === 5}>
             <UserHealth1 onClick={team.nextStep} />
           </Show>
 

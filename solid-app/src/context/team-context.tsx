@@ -1,7 +1,13 @@
-import { createContext, ParentComponent, useContext } from "solid-js";
+import {
+  createContext,
+  ParentComponent,
+  useContext,
+  JSX,
+  createSignal,
+} from "solid-js";
 import { createStore } from "solid-js/store";
 
-interface FormDataType {
+export interface FormState {
   teamName: string;
   recipient: {
     firstName: string;
@@ -19,17 +25,17 @@ interface FormDataType {
     employment?: string;
     mobilityNeed?: string;
   };
-  importantSurgeries?: {
-    name?: string;
-    year?: string;
+  importantSurgeries: {
+    name: string;
+    year: string;
     extraNotes?: string;
   }[];
-  medications?: {
-    name?: string;
-    dosage?: string;
+  medications: {
+    name: string;
+    dosage: string;
     typeOfMedication?: string;
-    frequency?: string;
-    schedule?: string;
+    frequency: string;
+    schedule: string;
     sideEffects?: string;
     instructions?: string;
     pharmacyInfo?: string;
@@ -37,118 +43,133 @@ interface FormDataType {
   }[];
 }
 
-interface TeamContextState {
-  currentForm: Partial<FormDataType>;
-  currentStep: number;
-}
+type FormSection = keyof FormState;
 
-interface TeamContextValue {
-  state: TeamContextState;
-  // updateForm: (data: Partial<FormDataType>) => void;
+interface FormContextValue {
+  state: FormState;
+  updateField: (section: FormSection, field: string, value: string) => void;
+  updateRecipientField: (
+    field: keyof FormState["recipient"],
+    value: string
+  ) => void;
+  updateTeamName: (value: string) => void;
   addSurgery: () => void;
-  // updateSurgery: (index: number, data: Partial<FormDataType["importantSurgeries"][0]>) => void;
+  updateSurgery: (
+    index: number,
+    field: keyof FormState["importantSurgeries"][0],
+    value: string
+  ) => void;
   removeSurgery: (index: number) => void;
   addMedication: () => void;
-  // updateMedication: (index: number, data: Partial<FormDataType["medications"][0]>) => void;
+  updateMedication: (
+    index: number,
+    field: keyof FormState["medications"][0],
+    value: string
+  ) => void;
   removeMedication: (index: number) => void;
+  currentStep: number;
   nextStep: () => void;
   prevStep: () => void;
   resetForm: () => void;
 }
 
-export const TeamContext = createContext<TeamContextValue>();
+const TeamContext = createContext<FormContextValue>();
 
 export const TeamProvider: ParentComponent = (props) => {
-  const [state, setState] = createStore<TeamContextState>({
-    currentForm: {
-      teamName: "",
-      recipient: {
-        firstName: "",
-        gender: "",
-        healthCondition: "",
-        preferredLanguage: "",
-      },
-      importantSurgeries: [],
-      medications: [],
+  const [state, setState] = createStore<FormState>({
+    teamName: "",
+    recipient: {
+      firstName: "",
+      gender: "",
+      healthCondition: "",
+      preferredLanguage: "",
     },
-    currentStep: 1,
+    importantSurgeries: [],
+    medications: [],
   });
 
-  const addSurgery = () => {
-    setState("currentForm", "importantSurgeries", (prev) => [
-      ...prev!,
-      { name: "", year: "", extraNotes: "" },
-    ]);
+  // const [currentStep, setCurrentStep] = createSignal(1);
+  const [currentStep, setCurrentStep] = createStore({ value: 1 });
+
+  const contextValue: FormContextValue = {
+    state,
+    updateField: (section, field, value) => {
+      setState(section as any, field as any, value);
+    },
+    updateTeamName: (value: string) => {
+      setState("teamName", value);
+    },
+    updateRecipientField: (field, value) => {
+      setState("recipient", field, value);
+      if (field === "firstName") {
+        setState("teamName", value);
+      }
+    },
+    addSurgery: () => {
+      setState("importantSurgeries", (prev) => [
+        ...prev,
+        { name: "", year: "", extraNotes: "" },
+      ]);
+    },
+    updateSurgery: (index, field, value) => {
+      setState("importantSurgeries", index, field, value);
+    },
+    removeSurgery: (index) => {
+      setState("importantSurgeries", (prev) =>
+        prev.filter((_, i) => i !== index)
+      );
+    },
+    addMedication: () => {
+      setState("medications", (prev) => [
+        ...prev,
+        {
+          name: "",
+          dosage: "",
+          frequency: "",
+          schedule: "",
+          typeOfMedication: "",
+          sideEffects: "",
+          instructions: "",
+          pharmacyInfo: "",
+          pharmacyImg: "",
+        },
+      ]);
+    },
+    updateMedication: (index, field, value) => {
+      setState("medications", index, field, value);
+    },
+    removeMedication: (index) => {
+      setState("medications", (prev) => prev.filter((_, i) => i !== index));
+    },
+    currentStep: currentStep.value,
+    nextStep: () => {
+      setCurrentStep("value", (prev) => prev + 1);
+      console.log("Step after increment:", currentStep.value);
+    },
+    prevStep: () => setCurrentStep("value", (prev) => prev - 1),
+    resetForm: () => {
+      setState({
+        teamName: "",
+        recipient: {
+          firstName: "",
+          gender: "",
+          healthCondition: "",
+          preferredLanguage: "",
+        },
+        importantSurgeries: [],
+        medications: [],
+      });
+      setCurrentStep({ value: 1 });
+    },
   };
-
-  const removeSurgery = (index: number) => {
-    setState("currentForm", "importantSurgeries", (prev) =>
-      prev!.filter((_, i) => i !== index)
-    );
+  const nextStep = () => {
+    console.log("Current step before incrementing:", currentStep);
+    setCurrentStep("value", (prev) => prev + 1);
+    console.log("Current step after incrementing:", currentStep);
   };
-
-  const addMedication = () => {
-    setState("currentForm", "medications", (prev) => [
-      ...prev!,
-      {
-        name: "",
-        dosage: "",
-        typeOfMedication: "",
-        frequency: "",
-        schedule: "",
-        sideEffects: "",
-        instructions: "",
-        pharmacyInfo: "",
-        pharmacyImg: "",
-      },
-    ]);
-  };
-
-  const removeMedication = (index: number) => {
-    setState("currentForm", "medications", (prev) =>
-      prev!.filter((_, i) => i !== index)
-    );
-  };
-
-  const nextStep = () => setState("currentStep", (prev) => prev + 1);
-  const prevStep = () => setState("currentStep", (prev) => prev - 1);
-
-  const resetForm = () =>
-    setState("currentForm", {
-      teamName: "",
-      recipient: {
-        firstName: "",
-        lastName: "",
-        email: "",
-        phoneNumber: "",
-        photo: "",
-        gender: "",
-        preferredLanguage: "",
-        healthCondition: "",
-        livesWith: "",
-        allergies: "",
-        dietaryRestrictions: "",
-        pastInjuries: "",
-        employment: "",
-        mobilityNeed: "",
-      },
-      importantSurgeries: [],
-      medications: [],
-    });
 
   return (
-    <TeamContext.Provider
-      value={{
-        state,
-        addSurgery,
-        removeSurgery,
-        addMedication,
-        removeMedication,
-        nextStep,
-        prevStep,
-        resetForm,
-      }}
-    >
+    <TeamContext.Provider value={contextValue}>
       {props.children}
     </TeamContext.Provider>
   );
