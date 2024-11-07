@@ -58,7 +58,7 @@ interface TeamContextValue {
 
 export const TeamContext = createContext<TeamContextValue>();
 
-export const TeamProvider: ParentComponent = (props: any) => {
+export const TeamProvider: ParentComponent = (props) => {
   const [state, setState] = createStore<TeamContextState>({
     currentForm: {
       teamName: "",
@@ -68,6 +68,8 @@ export const TeamProvider: ParentComponent = (props: any) => {
         healthCondition: "",
         preferredLanguage: "",
       },
+      importantSurgeries: [],
+      medications: [],
     },
     currentStep: 1,
   });

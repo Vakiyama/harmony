@@ -57,7 +57,7 @@ export default function CreateSomeone() {
         cancelNavigation={aiButton()}
       />
       <div>
-        <form onSubmit={handleSubmit}>
+        <form ref={setFormRef} onSubmit={handleSubmit}>
           {/* step 1: team Name */}
           <Show when={team.state.currentStep === 1}>
             <div class="relative flex flex-col min-h-screen mx-4">
@@ -71,7 +71,7 @@ export default function CreateSomeone() {
                 <p class="text-[23px] font-semi">Who is receiving care?</p>
                 <TextFieldLine
                   key=""
-                  name="teamName"
+                  name="firstName"
                   label=""
                   placeholder="Enter name"
                 />

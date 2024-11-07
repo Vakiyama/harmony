@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { db } from "./db";
 import { getKindeClient, sessionManager } from "./kinde";
 import { UserType } from "@kinde-oss/kinde-typescript-sdk";
-import { Users } from "../../drizzle/schema/Users";
+import { users } from "../../drizzle/schema/Users";
 
 type UserTypeExtended = UserType & {
   dob?: string;
@@ -25,8 +25,8 @@ function validatePassword(password: unknown) {
 async function login(kindeUser: UserTypeExtended) {
   const user = await db
     .select()
-    .from(Users)
-    .where(eq(Users.kindeId, kindeUser.id))
+    .from(users)
+    .where(eq(users.kindeId, kindeUser.id))
     .get();
   return user;
 }
@@ -34,12 +34,12 @@ async function login(kindeUser: UserTypeExtended) {
 async function register(kindeUser: UserTypeExtended) {
   const existingUser = await db
     .select()
-    .from(Users)
-    .where(eq(Users.kindeId, kindeUser.id))
+    .from(users)
+    .where(eq(users.kindeId, kindeUser.id))
     .get();
   if (existingUser) throw new Error("User already exists");
   return await db
-    .insert(Users)
+    .insert(users)
     .values({
       kindeId: kindeUser.id,
       displayName: kindeUser.given_name,
@@ -47,7 +47,7 @@ async function register(kindeUser: UserTypeExtended) {
       lastName: kindeUser.family_name,
       ...(kindeUser.picture ? { photo: kindeUser.picture } : {}),
       email: kindeUser.email,
-      roleType: "other",
+      // roleType: "other",
       ...(kindeUser.dob ? { birthDate: new Date(kindeUser.dob) } : {}),
     })
     .returning()
@@ -85,8 +85,8 @@ export async function getUser() {
   try {
     const user = await db
       .select()
-      .from(Users)
-      .where(eq(Users.id, userId))
+      .from(users)
+      .where(eq(users.id, userId))
       .get();
     if (!user) throw redirect("/api/auth/landing");
     return { id: user.id, displayName: user.displayName };
