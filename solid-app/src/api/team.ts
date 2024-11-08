@@ -7,74 +7,73 @@ import { recipients } from "../../drizzle/schema/Recipients";
 import { teamMembers } from "../../drizzle/schema/TeamMembers";
 import { and, eq } from "drizzle-orm";
 
-export const createRecipientAction = action(async (formData: FormData) => {
-  "use server";
-  const manager = await sessionManager();
-  const session = await manager.getSession();
-  const userId: number = session.data.userId;
+export const createRecipientAction = action(
+  async ({
+    recipientInput,
+  }: {
+    recipientInput: {
+      firstName: string;
+      lastName?: string;
+      email?: string;
+      phoneNumber?: string;
+      photo?: string;
+      gender: string;
+      preferredLanguage: string;
+      healthCondition: string;
+      livesWith?: string;
+      employment?: string;
+      allergies?: string;
+      dietaryRestrictions?: string;
+      pastInjuries?: string;
+      mobilityNeed?: string;
+    };
+  }) => {
+    "use server";
+    const manager = await sessionManager();
+    const session = await manager.getSession();
+    const userId: number = session.data.userId;
 
-  if (!userId) {
-    return { error: "User is not Authenticated" };
-  }
+    if (!userId) {
+      return { error: "User is not Authenticated" };
+    }
 
-  const firstName = formData.get("firstName") as string;
-  const gender = formData.get("gender") as string;
-  const preferredLanguage = formData.get("preferredLanguage") as string;
-  const healthCondition = formData.get("healthCondition") as string;
+    const { firstName, gender, preferredLanguage, healthCondition } =
+      recipientInput;
 
-  if (!firstName) {
-    return { error: "Please enter a recipient name" };
-  }
-  if (!gender) {
-    return { error: "Please enter gender" };
-  }
-  if (!preferredLanguage) {
-    return { error: "Please enter preferred language" };
-  }
-  if (!healthCondition) {
-    return { error: "Please enter health condition" };
-  }
+    const errors: string[] = [];
+    if (!firstName) errors.push("Please enter a recipient name");
+    if (!gender) errors.push("Please enter gender");
+    if (!preferredLanguage) errors.push("Please enter preferred language");
+    if (!healthCondition) errors.push("Please enter health condition");
 
-  const lastName = formData.get("lastName") as string | undefined;
-  const email = formData.get("email") as string | undefined;
-  const phoneNumber = formData.get("phoneNumber") as string | undefined;
-  const photo = formData.get("photo") as string | undefined;
-  const livesWith = formData.get("livesWith") as string | undefined;
-  const employment = formData.get("employment") as string | undefined;
-  const allergies = formData.get("allergies") as string | undefined;
-  const dietaryRestrictions = formData.get("dietaryRestrictions") as
-    | string
-    | undefined;
-  const pastInjuries = formData.get("pastInjuries") as string | undefined;
-  const mobilityNeed = formData.get("mobilityNeed") as string | undefined;
+    if (errors.length > 0) {
+      return { error: errors.join(",") };
+    }
 
-  const recipientInput = {
-    firstName,
-    gender,
-    preferredLanguage,
-    healthCondition,
-    ...(lastName ? { lastName } : {}),
-    ...(email ? { email } : {}),
-    ...(phoneNumber ? { phoneNumber } : {}),
-    ...(photo ? { photo } : {}),
-    ...(livesWith ? { livesWith } : {}),
-    ...(employment ? { employment } : {}),
-    ...(allergies ? { allergies } : {}),
-    ...(dietaryRestrictions ? { dietaryRestrictions } : {}),
-    ...(pastInjuries ? { pastInjuries } : {}),
-    ...(mobilityNeed ? { mobilityNeed } : {}),
-  };
+    const lastName = recipientInput.lastName as string | undefined;
+    const email = recipientInput.email as string | undefined;
+    const phoneNumber = recipientInput.phoneNumber as string | undefined;
+    const photo = recipientInput.photo as string | undefined;
+    const livesWith = recipientInput.livesWith as string | undefined;
+    const employment = recipientInput.employment as string | undefined;
+    const allergies = recipientInput.allergies as string | undefined;
+    const dietaryRestrictions = recipientInput.dietaryRestrictions as
+      | string
+      | undefined;
+    const pastInjuries = recipientInput.pastInjuries as string | undefined;
+    const mobilityNeed = recipientInput.mobilityNeed as string | undefined;
 
-  console.log(recipientInput);
-  const [recipientError, recipientResult] = await mightFail(
-    db.insert(recipients).values(recipientInput)
-  );
-  if (recipientError) {
-    console.error("Database insertion error:", recipientError);
-    return { error: "Failed to insert recipient entry." };
-  }
-  return { success: true, message: "Recipient successfully created." };
-}, "createRecipientAction");
+    const [recipientError, recipientResult] = await mightFail(
+      db.insert(recipients).values(recipientInput)
+    );
+    if (recipientError) {
+      console.error("Recipient insertion error:", recipientError);
+      return { error: "Failed to insert recipient entry." };
+    }
+    return { success: true, message: "Recipient successfully created." };
+  },
+  "createRecipientAction"
+);
 
 export const createTeamAction = action(async (formData: FormData) => {
   "use server";

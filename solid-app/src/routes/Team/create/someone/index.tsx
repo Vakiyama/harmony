@@ -30,8 +30,9 @@ export default function CreateSomeone() {
   // const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
   const [error, setError] = createSignal();
   const team = useTeam();
+  const recipientInput = team.state.recipient;
 
-  const myAction = useAction(createRecipientAction);
+  const recipientAction = useAction(createRecipientAction);
   type CreateRecipientActionResponse = {
     success?: boolean;
     error?: string;
@@ -41,20 +42,21 @@ export default function CreateSomeone() {
     event.preventDefault();
     console.log(team.state.recipient);
 
-    // const result: CreateRecipientActionResponse = await myAction(
-    //   new FormData(event.target as HTMLFormElement)
-    // );
+    const result: CreateRecipientActionResponse = await recipientAction({
+      recipientInput,
+    });
 
-    // if (result.success) {
-    //   setError("");
-    //   // formRef()?.reset();
-    //   console.log("Success");
-    //   // showNotification("Note Entry Posted");
-    //   // navigate("/team/1/journal");
-    // } else if (result.error) {
-    //   console.error(result.error);
-    //   setError(result.error);
-    // }
+    if (result.success) {
+      setError("");
+      team.resetForm();
+      console.log("Success");
+      // TODO
+      // showNotification("Note Entry Posted");
+      // navigate("/team/1/journal");
+    } else if (result.error) {
+      console.error(result.error);
+      setError(result.error);
+    }
   };
   return (
     <>
