@@ -19,7 +19,7 @@ export default function HealthCareRole() {
   const navigate = useNavigate();
   return (
     <>
-      <TeamTopNav backNavigation="/" cancelNavigation="/" />
+      {/* <TeamTopNav backNavigation="/" cancelNavigation="/" /> */}
       <div class="relative flex flex-col min-h-screen mx-4">
         <div class="flex items-center justify-center mt-2">
           <p class="text-xs text-gray-400">7 of 8</p>

@@ -5,36 +5,14 @@ import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
 import { useTeam } from "~/context/team-context";
 
-export default function UserHealth2({
-  onClick,
-  onInput,
-  addMore,
-}: {
-  onClick: () => void;
-  onInput: (
-    index: number,
-    field: "name" | "year" | "details",
-    value: string
-  ) => void;
-  addMore: () => void;
-}) {
+export default function UserHealth2() {
   const team = useTeam();
-  const [surgeries, setSurgeries] = createSignal<
-    { name: string; year: string; details: string }[]
-  >([{ name: "", year: "", details: "" }]);
+  // const [surgeries, setSurgeries] = createSignal<
+  //   { name: string; year: string; details: string }[]
+  // >([{ name: "", year: "", details: "" }]);
 
-  const addMoreSurgeries = () => {
-    setSurgeries([...surgeries(), { name: "", year: "", details: "" }]);
-  };
-
-  // const updateSurgery = (
-  //   index: number,
-  //   field: "name" | "year" | "details",
-  //   value: string
-  // ) => {
-  //   const updatedSurgeries = [...surgeries()];
-  //   updatedSurgeries[index][field] = value;
-  //   setSurgeries(updatedSurgeries);
+  // const addMoreSurgeries = () => {
+  //   setSurgeries([...surgeries(), { name: "", year: "", details: "" }]);
   // };
 
   return (
@@ -52,43 +30,46 @@ export default function UserHealth2({
             <p class="text-lg font-semibold">Important Surgeries</p>
 
             {/* Render surgery input fields */}
-            <For each={surgeries()}>
+            <For each={team.state.importantSurgeries}>
               {(surgery, index) => (
                 <div class="flex flex-col gap-2 mt-2">
                   <div class="flex flex-row space-x-2">
                     <input
                       type="text"
                       value={surgery.name}
-                      // onInput={(e) =>
-                      //   onInput(index(), "name", e.currentTarget.value)
-                      // }
-                      // onInput={(e) =>
-                      //   updateSurgery(index(), "name", e.currentTarget.value)
-                      // }
+                      onInput={(e) =>
+                        team.updateSurgery(
+                          index(),
+                          "name",
+                          e.currentTarget.value
+                        )
+                      }
                       class="p-2 border rounded-lg w-full text-sm"
                       placeholder="Surgery Name"
                     />
                     <input
                       type="text"
                       value={surgery.year}
-                      // onInput={(e) =>
-                      //   onInput(index(), "year", e.currentTarget.value)
-                      // }
-                      // onInput={(e) =>
-                      //   updateSurgery(index(), "year", e.currentTarget.value)
-                      // }
+                      onInput={(e) =>
+                        team.updateSurgery(
+                          index(),
+                          "year",
+                          e.currentTarget.value
+                        )
+                      }
                       class="p-2 border rounded-lg w-full text-sm"
                       placeholder="Year of surgery"
                     />
                   </div>
                   <textarea
-                    value={surgery.details}
-                    // onInput={(e) =>
-                    //   onInput(index(), "details", e.currentTarget.value)
-                    // }
-                    // onInput={(e) =>
-                    //   updateSurgery(index(), "details", e.currentTarget.value)
-                    // }
+                    value={surgery.extraNotes}
+                    onInput={(e) =>
+                      team.updateSurgery(
+                        index(),
+                        "extraNotes",
+                        e.currentTarget.value
+                      )
+                    }
                     class="p-2 border rounded-lg w-full text-sm"
                     placeholder="Extra notes"
                   />
@@ -97,7 +78,7 @@ export default function UserHealth2({
             </For>
 
             <button
-              onClick={addMoreSurgeries}
+              onClick={team.addSurgery}
               class="w-full mt-2 border-[1px] text-black px-4 py-2 rounded-lg text-sm"
             >
               Add more

@@ -33,14 +33,8 @@ const formFields: {
   },
 ];
 
-export default function UserHealth1({ onClick }: { onClick: () => void }) {
+export default function UserHealth1() {
   const team = useTeam();
-  // const [formData, setFormData] = createStore({
-  //   healthyCondition: "",
-  //   allergies: "",
-  //   dietaryRestrictions: "",
-  //   pastInjuries: "",
-  // });
 
   return (
     <>
@@ -73,7 +67,7 @@ export default function UserHealth1({ onClick }: { onClick: () => void }) {
         <div class="flex flex-col items-center justify-center">
           <Button
             type="button"
-            onClick={onClick}
+            onClick={team.nextStep}
             class="rounded-full w-full bg-[#AE9BF2] text-black h-[50px]"
           >
             Next

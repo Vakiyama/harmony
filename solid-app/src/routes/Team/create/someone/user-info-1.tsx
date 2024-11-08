@@ -19,12 +19,7 @@ const formFields: {
     placeholder: "email@here.com",
   },
 ];
-export default function UserInfo1({
-  onClick,
-}: {
-  // recipientName: string;
-  onClick: () => void;
-}) {
+export default function UserInfo1() {
   const team = useTeam();
   // const [formData, setFormData] = createStore({
   //   phoneNumber: "",
@@ -69,7 +64,7 @@ export default function UserInfo1({
         <div class="flex flex-col items-center justify-center">
           <Button
             type="button"
-            onClick={onClick}
+            onClick={team.nextStep}
             class="rounded-full w-full bg-[#AE9BF2] text-black h-[50px]"
           >
             Next

@@ -29,14 +29,8 @@ const formFields: {
   },
 ];
 
-export default function UserInfo2({ onClick }: { onClick: () => void }) {
+export default function UserInfo2() {
   const team = useTeam();
-  // const [formData, setFormData] = createStore({
-  //   gender: "",
-  //   language: "",
-  //   livesWith: "",
-  //   employment: "",
-  // });
 
   return (
     <>
@@ -68,7 +62,7 @@ export default function UserInfo2({ onClick }: { onClick: () => void }) {
         <div class="flex flex-col items-center justify-center">
           <Button
             type="submit"
-            onClick={onClick}
+            onClick={team.nextStep}
             class="rounded-full w-full bg-[#AE9BF2] text-black h-[50px]"
           >
             Next

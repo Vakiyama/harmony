@@ -4,7 +4,7 @@ import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
 import { useTeam } from "~/context/team-context";
 
-export default function UploadPhoto({ onClick }: { onClick: () => void }) {
+export default function UploadPhoto() {
   const team = useTeam();
 
   return (
@@ -62,7 +62,7 @@ export default function UploadPhoto({ onClick }: { onClick: () => void }) {
           <div class="flex flex-col items-center justify-center">
             <Button
               type="button"
-              onClick={onClick}
+              onClick={team.nextStep}
               class="rounded-full w-full mt-4 bg-[#AE9BF2] text-black h-[50px]"
             >
               Next

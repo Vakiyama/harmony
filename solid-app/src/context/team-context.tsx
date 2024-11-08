@@ -85,11 +85,10 @@ export const TeamProvider: ParentComponent = (props) => {
       healthCondition: "",
       preferredLanguage: "",
     },
-    importantSurgeries: [],
+    importantSurgeries: [{ name: "", year: "", extraNotes: "" }],
     medications: [],
   });
 
-  // const [currentStep, setCurrentStep] = createSignal(1);
   const [currentStep, setCurrentStep] = createSignal(1);
 
   const contextValue: FormContextValue = {
@@ -162,11 +161,6 @@ export const TeamProvider: ParentComponent = (props) => {
       });
       setCurrentStep(1);
     },
-  };
-  const nextStep = () => {
-    console.log("Current step before incrementing:", currentStep);
-    setCurrentStep((prev) => prev + 1);
-    console.log("Current step after incrementing:", currentStep);
   };
 
   return (

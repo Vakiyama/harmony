@@ -1,11 +1,15 @@
-import { A } from "@solidjs/router";
+import { Medications } from "@/schema/Medications";
+import { A, useNavigate } from "@solidjs/router";
 import { createSignal, For } from "solid-js";
 import TextFieldLine from "~/components/shared/text-field-line";
+import aiButton from "~/components/svg/ai-icon";
 import AddPhoto from "~/components/team/tab-upload-photo";
 import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
+import { useTeam } from "~/context/team-context";
 
-const formFields = [
+// temporary set name: any
+const formFields: Array<{ name: any; label: string; placeholder: string }> = [
   {
     name: "medicationName",
     label: "Medication Name",
@@ -45,27 +49,18 @@ const formFields = [
 ];
 
 export default function MedicationDetails() {
-  //   const [surgeries, setSurgeries] = createSignal<
-  //     { name: string; year: string; details: string }[]
-  //   >([{ name: "", year: "", details: "" }]);
+  const team = useTeam();
+  const navigate = useNavigate();
 
-  //   const addMoreSurgeries = () => {
-  //     setSurgeries([...surgeries(), { name: "", year: "", details: "" }]);
-  //   };
-
-  //   const updateSurgery = (
-  //     index: number,
-  //     field: "name" | "year" | "details",
-  //     value: string
-  //   ) => {
-  //     const updatedSurgeries = [...surgeries()];
-  //     updatedSurgeries[index][field] = value;
-  //     setSurgeries(updatedSurgeries);
-  //   };
-
+  const handleAddMedication = () => {
+    team.prevStep();
+  };
   return (
     <>
-      <TeamTopNav backNavigation="/" cancelNavigation="/" />
+      <TeamTopNav
+        backNavigation={team.prevStep}
+        cancelNavigation={aiButton()}
+      />{" "}
       <div class="relative flex flex-col min-h-screen mx-2 overflow-y-auto">
         <div class="flex items-center justify-center mt-2 ">
           <p class="text-xs text-gray-400">6 of 8</p>
@@ -76,12 +71,18 @@ export default function MedicationDetails() {
           <div>
             {/* Render surgery input fields */}
             <For each={formFields}>
-              {(field) => (
+              {(field, index) => (
                 <TextFieldLine
                   key={field.name}
                   name={field.name}
                   label={field.label}
-                  value=""
+                  onInput={(e) =>
+                    team.updateMedication(
+                      index(),
+                      field.name,
+                      e.currentTarget.value
+                    )
+                  }
                   placeholder={field.placeholder}
                   classLabel="text-lg font-semibold"
                 />
@@ -94,7 +95,10 @@ export default function MedicationDetails() {
         <div class="flex-grow"></div>
         {/* Button */}
         <div class="flex flex-col items-center justify-center">
-          <Button class="rounded-full w-full bg-[#AE9BF2] text-black h-[50px]">
+          <Button
+            onClick={handleAddMedication}
+            class="rounded-full w-full bg-[#AE9BF2] text-black h-[50px]"
+          >
             Add Medication
           </Button>
         </div>

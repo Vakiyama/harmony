@@ -8,7 +8,6 @@ import UserInfo2 from "./user-info-2";
 import UserHealth1 from "./user-health-1";
 import UserHealth2 from "./user-health-2";
 import AddMedication from "./add-medication";
-import TeamUserRole from "./team-user-role";
 import AboutUser from "./about-user";
 import UserTypePick from "./user-type-pick";
 import aiButton from "~/components/svg/ai-icon";
@@ -25,6 +24,8 @@ import {
   TextFieldLabel,
   TextFieldRoot,
 } from "~/components/ui/textfield";
+import UserRole from "./user-role";
+import TeamUserRole from "./team-user-role";
 
 export default function CreateSomeone() {
   // const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
@@ -91,7 +92,6 @@ export default function CreateSomeone() {
                 </TextFieldRoot>
                 <Button
                   type="button"
-                  // onClick={team.nextStep}
                   onClick={() => {
                     team.nextStep();
                   }}
@@ -107,39 +107,44 @@ export default function CreateSomeone() {
 
           {/* step 2: upload photo */}
           <Show when={team.currentStep() === 2}>
-            <UploadPhoto onClick={() => team.nextStep()} />
+            <UploadPhoto />
           </Show>
 
-          {/* step 3: team Name */}
+          {/* step 3: phoneNumber, email */}
           <Show when={team.currentStep() === 3}>
-            <UserInfo1 onClick={() => team.nextStep()} />
+            <UserInfo1 />
           </Show>
 
-          {/* step 4: team Name */}
+          {/* step 4: userInfo2 */}
           <Show when={team.currentStep() === 4}>
-            <UserInfo2 onClick={() => team.nextStep()} />
+            <UserInfo2 />
           </Show>
 
-          {/* step 5: team Name */}
+          {/* step 5: userHealth1 */}
           <Show when={team.currentStep() === 5}>
-            <UserHealth1 onClick={() => team.nextStep()} />
+            <UserHealth1 />
           </Show>
 
-          {/* step 6: team Name */}
-          {/* <Show when={team.state.currentStep === 6}>
-            <UserHealth2
-              onClick={team.nextStep}
-              addMore={team.addSurgery}
-              onInput={() => {}}
-            />
-          </Show> */}
-          {/* step 7: team Name */}
-          {/* step 8: team Name */}
-          {/* step 9: team Name */}
-          {/* step 10: team Name */}
+          {/* step 6: userHealth2 */}
+          <Show when={team.currentStep() === 6}>
+            <UserHealth2 />
+          </Show>
 
-          {/*  */}
-          {/* {currentStep() === 7 && <AddMedication onClick={nextStep} />} */}
+          {/* step 7: addMed */}
+          <Show when={team.currentStep() === 7}>
+            <AddMedication />
+          </Show>
+
+          {/* step 8: specify the role */}
+          <Show when={team.currentStep() === 8}>
+            <UserRole />
+          </Show>
+
+          {/* step 9: team Name */}
+          <Show when={team.currentStep() === 9}>
+            <TeamUserRole />
+          </Show>
+
           <Button
             type="submit"
             class="flex mt-4 items-center justify-center"

@@ -4,6 +4,7 @@ import TopNav from "~/components/shared/TopNav";
 import TeamTopNav from "~/components/team/team-top-nav";
 import UserType from "~/components/team/user-type";
 import { Button } from "~/components/ui/button";
+import { useTeam } from "~/context/team-context";
 
 const userRole = [
   {
@@ -15,7 +16,8 @@ const userRole = [
     description: "Can manage the team and can edit care recipient info",
   },
 ];
-export default function TeamUserRole({ onClick }: { onClick: () => void }) {
+export default function TeamUserRole() {
+  const team = useTeam();
   return (
     <div class="relative flex flex-col min-h-screen">
       {/* <TeamTopNav backNavigation="/" cancelNavigation="/" /> */}
@@ -39,16 +41,16 @@ export default function TeamUserRole({ onClick }: { onClick: () => void }) {
           )}
         </For>
         <div class="flex flex-col items-center justify-center mt-6">
-          <Button class="rounded-full w-full mt-4 bg-[#AE9BF2] text-black h-[50px]">
+          {/* <Button class="rounded-full w-full mt-4 bg-[#AE9BF2] text-black h-[50px]">
             Next
-          </Button>
-          <A href="/" class="text-xs p-2">
+          </Button> */}
+          <a onClick={team.nextStep} class="text-xs p-2">
             skip for now
-          </A>
+          </a>
         </div>
       </div>
       {/* Space for bottom */}
-      <div class="h-[32px]"></div>
+      <div class="h-[122px]"></div>
     </div>
   );
 }
