@@ -28,6 +28,18 @@ const seedData = async () => {
       roleType: "User",
     })
     .returning();
+
+  const grandpa = await db
+    .insert(Users)
+    .values({
+      displayName: "grandpa",
+      email: "grandpa@gmail.com",
+      firstName: "grandpa",
+      kindeId: "ajksddkl",
+      lastName: "",
+      roleType: "User",
+    })
+    .returning();
   // Seed Recipients
   await db.delete(eventParticipants);
   await db.delete(events);
@@ -36,42 +48,74 @@ const seedData = async () => {
   await db.delete(Teams);
   await db.delete(Recipients);
 
-  const recipientsData = {
-    firstName: "Grandma",
-    lastName: "Lola",
-    email: "grandma@example.com",
-    phoneNumber: "1234567890",
-    recipientType: "user",
-    gender: "female",
-    preferredLanguage: "English",
-    livesWith: "Tina",
-    hometown: "Hometown",
-    employment: "Unemployed",
-    userId: grandma[0].id,
-  };
+  const recipientsData = [
+    {
+      firstName: "Grandma",
+      lastName: "Lola",
+      email: "grandma@example.com",
+      phoneNumber: "1234567890",
+      recipientType: "user",
+      gender: "female",
+      preferredLanguage: "English",
+      livesWith: "Tina",
+      hometown: "Hometown",
+      employment: "Unemployed",
+      userId: grandma[0].id,
+    },
+    {
+      firstName: "Grandpa",
+      lastName: "Smith",
+      email: "grandpa@example.com",
+      phoneNumber: "0987654321",
+      recipientType: "user",
+      gender: "male",
+      preferredLanguage: "English",
+      livesWith: "Tina",
+      hometown: "Oldtown",
+      employment: "Retired",
+      userId: grandpa[0].id,
+    },
+  ];
   await db.insert(Recipients).values(recipientsData).onConflictDoNothing();
 
   const recipients = await db.select().from(Recipients);
   console.log(recipients);
 
   // Seed Teams
-  const teamsData = {
-    teamName: "Team Alpha",
-    recipientId: recipients[0].id, // Adjust based on the recipient ID
-    photo:
-      "https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg",
-  };
+  const teamsData = [
+    {
+      teamName: "Team Alpha",
+      recipientId: recipients[0].id, // Adjust based on the recipient ID
+      photo:
+        "https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg",
+    },
+    {
+      teamName: "Team Beta",
+      recipientId: recipients[1].id,
+      photo:
+        "https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg",
+    },
+  ];
   await db.insert(Teams).values(teamsData).onConflictDoNothing();
 
   const teams = await db.select().from(Teams);
   console.log(teams);
 
   // Seed TeamMembers
-  const teamMembersData = {
-    teamId: teams[0].id,
-    userId: users[0].id,
-    role: "admin",
-  };
+  const teamMembersData = [
+    {
+      teamId: teams[0].id,
+      userId: users[0].id,
+      role: "admin",
+      defaultTeam: true,
+    },
+    {
+      teamId: teams[1].id,
+      userId: users[0].id,
+      role: "member",
+      defaultTeam: false,
+    },
+  ];
   await db.insert(TeamMembers).values(teamMembersData).onConflictDoNothing();
 
   // Seed Calendars
@@ -81,7 +125,7 @@ const seedData = async () => {
       name: "Team Alpha Calendar",
     },
     {
-      teamId: teams[0].id,
+      teamId: teams[1].id,
       name: "Team Beta Calendar",
     },
   ];
@@ -128,7 +172,7 @@ const seedData = async () => {
       timeEnd: new Date("2024-11-03T15:00:00"),
     },
     {
-      calendarId: Calendars[0].id,
+      calendarId: Calendars[1].id,
       title: "Physical Therapy Session",
       notes: "Attend session with client.",
       location: "Rehabilitation Center",
@@ -138,7 +182,7 @@ const seedData = async () => {
       timeEnd: new Date("2024-10-31T10:00:00"),
     },
     {
-      calendarId: Calendars[0].id,
+      calendarId: Calendars[1].id,
       title: "Weekly Check-in",
       notes: "Discuss care plan and progress.",
       location: "Home",
@@ -148,7 +192,7 @@ const seedData = async () => {
       timeEnd: new Date("2024-11-02T17:00:00"),
     },
     {
-      calendarId: Calendars[0].id,
+      calendarId: Calendars[1].id,
       title: "Monthly Health Check-up",
       notes: "Check blood pressure and vitals",
       timeStart: new Date(
@@ -207,21 +251,21 @@ const seedData = async () => {
       dosage: "10mg",
       frequency: "1 per day",
       schedule: "Morning",
-      teamId: 1,
+      teamId: teams[0].id,
     },
     {
       name: "Azithromycin",
       dosage: "250mg",
       frequency: "3 times a week",
       schedule: "Morning",
-      teamId: 1,
+      teamId: teams[0].id,
     },
     {
       name: "Metformin",
       dosage: "500mg",
       frequency: "1 per day",
       schedule: "Evening",
-      teamId: 1,
+      teamId: teams[1].id,
     },
   ];
   for await (const data of medicationsData) {

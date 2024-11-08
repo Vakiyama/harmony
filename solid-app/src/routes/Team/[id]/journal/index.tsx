@@ -1,7 +1,6 @@
 import { createSignal, Suspense } from "solid-js";
 import Modal from "../../../../components/shared/modal";
 import JournalFeed from "./journal-feed";
-import { LandingHeader } from "~/components/landing/LandingHeader";
 import { MetaProvider } from "@solidjs/meta";
 import Notification from "~/components/shared/notification";
 import {
@@ -29,7 +28,6 @@ export default function Journal() {
 
   return (
     <MetaProvider>
-      <LandingHeader />
       <div class="flex flex-col w-full text-start h-full">
         <div class="w-full flex flex-col gap-2 mt-20 overflow-hidden">
           <div class="flex flex-row justify-between items-center mx-2">

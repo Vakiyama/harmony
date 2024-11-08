@@ -1,18 +1,29 @@
-import { MetaProvider } from "@solidjs/meta";
-import { LandingHeader } from "~/components/landing/LandingHeader";
 import LandingContent from "~/components/landing/LandingContent";
-import { TaskName } from "~/components/landing/TaskName";
-import Member from "~/components/landing/Member";
 import { getAllEvents } from "~/api/calendar";
-import { createAsync } from "@solidjs/router";
-import { Show } from "solid-js";
+import { createResource, Show, useContext } from "solid-js";
 import EventCard from "~/components/calendar/EventCard";
+import { TeamContext } from "~/components/Layout-Context";
 
 export default function Index() {
-  const events = createAsync(async () => await getAllEvents(1, 3), {
-    deferStream: true,
-  });
+  const context = useContext(TeamContext);
 
+  if (!context) {
+    return <div>No team data available</div>;
+  }
+
+  const { teamListData, refetchTrigger } = context;
+
+  const defaultTeam = () =>
+    teamListData()?.find((team) => team.team.defaultTeam === true);
+
+  const [events] = createResource(
+    () => {
+      const teamId = defaultTeam()?.team.id;
+      const refetch = refetchTrigger();
+      return teamId ? { teamId, refetch } : undefined;
+    },
+    async ({ teamId }) => await getAllEvents(teamId, 3)
+  );
   return (
     // <MetaProvider>
     <main class="h-screen overflow-hidden flex flex-col">

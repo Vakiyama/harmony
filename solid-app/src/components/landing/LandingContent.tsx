@@ -6,8 +6,7 @@ import {
   TabsTrigger,
 } from "~/components/ui/landing/landing-tabs";
 import { JournalCard } from "./journal-card/JournalCard";
-import { createAsync, useParams } from "@solidjs/router";
-import { createMemo, Show } from "solid-js";
+import { createMemo, createResource, Show, useContext } from "solid-js";
 import { getJournalsFromTeamId } from "~/api/journal";
 import ReallyTerrible from "~/routes/Team/[id]/journal/really-terrible";
 import SomewhatBad from "~/routes/Team/[id]/journal/somewhat-bad";
@@ -17,17 +16,29 @@ import SuperAwesome from "~/routes/Team/[id]/journal/super-awesome";
 import MedicationIcon from "../icon/medication-icon";
 import MoodIcon from "../icon/mood-icon";
 import NotesIcon from "../icon/notes-icon";
-import LandingImage from "./LandingImage";
 import NutritionIcon from "../icon/nutrition-icon";
 import SleepIcon from "../icon/sleep-icon";
+import { TeamContext } from "../Layout-Context";
 
 const LandingContent = () => {
-  const teamId = useParams().id;
-  const getJournals = createAsync(
-    async () => await getJournalsFromTeamId(parseInt(teamId)),
-    {
-      deferStream: true,
-    }
+  const context = useContext(TeamContext);
+
+  if (!context) {
+    return <div>No team data available</div>;
+  }
+
+  const { teamListData, refetchTrigger } = context;
+
+  const defaultTeam = () =>
+    teamListData()?.find((team) => team.team.defaultTeam === true);
+
+  const [getJournals] = createResource(
+    () => {
+      const teamId = defaultTeam()?.team.id;
+      const refetch = refetchTrigger();
+      return teamId ? { teamId, refetch } : undefined;
+    },
+    async ({ teamId }) => await getJournalsFromTeamId(teamId)
   );
   const journalsData = createMemo(() => getJournals());
 
