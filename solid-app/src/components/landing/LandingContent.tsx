@@ -125,16 +125,21 @@ const LandingContent = () => {
   };
   return (
     <div class="">
-      <Tabs defaultValue="medication taken" class="w-full">
+      <Tabs defaultValue="all" class="w-full">
         <TabsList class="w-full text-black px-2 overflow-scroll rounded-none pb-2">
-          {["Medication Taken", "Nutrition", "Sleep", "Mood", "Notes"].map(
-            (tabName) => (
-              <TabsTrigger value={tabName.toLowerCase()} class="text-md">
-                {getTabIcon(tabName)}
-                <span class="ml-1">{tabName}</span>
-              </TabsTrigger>
-            )
-          )}
+          {[
+            "All",
+            "Medication Taken",
+            "Nutrition",
+            "Sleep",
+            "Mood",
+            "Notes",
+          ].map((tabName) => (
+            <TabsTrigger value={tabName.toLowerCase()} class="text-md">
+              {getTabIcon(tabName)}
+              <span class="ml-1">{tabName}</span>
+            </TabsTrigger>
+          ))}
           <TabsIndicator />
         </TabsList>
 
