@@ -60,14 +60,12 @@ interface FormContextValue {
     field: keyof FormState["importantSurgeries"][0],
     value: string
   ) => void;
-  removeSurgery: (index: number) => void;
   addMedication: () => void;
   updateMedication: (
     index: number,
     field: keyof FormState["medications"][0],
     value: string
   ) => void;
-  removeMedication: (index: number) => void;
   currentStep: Accessor<number>;
   nextStep: () => void;
   prevStep: () => void;
@@ -115,11 +113,6 @@ export const TeamProvider: ParentComponent = (props) => {
     updateSurgery: (index, field, value) => {
       setState("importantSurgeries", index, field, value);
     },
-    removeSurgery: (index) => {
-      setState("importantSurgeries", (prev) =>
-        prev.filter((_, i) => i !== index)
-      );
-    },
     addMedication: () => {
       setState("medications", (prev) => [
         ...prev,
@@ -138,9 +131,6 @@ export const TeamProvider: ParentComponent = (props) => {
     },
     updateMedication: (index, field, value) => {
       setState("medications", index, field, value);
-    },
-    removeMedication: (index) => {
-      setState("medications", (prev) => prev.filter((_, i) => i !== index));
     },
     currentStep: currentStep, //currentStep()
     nextStep: () => {

@@ -23,7 +23,13 @@ export default function AddPhoto() {
           </svg>
           <p class="text-xs text-gray-400">Tab to add a photo</p>
         </label>
-        <input id="photo-upload" type="file" accept="image/*" class="hidden" />
+        <input
+          id="photo-upload"
+          name="photo"
+          type="file"
+          accept="image/*"
+          class="hidden"
+        />
         <div></div>
       </div>
     </div>

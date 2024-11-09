@@ -5,6 +5,8 @@ import { db } from "./db";
 import { medications } from "../../drizzle/schema/Medications";
 import { recipients } from "../../drizzle/schema/Recipients";
 import { teamMembers } from "../../drizzle/schema/TeamMembers";
+import { teams } from "../../drizzle/schema/Teams";
+import { importantSurgeries } from "../../drizzle/schema/ImportantSurgeries";
 import { and, eq } from "drizzle-orm";
 
 export const createRecipientAction = action(
@@ -75,85 +77,130 @@ export const createRecipientAction = action(
   "createRecipientAction"
 );
 
-export const createTeamAction = action(async (formData: FormData) => {
-  "use server";
-});
+export const createTeamAction = action(
+  async ({
+    teamInput,
+  }: {
+    teamInput: {
+      teamName: string;
+      recipientId: number;
+    };
+  }) => {
+    "use server";
+    const manager = await sessionManager();
+    const session = await manager.getSession();
+    const userId: number = session.data.userId;
 
-export const createSurgeryAction = action(async (formData: FormData) => {
-  "use server";
-});
+    if (!userId) {
+      return { error: "User is not Authenticated" };
+    }
 
-export const createMedicationAction = action(async (formData: FormData) => {
-  "use server";
-  const manager = await sessionManager();
-  const session = await manager.getSession();
-  const userId: number = session.data.userId;
-  if (!userId) {
-    return { error: "User is not Authenticated" };
-  }
+    const { teamName, recipientId } = teamInput;
+    if (!teamName) {
+      return { error: "Don't have team name" };
+    }
+    if (!recipientId) {
+      return { error: "Don't have recipient id" };
+    }
+    const [teamError, teamResult] = await mightFail(
+      db.insert(teams).values(teamInput)
+    );
+    if (teamError) {
+      console.error("Team insertion error:", teamError);
+      return { error: "Failed to insert team." };
+    }
+    return { success: true, message: "Team successfully created." };
+  },
+  "createTeamAction"
+);
 
-  const teamId = parseInt(formData.get("teamId") as string);
-  if (!teamId) {
-    return { error: "Missing Team ID" };
-  }
+export const createSurgeryAction = action(
+  async ({
+    surgeriesInput,
+  }: {
+    surgeriesInput: {
+      surgeries: { name: string; year: string; extraNotes: string }[];
+      recipientId: number;
+    };
+  }) => {
+    "use server";
+    const manager = await sessionManager();
+    const session = await manager.getSession();
+    const userId: number = session.data.userId;
 
-  //validate user is a member of the team
-  const [memberError, memberResult] = await mightFail(
-    db
-      .select()
-      .from(teamMembers)
-      .where(
-        and(eq(teamMembers.userId, userId), eq(teamMembers.teamId, teamId))
-      )
-  );
-  if (memberError || !memberResult.length) {
-    memberError ? console.error(memberError) : "";
-    return { error: "Insufficient Permissions" };
-  }
+    if (!userId) {
+      return { error: "User is not Authenticated" };
+    }
+    const surgeriesList = surgeriesInput.surgeries;
+    const recipientId = surgeriesInput.recipientId;
 
-  const name = formData.get("medicationName") as string;
-  const dosage = formData.get("medicationDosage") as string;
-  const frequency = formData.get("frequency") as string;
-  const schedule = formData.get("schedule") as string;
+    if (surgeriesList.length < 0) {
+      return { error: "No surgeries provided" };
+    }
 
-  if (!name) {
-    return { error: "Please enter a medication name" };
-  }
-  if (!dosage) {
-    return { error: "Please enter a dosage" };
-  }
-  if (!frequency) {
-    return { error: "Please enter a frequency" };
-  }
-  if (!schedule) {
-    return { error: "Please enter a schedule" };
-  }
+    for (let i = 0; i < surgeriesList.length; i++) {
+      const surgery = surgeriesList[i];
+      const [surgeriesError, surgeriesResult] = await mightFail(
+        db.insert(importantSurgeries).values({ ...surgery, recipientId })
+      );
+      if (surgeriesError) {
+        console.error("Surgeries insertion error:", surgeriesError);
+        return { error: "Failed to insert surgeries." };
+      }
+      return {
+        success: true,
+        message: "Important Surgeries successfully created.",
+      };
+    }
+  },
+  "createSurgeryAction"
+);
 
-  const sideEffects = formData.get("sideEffects") as string;
-  const instructions = formData.get("instructions") as string;
-  const pharmacyInfo = formData.get("pharmacyInfo") as string;
-  const pharmacyImg = formData.get("pharmacyImg") as string;
+export const createMedicationAction = action(
+  async ({
+    medicationInput,
+  }: {
+    medicationInput: {
+      medications: {
+        name: string;
+        dosage: string;
+        frequency: string;
+        schedule: string;
+        sideEffects: string;
+        instructions: string;
+        pharmacyInfo: string;
+        pharmacyImg: string;
+      }[];
+      teamId: number;
+    };
+  }) => {
+    "use server";
+    const manager = await sessionManager();
+    const session = await manager.getSession();
+    const userId: number = session.data.userId;
+    if (!userId) {
+      return { error: "User is not Authenticated" };
+    }
+    const medicationsList = medicationInput.medications;
+    const teamId = medicationInput.teamId;
+    if (medicationsList.length < 0) {
+      return { error: "No medication provided" };
+    }
 
-  const medicationInput = {
-    name,
-    dosage,
-    frequency,
-    schedule,
-    teamId,
-    userId,
-    ...(sideEffects ? { sideEffects } : {}),
-    ...(instructions ? { instructions } : {}),
-    ...(pharmacyInfo ? { pharmacyInfo } : {}),
-    ...(pharmacyImg ? { pharmacyImg } : {}),
-  };
-
-  console.log(medicationInput);
-  const [medicationError, medicationResult] = await mightFail(
-    db.insert(medications).values(medicationInput)
-  );
-  if (medicationError) {
-    console.error("Database insertion error:", medicationError);
-    return { error: "Failed to insert medication entry." };
-  }
-  return { success: true, message: "Medication successfully created." };
-}, "createMedicationAction");
+    for (let i = 0; i < medicationsList.length; i++) {
+      const medication = medicationsList[i];
+      const [medicationError, medicationResult] = await mightFail(
+        db.insert(medications).values({ ...medication, teamId })
+      );
+      if (medicationError) {
+        console.error("Medications insertion error:", medicationError);
+        return { error: "Failed to insert medications." };
+      }
+      return {
+        success: true,
+        message: "Medications successfully created.",
+      };
+    }
+  },
+  "createMedicationAction"
+);

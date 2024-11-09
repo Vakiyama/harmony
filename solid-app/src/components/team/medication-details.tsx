@@ -11,7 +11,7 @@ import { useTeam } from "~/context/team-context";
 // temporary set name: any
 const formFields: Array<{ name: any; label: string; placeholder: string }> = [
   {
-    name: "medicationName",
+    name: "name",
     label: "Medication Name",
     placeholder: "Medication Name",
   },
@@ -27,7 +27,7 @@ const formFields: Array<{ name: any; label: string; placeholder: string }> = [
     placeholder: "Example: Twice a Day",
   },
   {
-    name: "medicationSchedule",
+    name: "schedule",
     label: "Medication Schedule",
     placeholder: "Example: Morning and Night",
   },
@@ -42,26 +42,29 @@ const formFields: Array<{ name: any; label: string; placeholder: string }> = [
     placeholder: "Instructions for Medication",
   },
   {
-    name: "pharmacyInformation",
+    name: "pharmacyInfo",
     label: "Pharmacy Information",
     placeholder: "Insert Pharmacy Contact address or contact",
   },
 ];
 
-export default function MedicationDetails() {
+export default function MedicationDetails({
+  onMedicationAdded,
+}: {
+  onMedicationAdded: () => void;
+}) {
   const team = useTeam();
-  const navigate = useNavigate();
-
+  const currentMedicationIndex = team.state.medications.length - 1;
   const handleAddMedication = () => {
-    team.prevStep();
+    // TODO: handle value added here
+    onMedicationAdded();
   };
+
   return (
     <>
-      <TeamTopNav
-        backNavigation={team.prevStep}
-        cancelNavigation={aiButton()}
-      />{" "}
-      <div class="relative flex flex-col min-h-screen mx-2 overflow-y-auto">
+      <div class="relative flex flex-col min-h-screen mx-2 overflow-y-auto mt-28">
+        {" "}
+        {/* mt-28 temporary */}
         <div class="flex items-center justify-center mt-2 ">
           <p class="text-xs text-gray-400">6 of 8</p>
         </div>
@@ -71,14 +74,14 @@ export default function MedicationDetails() {
           <div>
             {/* Render surgery input fields */}
             <For each={formFields}>
-              {(field, index) => (
+              {(field) => (
                 <TextFieldLine
                   key={field.name}
                   name={field.name}
                   label={field.label}
                   onInput={(e) =>
                     team.updateMedication(
-                      index(),
+                      currentMedicationIndex,
                       field.name,
                       e.currentTarget.value
                     )

@@ -28,13 +28,13 @@ import UserRole from "./user-role";
 import TeamUserRole from "../../../../components/team/team-user-role";
 
 export default function CreateSomeone() {
-  // const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
   const [error, setError] = createSignal();
+  const [creating, setCreating] = createSignal(false);
   const team = useTeam();
   const recipientInput = team.state.recipient;
 
   const recipientAction = useAction(createRecipientAction);
-  type CreateRecipientActionResponse = {
+  type CreateActionResponse = {
     success?: boolean;
     error?: string;
   };
@@ -43,7 +43,7 @@ export default function CreateSomeone() {
     event.preventDefault();
     console.log(team.state.recipient);
 
-    const result: CreateRecipientActionResponse = await recipientAction({
+    const result: CreateActionResponse = await recipientAction({
       recipientInput,
     });
 
@@ -150,11 +150,8 @@ export default function CreateSomeone() {
             class="flex mt-4 items-center justify-center"
             // disabled={creating.pending}
           >
-            Create Team
-            {/* {creating.pending ? "Creating" : "Create Team"} */}
+            {creating() ? "Creating" : "Create Team"}
           </Button>
-          {/* {currentStep() === 8 && <UserTypePick />}
-          {currentStep() === 9 && <AboutUser onClick={nextStep} />} */}
         </form>
       </div>
     </>
