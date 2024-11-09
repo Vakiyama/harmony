@@ -32,6 +32,8 @@ export default function CreateSomeone() {
   const [creating, setCreating] = createSignal(false);
   const team = useTeam();
   const recipientInput = team.state.recipient;
+  const surgeriesInput = team.state.importantSurgeries;
+  const medicationsInput = team.state.medications;
 
   const recipientAction = useAction(createRecipientAction);
   type CreateActionResponse = {
@@ -43,20 +45,20 @@ export default function CreateSomeone() {
     event.preventDefault();
     console.log(team.state.recipient);
 
-    const result: CreateActionResponse = await recipientAction({
+    const recipientResult: CreateActionResponse = await recipientAction({
       recipientInput,
     });
 
-    if (result.success) {
+    if (recipientResult.success) {
       setError("");
       team.resetForm();
       console.log("Success");
       // TODO
       // showNotification("Note Entry Posted");
       // navigate("/team/1/journal");
-    } else if (result.error) {
-      console.error(result.error);
-      setError(result.error);
+    } else if (recipientResult.error) {
+      console.error(recipientResult.error);
+      setError(recipientResult.error);
     }
   };
   return (
