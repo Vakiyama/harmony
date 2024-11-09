@@ -1,16 +1,10 @@
 import { Effect, pipe } from "effect";
-import {
-  callClaudeWithFormat,
-  callClaudeWithoutFormat,
-  defaultClaudeSettings,
-} from "./callClaude";
-import { createMessage } from "./messages";
-import { z } from "zod";
 
 type ExtractEffectError<T> = T extends Effect.Effect<any, infer E> ? E : never;
 
 type ExtractContext<G> = G extends Graph<any, any, infer C> ? C : never;
 type ExtractError<G> = G extends Graph<any, infer E, any> ? E : never;
+type ExtractKey<G> = G extends Graph<infer K, any, any> ? K : never;
 
 type Graph<K extends string, E, C> = {
   readonly [P in K]: (state: C) => Effect.Effect<{ key: K; state: C }, E>;
@@ -46,20 +40,20 @@ export type State<G extends Graph<string, any, any>> = {
 export function nextGraph<G extends Graph<string, any, any>>(params: {
   state: State<G>;
   graph: G;
-}): Effect.Effect<State<G>, ExtractError<G>> {
-  console.log(params);
+}): Effect.Effect<
+  { key: ExtractKey<G>; state: ExtractContext<G> },
+  ExtractError<G>
+> {
+  // console.log(params);
   return pipe(
     params,
-    (params) => {
-      console.log(params.graph, params.state.key, "???");
-      return params.graph[params.state.key];
-    },
-    (p) => {
-      console.log(p);
-      return p;
-    },
-    (p) => p(params.state),
-  ) as Effect.Effect<State<G>, ExtractError<G>>;
+    (params) => params.graph[params.state.key],
+    (p) =>
+      p(params.state) as Effect.Effect<
+        { key: ExtractKey<G>; state: ExtractContext<G> },
+        ExtractError<G>
+      >,
+  );
 }
 
 /*

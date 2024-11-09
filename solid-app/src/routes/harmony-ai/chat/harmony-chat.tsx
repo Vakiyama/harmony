@@ -17,24 +17,17 @@ export function HarmonyChat() {
   const [lastMessage, setLastMessage] = createSignal<HTMLDivElement>();
 
   async function handleConversation(messages: ArrayMessage[]) {
-    console.log("call claude");
     const response = await harmonyChat(messages, "1");
-    console.log("hresponse");
-    console.log(response);
     if (!response) return;
-    if (response.length === messages.length) {
-      console.log("recurse!");
+    if (response.length > 0 && response.at(-1)!.role !== "assistant") {
       return handleConversation(messages);
     }
-    const newMessages = [
-      ...messages,
-      { role: "assistant", content: response![0].content } as const,
-    ];
+    const newMessages = [...messages, response.at(-1)!];
     setMessages(newMessages);
   }
 
   createEffect(() => {
-    console.log(lastMessage());
+    //  console.log(lastMessage());
     if (lastMessage() === undefined) return;
     lastMessage()!.scrollIntoView({
       block: "end",
@@ -56,6 +49,7 @@ export function HarmonyChat() {
     ]);
     setInput("");
 
+    console.log(newMessages, "messages sent to claude");
     handleConversation(newMessages);
 
     // add user message

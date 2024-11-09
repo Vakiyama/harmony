@@ -11,7 +11,6 @@ import {
   unwrapMessages,
   wrapMessages,
 } from "./effectGraph/messages";
-import { State, createGraph, nextGraph } from "./effectGraph/graph";
 import { Cause, Effect, Either, Exit, Match, Option, pipe } from "effect";
 import {
   TextResponse,
@@ -60,8 +59,10 @@ const queryJournalToolSchema = z.object({
 const queryJournalToolDefinition = Effect.runSync(
   createTool({
     name: "getJournalEntries",
-    description:
-      "Use this tool to get all journal entries related to the recepient for a given category.",
+    description: `Use this tool to get all journal entries related to the recepient for a given category.
+      If you're given an empty array as your query, there are no journal entries.
+      Only call this tool if you need that information, otherwise, just assist the user.
+      `,
     schema: queryJournalToolSchema,
   }),
 );
@@ -109,6 +110,7 @@ function queryJournalTool(params: z.infer<typeof queryJournalToolSchema>) {
       }),
     ),
     Match.exhaustive,
+    Effect.map((result) => ({ result, category: params.category })),
   );
   console.log(result);
   return result;
@@ -117,29 +119,39 @@ function queryJournalTool(params: z.infer<typeof queryJournalToolSchema>) {
 type GraphState = {
   messages: Message;
   queries: { category: (typeof categories)[number]; value: string }[];
-  readonly key: string;
 };
 
 const chatNode = (state: GraphState) => {
   return pipe(
     state,
-    ({ messages }) =>
-      callClaudeWithTools({
+    ({ messages, queries }) => {
+      const newMessage = createMessage({
+        role: "user",
+        content: `previous query: Category: ${queries.at(-1)?.category}, Result: ${queries.at(-1)?.value}`,
+        prev: Option.some(state.messages),
+      });
+
+      const messagesClone = { ...messages };
+
+      if (queries.length !== 0) messagesClone.next = Option.some(newMessage);
+
+      return callClaudeWithTools({
         claudeSettings: defaultClaudeSettings,
         system: CHAT_SYSTEM_MESSAGE,
         retryCount: 5,
-        messages: messages,
+        messages: messagesClone,
         type: "tools",
-        toolChoice: { type: "any" },
+        toolChoice: { type: "auto" },
         tools: [queryJournalToolDefinition],
-      }),
+      });
+    },
     Effect.flatMap((result) =>
       pipe(
         result,
         Either.match({
           onLeft: (result) => {
             const newMessage = createMessage({
-              role: "user",
+              role: "assistant",
               content: (result.content[0] as TextResponse).text,
               prev: Option.some(state.messages),
             });
@@ -157,12 +169,11 @@ const chatNode = (state: GraphState) => {
                 return {
                   key: "chat" as const,
                   state: {
-                    ...state,
+                    messages: state.messages,
                     queries: [
                       ...state.queries,
                       {
-                        category:
-                          queryJournalToolDefinition.name as (typeof categories)[number],
+                        category: callResult.category,
                         value: JSON.stringify(callResult),
                       } as const,
                     ],
@@ -184,17 +195,18 @@ export const harmonyChat = async (message: ArrayMessage[], id: string) => {
     chatStates.push({
       messages: Option.getOrThrow(wrapMessages(message)),
       queries: [],
-      key: "chat" as const,
       id,
     });
   }
+
+  if (index !== -1)
+    chatStates.at(-1)!.messages = Option.getOrThrow(wrapMessages(message));
 
   const result = chatNode({
     ...(index === -1 ? chatStates.at(-1)! : chatStates.at(-1)!),
   });
 
   const next = await Effect.runPromiseExit(result);
-  console.log("called!");
 
   return next.pipe(
     Exit.match({
@@ -206,8 +218,9 @@ export const harmonyChat = async (message: ArrayMessage[], id: string) => {
           chatStates[chatStates.length - 1] = { ...next.state, id };
         else chatStates[chatStates.length - 1] = { ...next.state, id };
 
-        const unwrapped = unwrapMessages(getLast(next.state.messages));
-        console.log(unwrapped, "unwrapped");
+        const unwrapped = unwrapMessages(getFirst(next.state.messages));
+        console.log(chatStates[chatStates.length - 1], "state");
+        console.log(unwrapped, "response");
         return unwrapped;
       },
     }),

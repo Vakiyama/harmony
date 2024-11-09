@@ -129,7 +129,12 @@ export class ClaudeApi extends Context.Tag("ClaudeApi")<
 >() { }
 
 export type TextResponse = { type: "text"; text: string };
-export type ToolUse = { type: "tool_use"; input: any; name: string };
+export type ToolUse = {
+  type: "tool_use";
+  id: string;
+  input: any;
+  name: string;
+};
 
 type AssistantResponse = {
   content: [TextResponse] | [TextResponse, ToolUse] | [ToolUse];
@@ -486,12 +491,14 @@ function getToolCallFromResponse<T extends Tool[]>({
 }: AssistantResponse): Effect.Effect<ToolCall<T>, InvalidToolCallError> {
   return content.length === 2
     ? Effect.succeed({
+      id: (content[1] as ToolUse).id,
       reasoning: Option.some(content[0].text),
       params: (content[1] as ToolUse).input,
       name: (content[1] as ToolUse).name,
     } as ToolCall<T>)
     : content[0].type === "tool_use"
       ? Effect.succeed({
+        id: (content[0] as ToolUse).id,
         reasoning: Option.none(),
         params: (content[0] as ToolUse).input,
         name: (content[0] as ToolUse).name,

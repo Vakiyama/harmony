@@ -8,7 +8,7 @@ type BaseMessage = {
   prev: Option<Message>;
 };
 
-export type Message = UserMessage | AssistantMessage;
+export type Message = UserMessage | AssistantMessage | ToolCall | ToolResult;
 
 export type UserMessage = {
   role: "user";
@@ -18,6 +18,16 @@ export type UserMessage = {
 export type AssistantMessage = {
   role: "assistant";
   next: Option<UserMessage>;
+} & BaseMessage;
+
+export type ToolCall = {
+  role: "tool_call";
+  next: Option<ToolResult>;
+} & BaseMessage;
+
+export type ToolResult = {
+  role: "tool_result";
+  next: Option<UserMessage | AssistantMessage | ToolCall>;
 } & BaseMessage;
 
 export function getFirst(message: Message): Message {
@@ -32,7 +42,7 @@ export function getFirst(message: Message): Message {
 }
 
 export function getLast(message: Message): Message {
-  return Option.match(message.next, {
+  return Option.match(message.next as Option.Option<Message>, {
     onSome: (next) => {
       if (!next) return message;
       return getLast(next);
@@ -57,7 +67,7 @@ export function unwrapMessages(
   message: Message,
   acc: ArrayMessage[] = [],
 ): ArrayMessage[] {
-  return Option.match(message.next, {
+  return Option.match(message.next as Option.Option<Message>, {
     onSome: (next) => {
       if (!next)
         return [...acc, { content: message.content, role: message.role }];
@@ -75,7 +85,6 @@ export function wrapMessages(
   messages: ArrayMessage[],
   acc: Option.Option<Message> = Option.none(),
 ): Option.Option<Message> {
-  console.log(acc, "wrap msgs!");
   return messages.length === 0
     ? acc
     : pipe(
