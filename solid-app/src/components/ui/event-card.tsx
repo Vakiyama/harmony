@@ -6,9 +6,11 @@ import { createResource, For, Show } from "solid-js";
 import { getEventParticipants } from "~/api/calendar";
 
 const EventCard = (props: { event: Event }) => {
+  // temp
+  const teamId = 1;
   const navigate = useNavigate();
   const [response] = createResource(async () => {
-    const response = await getEventParticipants(props.event.id);
+    const response = await getEventParticipants(props.event.id, teamId);
     return response ?? [];
   });
 

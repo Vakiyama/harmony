@@ -151,7 +151,7 @@ export const getTeamMembersFromTeamId = async (teamId: number) => {
   }[];
 };
 
-export const getEventParticipants = async (eventId: number) => {
+export const getEventParticipants = async (eventId: number, teamId: number) => {
   "use server";
   const result = await db
     .select({
@@ -161,7 +161,12 @@ export const getEventParticipants = async (eventId: number) => {
       role: TeamMembers.role,
     })
     .from(eventParticipants)
-    .where(eq(eventParticipants.eventId, eventId))
+    .where(
+      and(
+        eq(eventParticipants.eventId, eventId),
+        eq(TeamMembers.teamId, teamId)
+      )
+    )
     .innerJoin(Users, eq(eventParticipants.userId, Users.id))
     .innerJoin(TeamMembers, eq(eventParticipants.userId, TeamMembers.userId));
   return result;
@@ -172,10 +177,11 @@ export const createEventParticipant = async (
   userId: number
 ) => {
   "use server";
-  const [newEventParticipant] = await db
+  const newEventParticipant = await db
     .insert(eventParticipants)
     .values({ eventId, userId })
     .returning();
+  console.log(newEventParticipant);
   return newEventParticipant;
 };
 

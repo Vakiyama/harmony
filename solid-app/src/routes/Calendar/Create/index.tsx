@@ -12,6 +12,13 @@ import { User } from "@/schema/Users";
 import { mightFail } from "might-fail";
 import { isValidEnumValue } from "~/api/dbHelper";
 import SelectMultipleInput from "~/components/shadcn/MultiSelect";
+import {
+  notificationMessage,
+  isNotificationVisible,
+  hideNotification,
+  showNotification,
+} from "~/routes/api/notificationStore";
+import Notification from "~/components/shared/notification";
 
 const CalendarCreateEvent = () => {
   const navigate = useNavigate();
@@ -55,13 +62,13 @@ const CalendarCreateEvent = () => {
     e.preventDefault();
     // temp
     if (!title() || title().trim() === "") {
-      return alert("Title is required.");
+      return showNotification("Title is required.");
     }
     if (!timeStartTime() || !timeStartDate) {
-      return alert("Start time is required.");
+      return showNotification("Start time is required.");
     }
     if (!timeEndTime() || !timeEndDate) {
-      return alert("End time is required.");
+      return showNotification("End time is required.");
     }
     // if (isValidEnumValue(repeat(), eventsFrequencyEnum)) {
     //   return alert("Valid repeat frequency is required.";
@@ -70,7 +77,7 @@ const CalendarCreateEvent = () => {
     //   return alert("Valid event type is required.";
     // }
     if (timeEnd() <= timeStart()) {
-      return alert("End time must be after start time.");
+      return showNotification("End time must be after start time.");
     }
 
     const [createEventError, createEventResult] = await mightFail(
@@ -183,6 +190,12 @@ const CalendarCreateEvent = () => {
           </button>
         </div>
       </form>
+      {isNotificationVisible() && (
+        <Notification
+          title={notificationMessage()}
+          onClose={hideNotification}
+        />
+      )}
       {/* temp */}
       <div class="h-[88px]"></div>
     </div>
