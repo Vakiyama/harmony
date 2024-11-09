@@ -12,13 +12,7 @@ import { User } from "@/schema/Users";
 import { mightFail } from "might-fail";
 import { isValidEnumValue } from "~/api/dbHelper";
 import SelectMultipleInput from "~/components/shadcn/MultiSelect";
-import {
-  notificationMessage,
-  isNotificationVisible,
-  hideNotification,
-  showNotification,
-} from "~/routes/api/notificationStore";
-import Notification from "~/components/shared/notification";
+import ShowError from "~/routes/Team/[id]/journal/show-error";
 
 const CalendarCreateEvent = () => {
   const navigate = useNavigate();
@@ -41,7 +35,7 @@ const CalendarCreateEvent = () => {
   const [repeat, setRepeat] = createSignal<
     "never" | "daily" | "weekly" | "monthly"
   >("never");
-
+  const [error, setError] = createSignal("");
   const parseTeamMemberToOption = (
     data: { teammembers: TeamMember; users: User }[] | undefined
   ) =>
@@ -62,13 +56,13 @@ const CalendarCreateEvent = () => {
     e.preventDefault();
     // temp
     if (!title() || title().trim() === "") {
-      return showNotification("Title is required.");
+      return setError("Title is required.");
     }
     if (!timeStartTime() || !timeStartDate) {
-      return showNotification("Start time is required.");
+      return setError("Start time is required.");
     }
     if (!timeEndTime() || !timeEndDate) {
-      return showNotification("End time is required.");
+      return setError("End time is required.");
     }
     // if (isValidEnumValue(repeat(), eventsFrequencyEnum)) {
     //   return alert("Valid repeat frequency is required.";
@@ -77,7 +71,7 @@ const CalendarCreateEvent = () => {
     //   return alert("Valid event type is required.";
     // }
     if (timeEnd() <= timeStart()) {
-      return showNotification("End time must be after start time.");
+      return setError("End time must be after start time.");
     }
 
     const [createEventError, createEventResult] = await mightFail(
@@ -103,6 +97,7 @@ const CalendarCreateEvent = () => {
   return (
     <div class="flex flex-col items-center mt-10 w-full">
       <form class="space-y-4 max-w-lg w-full px-4">
+        <ShowError error={error()}></ShowError>
         <div class="flex gap-4 justify-between">
           <Button
             class={twMerge(
@@ -190,12 +185,6 @@ const CalendarCreateEvent = () => {
           </button>
         </div>
       </form>
-      {isNotificationVisible() && (
-        <Notification
-          title={notificationMessage()}
-          onClose={hideNotification}
-        />
-      )}
       {/* temp */}
       <div class="h-[88px]"></div>
     </div>
