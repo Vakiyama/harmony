@@ -1,14 +1,14 @@
 import { A, useAction } from "@solidjs/router";
 import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
-import UploadPhoto from "./upload-photo";
+import UploadPhoto from "../../../../components/team/upload-photo";
 import { createSignal, For, Show } from "solid-js";
-import UserInfo1 from "./user-info-1";
-import UserInfo2 from "./user-info-2";
-import UserHealth1 from "./user-health-1";
-import UserHealth2 from "./user-health-2";
-import AddMedication from "./add-medication";
-import AboutUser from "./about-user";
+import UserInfo1 from "../../../../components/team/user-info-1";
+import UserInfo2 from "../../../../components/team/user-info-2";
+import UserHealth1 from "../../../../components/team/user-health-1";
+import UserHealth2 from "../../../../components/team/user-health-2";
+import AddMedication from "../../../../components/team/add-medication";
+import AboutUser from "../../../../components/team/about-user";
 import UserTypePick from "./user-type-pick";
 import aiButton from "~/components/svg/ai-icon";
 import { useTeam } from "~/context/team-context";
@@ -25,7 +25,7 @@ import {
   TextFieldRoot,
 } from "~/components/ui/textfield";
 import UserRole from "./user-role";
-import TeamUserRole from "./team-user-role";
+import TeamUserRole from "../../../../components/team/team-user-role";
 
 export default function CreateSomeone() {
   // const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();

@@ -1,13 +1,25 @@
 import { A } from "@solidjs/router";
-import { For } from "solid-js";
+import { createSignal, For, Show } from "solid-js";
 import TextFieldLine from "~/components/shared/text-field-line";
 import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
 import { useTeam } from "~/context/team-context";
+import MedicationDetails from "~/components/team/medication-details";
 
 export default function AddMedication() {
   const team = useTeam();
   const medications = team.state.medications;
+  const [showMedicationForm, setShowMedicationForm] = createSignal(false);
+
+  const handleAddMedication = () => {
+    console.log("Add Medication clicked"); //
+    setShowMedicationForm(true);
+  };
+
+  const handleMedicationAdded = () => {
+    console.log("Medication added");
+    setShowMedicationForm(false);
+  };
   return (
     <>
       {/* <TeamTopNav backNavigation="/" cancelNavigation="/" /> */}
@@ -74,12 +86,12 @@ export default function AddMedication() {
                 />
               </svg>
 
-              <a
-                href="/team/create/someone/medication-details"
+              <button
+                onClick={handleAddMedication}
                 class="text-xs text-gray-400"
               >
                 Add Medication
-              </a>
+              </button>
             </div>
           </div>
 
@@ -89,7 +101,7 @@ export default function AddMedication() {
           <div class="flex flex-col items-center justify-center">
             <Button
               type="button"
-              onClick={team.nextStep}
+              onClick={handleMedicationAdded}
               class="rounded-full w-full mt-4 bg-[#AE9BF2] text-black h-[50px]"
             >
               Next
@@ -102,6 +114,12 @@ export default function AddMedication() {
         {/* Space for bottom */}
         <div class="h-[102px]"></div> {/* temporary */}
       </div>
+
+      <Show when={showMedicationForm()}>
+        <div class="z-50">
+          <MedicationDetails />
+        </div>
+      </Show>
     </>
   );
 }
