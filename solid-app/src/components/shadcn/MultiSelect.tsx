@@ -22,7 +22,7 @@ export default function SelectMultipleInput<T>(props: {
 }) {
   let defaultValue = props.defaultValue ?? [];
   return (
-    <Select 
+    <Select
       defaultValue={defaultValue}
       multiple
       options={props.options}

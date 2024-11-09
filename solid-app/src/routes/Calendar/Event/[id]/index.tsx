@@ -34,23 +34,10 @@ import { User } from "@/schema/Users";
 import SelectMultipleInput from "~/components/shadcn/MultiSelect";
 import TextArea from "../../Create/TextAreaInput";
 import { mightFail } from "might-fail";
-import { EventParticipants } from "@/schema/EventParticipants";
 import DeleteConfirmation from "~/components/shared/delete-confirmation";
 
 type Participant = {
-  participant: {
-    id: number;
-    photo: string | null;
-    firstName: string;
-    lastName: string;
-    email: string;
-    kindeId: string;
-    displayName: string;
-    createdAt: Date;
-    updatedAt: Date;
-    roleType: string;
-    birthDate: Date | null;
-  };
+  participant: User;
   status: "yes" | "maybe" | "no" | null;
   eventParticipantId: number;
   role: string | null;
@@ -69,6 +56,8 @@ const parseTeamMemberToOption = (
     : [];
 
 export default function EventPage() {
+  // temp get team id
+  const teamId = 1;
   const params = useParams();
   const navigate = useNavigate();
 
@@ -77,15 +66,17 @@ export default function EventPage() {
   );
 
   const teamMembers = createAsync(
-    // temp get teamId first
-    async () => await getTeamMembersFromTeamId(1),
+    async () => await getTeamMembersFromTeamId(teamId),
     { deferStream: true }
   );
 
   const [participants, setParticipants] = createSignal<Participant[]>([]);
 
   const fetchParticipants = async () => {
-    const participants = await getEventParticipants(parseInt(params.id));
+    const participants = await getEventParticipants(
+      parseInt(params.id),
+      teamId
+    );
     setParticipants(participants);
   };
 
@@ -160,11 +151,20 @@ export default function EventPage() {
       return console.error(updateEventError);
     }
     const participantIds = participants()?.map((p) => p.participant.id)!;
+    console.log(participantIds);
+    console.log(
+      teamMemberIds(),
+      participantIds,
+      "teammeber id + participant id"
+    );
 
-    const deletedMembers =
-      participantIds.filter((id) => teamMemberIds().includes(id)) ?? [];
+    // deleting the last member doesnt work right now, maybe its a multi select problem
+    const deletedMembers = participantIds.filter(
+      (id) => !teamMemberIds().includes(id)
+    );
+    console.log(deletedMembers, "deleted members");
 
-    for (const deletedMember of deletedMembers) {
+    for await (const deletedMember of deletedMembers) {
       const [deletedMemberError, deletedMemberResult] = await mightFail(
         deleteEventParticipant(deletedMember, event()?.id!)
       );
@@ -176,8 +176,9 @@ export default function EventPage() {
     const newMembers = teamMemberIds()?.filter(
       (id) => !participantIds.includes(id)
     );
+    console.log(newMembers, "new memebers");
 
-    for (const newMember of newMembers) {
+    for await (const newMember of newMembers) {
       const [newMemberError, newMemberResult] = await mightFail(
         createEventParticipant(event()?.id!, newMember)
       );
@@ -187,6 +188,8 @@ export default function EventPage() {
     }
     await refetch();
     await fetchParticipants();
+    // reset team member ids
+    // setTeamMemberIds(participants()?.map((p) => p.participant.id) ?? []);
     closeModal();
     // temp need to invalidate
   };
