@@ -1,6 +1,12 @@
-import { Show, createEffect, createSignal } from "solid-js";
+import {
+  Accessor,
+  Setter,
+  Show,
+  createEffect,
+  createSignal,
+  onMount,
+} from "solid-js";
 import { twMerge } from "tailwind-merge";
-import { Message } from "~/api/claude/apiCalls";
 import { Image, ImageRoot } from "~/components/ui/image";
 import Tail from "../images/Tail.svg";
 import HarmonyMascot from "../images/harmony-mascot-container.svg";
@@ -9,23 +15,31 @@ import { harmonyChat } from "~/api/claude/chat";
 import SolidMarkdown from "@zentered/solid-markdown";
 import "./markdown.css";
 import { A } from "@solidjs/router";
+import { ArrayMessage } from "~/api/claude/effectGraph/messages";
+import { ToolUse } from "~/api/claude/effectGraph/callClaude";
+import { getUser, getUserIdFromSession } from "~/api/server";
+import { User } from "@/schema/Users";
 
 export function HarmonyChat() {
-  const [messages, setMessages] = createSignal<Message[]>([]);
+  const [messages, setMessages] = createSignal<ArrayMessage[]>([]);
   const [input, setInput] = createSignal<string>("");
   const [lastMessage, setLastMessage] = createSignal<HTMLDivElement>();
+  const [user, setUser] = createSignal<Awaited<ReturnType<typeof getUser>>>();
 
-  async function handleConversation(messages: Message[]) {
-    const response = await harmonyChat(messages);
-    const newMessages = [
-      ...messages,
-      { role: "assistant", content: response.content[0].text } as const,
-    ];
-    setMessages(newMessages);
+  onMount(async () => {
+    setUser(await getUser());
+  });
+
+  async function handleConversation(messages: ArrayMessage[]) {
+    if (!user()) return;
+    const response = await harmonyChat(messages, user()!.id);
+    if (!response) return;
+
+    setMessages(response);
   }
 
   createEffect(() => {
-    console.log(lastMessage());
+    //  console.log(lastMessage());
     if (lastMessage() === undefined) return;
     lastMessage()!.scrollIntoView({
       block: "end",
@@ -41,9 +55,13 @@ export function HarmonyChat() {
       ...messages(),
       { role: "user", content: input() } as const,
     ];
-    setMessages(newMessages);
+    setMessages((oldMessages) => [
+      ...oldMessages,
+      { role: "user", content: input() } as const,
+    ]);
     setInput("");
 
+    console.log(newMessages, "messages sent to claude");
     handleConversation(newMessages);
 
     // add user message
@@ -93,63 +111,34 @@ export function HarmonyChat() {
                     <ImageRoot class="rounded-none w-60 h-60">
                       <Image src={HarmonyMascot} class="w-full" />
                     </ImageRoot>
-                    <h2 class="text-4xl my-1 w-full px-4 text-center max-w-none block">
-                      Good {currentTimeOfDay}, Tina!
-                    </h2>
+                    <Show when={user()}>
+                      <h2 class="text-4xl my-1 w-full px-4 text-center max-w-none block">
+                        Good {currentTimeOfDay}, {user()!.firstName}!
+                      </h2>
+                    </Show>
                     <h3 class="opacity-50">What can I help with today?</h3>
                   </div>
                 </div>
               </Show>
             }
           >
-            {messages().map((message, index) => (
-              <div
-                class={twMerge(
-                  "flex items-center relative max-w-[90%]",
-                  message.role === "user"
-                    ? "self-end flex-row-reverse mr-1 "
-                    : "self-start flex-row",
-                )}
-              >
-                <div
-                  class={twMerge(
-                    "rounded-xl p-2 my-3 mx-1 w-fit text-gray-800 px-4",
-                    message.role === "user"
-                      ? "rounded-br-none bg-[#937AEE]"
-                      : "",
-                  )}
-                >
-                  {message.role === "user" ? (
-                    <p class="text-white">{message.content}</p>
-                  ) : (
-                    <div
-                      class="pb-4"
-                      ref={
-                        index === messages().length - 1
-                          ? setLastMessage
-                          : undefined
-                      }
-                    >
-                      <SolidMarkdown
-                        class="markdown"
-                        children={message.content}
-                      />
-                    </div>
-                  )}
-                </div>
-                <Show when={message.role === "user"}>
-                  <div
-                    class={twMerge(
-                      "absolute bottom-[24px] w-2 h-2 right-[2px]",
-                    )}
-                  >
-                    <ImageRoot class="w-full">
-                      <Image src={Tail} alt="" class="relative bottom-px" />
-                    </ImageRoot>
-                  </div>
-                </Show>
-              </div>
-            ))}
+            {messages()
+              .filter(
+                // remove all "tool_result" messages
+                (message) =>
+                  !(
+                    message.role === "user" &&
+                    !(typeof message.content === "string")
+                  ),
+              )
+              .map((message, index) => (
+                <HarmonyChatMessage
+                  message={message}
+                  index={index}
+                  setLastMessage={setLastMessage}
+                  messages={messages}
+                />
+              ))}
           </Show>
         </div>
         <div class="flex flex-row px-2 gap-3 border-t-gray-600 border-t pt-2 pb-6">
@@ -171,6 +160,66 @@ export function HarmonyChat() {
           </button>
         </div>
       </form>
+    </div>
+  );
+}
+
+function HarmonyChatMessage(props: {
+  message: ArrayMessage;
+  index: number;
+  setLastMessage: Setter<HTMLDivElement | undefined>;
+  messages: Accessor<ArrayMessage[]>;
+}) {
+  return (
+    <div
+      class={twMerge(
+        "flex items-center relative max-w-[90%]",
+        props.message.role === "user"
+          ? "self-end flex-row-reverse mr-1 "
+          : "self-start flex-row",
+      )}
+    >
+      <div
+        class={twMerge(
+          "rounded-xl p-2 my-3 mx-1 w-fit text-gray-800 px-4",
+          props.message.role === "user" ? "rounded-br-none bg-[#937AEE]" : "",
+        )}
+      >
+        {props.message.role === "user" ? (
+          <p class="text-white">{props.message.content as string}</p>
+        ) : typeof props.message.content === "string" ? (
+          <div
+            class="pb-4"
+            ref={
+              props.index === props.messages().length - 1
+                ? props.setLastMessage
+                : undefined
+            }
+          >
+            <SolidMarkdown class="markdown" children={props.message.content} />
+          </div>
+        ) : (
+          <div
+            class="pb-4"
+            ref={
+              props.index === props.messages().length - 1
+                ? props.setLastMessage
+                : undefined
+            }
+          >
+            <div>
+              Harmony using tool: {(props.message.content as [ToolUse])[0].name}
+            </div>
+          </div>
+        )}
+      </div>
+      <Show when={props.message.role === "user"}>
+        <div class={twMerge("absolute bottom-[24px] w-2 h-2 right-[2px]")}>
+          <ImageRoot class="w-full">
+            <Image src={Tail} alt="" class="relative bottom-px" />
+          </ImageRoot>
+        </div>
+      </Show>
     </div>
   );
 }

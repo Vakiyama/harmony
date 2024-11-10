@@ -4,6 +4,7 @@ import PlaceholderMark from "~/components/svg/placeholder";
 import { createSignal } from "solid-js";
 import { type oauthMethods, oauthLogin } from "~/api/auth-server-actions";
 import { useAction } from "@solidjs/router";
+import AuthIcons from "~/components/icon/auth-icons";
 
 export default function Landing() {
   const [method, setMethod] = createSignal<oauthMethods>("");
@@ -32,7 +33,7 @@ export default function Landing() {
                 type="submit"
               >
                 <span class="flex-grow mr-[70px] text-center ">
-                  <PlaceholderMark class="inline-block mr-[70px]" />
+                  <AuthIcons.GoogleIcon class="inline-block mr-[70px]"></AuthIcons.GoogleIcon>
                   Continue with Google
                 </span>
               </Button>
@@ -45,7 +46,7 @@ export default function Landing() {
                 type="submit"
               >
                 <span class="flex-grow mr-[61px] text-center">
-                  <PlaceholderMark class="inline-block mr-[61px]" />
+                  <AuthIcons.FacebookIcon class="inline-block mr-[61px]"></AuthIcons.FacebookIcon>
                   Continue with Facebook
                 </span>
               </Button>
@@ -58,7 +59,7 @@ export default function Landing() {
                 type="submit"
               >
                 <span class="flex-grow mr-[76px] text-center">
-                  <PlaceholderMark class="inline-block mr-[76px]" />
+                  <AuthIcons.AppleIcon class="inline-block mr-[76px]"></AuthIcons.AppleIcon>
                   Continue with Apple
                 </span>
                 {/* <PlaceholderMark class="absolute left-[10%]" />
@@ -70,15 +71,15 @@ export default function Landing() {
         <div class="mt-8 w-full">
           <a href="/api/auth/login" class="mx-auto">
             <Button
-              class="rounded-[100px] h-12 w-full mb-4 text-base"
+              class="rounded-full h-12 w-full mb-4 text-black text-base bg-primary-purple-300"
               variant="default"
             >
               Login
             </Button>
           </a>
         </div>
-        <div class="w-full">
-          <a href="/api/auth/sign-up" class="m-0 text-subtitle_13">
+        <div class="w-full flex justify-center">
+          <a href="/api/auth/sign-up" class="text-subtitle13">
             Sign Up
           </a>
         </div>
