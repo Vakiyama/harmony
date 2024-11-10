@@ -40,6 +40,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.31.4",
+    "drizzle-zod": "^0.5.1",
     "effect": "^3.10.12",
     "might-fail": "^0.6.3",
     "moment": "^2.30.1",

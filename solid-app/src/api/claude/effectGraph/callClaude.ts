@@ -137,7 +137,7 @@ export type ToolUse = {
   name: string;
 };
 
-type AssistantResponse = {
+export type AssistantResponse = {
   content: [TextResponse] | [TextResponse, ToolUse] | [ToolUse];
   id: string;
   model: string;
@@ -187,7 +187,7 @@ type ToolChoice =
 
 type CallClaudeTools = {
   type: "tools";
-  tools: Tool[];
+  readonly tools: Tool[];
   toolChoice: ToolChoice;
 } & BaseParams;
 
@@ -469,7 +469,7 @@ const InvalidToolCallError = (): InvalidToolCallError => ({
   _tag: "invalidToolCall",
 });
 
-type ToolCallResult<T extends Tool[]> = {
+export type ToolCallResult<T extends Tool[]> = {
   reasoning: Option.Option<string>;
   toolCall: ToolUse;
 };
