@@ -54,7 +54,8 @@ export default function NavBar(props: {
         class={twMerge(
           "fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-md z-50",
           currentPath().includes("/harmony-ai/") ||
-            currentPath().includes(`/team/${params.id}/journal/`)
+            currentPath().includes(`/team/${params.id}/journal/`) ||
+            currentPath().includes(`/calendar/create`)
             ? "hidden"
             : ""
         )}
