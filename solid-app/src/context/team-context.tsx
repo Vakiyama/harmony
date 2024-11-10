@@ -132,7 +132,7 @@ export const TeamProvider: ParentComponent = (props) => {
     updateMedication: (index, field, value) => {
       setState("medications", index, field, value);
     },
-    currentStep: currentStep, //currentStep()
+    currentStep: currentStep,
     nextStep: () => {
       setCurrentStep((prev) => prev + 1);
     },

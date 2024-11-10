@@ -10,8 +10,8 @@ export default function AddMedication() {
   const team = useTeam();
   const medications = team.state.medications;
 
-  const [medicationList, setMedicationList] = createSignal(medications);
   const [showMedicationForm, setShowMedicationForm] = createSignal(false);
+  const [medicationList, setMedicationList] = createSignal(medications);
 
   const handleAddMedication = () => {
     team.addMedication();
@@ -22,10 +22,6 @@ export default function AddMedication() {
     console.log("Medication added");
     setShowMedicationForm(false);
   };
-
-  createEffect(() => {
-    setMedicationList(medications);
-  });
 
   return (
     <>

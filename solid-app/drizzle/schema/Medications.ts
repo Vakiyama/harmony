@@ -7,6 +7,7 @@ export const medications = sqliteTable("medications", {
   id: integer("id").primaryKey().unique().notNull(),
   name: text("name").notNull(),
   dosage: text("dosage").notNull(),
+  typeOfMedication: text("typeOfMedication"),
   frequency: text("frequency").notNull(),
   schedule: text("schedule").notNull(),
   sideEffects: text("side_effects"),

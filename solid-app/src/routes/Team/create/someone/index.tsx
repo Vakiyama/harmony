@@ -2,7 +2,7 @@ import { A, useAction } from "@solidjs/router";
 import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
 import UploadPhoto from "../../../../components/team/upload-photo";
-import { createSignal, For, Show } from "solid-js";
+import { createEffect, createSignal, For, Show } from "solid-js";
 import UserInfo1 from "../../../../components/team/user-info-1";
 import UserInfo2 from "../../../../components/team/user-info-2";
 import UserHealth1 from "../../../../components/team/user-health-1";
@@ -18,7 +18,12 @@ import { recipients } from "../../../../../drizzle/schema/Recipients";
 import { teams } from "../../../../../drizzle/schema/Teams";
 import { importantSurgeries } from "../../../../../drizzle/schema/ImportantSurgeries";
 import { medications } from "../../../../../drizzle/schema/Medications";
-import { createRecipientAction } from "~/api/team";
+import {
+  createMedicationAction,
+  createRecipientAction,
+  createSurgeryAction,
+  createTeamAction,
+} from "~/api/team";
 import {
   TextField,
   TextFieldLabel,
@@ -27,40 +32,120 @@ import {
 import UserRole from "./user-role";
 import TeamUserRole from "../../../../components/team/team-user-role";
 
+type CreateRecipientActionResponse = {
+  success?: boolean;
+  error?: string;
+  recipientId?: number;
+  message?: string;
+};
+
+type CreateTeamActionResponse = {
+  success?: boolean;
+  error?: string;
+  teamId?: number;
+  message?: string;
+};
+
+type CreateSurgeryActionResponse = {
+  success?: boolean;
+  error?: string;
+  message?: string;
+};
+
+type CreateMedicationActionResponse = {
+  success?: boolean;
+  error?: string;
+  message?: string;
+};
+
 export default function CreateSomeone() {
   const [error, setError] = createSignal();
   const [creating, setCreating] = createSignal(false);
   const team = useTeam();
-  const recipientInput = team.state.recipient;
-  const surgeriesInput = team.state.importantSurgeries;
-  const medicationsInput = team.state.medications;
 
   const recipientAction = useAction(createRecipientAction);
-  type CreateActionResponse = {
-    success?: boolean;
-    error?: string;
-  };
+
+  const teamAction = useAction(createTeamAction);
+  const surgeryAction = useAction(createSurgeryAction);
+  const medicationAction = useAction(createMedicationAction);
 
   const handleSubmit = async (event: SubmitEvent) => {
     event.preventDefault();
-    console.log(team.state.recipient);
+    setCreating(true);
+    try {
+      // create recipient
+      const recipientResult = (await recipientAction({
+        recipientInput: team.state.recipient,
+      })) as CreateRecipientActionResponse;
 
-    const recipientResult: CreateActionResponse = await recipientAction({
-      recipientInput,
-    });
+      if (!recipientResult.success || !recipientResult.recipientId) {
+        throw new Error(recipientResult.error || "Failed to create recipient");
+        // TODO: show error message notification
+      }
+      // TODO: show success message notificaition
 
-    if (recipientResult.success) {
-      setError("");
+      // create team
+      const teamResult = (await teamAction({
+        teamInput: {
+          teamName: team.state.teamName,
+          recipientId: recipientResult.recipientId,
+        },
+      })) as CreateTeamActionResponse;
+
+      if (!teamResult.success || !teamResult.teamId) {
+        throw new Error(teamResult.error || "Failed to create team");
+        // TODO: show error message notification
+      }
+      // TODO: show success message notificaition
+
+      // create important surgeries
+      if (team.state.importantSurgeries.length > 0) {
+        console.log("before creating", team.state.importantSurgeries);
+        const surgeryResult = (await surgeryAction({
+          surgeriesInput: {
+            surgeries: team.state.importantSurgeries,
+            recipientId: recipientResult.recipientId,
+          },
+        })) as CreateSurgeryActionResponse;
+
+        if (!surgeryResult.success) {
+          throw new Error(surgeryResult.error || "Failed to create surgeries");
+          // TODO: show error message notification
+        }
+        // TODO: show success message notification
+      }
+
+      // create medications
+      if (team.state.medications.length > 0) {
+        const medicationResult = (await medicationAction({
+          medicationInput: {
+            medications: team.state.medications,
+            teamId: teamResult.teamId,
+          },
+        })) as CreateMedicationActionResponse;
+
+        if (!medicationResult.success) {
+          throw new Error(
+            medicationResult.error || "Failed to create medications"
+          );
+          // TODO: show error message notification
+        }
+        // TODO: show success message notification
+      }
+    } catch (error) {
+      console.error("Error creating team or recipient:", error);
+      setError("Failed to create team or recipient");
+      setCreating(false);
+    } finally {
+      setCreating(false);
       team.resetForm();
-      console.log("Success");
-      // TODO
-      // showNotification("Note Entry Posted");
-      // navigate("/team/1/journal");
-    } else if (recipientResult.error) {
-      console.error(recipientResult.error);
-      setError(recipientResult.error);
+      // TODO: navigate somewhere
     }
   };
+
+  // createEffect(() => {
+  //   setMedicationList(medications);
+  // });
   return (
     <>
       <TeamTopNav

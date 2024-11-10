@@ -66,13 +66,19 @@ export const createRecipientAction = action(
     const mobilityNeed = recipientInput.mobilityNeed as string | undefined;
 
     const [recipientError, recipientResult] = await mightFail(
-      db.insert(recipients).values(recipientInput)
+      db.insert(recipients).values(recipientInput).returning({
+        recipientId: recipients.id,
+      })
     );
     if (recipientError) {
       console.error("Recipient insertion error:", recipientError);
       return { error: "Failed to insert recipient entry." };
     }
-    return { success: true, message: "Recipient successfully created." };
+    return {
+      success: true,
+      message: "Recipient successfully created.",
+      recipientId: recipientResult[0].recipientId,
+    };
   },
   "createRecipientAction"
 );
@@ -103,13 +109,17 @@ export const createTeamAction = action(
       return { error: "Don't have recipient id" };
     }
     const [teamError, teamResult] = await mightFail(
-      db.insert(teams).values(teamInput)
+      db.insert(teams).values(teamInput).returning({ teamId: teams.id })
     );
     if (teamError) {
       console.error("Team insertion error:", teamError);
       return { error: "Failed to insert team." };
     }
-    return { success: true, message: "Team successfully created." };
+    return {
+      success: true,
+      message: "Team successfully created.",
+      teamId: teamResult[0].teamId,
+    };
   },
   "createTeamAction"
 );
@@ -119,7 +129,7 @@ export const createSurgeryAction = action(
     surgeriesInput,
   }: {
     surgeriesInput: {
-      surgeries: { name: string; year: string; extraNotes: string }[];
+      surgeries: { name: string; year: string; extraNotes?: string }[];
       recipientId: number;
     };
   }) => {
@@ -134,24 +144,27 @@ export const createSurgeryAction = action(
     const surgeriesList = surgeriesInput.surgeries;
     const recipientId = surgeriesInput.recipientId;
 
-    if (surgeriesList.length < 0) {
+    if (surgeriesList.length === 0) {
       return { error: "No surgeries provided" };
     }
 
-    for (let i = 0; i < surgeriesList.length; i++) {
-      const surgery = surgeriesList[i];
-      const [surgeriesError, surgeriesResult] = await mightFail(
+    for (const surgery of surgeriesList) {
+      if (!surgery.name || !surgery.year) {
+        return { error: "Surgery name and year are required" };
+      }
+      console.log("backend:", surgery);
+      const [surgeriesError] = await mightFail(
         db.insert(importantSurgeries).values({ ...surgery, recipientId })
       );
       if (surgeriesError) {
         console.error("Surgeries insertion error:", surgeriesError);
         return { error: "Failed to insert surgeries." };
       }
-      return {
-        success: true,
-        message: "Important Surgeries successfully created.",
-      };
     }
+    return {
+      success: true,
+      message: "Important Surgeries successfully created.",
+    };
   },
   "createSurgeryAction"
 );
@@ -164,12 +177,13 @@ export const createMedicationAction = action(
       medications: {
         name: string;
         dosage: string;
+        typeOfMedication?: string;
         frequency: string;
         schedule: string;
-        sideEffects: string;
-        instructions: string;
-        pharmacyInfo: string;
-        pharmacyImg: string;
+        sideEffects?: string;
+        instructions?: string;
+        pharmacyInfo?: string;
+        pharmacyImg?: string;
       }[];
       teamId: number;
     };
@@ -187,20 +201,30 @@ export const createMedicationAction = action(
       return { error: "No medication provided" };
     }
 
-    for (let i = 0; i < medicationsList.length; i++) {
-      const medication = medicationsList[i];
-      const [medicationError, medicationResult] = await mightFail(
+    for (const medication of medicationsList) {
+      if (
+        !medication.name ||
+        !medication.dosage ||
+        !medication.frequency ||
+        !medication.schedule
+      ) {
+        return {
+          error:
+            "Medication name, dosage, frequency, and schedule are required",
+        };
+      }
+      const [medicationError] = await mightFail(
         db.insert(medications).values({ ...medication, teamId })
       );
       if (medicationError) {
         console.error("Medications insertion error:", medicationError);
         return { error: "Failed to insert medications." };
       }
-      return {
-        success: true,
-        message: "Medications successfully created.",
-      };
     }
+    return {
+      success: true,
+      message: "Medications successfully created.",
+    };
   },
   "createMedicationAction"
 );

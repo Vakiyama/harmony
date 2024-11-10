@@ -1,5 +1,5 @@
 import { A } from "@solidjs/router";
-import { createSignal, For } from "solid-js";
+import { createSignal, For, Show } from "solid-js";
 import TextFieldLine from "~/components/shared/text-field-line";
 import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
@@ -7,14 +7,14 @@ import { useTeam } from "~/context/team-context";
 
 export default function UserHealth2() {
   const team = useTeam();
-  // const [surgeries, setSurgeries] = createSignal<
-  //   { name: string; year: string; details: string }[]
-  // >([{ name: "", year: "", details: "" }]);
+  // const currentSurgeryIndex = team.state.importantSurgeries.length - 1;
+  const [showSurgeryForm, setShowMoreSurgeryForm] = createSignal(false);
 
-  // const addMoreSurgeries = () => {
-  //   setSurgeries([...surgeries(), { name: "", year: "", details: "" }]);
-  // };
-
+  const handleAddSurgery = (e: Event) => {
+    e.preventDefault();
+    team.addSurgery();
+    setShowMoreSurgeryForm(true);
+  };
   return (
     <>
       {/* <TeamTopNav backNavigation="/" cancelNavigation="/" /> */}
@@ -36,7 +36,7 @@ export default function UserHealth2() {
                   <div class="flex flex-row space-x-2">
                     <input
                       type="text"
-                      value={surgery.name}
+                      name="name"
                       onInput={(e) =>
                         team.updateSurgery(
                           index(),
@@ -49,7 +49,7 @@ export default function UserHealth2() {
                     />
                     <input
                       type="text"
-                      value={surgery.year}
+                      name="year"
                       onInput={(e) =>
                         team.updateSurgery(
                           index(),
@@ -62,7 +62,7 @@ export default function UserHealth2() {
                     />
                   </div>
                   <textarea
-                    value={surgery.extraNotes}
+                    name="extraNotes"
                     onInput={(e) =>
                       team.updateSurgery(
                         index(),
@@ -76,9 +76,8 @@ export default function UserHealth2() {
                 </div>
               )}
             </For>
-
             <button
-              onClick={team.addSurgery}
+              onClick={handleAddSurgery}
               class="w-full mt-2 border-[1px] text-black px-4 py-2 rounded-lg text-sm"
             >
               Add more
@@ -91,6 +90,9 @@ export default function UserHealth2() {
             label="Mobility Needs"
             placeholder="Requires walking cane"
             classLabel="font-medium font-semibold text-lg"
+            onInput={(e) =>
+              team.updateRecipientField("mobilityNeed", e.currentTarget.value)
+            }
           />
         </div>
         {/* Space */}
