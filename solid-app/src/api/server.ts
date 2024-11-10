@@ -74,7 +74,7 @@ export async function loginOrRegister(kindeUser: UserTypeExtended) {
 export async function logout() {
   const manager = await sessionManager();
   const logoutUrl = await getKindeClient().logout(manager);
-  throw redirect(logoutUrl.toString());
+  return redirect(logoutUrl.toString());
 }
 
 export async function getUser() {
@@ -97,8 +97,9 @@ export async function getUser() {
       lastName: user.lastName,
       photo: user.photo,
     };
-  } catch {
-    throw logout();
+  } catch (err) {
+    console.log(err);
+    return logout();
   }
 }
 
