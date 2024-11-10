@@ -50,7 +50,7 @@ export default function UserHealth2() {
               <p class="text-lg font-semibold">Past Injuries</p>
 
               <For each={team.state.pastInjuries}>
-                {(surgery, index) => (
+                {(injury, index) => (
                   <div class="flex flex-col gap-2 mt-2">
                     <div class="flex flex-row space-x-2">
                       <input
@@ -65,6 +65,7 @@ export default function UserHealth2() {
                         }
                         class="p-2 border rounded-lg w-full text-sm"
                         placeholder="Example: Hip Fracture"
+                        value={injury.name}
                       />
                     </div>
                   </div>

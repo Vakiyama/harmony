@@ -1,7 +1,15 @@
+import { useTeam } from "~/context/team-context";
 import { TeamInfoCard } from "./team-info-card";
 import TeamMedicalDetail from "./team-medical-detail";
 
 export default function TeamMedicationInfo() {
+  const team = useTeam();
+  const { healthCondition, mobilityNeed, dietaryRestrictions, allergies } =
+    team.state.recipient;
+  // const { medications } = team.state.medications;
+  const importantSurgeries = team.state.importantSurgeries;
+  const pastInjuries = team.state.pastInjuries;
+
   return (
     <div class="p-2 overflow-y-scroll pb-[200px] h-[calc(100vh_-_130px)]">
       <TeamInfoCard
@@ -24,27 +32,37 @@ export default function TeamMedicationInfo() {
         sections={[
           {
             title: "Health Condition",
-            content: <p class="text-xs">Dementia</p>,
+            content: <p class="text-xs">{healthCondition}</p>,
           },
           {
             title: "Past Injuries",
-            content: <p class="text-xs ">Hip Fractures</p>,
+            content: <p class="text-xs ">{pastInjuries[0].name}</p>,
           },
           {
             title: "Important Surgeries",
-            content: <p class="text-xs ">Hip Surgery, 2021</p>,
+            content: (
+              <p class="text-xs ">
+                {importantSurgeries[0].name}, {importantSurgeries[0].year}
+              </p>
+            ),
           },
           {
             title: "Mobility Needs",
-            content: <p class="text-xs ">Requires walking care</p>,
+            content: (
+              <p class="text-xs ">{mobilityNeed ? mobilityNeed : "empty"}</p>
+            ),
           },
           {
             title: "Dietary Restrictions/Preference",
-            content: <p class="text-xs ">Must have 85g protein each meal</p>,
+            content: (
+              <p class="text-xs ">
+                {dietaryRestrictions ? dietaryRestrictions : "empty"}
+              </p>
+            ),
           },
           {
             title: "Allergies",
-            content: <p class="text-xs ">None</p>,
+            content: <p class="text-xs ">{allergies ? allergies : "empty"}</p>,
           },
         ]}
       />

@@ -1,6 +1,9 @@
 import { JSXElement, Show } from "solid-js";
 
-export function InfoSection(props: { title?: string; content: JSXElement }) {
+export function TeamInfoSection(props: {
+  title?: string;
+  content: JSXElement;
+}) {
   return (
     <div>
       <Show when={props.title}>

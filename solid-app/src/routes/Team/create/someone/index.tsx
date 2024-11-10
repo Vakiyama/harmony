@@ -12,12 +12,6 @@ import AboutUser from "../../../../components/team/about-user";
 import UserTypePick from "../../../../components/team/user-type-pick";
 import aiButton from "~/components/svg/ai-icon";
 import { useTeam } from "~/context/team-context";
-import { createServerAction$ } from "solid-start/server";
-import { db } from "~/api/db";
-import { recipients } from "../../../../../drizzle/schema/Recipients";
-import { teams } from "../../../../../drizzle/schema/Teams";
-import { importantSurgeries } from "../../../../../drizzle/schema/ImportantSurgeries";
-import { medications } from "../../../../../drizzle/schema/Medications";
 import {
   createMedicationAction,
   createPastInjuryAction,
@@ -32,6 +26,7 @@ import {
 } from "~/components/ui/textfield";
 import UserRole from "../../../../components/team/user-role";
 import TeamUserRole from "../../../../components/team/team-user-role";
+import ReviewTeamInfo from "~/components/team/review-team-info";
 
 type CreateRecipientActionResponse = {
   success?: boolean;
@@ -77,14 +72,14 @@ export default function CreateSomeone() {
   const injuryAction = useAction(createPastInjuryAction);
   const medicationAction = useAction(createMedicationAction);
 
-  const handleNext = () => {
-    if (team.currentStep() === 1 && !team.state.recipient.firstName) {
-      setError("Please enter the recipient's name");
-      return;
-    }
-    setError(null);
-    team.nextStep();
-  };
+  // const handleNext = () => {
+  //   if (team.currentStep() === 1 && !team.state.recipient.firstName) {
+  //     setError("Please enter the recipient's name");
+  //     return;
+  //   }
+  //   setError(null);
+  //   team.nextStep();
+  // };
 
   const handleSubmit = async (event: SubmitEvent) => {
     event.preventDefault();
@@ -205,19 +200,20 @@ export default function CreateSomeone() {
                   <TextField
                     name="firstName"
                     placeholder="Enter name"
-                    required
+                    // required
                     onInput={(e) =>
                       team.updateRecipientField(
                         "firstName",
                         e.currentTarget.value
                       )
                     }
+                    value={team.state.recipient.firstName}
                   />
                   {error() && <p class="text-red-500 text-sm">{error()}</p>}
                 </TextFieldRoot>
                 <Button
                   type="button"
-                  onClick={handleNext}
+                  onClick={team.nextStep}
                   class="rounded-full w-full mt-4 bg-[#AE9BF2] text-black h-[50px]"
                 >
                   Next
@@ -266,6 +262,10 @@ export default function CreateSomeone() {
           {/* step 9: team Name */}
           <Show when={team.currentStep() === 9}>
             <TeamUserRole />
+          </Show>
+          {/* step 10: review */}
+          <Show when={team.currentStep() === 10}>
+            <ReviewTeamInfo />
           </Show>
 
           <Button

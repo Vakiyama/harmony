@@ -1,6 +1,18 @@
+import { useTeam } from "~/context/team-context";
 import { TeamInfoCard } from "./team-info-card";
 
 export default function TeamGeneralInfo() {
+  const team = useTeam();
+
+  const {
+    phoneNumber,
+    email,
+    gender,
+    age,
+    preferredLanguage,
+    livesWith,
+    employment,
+  } = team.state.recipient;
   return (
     <div class="p-2 overflow-y-scroll pb-[200px] h-[calc(100vh_-_130px)]">
       <TeamInfoCard
@@ -23,11 +35,11 @@ export default function TeamGeneralInfo() {
         sections={[
           {
             title: "Phone Number",
-            content: <p class="text-xs">778-123-4567</p>,
+            content: <p class="text-xs">{phoneNumber}</p>,
           },
           {
             title: "Email",
-            content: <p class="text-xs ">email@here.com</p>,
+            content: <p class="text-xs ">{email ? email : "empty"}</p>,
           },
         ]}
       />
@@ -52,19 +64,21 @@ export default function TeamGeneralInfo() {
         sections={[
           {
             title: "Gender",
-            content: <p class="text-xs">Female</p>,
+            content: <p class="text-xs">{gender}</p>,
           },
           {
             title: "Preferred Language",
-            content: <p class="text-xs ">Tagalog</p>,
+            content: <p class="text-xs ">{preferredLanguage}</p>,
           },
           {
             title: "Lives With",
-            content: <p class="text-xs ">Daughter</p>,
+            content: <p class="text-xs ">{livesWith ? livesWith : "empty"}</p>,
           },
           {
             title: "Employment",
-            content: <p class="text-xs ">Retired</p>,
+            content: (
+              <p class="text-xs ">{employment ? employment : "empty"}</p>
+            ),
           },
         ]}
       />

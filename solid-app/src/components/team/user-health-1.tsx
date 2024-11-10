@@ -80,6 +80,7 @@ export default function UserHealth1() {
                 onInput={(e) =>
                   team.updateRecipientField(field.name, e.currentTarget.value)
                 }
+                value={team.state.recipient[field.name]}
               />
             )}
           </For>
@@ -89,7 +90,7 @@ export default function UserHealth1() {
         <div class="flex flex-col items-center justify-center">
           <Button
             type="button"
-            onClick={handleNext}
+            onClick={team.nextStep}
             class="rounded-full w-full bg-[#AE9BF2] text-black h-[50px]"
           >
             Next
