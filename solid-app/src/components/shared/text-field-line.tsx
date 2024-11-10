@@ -1,3 +1,4 @@
+import { Show } from "solid-js";
 import {
   TextField,
   TextFieldLabel,
@@ -36,9 +37,12 @@ export default function TextFieldLine({
         placeholder={placeholder}
         value={value}
         onInput={onInput}
-        class={error ? "border-red-500" : ""}
       />
-      {error && <p class="text-red-500 text-sm">{error}</p>}
+      <Show when={error}>
+        <div class="min-h-[20px]">
+          <p class="text-red-500 text-sm">{error}</p>
+        </div>
+      </Show>
     </TextFieldRoot>
   );
 }

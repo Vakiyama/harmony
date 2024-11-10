@@ -1,17 +1,23 @@
-import { A, useAction, useNavigate } from "@solidjs/router";
+import { useAction, useNavigate } from "@solidjs/router";
+import { createEffect, createSignal, For, Show } from "solid-js";
+import { useTeam } from "~/context/team-context";
+import { showNotification } from "~/routes/api/notificationStore";
+
 import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
 import UploadPhoto from "../../../../components/team/upload-photo";
-import { createEffect, createSignal, For, Show } from "solid-js";
 import UserInfo1 from "../../../../components/team/user-info-1";
 import UserInfo2 from "../../../../components/team/user-info-2";
 import UserHealth1 from "../../../../components/team/user-health-1";
 import UserHealth2 from "../../../../components/team/user-health-2";
 import AddMedication from "../../../../components/team/add-medication";
-import AboutUser from "../../../../components/team/about-user";
-import UserTypePick from "../../../../components/team/user-type-pick";
+import { TextField, TextFieldRoot } from "~/components/ui/textfield";
+import UserRole from "../../../../components/team/user-role";
+import TeamUserRole from "../../../../components/team/team-user-role";
+import ReviewTeamInfo from "~/components/team/review-team-info";
+import Notification from "~/components/shared/notification";
 import aiButton from "~/components/svg/ai-icon";
-import { useTeam } from "~/context/team-context";
+
 import {
   createMedicationAction,
   createPastInjuryAction,
@@ -19,53 +25,20 @@ import {
   createSurgeryAction,
   createTeamAction,
 } from "~/api/team";
-import {
-  TextField,
-  TextFieldLabel,
-  TextFieldRoot,
-} from "~/components/ui/textfield";
-import UserRole from "../../../../components/team/user-role";
-import TeamUserRole from "../../../../components/team/team-user-role";
-import ReviewTeamInfo from "~/components/team/review-team-info";
-import { showNotification } from "~/routes/api/notificationStore";
-import Notification from "~/components/shared/notification";
+
 import {
   notificationMessage,
   isNotificationVisible,
   hideNotification,
 } from "~/routes/api/notificationStore";
 
-type CreateRecipientActionResponse = {
-  success?: boolean;
-  error?: string;
-  recipientId?: number;
-  message?: string;
-};
-
-type CreateTeamActionResponse = {
-  success?: boolean;
-  error?: string;
-  teamId?: number;
-  message?: string;
-};
-
-type CreateSurgeryActionResponse = {
-  success?: boolean;
-  error?: string;
-  message?: string;
-};
-
-type CreateInjuryActionResponse = {
-  success?: boolean;
-  error?: string;
-  message?: string;
-};
-
-type CreateMedicationActionResponse = {
-  success?: boolean;
-  error?: string;
-  message?: string;
-};
+import {
+  CreateRecipientActionResponse,
+  CreateTeamActionResponse,
+  CreateSurgeryActionResponse,
+  CreateInjuryActionResponse,
+  CreateMedicationActionResponse,
+} from "~/types/types";
 
 export default function CreateSomeone() {
   const [error, setError] = createSignal<string | null>(null);

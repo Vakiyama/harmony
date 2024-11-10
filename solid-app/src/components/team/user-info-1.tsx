@@ -1,5 +1,5 @@
 import { A } from "@solidjs/router";
-import { createSignal, For } from "solid-js";
+import { createEffect, createSignal, For } from "solid-js";
 import { createStore } from "solid-js/store";
 import TextFieldLine from "~/components/shared/text-field-line";
 import TeamTopNav from "~/components/team/team-top-nav";
@@ -46,7 +46,6 @@ export default function UserInfo1() {
       }
     });
     setErrors(newErrors);
-    console.log(errors());
     if (!hasError) {
       team.nextStep();
     }
