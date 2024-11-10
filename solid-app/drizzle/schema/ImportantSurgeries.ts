@@ -4,7 +4,7 @@ import { recipients } from "./Recipients";
 
 export const importantSurgeries = sqliteTable("importantsurgeries", {
   id: integer("id").primaryKey({ autoIncrement: true }).notNull().unique(),
-  surgeriesName: text("surgeries_name"),
+  name: text("name"),
   year: text("year"),
   extraNotes: text("extra_notes"),
   recipientId: integer("recipient_id").references(() => recipients.id),
