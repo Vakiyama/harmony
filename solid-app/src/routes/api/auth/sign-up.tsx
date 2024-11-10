@@ -2,13 +2,35 @@ import { Button } from "~/components/ui/button";
 import { TextField, TextFieldRoot } from "~/components/ui/textfield";
 import { emailRegistration } from "~/api/auth-server-actions";
 import DatePickerComponent from "~/components/shadcn/DatePicker";
+import { createSignal } from "solid-js";
+import ShowError from "~/routes/Team/[id]/journal/show-error";
+import { useAction } from "@solidjs/router";
 
 export default function SignUp() {
+  const [errors, setErrors] = createSignal<{ [key: string]: string }>({});
+  const [isSubmitting, setIsSubmitting] = createSignal(false);
+  const registerAction = useAction(emailRegistration);
+  const handleSubmit = async (event: SubmitEvent) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+
+    const formData = new FormData(event.target as HTMLFormElement);
+    try {
+      await registerAction(formData);
+      setErrors({});
+    } catch (error: any) {
+      if (error.errors) {
+        setErrors(error.errors);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
     <main class="w-full h-full mt-20 p-4 flex items-center justify-center space-y-2 overflow-hidden">
       <div class="flex flex-col items-center justify-center w-full h-full">
         <form
-          action={emailRegistration}
+          onSubmit={handleSubmit}
           class="appearance-none w-full mt-1"
           method="post"
         >
@@ -21,6 +43,7 @@ export default function SignUp() {
             </div>
             <h2 class="text-left mb-3">Your Name</h2>
             <div>
+              <ShowError error={errors()?.firstName} />
               <TextFieldRoot>
                 <TextField
                   class="h-12 w-full rounded-[8px] mb-4 text-base"
@@ -30,6 +53,7 @@ export default function SignUp() {
                   required={true}
                 />
               </TextFieldRoot>
+              <ShowError error={errors()?.lastName} />
               <TextFieldRoot>
                 <TextField
                   class="h-12 w-full rounded-[8px] mb-8 text-base"
@@ -39,11 +63,13 @@ export default function SignUp() {
                   required={true}
                 />
               </TextFieldRoot>
+              <ShowError error={errors()?.dob} />
               <h2 class="text-left mb-3">Date of Birth</h2>
               <div class="h-12 w-full">
                 <DatePickerComponent required={true} />
               </div>
               <h2 class="text-left mt-4 mb-3">Email</h2>
+              <ShowError error={errors()?.email} />
               <TextFieldRoot>
                 <TextField
                   class="h-12 w-full rounded-[8px] mb-4 text-base"
@@ -57,11 +83,12 @@ export default function SignUp() {
           </div>
           <div class="mt-4 w-full">
             <Button
-              class=" w-full rounded-full h-12 mb-4 text-base text-black bg-primary-purple-300"
+              class="w-full rounded-full h-12 mb-4 text-base text-black bg-primary-purple-300"
               variant="default"
               type="submit"
+              disabled={isSubmitting()}
             >
-              Let's Go
+              {isSubmitting() ? "..." : "Next"}
             </Button>
           </div>
         </form>

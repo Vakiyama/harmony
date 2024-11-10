@@ -82,6 +82,7 @@ const handleLogin = async (authUrlParams: AuthUrlParams) => {
 
 export const emailRegistration = action(async (formData: FormData) => {
   "use server";
+  const errors: { [key: string]: string } = {};
   const email = formData.get("email")?.toString();
   const firstName = formData.get("firstName")?.toString();
   const lastName = formData.get("lastName")?.toString();
@@ -93,17 +94,22 @@ export const emailRegistration = action(async (formData: FormData) => {
   });
 
   if (!email) {
-    return { error: "Missing email" };
+    errors.email = "Missing email";
   }
   if (!firstName) {
-    return { error: "Missing first name" };
+    errors.firstName = "Missing first name";
   }
   if (!lastName) {
-    return { error: "Missing last name" };
+    errors.lastName = "Missing last name";
   }
   if (!dob) {
-    return { error: "Missing birth date" };
+    errors.dob = "Missing birth date";
   }
+
+  if (Object.keys(errors).length > 0) {
+    throw { errors };
+  }
+
   const authUrlParams: AuthUrlParams = {
     connection_id: process.env.KINDE_EMAIL_CONNECTION_ID!,
     login_hint: email,
@@ -120,10 +126,12 @@ export const emailRegistration = action(async (formData: FormData) => {
     status: 302,
     headers: {
       Location: registerUrl.toString(),
-      "Set-Cookie": `register_obj=${infoObj}; HttpOnly; Path=/; Max-Age=86400; SameSite=Lax`,
+      "Set-Cookie": `register_obj=${encodeURIComponent(
+        infoObj
+      )}; HttpOnly; Path=/; Max-Age=86400; SameSite=Lax; path:"/api/auth"; Secure`,
     },
   });
-});
+}, "registerAction");
 
 export type oauthMethods = "" | "google" | "facebook" | "apple";
 export type RegisterInfo = {
