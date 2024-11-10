@@ -30,7 +30,6 @@ export default function Upload(props: UploadProps) {
         </defs>
       </svg>
       <p class="text-[#5A5A5A]">{props.description}</p>
-      <input type="file" hidden />
     </div>
   );
 }

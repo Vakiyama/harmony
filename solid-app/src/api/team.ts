@@ -123,6 +123,7 @@ export const getListOfTeams = async () => {
           id: TeamMembers.teamId,
           name: Teams.teamName,
           photo: Teams.photo,
+          defaultTeam: TeamMembers.defaultTeam,
         },
       })
       .from(TeamMembers)
@@ -198,3 +199,83 @@ export const getTeamFromTeamId = async (teamId: number) => {
 
   return data;
 };
+
+export const updateDefaultTeam = action(async (teamId: number) => {
+  "use server";
+  const manager = await sessionManager();
+  const session = await manager.getSession();
+  const userId: number = session.data.userId;
+  if (!userId) {
+    console.log("User is not Authenticated");
+    return undefined;
+  }
+
+  const isMember = await isMemberOfTeam(userId, teamId);
+  if (!isMember) {
+    console.log("Insufficient Permissions");
+    return undefined;
+  }
+
+  const transactionResult = await db.transaction(async (tx) => {
+    const [updateError, updateResult] = await mightFail(
+      tx
+        .update(TeamMembers)
+        .set({ defaultTeam: false })
+        .where(
+          and(eq(TeamMembers.userId, userId), eq(TeamMembers.defaultTeam, true))
+        )
+    );
+
+    if (updateError) {
+      tx.rollback();
+      return {
+        error: "Failed to update the current default team",
+        details: updateError,
+      };
+    }
+
+    const [newDefaultError, newDefaultResult] = await mightFail(
+      tx
+        .update(TeamMembers)
+        .set({ defaultTeam: true })
+        .where(
+          and(eq(TeamMembers.userId, userId), eq(TeamMembers.teamId, teamId))
+        )
+    );
+
+    if (newDefaultError) {
+      tx.rollback();
+      return {
+        error: "Failed to set the new default team",
+        details: newDefaultError,
+      };
+    }
+    console.log("Default team updated successfully!");
+
+    const [selectError, selectResult] = await mightFail(
+      tx
+        .select({
+          team: {
+            id: TeamMembers.teamId,
+            name: Teams.teamName,
+            photo: Teams.photo,
+            defaultTeam: TeamMembers.defaultTeam,
+          },
+        })
+        .from(TeamMembers)
+        .leftJoin(Teams, eq(TeamMembers.teamId, Teams.id))
+        .where(eq(TeamMembers.userId, userId))
+    );
+
+    if (selectError) {
+      tx.rollback();
+    }
+
+    return { success: true, data: selectResult };
+  });
+
+  if (transactionResult.error) {
+    return undefined;
+  }
+  return transactionResult.data;
+}, "updateDefaultTeam");

@@ -17,15 +17,17 @@ export default function SelectMultipleInput<T>(props: {
   options: SelectOptions<T>[];
   placeholder: string;
   setSelectedOptions: Setter<T[]>;
-  multiple?: boolean;
   class?: string;
+  defaultValue?: SelectOptions<T>[];
 }) {
+  let defaultValue = props.defaultValue ?? [];
   return (
     <Select
+      defaultValue={defaultValue}
       multiple
       options={props.options}
-      optionValue="value"
-      optionTextValue="label"
+      optionValue={"value" as keyof SelectOptions<T>[]}
+      optionTextValue={"label" as keyof SelectOptions<T>[]}
       itemComponent={(props) => (
         <SelectItem item={props.item}>
           <div class="flex items-center justify-between w-full">
@@ -65,7 +67,8 @@ export default function SelectMultipleInput<T>(props: {
           }}
         </SelectValue>
       </SelectTrigger>
-      <SelectContent />
+      {/* temp fix z pls (if select is in modal, options dont show) */}
+      <SelectContent class="z-[10000]" />
     </Select>
   );
 }

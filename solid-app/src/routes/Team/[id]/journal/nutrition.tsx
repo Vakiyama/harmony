@@ -25,6 +25,7 @@ import NutritionIcon from "~/components/icon/nutrition-icon";
 import { MealWithNoteUser } from "@/schema/Meals";
 import { getRecipientName } from "~/api/team";
 import DeleteConfirmation from "~/components/shared/delete-confirmation";
+import AddPhotoModal from "~/components/shared/add-photo-modal";
 
 export default function NutritionTracker() {
   const params = useParams();
@@ -39,6 +40,8 @@ export default function NutritionTracker() {
       deferStream: true,
     }
   );
+
+  const [showAddPhoto, setShowAddPhoto] = createSignal(false);
 
   const [showDeleteConfirmation, setShowDeleteConfirmation] =
     createSignal(false);
@@ -192,7 +195,7 @@ export default function NutritionTracker() {
                   })}
                 />
               </div>
-              <div class="flex flex-col">
+              <div class="flex flex-col" onClick={() => setShowAddPhoto(true)}>
                 <label class="text-h4">Photo</label>
                 <PhotoUpload description="Tap to add a photo" />
               </div>
@@ -227,6 +230,14 @@ export default function NutritionTracker() {
             onCancel={() => setShowDeleteConfirmation(false)}
             onClose={() => setShowDeleteConfirmation(false)}
             onDelete={handleDelete}
+          />
+        </Show>
+        <Show when={showAddPhoto()}>
+          <AddPhotoModal
+            onCancel={() => setShowAddPhoto(false)}
+            onClose={() => setShowAddPhoto(false)}
+            // onCamera={() => }
+            // onFromGallery={() => }
           />
         </Show>
       </section>

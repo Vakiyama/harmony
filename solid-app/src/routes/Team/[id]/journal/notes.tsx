@@ -21,6 +21,7 @@ import Upload from "./upload";
 import { showNotification } from "~/routes/api/notificationStore";
 import NotesIcon from "~/components/icon/notes-icon";
 import DeleteConfirmation from "~/components/shared/delete-confirmation";
+import AddPhotoModal from "~/components/shared/add-photo-modal";
 
 export default function CreateNote() {
   const params = useParams();
@@ -32,6 +33,8 @@ export default function CreateNote() {
       deferStream: true,
     }
   );
+
+  const [showAddPhoto, setShowAddPhoto] = createSignal(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] =
     createSignal(false);
   const [isEditing, setIsEditing] = createSignal<boolean>(false);
@@ -116,8 +119,15 @@ export default function CreateNote() {
                 />
                 <label class="text-h4">Add Media</label>
                 <div class="flex flex-row w-full gap-2">
-                  <Upload description="Tap to add a photo" />
-                  <Upload description="Tap to upload a file" />
+                  <div class="w-full" onClick={() => setShowAddPhoto(true)}>
+                    <Upload description="Tap to add a photo" />
+                  </div>
+                  <label class="w-full cursor-pointer">
+                    <input type="file" id="fileInput" hidden />
+                    <div>
+                      <Upload description="Tap to upload a file" />
+                    </div>
+                  </label>
                 </div>
                 <Button
                   class="rounded-[100px] h-12 w-full bg-primary-purple-300 text-black"
@@ -145,6 +155,14 @@ export default function CreateNote() {
               onCancel={() => setShowDeleteConfirmation(false)}
               onClose={() => setShowDeleteConfirmation(false)}
               onDelete={handleDelete}
+            />
+          </Show>
+          <Show when={showAddPhoto()}>
+            <AddPhotoModal
+              onCancel={() => setShowAddPhoto(false)}
+              onClose={() => setShowAddPhoto(false)}
+              // onCamera={() => }
+              // onFromGallery={() => }
             />
           </Show>
         </section>
