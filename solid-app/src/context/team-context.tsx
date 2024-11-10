@@ -16,13 +16,13 @@ export interface FormState {
     email?: string;
     phoneNumber?: string;
     photo?: string;
+    age: string;
     gender: string;
     preferredLanguage: string;
     healthCondition: string;
     livesWith?: string;
     allergies?: string;
     dietaryRestrictions?: string;
-    pastInjuries?: string;
     employment?: string;
     mobilityNeed?: string;
   };
@@ -41,6 +41,9 @@ export interface FormState {
     instructions?: string;
     pharmacyInfo?: string;
     pharmacyImg?: string;
+  }[];
+  pastInjuries: {
+    name: string;
   }[];
 }
 
@@ -66,6 +69,12 @@ interface FormContextValue {
     field: keyof FormState["medications"][0],
     value: string
   ) => void;
+  addPastInjury: () => void;
+  updatePastInjury: (
+    index: number,
+    field: keyof FormState["pastInjuries"][0],
+    value: string
+  ) => void;
   currentStep: Accessor<number>;
   nextStep: () => void;
   prevStep: () => void;
@@ -80,11 +89,13 @@ export const TeamProvider: ParentComponent = (props) => {
     recipient: {
       firstName: "",
       gender: "",
+      age: "",
       healthCondition: "",
       preferredLanguage: "",
     },
     importantSurgeries: [{ name: "", year: "", extraNotes: "" }],
     medications: [],
+    pastInjuries: [{ name: "" }],
   });
 
   const [currentStep, setCurrentStep] = createSignal(1);
@@ -112,6 +123,13 @@ export const TeamProvider: ParentComponent = (props) => {
     },
     updateSurgery: (index, field, value) => {
       setState("importantSurgeries", index, field, value);
+    },
+
+    addPastInjury: () => {
+      setState("pastInjuries", (prev) => [...prev, { name: "" }]);
+    },
+    updatePastInjury: (index, field, value) => {
+      setState("pastInjuries", index, field, value);
     },
     addMedication: () => {
       setState("medications", (prev) => [
@@ -143,6 +161,7 @@ export const TeamProvider: ParentComponent = (props) => {
         recipient: {
           firstName: "",
           gender: "",
+          age: "",
           healthCondition: "",
           preferredLanguage: "",
         },

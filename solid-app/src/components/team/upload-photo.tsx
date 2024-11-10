@@ -67,9 +67,9 @@ export default function UploadPhoto() {
             >
               Next
             </Button>
-            <A href="/" class="text-xs p-2">
+            <a onClick={team.nextStep} class="text-xs p-2">
               skip for now
-            </A>
+            </a>
           </div>
         </div>
         {/* Space for bottom */}

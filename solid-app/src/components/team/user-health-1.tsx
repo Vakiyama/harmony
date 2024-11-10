@@ -1,5 +1,5 @@
 import { A } from "@solidjs/router";
-import { For } from "solid-js";
+import { createSignal, For } from "solid-js";
 import { createStore } from "solid-js/store";
 import TextFieldLine from "~/components/shared/text-field-line";
 import TeamTopNav from "~/components/team/team-top-nav";
@@ -10,35 +10,56 @@ const formFields: {
   name: keyof FormState["recipient"];
   label: string;
   placeholder: string;
+  required: boolean;
 }[] = [
   {
     name: "healthCondition",
     label: "Health Condition",
     placeholder: "Dementia",
+    required: true,
   },
   {
     name: "allergies",
     label: "Allergies",
     placeholder: "None",
+    required: false,
   },
   {
     name: "dietaryRestrictions",
     label: "Dietary Restrictions/Preference",
     placeholder: "Must have 85g each meal",
-  },
-  {
-    name: "pastInjuries",
-    label: "Past Injuries",
-    placeholder: "Hip Fractures",
+    required: false,
   },
 ];
 
 export default function UserHealth1() {
   const team = useTeam();
+  const [errors, setErrors] = createSignal<{ [key: string]: string | null }>({
+    healthCondition: null,
+    allergies: null,
+    dietaryRestrictions: null,
+    employment: null,
+  });
+  const handleNext = () => {
+    const newErrors: { [key: string]: string | null } = {};
+    let hasError = false;
 
+    formFields.forEach((field) => {
+      if (field.required && !team.state.recipient[field.name]) {
+        newErrors[field.name] = "This field is required";
+        hasError = true;
+      } else {
+        newErrors[field.name] = null;
+      }
+    });
+    setErrors(newErrors);
+    console.log(errors());
+    if (!hasError) {
+      team.nextStep();
+    }
+  };
   return (
     <>
-      {/* <TeamTopNav backNavigation="/" cancelNavigation="/" /> */}
       <div class="relative flex flex-col min-h-screen mx-2">
         <div class="flex items-center justify-center mt-2">
           <p class="text-xs text-gray-400">5 of 8</p>
@@ -50,11 +71,12 @@ export default function UserHealth1() {
           <For each={formFields}>
             {(field) => (
               <TextFieldLine
-                key={field.name}
                 name={field.name}
                 label={field.label}
                 placeholder={field.placeholder}
                 classLabel="text-lg"
+                error={errors()[field.name]} // TODO: error not shown here
+                required={field.required}
                 onInput={(e) =>
                   team.updateRecipientField(field.name, e.currentTarget.value)
                 }
@@ -67,14 +89,11 @@ export default function UserHealth1() {
         <div class="flex flex-col items-center justify-center">
           <Button
             type="button"
-            onClick={team.nextStep}
+            onClick={handleNext}
             class="rounded-full w-full bg-[#AE9BF2] text-black h-[50px]"
           >
             Next
           </Button>
-          <A href="/" class="text-xs p-2">
-            skip for now
-          </A>
         </div>
         {/* Space for bottom */}
         <div class="h-[102px]"></div> {/* temporary */}

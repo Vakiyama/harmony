@@ -76,7 +76,6 @@ export default function MedicationDetails({
             <For each={formFields}>
               {(field) => (
                 <TextFieldLine
-                  key={field.name}
                   name={field.name}
                   label={field.label}
                   onInput={(e) =>

@@ -7,13 +7,20 @@ import { useTeam } from "~/context/team-context";
 
 export default function UserHealth2() {
   const team = useTeam();
-  // const currentSurgeryIndex = team.state.importantSurgeries.length - 1;
   const [showSurgeryForm, setShowMoreSurgeryForm] = createSignal(false);
+  const [showPastInjuriesForm, setShowMorePastInjuriesForm] =
+    createSignal(false);
 
   const handleAddSurgery = (e: Event) => {
     e.preventDefault();
     team.addSurgery();
     setShowMoreSurgeryForm(true);
+  };
+
+  const handleAddPastInjury = (e: Event) => {
+    e.preventDefault();
+    team.addPastInjury();
+    setShowMorePastInjuriesForm(true);
   };
   return (
     <>
@@ -27,73 +34,108 @@ export default function UserHealth2() {
           <p class="text-[30px] font-semi">Tell us about "User's" Health</p>
           <p class="text-[24px] mt-2">Health Profile</p>
           <div>
-            <p class="text-lg font-semibold">Important Surgeries</p>
+            <TextFieldLine
+              name="mobilityNeeds"
+              label="Mobility Needs"
+              placeholder="Requires walking cane"
+              classLabel="font-medium font-semibold text-lg"
+              onInput={(e) =>
+                team.updateRecipientField("mobilityNeed", e.currentTarget.value)
+              }
+            />
 
-            {/* Render surgery input fields */}
-            <For each={team.state.importantSurgeries}>
-              {(surgery, index) => (
-                <div class="flex flex-col gap-2 mt-2">
-                  <div class="flex flex-row space-x-2">
-                    <input
-                      type="text"
-                      name="name"
+            {/* Render past injuries input fields */}
+
+            <div class="mt-6">
+              <p class="text-lg font-semibold">Past Injuries</p>
+
+              <For each={team.state.pastInjuries}>
+                {(surgery, index) => (
+                  <div class="flex flex-col gap-2 mt-2">
+                    <div class="flex flex-row space-x-2">
+                      <input
+                        type="text"
+                        name="name"
+                        onInput={(e) =>
+                          team.updatePastInjury(
+                            index(),
+                            "name",
+                            e.currentTarget.value
+                          )
+                        }
+                        class="p-2 border rounded-lg w-full text-sm"
+                        placeholder="Example: Hip Fracture"
+                      />
+                    </div>
+                  </div>
+                )}
+              </For>
+              <button
+                onClick={handleAddPastInjury}
+                class="w-full mt-2 border-[1px] text-black px-4 py-2 rounded-lg text-sm"
+              >
+                Add more
+              </button>
+            </div>
+
+            <div class="mt-6">
+              <p class="text-lg font-semibold">Important Surgeries</p>
+
+              {/* Render surgery input fields */}
+              <For each={team.state.importantSurgeries}>
+                {(surgery, index) => (
+                  <div class="flex flex-col gap-2 mt-2">
+                    <div class="flex flex-row space-x-2">
+                      <input
+                        type="text"
+                        name="name"
+                        onInput={(e) =>
+                          team.updateSurgery(
+                            index(),
+                            "name",
+                            e.currentTarget.value
+                          )
+                        }
+                        class="p-2 border rounded-lg w-full text-sm"
+                        placeholder="Surgery Name"
+                      />
+                      <input
+                        type="text"
+                        name="year"
+                        onInput={(e) =>
+                          team.updateSurgery(
+                            index(),
+                            "year",
+                            e.currentTarget.value
+                          )
+                        }
+                        class="p-2 border rounded-lg w-full text-sm"
+                        placeholder="Year of surgery"
+                      />
+                    </div>
+                    <textarea
+                      name="extraNotes"
                       onInput={(e) =>
                         team.updateSurgery(
                           index(),
-                          "name",
+                          "extraNotes",
                           e.currentTarget.value
                         )
                       }
                       class="p-2 border rounded-lg w-full text-sm"
-                      placeholder="Surgery Name"
-                    />
-                    <input
-                      type="text"
-                      name="year"
-                      onInput={(e) =>
-                        team.updateSurgery(
-                          index(),
-                          "year",
-                          e.currentTarget.value
-                        )
-                      }
-                      class="p-2 border rounded-lg w-full text-sm"
-                      placeholder="Year of surgery"
+                      placeholder="Extra notes"
                     />
                   </div>
-                  <textarea
-                    name="extraNotes"
-                    onInput={(e) =>
-                      team.updateSurgery(
-                        index(),
-                        "extraNotes",
-                        e.currentTarget.value
-                      )
-                    }
-                    class="p-2 border rounded-lg w-full text-sm"
-                    placeholder="Extra notes"
-                  />
-                </div>
-              )}
-            </For>
-            <button
-              onClick={handleAddSurgery}
-              class="w-full mt-2 border-[1px] text-black px-4 py-2 rounded-lg text-sm"
-            >
-              Add more
-            </button>
+                )}
+              </For>
+              <button
+                onClick={handleAddSurgery}
+                class="w-full mt-2 border-[1px] text-black px-4 py-2 rounded-lg text-sm"
+              >
+                Add more
+              </button>
+            </div>
           </div>
-
-          <TextFieldLine
-            key="mobilityNeeds"
-            name="mobilityNeeds"
-            label="Mobility Needs"
-            placeholder="Requires walking cane"
-            classLabel="font-medium font-semibold text-lg"
-            onInput={(e) =>
-              team.updateRecipientField("mobilityNeed", e.currentTarget.value)
-            }
-          />
         </div>
         {/* Space */}
         <div class="flex-grow"></div>

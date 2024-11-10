@@ -19,6 +19,7 @@ export const createRecipientAction = action(
       email?: string;
       phoneNumber?: string;
       photo?: string;
+      age: string;
       gender: string;
       preferredLanguage: string;
       healthCondition: string;
@@ -39,12 +40,13 @@ export const createRecipientAction = action(
       return { error: "User is not Authenticated" };
     }
 
-    const { firstName, gender, preferredLanguage, healthCondition } =
+    const { firstName, gender, preferredLanguage, healthCondition, age } =
       recipientInput;
 
     const errors: string[] = [];
     if (!firstName) errors.push("Please enter a recipient name");
     if (!gender) errors.push("Please enter gender");
+    if (!age) errors.push("Please enter age");
     if (!preferredLanguage) errors.push("Please enter preferred language");
     if (!healthCondition) errors.push("Please enter health condition");
 

@@ -1,5 +1,5 @@
 import { A } from "@solidjs/router";
-import { For } from "solid-js";
+import { createSignal, For } from "solid-js";
 import { createStore } from "solid-js/store";
 import TextFieldLine from "~/components/shared/text-field-line";
 import TeamTopNav from "~/components/team/team-top-nav";
@@ -11,33 +11,49 @@ const formFields: {
   name: keyof FormState["recipient"];
   label: string;
   placeholder: string;
+  required: boolean;
 }[] = [
-  { name: "phoneNumber", label: "Phone Number", placeholder: "Phone Number" },
+  {
+    name: "phoneNumber",
+    label: "Phone Number",
+    placeholder: "778-123-4567",
+    required: true,
+  },
   {
     name: "email",
     label: "Email",
     placeholder: "email@here.com",
+    required: false,
   },
 ];
 export default function UserInfo1() {
   const team = useTeam();
-  // const [formData, setFormData] = createStore({
-  //   phoneNumber: "",
-  //   email: "",
-  // });
+  const [errors, setErrors] = createSignal<{ [key: string]: string | null }>({
+    phoneNumber: null,
+    email: null,
+  });
 
-  // const handleInput = (e: InputEvent & { currentTarget: HTMLInputElement }) => {
-  //   const { name, value } = e.currentTarget;
-  //   setFormData({ [value]: value });
-  // };
-  // const handleSubmit = (e: Event) => {
-  //   e.preventDefault();
-  //   console.log("Form data", formData);
-  // };
+  const handleNext = () => {
+    const newErrors: { [key: string]: string | null } = {};
+    let hasError = false;
+
+    formFields.forEach((field) => {
+      if (field.required && !team.state.recipient[field.name]) {
+        newErrors[field.name] = "This field is required";
+        hasError = true;
+      } else {
+        newErrors[field.name] = null;
+      }
+    });
+    setErrors(newErrors);
+    console.log(errors());
+    if (!hasError) {
+      team.nextStep();
+    }
+  };
 
   return (
     <>
-      {/* <TeamTopNav backNavigation={onClick} cancelNavigation="/" /> */}
       <div class="relative flex flex-col min-h-screen mx-2">
         <div class="flex items-center justify-center mt-2">
           <p class="text-xs text-gray-400">4 of 8</p>
@@ -48,13 +64,14 @@ export default function UserInfo1() {
           <For each={formFields}>
             {(field) => (
               <TextFieldLine
-                key={field.name}
                 name={field.name}
                 label={field.label}
                 placeholder={field.placeholder}
+                error={errors()[field.name]} // TODO: error has not shown yet
                 onInput={(e) =>
                   team.updateRecipientField(field.name, e.currentTarget.value)
                 }
+                required={field.required}
               />
             )}
           </For>
@@ -64,14 +81,11 @@ export default function UserInfo1() {
         <div class="flex flex-col items-center justify-center">
           <Button
             type="button"
-            onClick={team.nextStep}
+            onClick={handleNext}
             class="rounded-full w-full bg-[#AE9BF2] text-black h-[50px]"
           >
             Next
           </Button>
-          <A href="/" class="text-xs p-2">
-            skip for now
-          </A>
         </div>
         {/* Space for bottom */}
         <div class="h-[102px]"></div> {/* temporary */}

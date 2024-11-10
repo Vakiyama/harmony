@@ -9,7 +9,7 @@ import UserHealth1 from "../../../../components/team/user-health-1";
 import UserHealth2 from "../../../../components/team/user-health-2";
 import AddMedication from "../../../../components/team/add-medication";
 import AboutUser from "../../../../components/team/about-user";
-import UserTypePick from "./user-type-pick";
+import UserTypePick from "../../../../components/team/user-type-pick";
 import aiButton from "~/components/svg/ai-icon";
 import { useTeam } from "~/context/team-context";
 import { createServerAction$ } from "solid-start/server";
@@ -29,7 +29,7 @@ import {
   TextFieldLabel,
   TextFieldRoot,
 } from "~/components/ui/textfield";
-import UserRole from "./user-role";
+import UserRole from "../../../../components/team/user-role";
 import TeamUserRole from "../../../../components/team/team-user-role";
 
 type CreateRecipientActionResponse = {
@@ -59,7 +59,7 @@ type CreateMedicationActionResponse = {
 };
 
 export default function CreateSomeone() {
-  const [error, setError] = createSignal();
+  const [error, setError] = createSignal<string | null>(null);
   const [creating, setCreating] = createSignal(false);
   const team = useTeam();
 
@@ -68,6 +68,15 @@ export default function CreateSomeone() {
   const teamAction = useAction(createTeamAction);
   const surgeryAction = useAction(createSurgeryAction);
   const medicationAction = useAction(createMedicationAction);
+
+  const handleNext = () => {
+    if (team.currentStep() === 1 && !team.state.recipient.firstName) {
+      setError("Please enter the recipient's name");
+      return;
+    }
+    setError(null);
+    team.nextStep();
+  };
 
   const handleSubmit = async (event: SubmitEvent) => {
     event.preventDefault();
@@ -164,11 +173,14 @@ export default function CreateSomeone() {
               <div class="flex-grow"></div>
               {/* pick person to care */}
               <div class="px-2">
-                <p class="text-[23px] font-semi">Who is receiving care?</p>
+                <p class="text-[23px] font-semi">
+                  Who is receiving care? <span class="text-red-500">*</span>
+                </p>
                 <TextFieldRoot class="space-y-2 mt-5">
                   <TextField
                     name="firstName"
                     placeholder="Enter name"
+                    required
                     onInput={(e) =>
                       team.updateRecipientField(
                         "firstName",
@@ -176,12 +188,11 @@ export default function CreateSomeone() {
                       )
                     }
                   />
+                  {error() && <p class="text-red-500 text-sm">{error()}</p>}
                 </TextFieldRoot>
                 <Button
                   type="button"
-                  onClick={() => {
-                    team.nextStep();
-                  }}
+                  onClick={handleNext}
                   class="rounded-full w-full mt-4 bg-[#AE9BF2] text-black h-[50px]"
                 >
                   Next
@@ -235,7 +246,7 @@ export default function CreateSomeone() {
           <Button
             type="submit"
             class="flex mt-4 items-center justify-center"
-            // disabled={creating.pending}
+            disabled={creating()}
           >
             {creating() ? "Creating" : "Create Team"}
           </Button>

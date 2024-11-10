@@ -5,7 +5,6 @@ import {
 } from "~/components/ui/textfield";
 
 export default function TextFieldLine({
-  key,
   name,
   label,
   placeholder,
@@ -13,8 +12,9 @@ export default function TextFieldLine({
   classRoot,
   classLabel,
   onInput,
+  required,
+  error,
 }: {
-  key: string;
   name: string;
   label: string;
   placeholder?: string;
@@ -22,17 +22,23 @@ export default function TextFieldLine({
   classRoot?: string;
   classLabel?: string;
   onInput?: (event: InputEvent & { currentTarget: HTMLInputElement }) => void;
+  required?: boolean;
+  error?: string | null;
 }) {
   return (
     <TextFieldRoot class={`space-y-2 mt-5 ${classRoot || ""}`}>
-      <TextFieldLabel class={`${classLabel}`}>{label}</TextFieldLabel>
+      <TextFieldLabel class={`${classLabel}`}>
+        {label} {required && <span class="text-red-500">*</span>}
+      </TextFieldLabel>
       <TextField
         type="text"
         name={name}
         placeholder={placeholder}
         value={value}
         onInput={onInput}
+        class={error ? "border-red-500" : ""}
       />
+      {error && <p class="text-red-500 text-sm">{error}</p>}
     </TextFieldRoot>
   );
 }

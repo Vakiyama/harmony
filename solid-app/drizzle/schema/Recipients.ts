@@ -7,8 +7,8 @@ export const recipients = sqliteTable("recipients", {
   lastName: text("last_name"),
   email: text("email").unique(), // email of a recipient's family member
   phoneNumber: text("phone_number").unique(), // emergency contact
-  // recipientType: text('recipient_type').notNull(), // 'user' or 'non_user'
   photo: text("photo").default(""),
+  age: text("age").notNull(),
   gender: text("gender").notNull(),
   preferredLanguage: text("preferred_language").notNull(),
   healthCondition: text("health_condition").notNull(),
@@ -17,7 +17,6 @@ export const recipients = sqliteTable("recipients", {
   employment: text("employment"),
   allergies: text("allergies"),
   dietaryRestrictions: text("dietary_restrictions"),
-  pastInjuries: text("past_injuries"),
   mobilityNeed: text("mobility_need"),
   userId: integer("user_id").references(() => users.id),
 });

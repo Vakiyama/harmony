@@ -1,18 +1,36 @@
-export default function UserRole({
-  key,
-  role,
-  onClick,
-}: {
-  key: string;
-  role: string;
-  onClick: () => void;
-}) {
+import { A } from "@solidjs/router";
+import TextFieldLine from "~/components/shared/text-field-line";
+import TeamTopNav from "~/components/team/team-top-nav";
+import { Button } from "~/components/ui/button";
+import { useTeam } from "~/context/team-context";
+
+export default function UserRole() {
+  const team = useTeam();
   return (
-    <div
-      class="flex items-center justify-start bg-[#E4DEFB] rounded-xl mt-2"
-      onClick={onClick}
-    >
-      <p class="text-sm p-4 font-semibold">{role}</p>
-    </div>
+    <>
+      <div class="relative flex flex-col min-h-screen mx-4">
+        <div class="flex items-center justify-center mt-2">
+          <p class="text-xs text-gray-400">7 of 8</p>
+        </div>
+        {/* Space */}
+        <div class="flex-grow"></div>
+        <div class="px-2">
+          <p class="text-[23px] font-semi">Please Specify</p>
+          <TextFieldLine
+            name="recipient name"
+            label=""
+            placeholder="Enter role"
+          />
+          <Button
+            onClick={team.nextStep}
+            class="rounded-full w-full mt-4 bg-[#AE9BF2] text-black h-[50px]"
+          >
+            Next
+          </Button>
+        </div>
+        {/* Space for bottom */}
+        <div class="h-[122px]"></div> {/* temporary */}
+      </div>
+    </>
   );
 }
