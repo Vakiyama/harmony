@@ -1,4 +1,4 @@
-import { A, useAction } from "@solidjs/router";
+import { A, useAction, useNavigate } from "@solidjs/router";
 import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
 import UploadPhoto from "../../../../components/team/upload-photo";
@@ -27,6 +27,7 @@ import {
 import UserRole from "../../../../components/team/user-role";
 import TeamUserRole from "../../../../components/team/team-user-role";
 import ReviewTeamInfo from "~/components/team/review-team-info";
+import { showNotification } from "~/routes/api/notificationStore";
 
 type CreateRecipientActionResponse = {
   success?: boolean;
@@ -62,8 +63,9 @@ type CreateMedicationActionResponse = {
 
 export default function CreateSomeone() {
   const [error, setError] = createSignal<string | null>(null);
-  const [creating, setCreating] = createSignal(false);
+  const [isCreating, setIsCreating] = createSignal(false);
   const team = useTeam();
+  const navigate = useNavigate();
 
   const recipientAction = useAction(createRecipientAction);
 
@@ -72,18 +74,18 @@ export default function CreateSomeone() {
   const injuryAction = useAction(createPastInjuryAction);
   const medicationAction = useAction(createMedicationAction);
 
-  // const handleNext = () => {
-  //   if (team.currentStep() === 1 && !team.state.recipient.firstName) {
-  //     setError("Please enter the recipient's name");
-  //     return;
-  //   }
-  //   setError(null);
-  //   team.nextStep();
-  // };
+  const handleNext = () => {
+    if (!team.state.recipient.firstName.trim()) {
+      setError("Please enter the recipient's name");
+      return;
+    }
+    setError(null);
+    team.nextStep();
+  };
 
-  const handleSubmit = async (event: SubmitEvent) => {
-    event.preventDefault();
-    setCreating(true);
+  const handleSubmit = async (event?: MouseEvent) => {
+    // event.preventDefault();
+    setIsCreating(true);
     try {
       // create recipient
       const recipientResult = (await recipientAction({
@@ -91,10 +93,10 @@ export default function CreateSomeone() {
       })) as CreateRecipientActionResponse;
 
       if (!recipientResult.success || !recipientResult.recipientId) {
+        // showNotification("Failed to create recipient");
         throw new Error(recipientResult.error || "Failed to create recipient");
-        // TODO: show error message notification
       }
-      // TODO: show success message notificaition
+      // showNotification("Recipient created successfully");
 
       // create team
       const teamResult = (await teamAction({
@@ -105,10 +107,10 @@ export default function CreateSomeone() {
       })) as CreateTeamActionResponse;
 
       if (!teamResult.success || !teamResult.teamId) {
+        // showNotification("Failed to create team");
         throw new Error(teamResult.error || "Failed to create team");
-        // TODO: show error message notification
       }
-      // TODO: show success message notificaition
+      // showNotification("Team created successfully");
 
       // create important surgeries
       if (team.state.importantSurgeries.length > 0) {
@@ -121,10 +123,10 @@ export default function CreateSomeone() {
         })) as CreateSurgeryActionResponse;
 
         if (!surgeryResult.success) {
+          // showNotification("Failed to create surgeries");
           throw new Error(surgeryResult.error || "Failed to create surgeries");
-          // TODO: show error message notification
         }
-        // TODO: show success message notification
+        // showNotification("Surgeries added successfully");
       }
 
       // create past injuries
@@ -138,10 +140,10 @@ export default function CreateSomeone() {
         })) as CreateInjuryActionResponse;
 
         if (!injuryResult.success) {
+          // showNotification("Failed to create injuries");
           throw new Error(injuryResult.error || "Failed to create injuries");
-          // TODO: show error message notification
         }
-        // TODO: show success message notification
+        // showNotification("Past injuries added successfully");
       }
 
       // create medications
@@ -154,21 +156,24 @@ export default function CreateSomeone() {
         })) as CreateMedicationActionResponse;
 
         if (!medicationResult.success) {
+          // showNotification("Failed to create medications");
           throw new Error(
             medicationResult.error || "Failed to create medications"
           );
-          // TODO: show error message notification
         }
-        // TODO: show success message notification
+        // showNotification("Medications added successfully");
       }
+      // showNotification("Created Team successfully");
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      team.resetForm();
+      navigate("/landing");
     } catch (error) {
       console.error("Error creating team or recipient:", error);
+      // showNotification("Failed to create team or recipient");
       setError("Failed to create team or recipient");
-      setCreating(false);
+      setIsCreating(false);
     } finally {
-      setCreating(false);
-      team.resetForm();
-      // TODO: navigate somewhere
+      setIsCreating(false);
     }
   };
 
@@ -178,11 +183,13 @@ export default function CreateSomeone() {
   return (
     <>
       <TeamTopNav
-        backNavigation={team.prevStep}
-        cancelNavigation={aiButton()}
+        leftNavigation={team.prevStep}
+        rightText={team.currentStep() === 10 ? "Create Team" : aiButton()}
+        rightAction={team.currentStep() === 10 ? handleSubmit : undefined}
+        isCreating={isCreating()}
       />
       <div>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => e.preventDefault()} class="mt-24">
           {/* step 1: team Name */}
           <Show when={team.currentStep() === 1}>
             <div class="relative flex flex-col min-h-screen mx-4">
@@ -213,7 +220,7 @@ export default function CreateSomeone() {
                 </TextFieldRoot>
                 <Button
                   type="button"
-                  onClick={team.nextStep}
+                  onClick={handleNext}
                   class="rounded-full w-full mt-4 bg-[#AE9BF2] text-black h-[50px]"
                 >
                   Next
@@ -267,14 +274,6 @@ export default function CreateSomeone() {
           <Show when={team.currentStep() === 10}>
             <ReviewTeamInfo />
           </Show>
-
-          <Button
-            type="submit"
-            class="flex mt-4 items-center justify-center"
-            disabled={creating()}
-          >
-            {creating() ? "Creating" : "Create Team"}
-          </Button>
         </form>
       </div>
     </>

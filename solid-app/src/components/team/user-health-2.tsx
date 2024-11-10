@@ -149,9 +149,9 @@ export default function UserHealth2() {
           >
             Next
           </Button>
-          <A href="/" class="text-xs p-2">
+          <a onClick={team.nextStep} class="text-xs p-2">
             skip for now
-          </A>
+          </a>
         </div>
         <div class="h-[102px]"></div> {/* temporary */}
       </div>

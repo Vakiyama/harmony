@@ -7,24 +7,17 @@ import {
 } from "~/components/ui/landing/landing-tabs";
 import TeamGeneralInfo from "./team-general-info";
 import TeamMedicationInfo from "./team-medical-info";
+import TeamHeaderName from "./team-header-name";
+import { useTeam } from "~/context/team-context";
 
 // import { TabsContent } from "../ui/tabs";
 // import { TeamFromTeamId } from "@/schema/Teams";
 export default function ReviewTeamInfo() {
+  const team = useTeam();
   return (
-    <div class="h-full w-full flex items-center justify-center">
-      <Tabs defaultValue="team member" class="w-full">
-        <TabsList class="w-full text-black overflow-scroll rounded-none pb-2 text-[11px] flex items-center justify-center">
-          {["General Information", "Medication Information", "Team Member"].map(
-            (tabName) => (
-              <TabsTrigger value={tabName.toLowerCase()} class="text-md">
-                {tabName}
-              </TabsTrigger>
-            )
-          )}
-          <TabsIndicator />
-        </TabsList>
-
+    <div class="flex flex-col mt-6 gap-y-6 mx-4">
+      <div class="justify-start">
+        <p class="text-2xl mt-4">Review Your Information</p>
         <div class="flex flex-row space-x-1 justify-end mx-4 mt-2">
           <p class="text-xs text-gray-500">Edit</p>
           <svg
@@ -41,15 +34,37 @@ export default function ReviewTeamInfo() {
             />
           </svg>
         </div>
+        <div class="mt-2">
+          <TeamHeaderName
+            firstName={team.state.recipient.firstName}
+            lastName=""
+            photoUrl={team.state.recipient.photo}
+          />
+        </div>
+      </div>
+      <div class="h-full w-full flex items-center justify-center">
+        <Tabs defaultValue="team member" class="w-full">
+          <TabsList class="w-full text-black overflow-scroll rounded-none pb-2 text-[11px] flex items-center justify-center">
+            {[
+              "General Information",
+              "Medication Information",
+              "Team Member",
+            ].map((tabName) => (
+              <TabsTrigger value={tabName.toLowerCase()} class="text-md">
+                {tabName}
+              </TabsTrigger>
+            ))}
+            <TabsIndicator />
+          </TabsList>
 
-        <TabsContent value="general information">
-          <TeamGeneralInfo />
-        </TabsContent>
-        <TabsContent value="medication information">
-          <TeamMedicationInfo />
-        </TabsContent>
-        <TabsContent value="team member">
-          {/* <div class="flex flex-col gap-2 p-4">
+          <TabsContent value="general information">
+            <TeamGeneralInfo />
+          </TabsContent>
+          <TabsContent value="medication information">
+            <TeamMedicationInfo />
+          </TabsContent>
+          <TabsContent value="team member">
+            {/* <div class="flex flex-col gap-2 p-4">
                   {props.data?.members.map((member) => {
                     return (
                       <TeamPreview
@@ -63,8 +78,9 @@ export default function ReviewTeamInfo() {
                     );
                   })}
                 </div> */}
-        </TabsContent>
-      </Tabs>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }
