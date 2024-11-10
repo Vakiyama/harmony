@@ -83,6 +83,7 @@ module.exports = {
         black50: "rgb(30,30,30, 0.5)",
         black75: "rgb(30,30,30, 0.75)",
         "primary-purple-500": "#7859EA",
+        "primary-purple-400": "#937AEE",
         "primary-purple-300": "#AE9BF2",
         "primary-purple-150": "#D6CDF9",
         notesIconBackground: "#4E412B",

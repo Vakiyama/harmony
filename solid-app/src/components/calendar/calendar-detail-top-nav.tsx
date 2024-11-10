@@ -2,6 +2,7 @@ import { A } from "@solidjs/router";
 
 export default function EventDetailsTopNav(props: {
   eventType: "task" | "event";
+  setModalOpen: (e: Event) => void;
 }) {
   return (
     <div class="sticky top-0 w-full flex flex-row h-[95px] bg-[#fcfcfc] shadow-md border-b border-[#1e1e1e]/20">
@@ -16,7 +17,10 @@ export default function EventDetailsTopNav(props: {
           {props.eventType.charAt(0).toUpperCase() + props.eventType.slice(1)}{" "}
           Details
         </div>
-        <button class="text-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
+        <button
+          class="text-[#1e1e1e] text-base font-normal font-sf-pro leading-tight"
+          onclick={props.setModalOpen}
+        >
           Edit
         </button>
       </div>
