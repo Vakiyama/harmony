@@ -8,10 +8,10 @@ import MedicationDetails from "~/components/team/medication-details";
 
 export default function AddMedication() {
   const team = useTeam();
-  const medications = team.state.medications;
+  let medications = team.state.medications;
 
   const [showMedicationForm, setShowMedicationForm] = createSignal(false);
-  const [medicationList, setMedicationList] = createSignal(medications);
+  const [medicationChanged, setMedicationChanged] = createSignal(false);
 
   const handleAddMedication = () => {
     team.addMedication();
@@ -20,8 +20,16 @@ export default function AddMedication() {
 
   const handleMedicationAdded = () => {
     console.log("Medication added");
+    setMedicationChanged(true);
     setShowMedicationForm(false);
   };
+
+  createEffect(() => {
+    if (medicationChanged()) {
+      medications = team.state.medications;
+      setMedicationChanged(false);
+    }
+  });
 
   return (
     <>
@@ -38,7 +46,7 @@ export default function AddMedication() {
             <p class="text-lg font-semibold mt-4">Medication Details</p>
             {/* only show when medication added */}
             <div>
-              {medicationList().length > 0 && (
+              {medications.length > 0 && (
                 <For each={medications}>
                   {(medication, index) => (
                     <div class="border-[1px] rounded-lg flex flex-row items-center justify-between h-[47px] mt-4">
