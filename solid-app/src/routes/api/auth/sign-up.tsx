@@ -15,7 +15,7 @@ export default function SignUp() {
           <div class="mb-8 w-full mx-auto">
             <div class="mt-16 mb-4 text-left self-start justify-self-start h-[84px]">
               <h1 class="text-h2 normal-case text-black mb-4">Sign Up</h1>
-              <p class="text-gray-600 text-subtitle_13 w-3/4">
+              <p class="text-gray-600 text-subtitle_13 w-full">
                 Please enter your name and email below.
               </p>
             </div>
@@ -23,7 +23,7 @@ export default function SignUp() {
             <div>
               <TextFieldRoot>
                 <TextField
-                  class="h-12 w-full rounded-[100px] mb-4 text-base"
+                  class="h-12 w-full rounded-[8px] mb-4 text-base"
                   type="text"
                   placeholder="First Name"
                   name="firstName"
@@ -32,7 +32,7 @@ export default function SignUp() {
               </TextFieldRoot>
               <TextFieldRoot>
                 <TextField
-                  class="h-12 w-full rounded-[100px] mb-8 text-base"
+                  class="h-12 w-full rounded-[8px] mb-8 text-base"
                   type="text"
                   placeholder="Last Name"
                   name="lastName"
@@ -46,7 +46,7 @@ export default function SignUp() {
               <h2 class="text-left mt-4 mb-3">Email</h2>
               <TextFieldRoot>
                 <TextField
-                  class="h-12 w-full rounded-[100px] mb-4 text-base"
+                  class="h-12 w-full rounded-[8px] mb-4 text-base"
                   type="email"
                   placeholder="Email"
                   name="email"
@@ -57,7 +57,7 @@ export default function SignUp() {
           </div>
           <div class="mt-4 w-full">
             <Button
-              class=" w-full rounded-[100px] h-12 mb-4 text-base"
+              class=" w-full rounded-full h-12 mb-4 text-base text-black bg-primary-purple-300"
               variant="default"
               type="submit"
             >
@@ -65,8 +65,8 @@ export default function SignUp() {
             </Button>
           </div>
         </form>
-        <div class="w-full mb-0">
-          <a href="/api/auth/landing" class="m-0 text-[13px]">
+        <div class="w-full mb-0 flex justify-center">
+          <a href="/api/auth/landing" class="m-0 text-subtitle13">
             Already have an account? Log In
           </a>
         </div>

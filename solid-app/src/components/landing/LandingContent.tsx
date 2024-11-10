@@ -46,20 +46,51 @@ const LandingContent = () => {
     switch (tabName) {
       case "Medication Taken":
         return (
-          <MedicationIcon height="15" width="15" iconColor="currentColor" />
+          <MedicationIcon
+            height="15"
+            width="15"
+            iconColor="currentColor"
+            class="mr-1"
+          />
         );
       case "Nutrition": {
         return (
-          <NutritionIcon height="15" width="15" iconColor="currentColor" />
+          <NutritionIcon
+            height="15"
+            width="15"
+            iconColor="currentColor"
+            class="mr-1"
+          />
         );
       }
       case "Sleep": {
-        return <SleepIcon height="15" width="15" iconColor="currentColor" />;
+        return (
+          <SleepIcon
+            height="15"
+            width="15"
+            iconColor="currentColor"
+            class="mr-1"
+          />
+        );
       }
       case "Mood":
-        return <MoodIcon height="15" width="15" iconColor="currentColor" />;
+        return (
+          <MoodIcon
+            height="15"
+            width="15"
+            iconColor="currentColor"
+            class="mr-1"
+          />
+        );
       case "Notes":
-        return <NotesIcon height="15" width="15" iconColor="currentColor" />;
+        return (
+          <NotesIcon
+            height="15"
+            width="15"
+            iconColor="currentColor"
+            class="mr-1"
+          />
+        );
     }
   };
 
@@ -137,7 +168,7 @@ const LandingContent = () => {
           ].map((tabName) => (
             <TabsTrigger value={tabName.toLowerCase()} class="text-md">
               {getTabIcon(tabName)}
-              <span class="ml-1">{tabName}</span>
+              <span class="">{tabName}</span>
             </TabsTrigger>
           ))}
           <TabsIndicator />

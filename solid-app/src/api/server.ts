@@ -81,7 +81,9 @@ export async function getUser() {
   const sessionManager = await checkAuthenticated();
   const session = sessionManager.getSession();
   const userId = session.data.userId;
-
+  if (!session || !session.data?.userId) {
+    throw redirect("/api/auth/landing");
+  }
   try {
     const user = await db
       .select()
