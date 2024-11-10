@@ -79,10 +79,10 @@ export async function logout() {
 
 export async function getUser() {
   const sessionManager = await checkAuthenticated();
-  const session = sessionManager.getSession();
-  const userId = session.data.userId;
+  const session = sessionManager?.getSession();
+  const userId = session?.data.userId;
   if (!session || !session.data?.userId) {
-    throw redirect("/api/auth/landing");
+    return redirect("/api/auth/landing");
   }
   try {
     const user = await db
@@ -90,7 +90,7 @@ export async function getUser() {
       .from(Users)
       .where(eq(Users.id, userId))
       .get();
-    if (!user) throw redirect("/api/auth/landing");
+    if (!user) return redirect("/api/auth/landing");
     return {
       id: user.id,
       firstName: user.firstName,
@@ -107,7 +107,7 @@ export async function checkAuthenticated() {
   const isAuthenticated = await getKindeClient().isAuthenticated(manager);
 
   if (!isAuthenticated) {
-    throw redirect("/api/auth/landing");
+    return;
   }
 
   return manager;
