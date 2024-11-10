@@ -74,29 +74,32 @@ export async function loginOrRegister(kindeUser: UserTypeExtended) {
 export async function logout() {
   const manager = await sessionManager();
   const logoutUrl = await getKindeClient().logout(manager);
-  throw redirect(logoutUrl.toString());
+  return redirect(logoutUrl.toString());
 }
 
 export async function getUser() {
   const sessionManager = await checkAuthenticated();
-  const session = sessionManager.getSession();
-  const userId = session.data.userId;
-
+  const session = sessionManager?.getSession();
+  const userId = session?.data.userId;
+  if (!session || !session.data?.userId) {
+    return redirect("/api/auth/landing");
+  }
   try {
     const user = await db
       .select()
       .from(Users)
       .where(eq(Users.id, userId))
       .get();
-    if (!user) throw redirect("/api/auth/landing");
+    if (!user) return redirect("/api/auth/landing");
     return {
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
       photo: user.photo,
     };
-  } catch {
-    throw logout();
+  } catch (err) {
+    console.log(err);
+    return logout();
   }
 }
 
@@ -105,7 +108,7 @@ export async function checkAuthenticated() {
   const isAuthenticated = await getKindeClient().isAuthenticated(manager);
 
   if (!isAuthenticated) {
-    throw redirect("/api/auth/landing");
+    return;
   }
 
   return manager;
