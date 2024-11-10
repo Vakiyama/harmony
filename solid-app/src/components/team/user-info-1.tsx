@@ -82,7 +82,7 @@ export default function UserInfo1() {
         <div class="flex flex-col items-center justify-center">
           <Button
             type="button"
-            onClick={team.nextStep}
+            onClick={handleNext}
             class="rounded-full w-full bg-[#AE9BF2] text-black h-[50px]"
           >
             Next

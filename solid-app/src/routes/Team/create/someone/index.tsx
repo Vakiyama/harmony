@@ -28,6 +28,12 @@ import UserRole from "../../../../components/team/user-role";
 import TeamUserRole from "../../../../components/team/team-user-role";
 import ReviewTeamInfo from "~/components/team/review-team-info";
 import { showNotification } from "~/routes/api/notificationStore";
+import Notification from "~/components/shared/notification";
+import {
+  notificationMessage,
+  isNotificationVisible,
+  hideNotification,
+} from "~/routes/api/notificationStore";
 
 type CreateRecipientActionResponse = {
   success?: boolean;
@@ -93,10 +99,10 @@ export default function CreateSomeone() {
       })) as CreateRecipientActionResponse;
 
       if (!recipientResult.success || !recipientResult.recipientId) {
-        // showNotification("Failed to create recipient");
+        showNotification("Failed to create recipient");
         throw new Error(recipientResult.error || "Failed to create recipient");
       }
-      // showNotification("Recipient created successfully");
+      showNotification("Recipient created successfully");
 
       // create team
       const teamResult = (await teamAction({
@@ -107,10 +113,10 @@ export default function CreateSomeone() {
       })) as CreateTeamActionResponse;
 
       if (!teamResult.success || !teamResult.teamId) {
-        // showNotification("Failed to create team");
+        showNotification("Failed to create team");
         throw new Error(teamResult.error || "Failed to create team");
       }
-      // showNotification("Team created successfully");
+      showNotification("Team created successfully");
 
       // create important surgeries
       if (team.state.importantSurgeries.length > 0) {
@@ -123,10 +129,10 @@ export default function CreateSomeone() {
         })) as CreateSurgeryActionResponse;
 
         if (!surgeryResult.success) {
-          // showNotification("Failed to create surgeries");
+          showNotification("Failed to create surgeries");
           throw new Error(surgeryResult.error || "Failed to create surgeries");
         }
-        // showNotification("Surgeries added successfully");
+        showNotification("Surgeries added successfully");
       }
 
       // create past injuries
@@ -140,10 +146,10 @@ export default function CreateSomeone() {
         })) as CreateInjuryActionResponse;
 
         if (!injuryResult.success) {
-          // showNotification("Failed to create injuries");
+          showNotification("Failed to create injuries");
           throw new Error(injuryResult.error || "Failed to create injuries");
         }
-        // showNotification("Past injuries added successfully");
+        showNotification("Past injuries added successfully");
       }
 
       // create medications
@@ -156,20 +162,20 @@ export default function CreateSomeone() {
         })) as CreateMedicationActionResponse;
 
         if (!medicationResult.success) {
-          // showNotification("Failed to create medications");
+          showNotification("Failed to create medications");
           throw new Error(
             medicationResult.error || "Failed to create medications"
           );
         }
-        // showNotification("Medications added successfully");
+        showNotification("Medications added successfully");
       }
-      // showNotification("Created Team successfully");
+      showNotification("Created Team successfully");
       await new Promise((resolve) => setTimeout(resolve, 3000));
       team.resetForm();
       navigate("/landing");
     } catch (error) {
       console.error("Error creating team or recipient:", error);
-      // showNotification("Failed to create team or recipient");
+      showNotification("Failed to create team or recipient");
       setError("Failed to create team or recipient");
       setIsCreating(false);
     } finally {
@@ -177,9 +183,6 @@ export default function CreateSomeone() {
     }
   };
 
-  // createEffect(() => {
-  //   setMedicationList(medications);
-  // });
   return (
     <>
       <TeamTopNav
@@ -275,6 +278,13 @@ export default function CreateSomeone() {
             <ReviewTeamInfo />
           </Show>
         </form>
+
+        {isNotificationVisible() && (
+          <Notification
+            title={notificationMessage()}
+            onClose={hideNotification}
+          />
+        )}
       </div>
     </>
   );

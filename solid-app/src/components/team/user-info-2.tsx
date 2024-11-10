@@ -1,3 +1,10 @@
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/team/team-select";
 import { A } from "@solidjs/router";
 import { createSignal, For } from "solid-js";
 import { createStore } from "solid-js/store";
@@ -13,7 +20,7 @@ const formFields: {
   required: boolean;
 }[] = [
   { name: "age", label: "Age", placeholder: "Age", required: true },
-  { name: "gender", label: "Gender", placeholder: "Gender", required: true },
+  // { name: "gender", label: "Gender", placeholder: "Gender", required: true },
   {
     name: "preferredLanguage",
     label: "Preferred Language",
@@ -71,6 +78,39 @@ export default function UserInfo2() {
         <div class="px-2 mt-6 flex flex-col flex-grow">
           <p class="text-[30px] font-semi">Tell us about "User"</p>
           <p class="text-[24px] mt-2">Other Information</p>
+
+          <div class="mt-4">
+            <p class="font-medium text-lg mb-2">
+              Gender<span class="text-red-500"> *</span>
+            </p>
+            <Select
+              options={[
+                "Female",
+                "Male",
+                "Non-binary",
+                "Transgender",
+                "Prefer not to say",
+                "Other",
+              ]}
+              placeholder="Select"
+              class=""
+              onChange={(value) =>
+                team.updateRecipientField("gender", value ?? "")
+              }
+              required={true}
+              // class="w-full border-[1px] rounded-md"
+              itemComponent={(props) => (
+                <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>
+              )}
+            >
+              <SelectTrigger class="w-full">
+                <SelectValue<string>>
+                  {(state) => state.selectedOption()}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent />
+            </Select>
+          </div>
           <For each={formFields}>
             {(field) => (
               <TextFieldLine

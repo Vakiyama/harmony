@@ -43,7 +43,7 @@ export default function ReviewTeamInfo() {
         </div>
       </div>
       <div class="h-full w-full flex items-center justify-center">
-        <Tabs defaultValue="team member" class="w-full">
+        <Tabs defaultValue="general information" class="w-full">
           <TabsList class="w-full text-black overflow-scroll rounded-none pb-2 text-[11px] flex items-center justify-center">
             {[
               "General Information",

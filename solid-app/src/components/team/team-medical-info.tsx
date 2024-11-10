@@ -40,20 +40,33 @@ export default function TeamMedicationInfo() {
             {
               title: "Past Injuries",
               content: (
-                <p class="text-xs ">
-                  {pastInjuries.length > 0 ? pastInjuries[0].name : "empty"}
-                </p>
+                <div class="text-xs">
+                  {pastInjuries.length > 0 ? (
+                    <For each={pastInjuries}>
+                      {(injury) => <p>{injury.name}</p>}
+                    </For>
+                  ) : (
+                    "empty"
+                  )}
+                </div>
               ),
             },
             {
               title: "Important Surgeries",
               content: (
-                <p class="text-xs ">
-                  {importantSurgeries[0].name},{" "}
-                  {importantSurgeries.length > 0
-                    ? importantSurgeries[0].year
-                    : "empty"}
-                </p>
+                <div class="text-xs ">
+                  {importantSurgeries.length > 0 ? (
+                    <For each={importantSurgeries}>
+                      {(surgery) => (
+                        <p>
+                          {surgery.name}, {surgery.year}
+                        </p>
+                      )}
+                    </For>
+                  ) : (
+                    "empty"
+                  )}
+                </div>
               ),
             },
             {
