@@ -8,6 +8,7 @@ import { teamMembers } from "../../drizzle/schema/TeamMembers";
 import { teams } from "../../drizzle/schema/Teams";
 import { importantSurgeries } from "../../drizzle/schema/ImportantSurgeries";
 import { and, eq } from "drizzle-orm";
+import { pastInjuries } from "../../drizzle/schema/PastInjuries";
 
 export const createRecipientAction = action(
   async ({
@@ -170,7 +171,49 @@ export const createSurgeryAction = action(
   },
   "createSurgeryAction"
 );
+export const createPastInjuryAction = action(
+  async ({
+    injuriesInput,
+  }: {
+    injuriesInput: {
+      injuries: { name: string }[];
+      recipientId: number;
+    };
+  }) => {
+    "use server";
+    const manager = await sessionManager();
+    const session = await manager.getSession();
+    const userId: number = session.data.userId;
 
+    if (!userId) {
+      return { error: "User is not Authenticated" };
+    }
+    const injuriesList = injuriesInput.injuries;
+    const recipientId = injuriesInput.recipientId;
+
+    if (injuriesList.length === 0) {
+      return { error: "No injuries provided" };
+    }
+
+    for (const injury of injuriesList) {
+      if (!injury.name) {
+        return { error: "Injury name is required" };
+      }
+      const [injuriesError] = await mightFail(
+        db.insert(pastInjuries).values({ ...injury, recipientId })
+      );
+      if (injuriesError) {
+        console.error("Injuries insertion error:", injuriesError);
+        return { error: "Failed to insert injuries." };
+      }
+    }
+    return {
+      success: true,
+      message: "Past Injuries successfully created.",
+    };
+  },
+  "createPastInjuryAction"
+);
 export const createMedicationAction = action(
   async ({
     medicationInput,

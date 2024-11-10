@@ -20,6 +20,7 @@ import { importantSurgeries } from "../../../../../drizzle/schema/ImportantSurge
 import { medications } from "../../../../../drizzle/schema/Medications";
 import {
   createMedicationAction,
+  createPastInjuryAction,
   createRecipientAction,
   createSurgeryAction,
   createTeamAction,
@@ -52,6 +53,12 @@ type CreateSurgeryActionResponse = {
   message?: string;
 };
 
+type CreateInjuryActionResponse = {
+  success?: boolean;
+  error?: string;
+  message?: string;
+};
+
 type CreateMedicationActionResponse = {
   success?: boolean;
   error?: string;
@@ -67,6 +74,7 @@ export default function CreateSomeone() {
 
   const teamAction = useAction(createTeamAction);
   const surgeryAction = useAction(createSurgeryAction);
+  const injuryAction = useAction(createPastInjuryAction);
   const medicationAction = useAction(createMedicationAction);
 
   const handleNext = () => {
@@ -119,6 +127,23 @@ export default function CreateSomeone() {
 
         if (!surgeryResult.success) {
           throw new Error(surgeryResult.error || "Failed to create surgeries");
+          // TODO: show error message notification
+        }
+        // TODO: show success message notification
+      }
+
+      // create past injuries
+      if (team.state.pastInjuries.length > 0) {
+        console.log("before creating", team.state.pastInjuries);
+        const injuryResult = (await injuryAction({
+          injuriesInput: {
+            injuries: team.state.pastInjuries,
+            recipientId: recipientResult.recipientId,
+          },
+        })) as CreateInjuryActionResponse;
+
+        if (!injuryResult.success) {
+          throw new Error(injuryResult.error || "Failed to create injuries");
           // TODO: show error message notification
         }
         // TODO: show success message notification
