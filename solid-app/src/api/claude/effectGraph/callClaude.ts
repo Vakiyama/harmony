@@ -62,14 +62,9 @@ export function makeClaudeAPICall(body: ReturnType<typeof getRequestBody>) {
   return pipe(
     body,
     Either.merge,
-    (body) => {
-      console.log(body);
-      return body;
-    },
     (body) =>
       pipe(
         Effect.try(() => JSON.stringify(body, undefined, 2)),
-        Effect.tap((b) => console.log(b, "stringify")),
         Effect.mapError((_) => StringifyError()),
         Effect.flatMap((stringified) =>
           pipe(
@@ -96,7 +91,6 @@ export function makeClaudeAPICall(body: ReturnType<typeof getRequestBody>) {
         catch: (e) => JsonParseError(e as Error),
       }),
     ),
-    Effect.tap((res) => console.log(res, "res stringified")),
     Effect.flatMap((response) =>
       Match.value(response).pipe(
         Match.when({ type: "message" }, (assistantResponse) =>
@@ -504,7 +498,6 @@ export function callClaudeWithTools<T extends Tool[]>(params: CallClaudeTools) {
     Effect.provideService(ClaudeApi, {
       fetchFromApi: makeClaudeAPICall,
     }),
-    Effect.tap((res) => console.log(res, "claude res")),
     Effect.flatMap((assistantResponse) =>
       pipe(
         Effect.if(

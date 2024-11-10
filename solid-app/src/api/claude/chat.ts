@@ -155,7 +155,6 @@ function createJournalTool(params: {
   const value = Object.entries(journalTables).find(
     ([key]) => key === params.entry.category,
   );
-  console.log(params);
   return pipe(
     Effect.try({
       try: () => {
@@ -207,7 +206,6 @@ function queryJournalTool(
   params: z.infer<typeof queryJournalToolSchema>,
   userId: number,
 ) {
-  console.log("called with:", params);
   const result = Match.value(params).pipe(
     // please don't ever repeat code this much i'm jsut lazy rn ok
     Match.when({ category: "mood" }, () =>
@@ -482,7 +480,6 @@ export const harmonyChat = async (
         else chatStates[index] = { ...next, id };
 
         const unwrapped = toArray(getFirst(next.messages));
-        console.log(unwrapped, "response");
 
         const lastMessage = unwrapped.at(-1);
         if (lastMessage) {
