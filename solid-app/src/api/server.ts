@@ -79,7 +79,7 @@ export async function logout() {
 
 export async function getUser() {
   const sessionManager = await checkAuthenticated();
-  const session = await sessionManager.getSession();
+  const session = sessionManager.getSession();
   const userId = session.data.userId;
 
   try {

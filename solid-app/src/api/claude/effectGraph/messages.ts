@@ -1,33 +1,31 @@
 import { Match, Option, pipe } from "effect";
+import { ToolUse } from "./callClaude";
 
 export type Option<T> = Option.Option<T>;
 export type UnwrapOption<T> = T extends Option<infer U> ? U : never;
 
 type BaseMessage = {
-  content: string;
   prev: Option<Message>;
 };
 
-export type Message = UserMessage | AssistantMessage | ToolCall | ToolResult;
+export type Message = UserMessage | AssistantMessage;
+
+type ToolResult = {
+  type: "tool_result";
+  tool_use_id: string;
+  content: string;
+};
 
 export type UserMessage = {
   role: "user";
+  content: string | [ToolResult];
   next: Option<UserMessage | AssistantMessage>;
 } & BaseMessage;
 
 export type AssistantMessage = {
   role: "assistant";
+  content: string | [ToolUse];
   next: Option<UserMessage>;
-} & BaseMessage;
-
-export type ToolCall = {
-  role: "tool_call";
-  next: Option<ToolResult>;
-} & BaseMessage;
-
-export type ToolResult = {
-  role: "tool_result";
-  next: Option<UserMessage | AssistantMessage | ToolCall>;
 } & BaseMessage;
 
 export function getFirst(message: Message): Message {
@@ -63,16 +61,17 @@ export function createMessage<T extends Message>(
 
 export type ArrayMessage = Omit<Omit<Message, "next">, "prev">;
 
-export function unwrapMessages(
+export function toArray(
   message: Message,
   acc: ArrayMessage[] = [],
 ): ArrayMessage[] {
   return Option.match(message.next as Option.Option<Message>, {
     onSome: (next) => {
       if (!next)
+        // for some reason, getting undefined messages in a Option...
         return [...acc, { content: message.content, role: message.role }];
 
-      return unwrapMessages(next, [
+      return toArray(next, [
         ...acc,
         { content: message.content, role: message.role },
       ]);
@@ -81,7 +80,7 @@ export function unwrapMessages(
   });
 }
 
-export function wrapMessages(
+export function toLinkedList(
   messages: ArrayMessage[],
   acc: Option.Option<Message> = Option.none(),
 ): Option.Option<Message> {
@@ -91,14 +90,13 @@ export function wrapMessages(
       acc,
       Option.match({
         onNone: () =>
-          wrapMessages(
+          toLinkedList(
             messages.slice(1),
             Option.some(createMessage({ ...messages[0] })),
           ),
         onSome: (acc) => {
-          console.log("new msg", messages[0]);
           getLast(acc).next = Option.some(createMessage({ ...messages[0] }));
-          return wrapMessages(messages.slice(1), Option.some(acc));
+          return toLinkedList(messages.slice(1), Option.some(acc));
         },
       }),
     );

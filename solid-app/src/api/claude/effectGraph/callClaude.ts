@@ -53,8 +53,7 @@ import {
   type AssistantMessage,
   type Message,
   type UserMessage,
-  unwrapMessages,
-  wrapMessages,
+  toArray,
 } from "./messages";
 import { pipe, Option, Match, Effect, Either, Context } from "effect";
 import { type Tool } from "./toolUse";
@@ -69,7 +68,8 @@ export function makeClaudeAPICall(body: ReturnType<typeof getRequestBody>) {
     },
     (body) =>
       pipe(
-        Effect.try(() => JSON.stringify(body)),
+        Effect.try(() => JSON.stringify(body, undefined, 2)),
+        Effect.tap((b) => console.log(b, "stringify")),
         Effect.mapError((_) => StringifyError()),
         Effect.flatMap((stringified) =>
           pipe(
@@ -96,6 +96,7 @@ export function makeClaudeAPICall(body: ReturnType<typeof getRequestBody>) {
         catch: (e) => JsonParseError(e as Error),
       }),
     ),
+    Effect.tap((res) => console.log(res, "res stringified")),
     Effect.flatMap((response) =>
       Match.value(response).pipe(
         Match.when({ type: "message" }, (assistantResponse) =>
@@ -195,18 +196,6 @@ type CallClaudeWithFormat<F extends ZodObjectAny> = {
   jsonFormat: ClaudeFormatParams<F>;
 } & BaseParams;
 
-type ClaudeBody = {
-  model: BaseParams["claudeSettings"]["model"];
-  max_tokens: BaseParams["claudeSettings"]["maxTokens"];
-  messages: BaseParams["messages"];
-  system: string;
-};
-
-type ClaudeBodyWithTools = {
-  tools: Tool[];
-  tool_choice: ToolChoice;
-} & ClaudeBody;
-
 function getRequestBody<F extends ZodObjectAny>(
   params: CallClaudeWithFormat<F> | CallClaude | CallClaudeTools,
 ) {
@@ -229,13 +218,13 @@ function getRequestBody<F extends ZodObjectAny>(
       onLeft: (system) => ({
         model: params.claudeSettings.model,
         max_tokens: params.claudeSettings.maxTokens,
-        messages: unwrapMessages(params.messages),
+        messages: toArray(params.messages),
         system,
       }),
       onRight: (tools) => ({
         model: params.claudeSettings.model,
         max_tokens: params.claudeSettings.maxTokens,
-        messages: unwrapMessages(params.messages),
+        messages: toArray(params.messages),
         system: params.system,
         ...tools,
       }),
@@ -480,30 +469,29 @@ const InvalidToolCallError = (): InvalidToolCallError => ({
   _tag: "invalidToolCall",
 });
 
-type ToolCall<T extends Tool[]> = {
-  name: T[number]["name"];
-  params: any;
+type ToolCallResult<T extends Tool[]> = {
   reasoning: Option.Option<string>;
+  toolCall: ToolUse;
 };
 
 function getToolCallFromResponse<T extends Tool[]>({
   content,
-}: AssistantResponse): Effect.Effect<ToolCall<T>, InvalidToolCallError> {
-  return content.length === 2
-    ? Effect.succeed({
-      id: (content[1] as ToolUse).id,
+}: AssistantResponse): Effect.Effect<ToolCallResult<T>, InvalidToolCallError> {
+  if (content.length === 2) {
+    return Effect.succeed({
       reasoning: Option.some(content[0].text),
-      params: (content[1] as ToolUse).input,
-      name: (content[1] as ToolUse).name,
-    } as ToolCall<T>)
-    : content[0].type === "tool_use"
-      ? Effect.succeed({
-        id: (content[0] as ToolUse).id,
-        reasoning: Option.none(),
-        params: (content[0] as ToolUse).input,
-        name: (content[0] as ToolUse).name,
-      } as ToolCall<T>)
-      : Effect.fail(InvalidToolCallError());
+      toolCall: content[1],
+    });
+  }
+
+  if (content[0].type === "tool_use") {
+    return Effect.succeed({
+      reasoning: Option.none(),
+      toolCall: content[0],
+    });
+  }
+
+  return Effect.fail(InvalidToolCallError());
 }
 
 export type UnwrapEffectError<T> =

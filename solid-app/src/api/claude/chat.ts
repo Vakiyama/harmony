@@ -4,12 +4,14 @@ import { z } from "zod";
 import { createTool } from "./effectGraph/toolUse";
 import {
   ArrayMessage,
+  AssistantMessage,
   Message,
+  UserMessage,
   createMessage,
   getFirst,
   getLast,
-  unwrapMessages,
-  wrapMessages,
+  toArray,
+  toLinkedList,
 } from "./effectGraph/messages";
 import { Cause, Effect, Either, Exit, Match, Option, pipe } from "effect";
 import {
@@ -23,7 +25,8 @@ import { sleeps } from "../../../drizzle/schema/Sleeps";
 import { notes } from "../../../drizzle/schema/Notes";
 import { meals } from "../../../drizzle/schema/Meals";
 import { medications } from "../../../drizzle/schema/Medications";
-import { InferSelectModel } from "drizzle-orm";
+import { InferSelectModel, eq } from "drizzle-orm";
+import { takenMedications } from "../../../drizzle/schema/TakenMedications";
 
 // we need to:
 // give claude access to the user's db so that we can fetch
@@ -46,7 +49,14 @@ import { InferSelectModel } from "drizzle-orm";
 
 const CHAT_SYSTEM_MESSAGE = `
 You are a helpful assitant to a caretaker.
+
+Keep in mind the caretaker is likely not proficient with technology. Therefore,
+you should keep your messages concise and friendly!
+
+Try to format responses to be non-technical.
+
 You have access to a journal that contains notes the caretaker may have taken. Use it to assist your user.
+The current date is: ${new Date(Date.now()).toLocaleTimeString()}
 `;
 
 const categories = ["medication", "meals", "sleep", "mood", "notes"] as const;
@@ -76,70 +86,101 @@ class QueryJournalDBError {
   }
 }
 
-function queryJournalTool(params: z.infer<typeof queryJournalToolSchema>) {
+function queryJournalTool(
+  params: z.infer<typeof queryJournalToolSchema>,
+  userId: number,
+) {
   console.log("called with:", params);
   const result = Match.value(params).pipe(
+    // please don't ever repeat code this much i'm jsut lazy rn ok
     Match.when({ category: "mood" }, () =>
       Effect.tryPromise({
-        try: () => db.select().from(moods),
+        try: () =>
+          db
+            .select()
+            .from(moods)
+            .leftJoin(notes, eq(notes.id, moods.noteId))
+            .where(eq(moods.userId, userId)),
         catch: (error) => new QueryJournalDBError(error),
       }),
     ),
     Match.when({ category: "sleep" }, () =>
       Effect.tryPromise({
-        try: () => db.select().from(sleeps),
+        try: () =>
+          db
+            .select()
+            .from(sleeps)
+            .leftJoin(notes, eq(notes.id, sleeps.noteId))
+            .where(eq(sleeps.userId, userId)),
+
         catch: (error) => new QueryJournalDBError(error),
       }),
     ),
     Match.when({ category: "notes" }, () =>
       Effect.tryPromise({
-        try: () => db.select().from(notes),
+        try: () => db.select().from(notes).where(eq(notes.userId, userId)),
         catch: (error) => new QueryJournalDBError(error),
       }),
     ),
     Match.when({ category: "meals" }, () =>
       Effect.tryPromise({
-        try: () => db.select().from(meals),
+        try: () =>
+          db
+            .select()
+            .from(meals)
+            .leftJoin(notes, eq(notes.id, meals.noteId))
+            .where(eq(meals.userId, userId)),
         catch: (error) => new QueryJournalDBError(error),
       }),
     ),
     Match.when({ category: "medication" }, () =>
       Effect.tryPromise({
-        try: () => db.select().from(medications),
+        try: () =>
+          db
+            .select({
+              medication: medications,
+              journalNotes: { ...takenMedications },
+              notes: { ...notes },
+            })
+            .from(takenMedications)
+            .leftJoin(notes, eq(takenMedications.noteId, notes.id))
+            .innerJoin(
+              medications,
+              eq(takenMedications.medicationId, medications.id),
+            )
+            .where(eq(takenMedications.userId, userId)),
+
         catch: (error) => new QueryJournalDBError(error),
       }),
     ),
     Match.exhaustive,
     Effect.map((result) => ({ result, category: params.category })),
   );
-  console.log(result);
   return result;
 }
 
 type GraphState = {
   messages: Message;
-  queries: { category: (typeof categories)[number]; value: string }[];
 };
 
-const chatNode = (state: GraphState) => {
+class InvalidToolArgsError {
+  readonly _tag = "InvalidToolArgsError";
+}
+
+function chatNode(state: GraphState, userId: number) {
   return pipe(
     state,
-    ({ messages, queries }) => {
-      const newMessage = createMessage({
-        role: "user",
-        content: `previous query: Category: ${queries.at(-1)?.category}, Result: ${queries.at(-1)?.value}`,
-        prev: Option.some(state.messages),
-      });
-
-      const messagesClone = { ...messages };
-
-      if (queries.length !== 0) messagesClone.next = Option.some(newMessage);
+    ({ messages }) => {
+      const lastMessage = getLast(messages);
+      if (lastMessage.role !== "user" && lastMessage.role !== "assistant") {
+        throw new Error("Found a tool_call or tool_result message!");
+      }
 
       return callClaudeWithTools({
         claudeSettings: defaultClaudeSettings,
         system: CHAT_SYSTEM_MESSAGE,
         retryCount: 5,
-        messages: messagesClone,
+        messages: getFirst(messages),
         type: "tools",
         toolChoice: { type: "auto" },
         tools: [queryJournalToolDefinition],
@@ -157,54 +198,71 @@ const chatNode = (state: GraphState) => {
             });
             state.messages.next = Option.some(newMessage);
             return Effect.succeed({
-              key: "chat" as const,
-              state: { ...state, messages: getFirst(state.messages) },
+              messages: getFirst(state.messages),
             });
           },
           onRight: (toolCall) =>
             pipe(
-              toolCall.params,
-              queryJournalTool,
+              toolCall.toolCall.input,
+              (input) =>
+                Effect.tryPromise({
+                  try: () => Effect.runPromise(queryJournalTool(input, userId)),
+                  catch: (e) => new InvalidToolArgsError(),
+                }),
               Effect.map((callResult) => {
-                return {
-                  key: "chat" as const,
-                  state: {
-                    messages: state.messages,
-                    queries: [
-                      ...state.queries,
+                const toolCallMessage = createMessage<AssistantMessage>({
+                  role: "assistant",
+                  content: [toolCall.toolCall],
+                });
+
+                toolCallMessage.next = Option.some(
+                  createMessage<UserMessage>({
+                    role: "user",
+                    content: [
                       {
-                        category: callResult.category,
-                        value: JSON.stringify(callResult),
-                      } as const,
+                        type: "tool_result",
+                        tool_use_id: toolCall.toolCall.id,
+                        content: `Category: ${callResult.category}, Result: ${JSON.stringify(callResult.result, undefined, 2)}`,
+                      },
                     ],
-                  },
-                };
+                    prev: Option.some(toolCallMessage),
+                  }),
+                );
+
+                getLast(state.messages).next = Option.some(toolCallMessage);
+
+                return { messages: getFirst(state.messages) };
               }),
             ),
         }),
       ),
     ),
   );
-};
+}
 
-const chatStates: (GraphState & { id: string })[] = [];
+const chatStates: { messages: Message; id: number }[] = [];
 
-export const harmonyChat = async (message: ArrayMessage[], id: string) => {
+export const harmonyChat = async (
+  message: ArrayMessage[],
+  id: number,
+): Promise<ArrayMessage[] | void> => {
   const index = chatStates.findIndex((state) => state.id === id);
   if (index === -1) {
     chatStates.push({
-      messages: Option.getOrThrow(wrapMessages(message)),
-      queries: [],
+      messages: Option.getOrThrow(toLinkedList(message)),
       id,
     });
   }
 
   if (index !== -1)
-    chatStates.at(-1)!.messages = Option.getOrThrow(wrapMessages(message));
+    chatStates.at(-1)!.messages = Option.getOrThrow(toLinkedList(message));
 
-  const result = chatNode({
-    ...(index === -1 ? chatStates.at(-1)! : chatStates.at(-1)!),
-  });
+  const result = chatNode(
+    {
+      ...(index === -1 ? chatStates.at(-1)! : chatStates.at(-1)!),
+    },
+    id,
+  );
 
   const next = await Effect.runPromiseExit(result);
 
@@ -214,13 +272,21 @@ export const harmonyChat = async (message: ArrayMessage[], id: string) => {
         cause.pipe(Cause.pretty, console.log);
       },
       onSuccess: (next) => {
-        if (index === -1)
-          chatStates[chatStates.length - 1] = { ...next.state, id };
-        else chatStates[chatStates.length - 1] = { ...next.state, id };
+        if (index === -1) chatStates[chatStates.length - 1] = { ...next, id };
+        else chatStates[index] = { ...next, id };
 
-        const unwrapped = unwrapMessages(getFirst(next.state.messages));
-        console.log(chatStates[chatStates.length - 1], "state");
+        const unwrapped = toArray(getFirst(next.messages));
         console.log(unwrapped, "response");
+
+        const lastMessage = unwrapped.at(-1);
+        if (lastMessage) {
+          if (typeof lastMessage.content === "string") {
+            return unwrapped;
+          }
+          if (lastMessage.content[0].type === "tool_result") {
+            return harmonyChat(unwrapped, id);
+          }
+        }
         return unwrapped;
       },
     }),

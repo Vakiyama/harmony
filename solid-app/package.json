@@ -7,7 +7,9 @@
     "start": "vinxi start --preset node-server",
     "test": "vitest",
     "seed": "bun ./drizzle/seed.ts ",
-    "push": "bun drizzle-kit push"
+    "push": "bun drizzle-kit push",
+    "setup": "bun drizzle-kit push && bun run seed",
+    "studio": "bun drizzle-kit studio"
   },
   "devDependencies": {
     "@solidjs/testing-library": "^0.8.10",

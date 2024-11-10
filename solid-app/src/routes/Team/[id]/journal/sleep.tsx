@@ -46,10 +46,10 @@ export default function SleepTracker() {
     Omit<SleepWithNoteUser, "user" | "recipient"> | undefined
   >();
   const recipient = createAsync(
-    async () => await getRecipientName(parseInt(params.id))
+    async () => await getRecipientName(parseInt(params.id)),
   );
   const sleepData = createAsync(
-    async () => await getSleepById(parseInt(existingEntry))
+    async () => await getSleepById(parseInt(existingEntry)),
   );
   const recipientData = createMemo(() => recipient());
   createMemo(() => {
@@ -83,7 +83,7 @@ export default function SleepTracker() {
       setError("");
       formRef()?.reset();
       showNotification(
-        isEditing() ? "Sleep Entry Updated" : "Sleep Entry Posted"
+        isEditing() ? "Sleep Entry Updated" : "Sleep Entry Posted",
       );
       navigate(`/team/${params.id}/journal`);
     } else if (result.error) {
@@ -140,7 +140,7 @@ export default function SleepTracker() {
                 <label class="text-h4">Hours Slept</label>
                 <input
                   name="duration"
-                  type="number"
+                  type="text"
                   class="border border-lofiGray rounded-md text-center p-2"
                   placeholder="00:00"
                   value={entry()?.duration}
