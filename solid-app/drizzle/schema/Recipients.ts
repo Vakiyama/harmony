@@ -1,12 +1,13 @@
 import { integer, text, sqliteTable } from "drizzle-orm/sqlite-core";
 import { users } from "./Users";
 
-export const recipients = sqliteTable("recipients", {
+export const Recipients = sqliteTable("recipients", {
   id: integer("id").primaryKey({ autoIncrement: true }).notNull().unique(),
   firstName: text("first_name").notNull(),
-  lastName: text("last_name"),
+  lastName: text("last_name").notNull(),
   email: text("email").unique(), // email of a recipient's family member
   phoneNumber: text("phone_number").unique(), // emergency contact
+  recipientType: text("recipient_type").notNull(), // 'user' or 'non_user'
   photo: text("photo").default(""),
   age: text("age").notNull(),
   gender: text("gender").notNull(),
@@ -21,4 +22,7 @@ export const recipients = sqliteTable("recipients", {
   userId: integer("user_id").references(() => users.id),
 });
 
-export type Recipient = typeof recipients.$inferSelect;
+export type Recipient = typeof Recipients.$inferSelect;
+export type AttachedRecipient = {
+  firstName: Recipient["firstName"];
+};

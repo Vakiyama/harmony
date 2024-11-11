@@ -10,8 +10,11 @@ export const teamMembers = sqliteTable("teammembers", {
   userId: integer("user_id")
     .references(() => users.id)
     .notNull(),
-  role: text("role").notNull(), // 'son'/'daughter'
+  role: text("role").notNull(),
   type: text("type").notNull().default("member"), // 'admin' or 'member'
+  defaultTeam: integer("default_team", { mode: "boolean" })
+    .notNull()
+    .default(false),
 });
 
 export type TeamMember = typeof teamMembers.$inferSelect;

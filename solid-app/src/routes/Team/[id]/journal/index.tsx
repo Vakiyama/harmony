@@ -1,7 +1,6 @@
 import { createSignal, Suspense } from "solid-js";
 import Modal from "../../../../components/shared/modal";
 import JournalFeed from "./journal-feed";
-import { LandingHeader } from "~/components/landing/LandingHeader";
 import { MetaProvider } from "@solidjs/meta";
 import Notification from "~/components/shared/notification";
 import {
@@ -29,11 +28,8 @@ export default function Journal() {
 
   return (
     <MetaProvider>
-      <div class="flex flex-col w-full text-start h-[calc(100%-100px)] overflow-hidden">
-        <span class="mt-4">
-          <LandingHeader />
-        </span>
-        <div class="w-full flex flex-col gap-2 mt-6">
+      <div class="flex flex-col w-full text-start h-full">
+        <div class="w-full flex flex-col gap-2 mt-20 overflow-hidden">
           <div class="flex flex-row justify-between items-center mx-2">
             <h2 class="font-medium text-[24px]">Journal Entry</h2>
             <button
@@ -69,7 +65,6 @@ export default function Journal() {
             </div>
           )}
         </div>
-        <div class="h-[88px]"></div> {/* Temporary */}
       </div>
       {isNotificationVisible() && (
         <Notification

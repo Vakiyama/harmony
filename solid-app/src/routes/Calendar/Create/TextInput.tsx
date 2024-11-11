@@ -8,13 +8,13 @@ export default function TextInput(props: {
   placeholder: string;
 }) {
   return (
-    <TextField class="flex flex-col ">
-      <TextField.Label class="text-lg font-semibold">
+    <TextField class="flex flex-col w-full">
+      <TextField.Label class="text-lg font-grotesque">
         {props.label}
       </TextField.Label>
       <TextField.Input
         value={props.value()}
-        class="border p-1 rounded-lg py-3 ps-4"
+        class="border p-1 rounded-lg font-sf-pro py-3 ps-4"
         placeholder={props.placeholder}
         onInput={(e) => props.setValue(e.currentTarget.value)}
       />

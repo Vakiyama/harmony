@@ -19,13 +19,13 @@ export default function TextArea(props: {
     props.setValue(processedLines.join("\n"));
   };
   return (
-    <TextField class="flex flex-col ">
-      <TextField.Label class="text-lg font-semibold">
+    <TextField class="flex flex-col w-full ">
+      <TextField.Label class="text-lg font-grotesque">
         {props.label}
       </TextField.Label>
       <TextField.TextArea
         value={props.value()}
-        class="border p-1 rounded-lg ps-4 h-40"
+        class="border p-1 rounded-lg ps-4 h-40 font-sf-pro"
         placeholder={props.placeholder}
         onInput={handleInput}
       />

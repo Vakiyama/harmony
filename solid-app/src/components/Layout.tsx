@@ -1,49 +1,38 @@
-import { useLocation } from "@solidjs/router";
-import { Component, JSXElement, useContext } from "solid-js";
+import { useLocation, useParams } from "@solidjs/router";
+import { Component, createEffect, createSignal, JSXElement } from "solid-js";
 import TopNav from "~/components/shared/TopNav";
 import { LandingHeader } from "./landing/LandingHeader";
+import { getListOfTeams } from "~/api/team";
+import { TeamWithDefault } from "@/schema/Teams";
 import NavBar from "./shared/nav-bar";
-import { BottomNavContext } from "~/context/bottom-nav-provider";
+import { TeamContext, TeamContextType } from "./Layout-Context";
 
 const Layout: Component<{ children: JSXElement }> = (props) => {
   const location = useLocation();
-  const { showBottomNav } = useContext(BottomNavContext);
-  const routesWithoutBottomNav = ["/team/create"];
-  const hideBottomNav = routesWithoutBottomNav.some((route) =>
-    location.pathname.startsWith(route)
-  );
+  const params = useParams();
+  const [teamListData, setTeamListData] = createSignal<
+    { team: TeamWithDefault }[] | undefined
+  >(undefined);
 
+  const [refetchTrigger, setRefetchTrigger] = createSignal(0);
+  createEffect(async () => {
+    const teamData = await getListOfTeams();
+    setTeamListData(teamData);
+    setRefetchTrigger((prev) => prev + 1);
+    console.log(teamListData());
+  });
+
+  const contextValue: TeamContextType = {
+    teamListData,
+    refetchTrigger,
+    setRefetchTrigger,
+  };
   const renderTopNav = () => {
-    if (location.pathname.startsWith("/landing")) {
-      return <LandingHeader />;
-    } else if (location.pathname.startsWith("/profile")) {
-      return (
-        <TopNav
-          name="Lola's Care Circle"
-          leftNavigation="Back"
-          rightNavigation=""
-        />
-      );
-    } else if (location.pathname.startsWith("/team/1/journal/")) {
+    if (location.pathname.startsWith(`/team/${params.id}/journal/`)) {
       return (
         <TopNav
           name=""
-          leftNavigation={
-            <svg
-              width="23"
-              height="23"
-              viewBox="0 0 23 23"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M11.8176 0.590173C12.4164 1.2065 12.4164 2.20576 11.8176 2.82208L5.23513 9.59712H21.4667C22.3135 9.59712 23 10.3037 23 11.1753C23 12.0469 22.3135 12.7535 21.4667 12.7535H5.23513L11.8176 19.5286C12.4164 20.1449 12.4164 21.1441 11.8176 21.7605C11.2188 22.3768 10.2479 22.3768 9.6491 21.7605L0.449103 12.2913C-0.149701 11.675 -0.149701 10.6757 0.449103 10.0594L9.6491 0.590173C10.2479 -0.0261516 11.2188 -0.0261516 11.8176 0.590173Z"
-                fill="#1E1E1E"
-              />
-            </svg>
-          }
+          leftNavigation={<div>Back</div>}
           rightNavigation={
             <div class="flex items-center justify-center aspect-square bg-black rounded-full w-[30px] h-[30px]">
               <svg
@@ -62,16 +51,32 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
           }
         />
       );
+    } else if (
+      location.pathname.startsWith("/landing") ||
+      location.pathname.startsWith(`/team/${params.id}/journal`) ||
+      location.pathname.startsWith("/team/create")
+    ) {
+      return (
+        <LandingHeader
+          teamData={teamListData()}
+          defaultSetter={setTeamListData}
+        />
+      );
     }
     return null;
   };
 
   return (
-    <div class="h-full">
-      {renderTopNav()}
-      <div class="h-full">{props.children}</div>
-      {showBottomNav() && !hideBottomNav && <NavBar />}
-    </div>
+    <TeamContext.Provider value={contextValue}>
+      <div class="h-full">
+        {renderTopNav()}
+        <div class="h-full">{props.children}</div>
+        {location.pathname.startsWith("/api") ||
+        location.pathname.startsWith("/harmony-ai") ? null : (
+          <NavBar teamData={teamListData()} />
+        )}
+      </div>
+    </TeamContext.Provider>
   );
 };
 

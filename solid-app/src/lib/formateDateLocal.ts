@@ -16,3 +16,12 @@ export const formatDateToLongForm = (date: Date | null | undefined) => {
 
   return momentDate.format("dddd, MMMM D");
 };
+
+export const formatTimeForPicker = (date: Date | null | undefined) => {
+  if (!date) return;
+
+  const hours = ("0" + date.getHours()).slice(-2);
+  const min = ("0" + date.getMinutes()).slice(-2);
+
+  return `${hours}:${min}`;
+};

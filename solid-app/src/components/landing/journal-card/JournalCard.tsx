@@ -11,6 +11,7 @@ import { TabsContent } from "~/components/ui/landing/landing-tabs";
 import Member from "../Member";
 import { Section } from "./Section";
 import { AttachedUser } from "@/schema/Users";
+import { A, useParams } from "@solidjs/router";
 
 export function JournalCard(props: {
   icon: JSXElement;
@@ -20,6 +21,7 @@ export function JournalCard(props: {
   sections: { title?: string; content: JSXElement }[];
   withMember?: boolean;
   member: AttachedUser | null;
+  entryId: number;
 }) {
   const backgroundColor = `bg-${props.value
     .split(" ")
@@ -33,6 +35,8 @@ export function JournalCard(props: {
       return i === 1 ? c[0].toUpperCase() + c.substring(1) : c;
     })
     .join("")}IconBackground`;
+
+  const teamId = useParams().id;
   return (
     <TabsContent value={props.value}>
       <Card class="bg-[#fdfdfd]">
@@ -48,19 +52,35 @@ export function JournalCard(props: {
               </div>
               <CardTitle class="ml-2">{props.title}</CardTitle>
             </div>
-            <div class="flex flex-row gap-2 items-center mx-2">
-              <CardDescription class="text-sm text-black">
+            <div class="flex flex-row gap-2 items-center justify-center mx-2">
+              <CardDescription
+                classList={{
+                  flex: true,
+                  "leading-none": true,
+                  "items-center": true,
+                  "text-subtitle": true,
+                }}
+              >
                 {props.dateTime}
               </CardDescription>
-              <FaSolidPen size={15} />
+              <A
+                href={`/team/${teamId}/journal/${
+                  props.value === "medication taken"
+                    ? "medications"
+                    : props.value
+                }?edit=${props.entryId}`}
+              >
+                <FaSolidPen size={11} color="#1E1E1EBF" />
+              </A>
             </div>
           </div>
         </CardHeader>
-        <div class="mx-4 bg-black/15 h-0.5 rounded-full" />
-        <CardContent class="space-y-2 mt-3 flex flex-col gap-y-2">
+        <div class="mx-3 bg-black/15 h-0.5 rounded-full" />
+        <CardContent class="mt-3 flex flex-col gap-y-3 w-full">
           <For each={props.sections}>
             {(section) => <Section {...section} />}
           </For>
+          <div class="bg-black/15 h-0.5 rounded-full" />
           {props.withMember && <Member member={props.member} />}
         </CardContent>
       </Card>

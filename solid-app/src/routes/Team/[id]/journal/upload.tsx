@@ -4,7 +4,7 @@ interface UploadProps {
 
 export default function Upload(props: UploadProps) {
   return (
-    <div class="h-[141px] flex flex-col items-center justify-center border border-black50 rounded-md w-full">
+    <div class="h-[141px] flex flex-col items-center justify-center border border-lofiGray rounded-md w-full">
       <svg
         width="17"
         height="17"
@@ -30,7 +30,6 @@ export default function Upload(props: UploadProps) {
         </defs>
       </svg>
       <p class="text-[#5A5A5A]">{props.description}</p>
-      <input type="file" hidden />
     </div>
   );
 }

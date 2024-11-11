@@ -1,5 +1,6 @@
 import { integer, text, sqliteTable } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
+import { Teams } from "./Teams";
 
 export const users = sqliteTable("users", {
   id: integer("id").primaryKey({ autoIncrement: true }).unique().notNull(),
@@ -21,8 +22,12 @@ export const users = sqliteTable("users", {
 
 export type User = typeof users.$inferSelect;
 export type AttachedUser = {
-  id: User["id"];
-  firstName: User["firstName"];
-  lastName: User["lastName"];
-  photo: User["photo"];
+  id: User["id"] | null;
+  firstName: User["firstName"] | null;
+  lastName: User["lastName"] | null;
+  photo: User["photo"] | null;
 };
+
+export interface AttachedUserWithTeamRole extends AttachedUser {
+  role: string | null;
+}

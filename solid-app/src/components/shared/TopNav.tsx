@@ -1,5 +1,5 @@
 import { JSX } from "solid-js";
-import { useLocation } from "@solidjs/router";
+import { useLocation, useParams } from "@solidjs/router";
 
 export default function TopNav(props: {
   name?: JSX.Element;
@@ -7,11 +7,12 @@ export default function TopNav(props: {
   rightNavigation?: JSX.Element;
 }) {
   const location = useLocation();
+  const params = useParams();
 
   let backLocation;
 
-  if (location.pathname.startsWith("/team/1/journal")) {
-    backLocation = "/team/1/journal";
+  if (location.pathname.startsWith(`/team/${params.id}/journal`)) {
+    backLocation = `/team/${params.id}/journal`;
   }
 
   if (location.pathname.includes("/harmony-ai/chat")) {
@@ -23,7 +24,7 @@ export default function TopNav(props: {
   }
 
   return (
-    <div class="w-full flex flex-row h-[95px] bg-white shadow-md">
+    <div class="w-full flex flex-row h-[95px] bg-white fixed top-0">
       <div class="w-full flex flex-row justify-between items-end px-4 mb-4">
         <div class="flex items-center">
           <a href={backLocation}>{props.leftNavigation}</a>

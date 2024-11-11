@@ -27,9 +27,10 @@ const RadioGroupComponent = (props: RadioGroupProps) => {
         {(option) => (
           <RadioGroupItem
             value={option}
-            class="relative flex items-center justify-start w-full h-10 rounded-md px-3 py-2 border-1 border-black50"
+            class="relative flex items-center justify-start w-full h-10 text-base text-black50 rounded-md px-3 py-2 hover:bg-primary-purple-150"
             classList={{
-              "bg-lofiGray": value() === option,
+              "bg-primary-purple-150 font-medium text-black":
+                value() === option,
             }}
           >
             <input
@@ -37,8 +38,14 @@ const RadioGroupComponent = (props: RadioGroupProps) => {
               id={option}
               class="absolute inset-0 w-full h-full opacity-0 peer"
             />
-            <RadioGroupItemControl class="absolute inset-0 w-full h-full z-0" />
-            <RadioGroupItemLabel class="flex items-center justify-center text-sm text-gray-700 hover:text-blue-600 cursor-pointer z-10">
+            <RadioGroupItemControl class="absolute inset-0 w-full h-full" />
+            <RadioGroupItemLabel
+              class="flex items-center justify-center text-base cursor-pointer z-10"
+              classList={{
+                "text-black": value() === option,
+                "text-black50": value() !== option,
+              }}
+            >
               {option}
             </RadioGroupItemLabel>
           </RadioGroupItem>
