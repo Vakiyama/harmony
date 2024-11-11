@@ -28,28 +28,8 @@ import { sleeps } from "../../../drizzle/schema/Sleeps";
 import { notes } from "../../../drizzle/schema/Notes";
 import { meals } from "../../../drizzle/schema/Meals";
 import { medications } from "../../../drizzle/schema/Medications";
-import { InferInsertModel, InferSelectModel, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { takenMedications } from "../../../drizzle/schema/TakenMedications";
-import { Params } from "@solidjs/router";
-
-// we need to:
-// give claude access to the user's db so that we can fetch
-//
-// This feels like a problem where can give claude a simple query client for user related data,
-// instead of building a highly abstracted query client
-//
-// medication info
-// meals info
-// sleep info
-// mood info
-// notes info
-//
-// claude also needs to be able to:
-// create all journal entries
-// create calendar events
-//
-// it's clearly too dangerous to let claude freely query the db
-// claude is also likely to make a mistake when creating if it's running raw sql queries?
 
 const CHAT_SYSTEM_MESSAGE = `
 You are a helpful assitant to a caretaker. Your name is "Harmony".

@@ -5,6 +5,7 @@ import { db } from "./db";
 import { getKindeClient, sessionManager } from "./kinde";
 import { UserType } from "@kinde-oss/kinde-typescript-sdk";
 import { Users } from "../../drizzle/schema/Users";
+import { mightFail } from "might-fail";
 
 type UserTypeExtended = UserType & {
   dob?: string;
@@ -82,25 +83,19 @@ export async function getUser() {
   const session = sessionManager?.getSession();
   const userId = session?.data.userId;
   if (!session || !session.data?.userId) {
-    return redirect("/api/auth/landing");
+    throw redirect("/api/auth/landing");
   }
-  try {
-    const user = await db
-      .select()
-      .from(Users)
-      .where(eq(Users.id, userId))
-      .get();
-    if (!user) return redirect("/api/auth/landing");
-    return {
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      photo: user.photo,
-    };
-  } catch (err) {
-    console.log(err);
-    return logout();
-  }
+  const [error, user] = await mightFail(
+    db.select().from(Users).where(eq(Users.id, userId)).get(),
+  );
+  if (error) throw logout();
+  if (!user) throw redirect("/api/auth/landing");
+  return {
+    id: user.id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    photo: user.photo,
+  };
 }
 
 export async function checkAuthenticated() {

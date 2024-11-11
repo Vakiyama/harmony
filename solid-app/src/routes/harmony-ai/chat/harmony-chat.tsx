@@ -14,21 +14,23 @@ import Soundwave from "../images/BsSoundwave.svg";
 import { harmonyChat } from "~/api/claude/chat";
 import SolidMarkdown from "@zentered/solid-markdown";
 import "./markdown.css";
-import { A } from "@solidjs/router";
+import { A, CustomResponse } from "@solidjs/router";
 import { ArrayMessage } from "~/api/claude/effectGraph/messages";
 import { ToolUse } from "~/api/claude/effectGraph/callClaude";
-import { getUser, getUserIdFromSession } from "~/api/server";
-import { User } from "@/schema/Users";
+import { getUser } from "~/api/server";
 
-export function HarmonyChat() {
+export function useHarmonyChat(
+  user: Accessor<
+    | {
+        id: number;
+        firstName: string;
+        lastName: string;
+        photo: string | null;
+      }
+    | undefined
+  >,
+) {
   const [messages, setMessages] = createSignal<ArrayMessage[]>([]);
-  const [input, setInput] = createSignal<string>("");
-  const [lastMessage, setLastMessage] = createSignal<HTMLDivElement>();
-  const [user, setUser] = createSignal<Awaited<ReturnType<typeof getUser>>>();
-
-  onMount(async () => {
-    setUser(await getUser());
-  });
 
   async function handleConversation(messages: ArrayMessage[]) {
     if (!user()) return;
@@ -38,8 +40,25 @@ export function HarmonyChat() {
     setMessages(response);
   }
 
+  return {
+    messages,
+    setMessages,
+    handleConversation,
+  };
+}
+
+export function HarmonyChat() {
+  const [input, setInput] = createSignal<string>("");
+  const [lastMessage, setLastMessage] = createSignal<HTMLDivElement>();
+  const [user, setUser] = createSignal<Awaited<ReturnType<typeof getUser>>>();
+
+  const { messages, setMessages, handleConversation } = useHarmonyChat(user);
+
+  onMount(async () => {
+    setUser(await getUser());
+  });
+
   createEffect(() => {
-    //  console.log(lastMessage());
     if (lastMessage() === undefined) return;
     lastMessage()!.scrollIntoView({
       block: "end",
