@@ -47,7 +47,7 @@ async function register(kindeUser: UserTypeExtended) {
       lastName: kindeUser.family_name,
       ...(kindeUser.picture ? { photo: kindeUser.picture } : {}),
       email: kindeUser.email,
-      // roleType: "other",
+      roleType: "other",
       ...(kindeUser.dob ? { birthDate: new Date(kindeUser.dob) } : {}),
     })
     .returning()

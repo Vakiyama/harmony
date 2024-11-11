@@ -1,6 +1,6 @@
 import { mightFail } from "might-fail";
 import { db } from "./db";
-import { TeamMembers } from "../../drizzle/schema/TeamMembers";
+import { teamMembers } from "../../drizzle/schema/TeamMembers";
 import { and, eq } from "drizzle-orm";
 
 export function isValidEnumValue<T extends readonly string[]>(
@@ -15,9 +15,9 @@ export async function isMemberOfTeam(userId: number, teamId: number) {
   const [memberError, memberResult] = await mightFail(
     db
       .select()
-      .from(TeamMembers)
+      .from(teamMembers)
       .where(
-        and(eq(TeamMembers.userId, userId), eq(TeamMembers.teamId, teamId))
+        and(eq(teamMembers.userId, userId), eq(teamMembers.teamId, teamId))
       )
   );
   if (memberError || !memberResult.length) {

@@ -4,10 +4,10 @@ import { users } from "./Users";
 export const recipients = sqliteTable("recipients", {
   id: integer("id").primaryKey({ autoIncrement: true }).notNull().unique(),
   firstName: text("first_name").notNull(),
-  lastName: text("last_name").notNull(),
+  lastName: text("last_name").notNull().default(""),
   email: text("email").unique(), // email of a recipient's family member
   phoneNumber: text("phone_number").unique(), // emergency contact
-  recipientType: text("recipient_type").notNull(), // 'user' or 'non_user'
+  recipientType: text("recipient_type").notNull().default("non_user"), // 'user' or 'non_user'
   photo: text("photo").default(""),
   age: text("age").notNull(),
   gender: text("gender").notNull(),

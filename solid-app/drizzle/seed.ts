@@ -25,7 +25,7 @@ const seedData = async () => {
       firstName: "grandma",
       kindeId: "ajksdlasjdkl",
       lastName: "",
-      // roleType: "User",
+      roleType: "User",
     })
     .returning();
 
@@ -37,7 +37,7 @@ const seedData = async () => {
       firstName: "grandpa",
       kindeId: "ajksddkl",
       lastName: "",
-      // roleType: "User",
+      roleType: "User",
     })
     .returning();
   // Seed Recipients

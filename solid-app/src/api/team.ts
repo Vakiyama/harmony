@@ -210,13 +210,11 @@ export const updateDefaultTeam = action(async (teamId: number) => {
     console.log("User is not Authenticated");
     return undefined;
   }
-
   const isMember = await isMemberOfTeam(userId, teamId);
   if (!isMember) {
     console.log("Insufficient Permissions");
     return undefined;
   }
-
   const transactionResult = await db.transaction(async (tx) => {
     const [updateError, updateResult] = await mightFail(
       tx
@@ -286,10 +284,9 @@ export const createRecipientAction = action(
   }: {
     recipientInput: {
       firstName: string;
-      lastName: string;
+      lastName?: string;
       email?: string;
       phoneNumber?: string;
-      recipientType: string;
       photo?: string;
       age: string;
       gender: string;
@@ -326,22 +323,18 @@ export const createRecipientAction = action(
       return { error: errors.join(",") };
     }
 
-    const lastName = recipientInput.lastName as string | undefined;
-    const email = recipientInput.email as string | undefined;
-    const phoneNumber = recipientInput.phoneNumber as string | undefined;
-    const photo = recipientInput.photo as string | undefined;
-    const livesWith = recipientInput.livesWith as string | undefined;
-    const employment = recipientInput.employment as string | undefined;
-    const allergies = recipientInput.allergies as string | undefined;
-    const dietaryRestrictions = recipientInput.dietaryRestrictions as
-      | string
-      | undefined;
-    const pastInjuries = recipientInput.pastInjuries as string | undefined;
-    const mobilityNeed = recipientInput.mobilityNeed as string | undefined;
-
-    if (!recipientInput.lastName === undefined) {
-      recipientInput.lastName = "";
-    }
+    // const lastName = recipientInput.lastName as string | undefined;
+    // const email = recipientInput.email as string | undefined;
+    // const phoneNumber = recipientInput.phoneNumber as string | undefined;
+    // const photo = recipientInput.photo as string | undefined;
+    // const livesWith = recipientInput.livesWith as string | undefined;
+    // const employment = recipientInput.employment as string | undefined;
+    // const allergies = recipientInput.allergies as string | undefined;
+    // const dietaryRestrictions = recipientInput.dietaryRestrictions as
+    //   | string
+    //   | undefined;
+    // const pastInjuries = recipientInput.pastInjuries as string | undefined;
+    // const mobilityNeed = recipientInput.mobilityNeed as string | undefined;
 
     const [recipientError, recipientResult] = await mightFail(
       db.insert(recipients).values(recipientInput).returning({
@@ -393,6 +386,27 @@ export const createTeamAction = action(
       console.error("Team insertion error:", teamError);
       return { error: "Failed to insert team." };
     }
+    const [teamsError, teamsResult] = await mightFail(
+      db.select().from(teamMembers).where(eq(teamMembers.userId, userId))
+    );
+    if (teamsError) {
+      return { error: "failed to get list of teams" };
+    }
+    let defaultTeam = false;
+    if (!teamsResult.length) {
+      defaultTeam = true;
+    }
+    const [teamMemberError, teamMemberResult] = await mightFail(
+      db.insert(teamMembers).values({
+        teamId: teamResult[0].teamId,
+        userId,
+        role: "admin",
+        defaultTeam,
+      })
+    );
+    if (teamMemberError) {
+      return { error: "error creating team member relationship" };
+    }
     return {
       success: true,
       message: "Team successfully created.",
@@ -425,7 +439,6 @@ export const createSurgeryAction = action(
     if (surgeriesList.length === 0) {
       return { error: "No surgeries provided" };
     }
-
     for (const surgery of surgeriesList) {
       if (!surgery.name || !surgery.year) {
         return { error: "Surgery name and year are required" };

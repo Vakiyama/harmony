@@ -145,7 +145,8 @@ export default function CreateSomeone() {
       showNotification("Created Team successfully");
       await new Promise((resolve) => setTimeout(resolve, 3000));
       team.resetForm();
-      navigate("/landing");
+      //landing needs to rerender
+      window.location.href = "/landing";
     } catch (error) {
       console.error("Error creating team or recipient:", error);
       showNotification("Failed to create team or recipient");

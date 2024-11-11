@@ -1,6 +1,5 @@
 import { integer, text, sqliteTable } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
-import { Teams } from "./Teams";
 
 export const users = sqliteTable("users", {
   id: integer("id").primaryKey({ autoIncrement: true }).unique().notNull(),
@@ -16,7 +15,7 @@ export const users = sqliteTable("users", {
   updatedAt: integer("updated_at", { mode: "timestamp" })
     .notNull()
     .default(sql`(unixepoch())`),
-  // roleType: text("role_type").notNull(), // family/neighbor - company - other
+  roleType: text("role_type").notNull(), // family/neighbor - company - other
   birthDate: integer("birth_date", { mode: "timestamp" }),
 });
 
