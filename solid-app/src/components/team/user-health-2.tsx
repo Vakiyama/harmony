@@ -48,7 +48,6 @@ export default function UserHealth2() {
 
             <div class="mt-6">
               <p class="text-lg font-semibold">Past Injuries</p>
-
               <For each={team.state.pastInjuries}>
                 {(injury, index) => (
                   <div class="flex flex-col gap-2 mt-2">

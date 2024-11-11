@@ -92,7 +92,11 @@ export default function CreateSomeone() {
       showNotification("Team created successfully");
 
       // create important surgeries
-      if (team.state.importantSurgeries.length > 0) {
+      if (
+        team.state.importantSurgeries.length > 0 &&
+        team.state.importantSurgeries[0].name !== "" &&
+        team.state.importantSurgeries[0].year !== ""
+      ) {
         console.log("before creating", team.state.importantSurgeries);
         const surgeryResult = (await surgeryAction({
           surgeriesInput: {
@@ -102,14 +106,16 @@ export default function CreateSomeone() {
         })) as CreateSurgeryActionResponse;
 
         if (!surgeryResult.success) {
-          showNotification("Failed to create surgeries");
-          throw new Error(surgeryResult.error || "Failed to create surgeries");
+          console.log(surgeryResult.error || "Failed to create surgeries");
         }
         showNotification("Surgeries added successfully");
       }
 
       // create past injuries
-      if (team.state.pastInjuries.length > 0) {
+      if (
+        team.state.pastInjuries.length > 0 &&
+        team.state.pastInjuries[0].name.trim() !== ""
+      ) {
         console.log("before creating", team.state.pastInjuries);
         const injuryResult = (await injuryAction({
           injuriesInput: {
@@ -119,8 +125,7 @@ export default function CreateSomeone() {
         })) as CreateInjuryActionResponse;
 
         if (!injuryResult.success) {
-          showNotification("Failed to create injuries");
-          throw new Error(injuryResult.error || "Failed to create injuries");
+          console.log(injuryResult.error || "Failed to create injuries");
         }
         showNotification("Past injuries added successfully");
       }
@@ -135,10 +140,7 @@ export default function CreateSomeone() {
         })) as CreateMedicationActionResponse;
 
         if (!medicationResult.success) {
-          showNotification("Failed to create medications");
-          throw new Error(
-            medicationResult.error || "Failed to create medications"
-          );
+          console.log(medicationResult.error || "Failed to create medications");
         }
         showNotification("Medications added successfully");
       }
@@ -184,7 +186,7 @@ export default function CreateSomeone() {
                   <TextField
                     name="firstName"
                     placeholder="Enter name"
-                    // required
+                    required
                     onInput={(e) =>
                       team.updateRecipientField(
                         "firstName",

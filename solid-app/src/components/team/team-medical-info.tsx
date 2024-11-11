@@ -41,7 +41,8 @@ export default function TeamMedicationInfo() {
               title: "Past Injuries",
               content: (
                 <div class="text-xs">
-                  {pastInjuries.length > 0 ? (
+                  {pastInjuries.length > 0 &&
+                  pastInjuries[0].name.trim() !== "" ? (
                     <For each={pastInjuries}>
                       {(injury) => <p>{injury.name}</p>}
                     </For>
@@ -55,7 +56,8 @@ export default function TeamMedicationInfo() {
               title: "Important Surgeries",
               content: (
                 <div class="text-xs ">
-                  {importantSurgeries.length > 0 ? (
+                  {importantSurgeries.length > 0 &&
+                  importantSurgeries[0].name.trim() !== "" ? (
                     <For each={importantSurgeries}>
                       {(surgery) => (
                         <p>

@@ -49,24 +49,24 @@ export default function UserInfo2() {
     livesWith: null,
     employment: null,
   });
-  // const handleNext = () => {
-  //   const newErrors: { [key: string]: string | null } = {};
-  //   let hasError = false;
+  const handleNext = () => {
+    const newErrors: { [key: string]: string | null } = {};
+    let hasError = false;
 
-  //   formFields.forEach((field) => {
-  //     if (field.required && !team.state.recipient[field.name]) {
-  //       newErrors[field.name] = "This field is required";
-  //       hasError = true;
-  //     } else {
-  //       newErrors[field.name] = null;
-  //     }
-  //   });
-  //   setErrors(newErrors);
-  //   console.log(errors());
-  //   if (!hasError) {
-  //     team.nextStep();
-  //   }
-  // };
+    formFields.forEach((field) => {
+      if (field.required && !team.state.recipient[field.name]) {
+        newErrors[field.name] = "This field is required";
+        hasError = true;
+      } else {
+        newErrors[field.name] = null;
+      }
+    });
+    setErrors(newErrors);
+    console.log(errors());
+    if (!hasError) {
+      team.nextStep();
+    }
+  };
 
   return (
     <>
@@ -133,7 +133,7 @@ export default function UserInfo2() {
         <div class="flex flex-col items-center justify-center">
           <Button
             type="submit"
-            onClick={team.nextStep}
+            onClick={handleNext}
             class="rounded-full w-full bg-[#AE9BF2] text-black h-[50px]"
           >
             Next
