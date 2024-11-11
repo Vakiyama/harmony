@@ -1,4 +1,3 @@
-import RadioGroupComponent from "~/components/shadcn/RadioGroup";
 import DatePickerComponent from "~/components/shadcn/DatePicker";
 import {
   createMealAction,
@@ -19,7 +18,7 @@ import { Button } from "~/components/ui/button";
 import AddNote from "~/routes/Team/[id]/journal/add-notes";
 import Header from "./header";
 import SelectInput from "~/components/shadcn/Select";
-import PhotoUpload from "./upload";
+import Upload from "./upload";
 import { showNotification } from "~/routes/api/notificationStore";
 import NutritionIcon from "~/components/icon/nutrition-icon";
 import { MealWithNoteUser } from "@/schema/Meals";
@@ -197,7 +196,7 @@ export default function NutritionTracker() {
               </div>
               <div class="flex flex-col" onClick={() => setShowAddPhoto(true)}>
                 <label class="text-h4">Photo</label>
-                <PhotoUpload description="Tap to add a photo" />
+                <Upload type="photo" description="Tap to add a photo" />
               </div>
               <AddNote
                 title="Add Notes"
