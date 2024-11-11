@@ -4,7 +4,7 @@ import { AttachedUserWithTeamRole } from "./Users";
 import { Medications } from "./Medications";
 import { TeamMember } from "./TeamMembers";
 
-export const Teams = sqliteTable("teams", {
+export const teams = sqliteTable("teams", {
   id: integer("id").primaryKey({ autoIncrement: true }).unique().notNull(),
   teamName: text("team_name").notNull(),
   photo: text("photo").notNull().default(""),
@@ -15,7 +15,7 @@ export const Teams = sqliteTable("teams", {
   // team_role(admin or member) dependend on a specific team
 });
 
-export type Team = typeof Teams.$inferSelect;
+export type Team = typeof teams.$inferSelect;
 
 export type TeamFromTeamId = {
   data: { teams: Team; recipients: Recipient | null };
