@@ -30,6 +30,11 @@ import { meals } from "../../../drizzle/schema/Meals";
 import { medications } from "../../../drizzle/schema/Medications";
 import { eq } from "drizzle-orm";
 import { takenMedications } from "../../../drizzle/schema/TakenMedications";
+import { getTeamFromTeamId } from "../team";
+import { Users } from "~/../drizzle/schema/Users";
+import { Teams } from "../../../drizzle/schema/Teams";
+import { TeamMembers } from "../../../drizzle/schema/TeamMembers";
+import { Recipients } from "../../../drizzle/schema/Recipients";
 
 const CHAT_SYSTEM_MESSAGE = `
 You are a helpful assitant to a caretaker. Your name is "Harmony".
@@ -288,17 +293,63 @@ const claudeTools = [
   createJournalEntryToolDefinition,
 ] as const;
 
-function makeClaudeToolCall(result: GraphState, voice?: boolean) {
+class QueryDBError {
+  readonly _tag = "QueryDBError";
+  error: unknown;
+
+  constructor(e: unknown) {
+    this.error = e;
+  }
+}
+
+async function getUserFromId(userId: number) {
+  const user = await db.select().from(Users).where(eq(Users.id, userId));
+  if (!user[0]) throw new Error("No user.");
+  return JSON.stringify(user[0], undefined, 2);
+}
+
+async function getRecipientFromUserId(userId: number) {
+  const teams = await db
+    .select({ recipient: Recipients })
+    .from(TeamMembers)
+    .innerJoin(Teams, eq(TeamMembers.userId, userId))
+    .innerJoin(Recipients, eq(Teams.recipientId, Recipients.id));
+
+  const recipient = teams[0];
+  if (!recipient) throw new Error("No teams?");
+  const formattedInfo = JSON.stringify(recipient.recipient, undefined, 2);
+  console.log(formattedInfo);
+
+  return { recipient: formattedInfo, user: await getUserFromId(userId) };
+}
+
+function makeClaudeToolCall(result: GraphState, id: number, voice?: boolean) {
   console.log("Voice mode?", voice);
-  return callClaudeWithTools({
-    claudeSettings: defaultClaudeSettings,
-    system: voice ? `${CHAT_SYSTEM_MESSAGE}` : CHAT_SYSTEM_MESSAGE_WITH_VOICE,
-    retryCount: 5,
-    messages: getFirst(result.messages),
-    type: "tools",
-    toolChoice: { type: "auto" },
-    tools: [...claudeTools],
-  });
+  return Effect.tryPromise({
+    try: () => getRecipientFromUserId(id),
+    catch: (e) => new QueryDBError(e),
+  }).pipe(
+    Effect.flatMap((info) =>
+      callClaudeWithTools({
+        claudeSettings: defaultClaudeSettings,
+        system: `${voice ? CHAT_SYSTEM_MESSAGE_WITH_VOICE : CHAT_SYSTEM_MESSAGE}
+
+        ## Recipient Information:
+
+          ${info.recipient}
+
+        ## User information:
+
+          ${info.user}
+        `,
+        retryCount: 5,
+        messages: getFirst(result.messages),
+        type: "tools",
+        toolChoice: { type: "auto" },
+        tools: [...claudeTools],
+      }),
+    ),
+  );
 }
 
 type ExtractValue<T> = T extends Effect.Effect<infer R, any, any> ? R : never;
@@ -406,7 +457,7 @@ function handleClaudeResponse(
 function chat(state: GraphState, userId: number, voice?: boolean) {
   return pipe(
     state,
-    (state) => makeClaudeToolCall(state, voice),
+    (state) => makeClaudeToolCall(state, userId, voice),
     Effect.flatMap((result) => handleClaudeResponse(result, state, userId)),
   );
 }

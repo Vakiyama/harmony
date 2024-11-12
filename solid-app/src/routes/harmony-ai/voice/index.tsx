@@ -144,7 +144,7 @@ export default function HarmonyVoice() {
         mediaRecorder.ondataavailable = async (event) => {
           if (playing() || muted()) {
             // LOL DON'T LOOK PLEASE DONT EVEN ASK
-            if (Math.random() > 0.05) return;
+            if (Math.random() > 0.15) return;
           }
           const base64AudioChunk = await pipe(
             event.data.arrayBuffer(),
@@ -157,7 +157,7 @@ export default function HarmonyVoice() {
           });
         };
 
-        mediaRecorder.start(100);
+        mediaRecorder.start(50);
         setRecorder(mediaRecorder);
       },
     );
