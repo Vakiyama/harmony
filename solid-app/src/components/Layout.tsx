@@ -71,7 +71,8 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
         {renderTopNav()}
         <div class="h-full">{props.children}</div>
         {location.pathname.startsWith("/api") ||
-        location.pathname.startsWith("/harmony-ai") ? null : (
+        location.pathname.startsWith("/harmony-ai") ||
+        location.pathname.startsWith("/team/create") ? null : (
           <NavBar teamData={teamListData()} />
         )}
       </div>

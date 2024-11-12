@@ -1,27 +1,34 @@
 // @refresh reload
-import { Router } from "@solidjs/router";
+import { Router, useLocation } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
-import { Suspense } from "solid-js";
+import { Suspense, useContext } from "solid-js";
 import "./app.css";
 import "./input.css";
 import Layout from "./components/Layout";
 import { MetaProvider } from "@solidjs/meta";
 import RootWrapper from "./components/shared/root-wrapper";
+import {
+  BottomNavContext,
+  BottomNavProvider,
+} from "./context/bottom-nav-provider";
+import { TeamProvider } from "./context/team-context";
 
 export default function App() {
   return (
-    <Router
-      root={(props) => (
-        <RootWrapper>
-          <MetaProvider>
-            <Suspense>
-              <Layout>{props.children}</Layout>
-            </Suspense>
-          </MetaProvider>
-        </RootWrapper>
-      )}
-    >
-      <FileRoutes />
-    </Router>
+    <TeamProvider>
+      <Router
+        root={(props) => (
+          <RootWrapper>
+            <MetaProvider>
+              <Suspense>
+                <Layout>{props.children}</Layout>
+              </Suspense>
+            </MetaProvider>
+          </RootWrapper>
+        )}
+      >
+        <FileRoutes />
+      </Router>
+    </TeamProvider>
   );
 }

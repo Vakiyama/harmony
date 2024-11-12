@@ -4,8 +4,8 @@ import { CalendarInput, calendars } from "../../drizzle/schema/Calendars";
 import { EventInput, events } from "../../drizzle/schema/Events";
 import { db } from "./db";
 import { and, eq } from "drizzle-orm";
-import { TeamMember, TeamMembers } from "../../drizzle/schema/TeamMembers";
-import { User, Users } from "../../drizzle/schema/Users";
+import { TeamMember, teamMembers } from "../../drizzle/schema/TeamMembers";
+import { User, users } from "../../drizzle/schema/Users";
 import { eventParticipants } from "../../drizzle/schema/EventParticipants";
 
 // Alarms
@@ -143,9 +143,9 @@ export const getTeamMembersFromTeamId = async (teamId: number) => {
   "use server";
   return (await db
     .select()
-    .from(TeamMembers)
-    .where(eq(TeamMembers.teamId, teamId))
-    .leftJoin(Users, eq(TeamMembers.userId, Users.id))) as {
+    .from(teamMembers)
+    .where(eq(teamMembers.teamId, teamId))
+    .leftJoin(users, eq(teamMembers.userId, users.id))) as {
     users: User;
     teammembers: TeamMember;
   }[];
@@ -155,20 +155,20 @@ export const getEventParticipants = async (eventId: number, teamId: number) => {
   "use server";
   const result = await db
     .select({
-      participant: Users,
+      participant: users,
       status: eventParticipants.status,
       eventParticipantId: eventParticipants.id,
-      role: TeamMembers.role,
+      role: teamMembers.role,
     })
     .from(eventParticipants)
     .where(
       and(
         eq(eventParticipants.eventId, eventId),
-        eq(TeamMembers.teamId, teamId)
+        eq(teamMembers.teamId, teamId)
       )
     )
-    .innerJoin(Users, eq(eventParticipants.userId, Users.id))
-    .innerJoin(TeamMembers, eq(eventParticipants.userId, TeamMembers.userId));
+    .innerJoin(users, eq(eventParticipants.userId, users.id))
+    .innerJoin(teamMembers, eq(eventParticipants.userId, teamMembers.userId));
   return result;
 };
 

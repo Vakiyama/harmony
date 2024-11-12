@@ -1,23 +1,29 @@
 import { integer, text, sqliteTable } from "drizzle-orm/sqlite-core";
-import { Users } from "./Users";
+import { users } from "./Users";
 
-export const Recipients = sqliteTable("recipients", {
+export const recipients = sqliteTable("recipients", {
   id: integer("id").primaryKey({ autoIncrement: true }).notNull().unique(),
   firstName: text("first_name").notNull(),
-  lastName: text("last_name").notNull(),
+  lastName: text("last_name").notNull().default(""),
   email: text("email").unique(), // email of a recipient's family member
   phoneNumber: text("phone_number").unique(), // emergency contact
-  recipientType: text("recipient_type").notNull(), // 'user' or 'non_user'
+  recipientType: text("recipient_type").notNull().default("non_user"), // 'user' or 'non_user'
   photo: text("photo").default(""),
+  age: text("age").notNull(),
   gender: text("gender").notNull(),
   preferredLanguage: text("preferred_language").notNull(),
+  healthCondition: text("health_condition").notNull(),
   livesWith: text("lives_with"),
-  hometown: text("hometown"),
+  // hometown: text("hometown"),
   employment: text("employment"),
-  userId: integer("user_id").references(() => Users.id),
+  allergies: text("allergies"),
+  dietaryRestrictions: text("dietary_restrictions"),
+  pastInjuries: text("past_injuries"),
+  mobilityNeed: text("mobility_need"),
+  userId: integer("user_id").references(() => users.id),
 });
 
-export type Recipient = typeof Recipients.$inferSelect;
+export type Recipient = typeof recipients.$inferSelect;
 export type AttachedRecipient = {
   firstName: Recipient["firstName"];
 };

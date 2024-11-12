@@ -1,8 +1,7 @@
 import { integer, text, sqliteTable } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
-import { Teams } from "./Teams";
 
-export const Users = sqliteTable("users", {
+export const users = sqliteTable("users", {
   id: integer("id").primaryKey({ autoIncrement: true }).unique().notNull(),
   kindeId: text("kindeId").unique().notNull(),
   displayName: text("displayName").notNull(),
@@ -20,7 +19,7 @@ export const Users = sqliteTable("users", {
   birthDate: integer("birth_date", { mode: "timestamp" }),
 });
 
-export type User = typeof Users.$inferSelect;
+export type User = typeof users.$inferSelect;
 export type AttachedUser = {
   id: User["id"] | null;
   firstName: User["firstName"] | null;
