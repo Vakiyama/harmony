@@ -13,14 +13,18 @@ import { mightFail } from "might-fail";
 import { isValidEnumValue } from "~/api/dbHelper";
 import SelectMultipleInput from "~/components/shadcn/MultiSelect";
 import ShowError from "~/routes/Team/[id]/journal/show-error";
+import EventCreateTopNav from "~/components/calendar/calendar-create-top-nav";
+import { getTeamFromTeamId } from "~/api/team";
 
 const CalendarCreateEvent = () => {
   const navigate = useNavigate();
+  // temp get teamId first
+  const teamId = 1;
   const teamMembers = createAsync(
-    // temp get teamId first
-    async () => await getTeamMembersFromTeamId(1),
+    async () => await getTeamMembersFromTeamId(teamId),
     { deferStream: true }
   );
+  const team = createAsync(async () => await getTeamFromTeamId(teamId));
   const [eventType, setEventType] = createSignal<"event" | "task">("event");
   const [title, setTitle] = createSignal("");
   const [notes, setNotes] = createSignal("");
@@ -95,99 +99,98 @@ const CalendarCreateEvent = () => {
     navigate("/calendar");
   }
   return (
-    <div class="flex flex-col items-center mt-10 w-full">
-      <form class="space-y-4 max-w-lg w-full px-4">
-        <ShowError error={error()}></ShowError>
-        <div class="flex gap-4 justify-between">
-          <Button
-            class={twMerge(
-              "px-20",
-              eventType() === "event" ? "bg-purple-200 hover:bg-purple-300" : ""
-            )}
-            variant="outline"
-            onClick={() => setEventType("event")}
-          >
-            Event
-          </Button>
-          <Button
-            class={twMerge(
-              "px-20",
-              eventType() === "task" ? "bg-purple-200 hover:bg-purple-300" : ""
-            )}
-            variant="outline"
-            onClick={() => setEventType("task")}
-          >
-            Task
-          </Button>
-        </div>
-        <TextInput
-          label="Title"
-          placeholder="Title"
-          value={title}
-          setValue={setTitle}
-        />
-        <TextInput
-          label="Location"
-          placeholder="Location"
-          setValue={setLocation}
-          value={location}
-        />
-        <p class="text-lg font-semibold">Time</p>
-        <TimeDateCalendar
-          label="Start Time"
-          date={timeStartDate}
-          setDate={setTimeStartDate}
-          time={timeStartTime}
-          setTime={setTimeStartTime}
-        />
-        <TimeDateCalendar
-          label="End Time"
-          date={timeEndDate}
-          setDate={setTimeEndDate}
-          time={timeEndTime}
-          setTime={setTimeEndTime}
-        />
-        <p class="text-lg font-semibold">Repeat</p>
-        <SelectInput
-          class="w-full p-1 rounded-lg py-6 ps-4 "
-          placeholder="Never"
-          options={
-            [
-              { value: "never", label: "Never" },
-              { value: "daily", label: "Daily" },
-              { value: "weekly", label: "Weekly" },
-              { value: "monthly", label: "Monthly" },
-            ] as const
-          }
-          setSelectedOption={setRepeat}
-        />
-        <p class="text-lg font-semibold">Person</p>
+    <>
+      <EventCreateTopNav
+        handleCreate={createEventHandler}
+        name={team()?.data.recipients?.firstName}
+      />
+      <div class="flex flex-col items-center mt-3 w-full">
+        <form class="space-y-4 max-w-lg w-full px-4">
+          <ShowError error={error()}></ShowError>
+          <div class="flex gap-4 justify-between">
+            <Button
+              class={twMerge(
+                "w-[177px] h-[40px]",
+                eventType() === "event"
+                  ? "bg-purple-200 hover:bg-purple-300"
+                  : ""
+              )}
+              variant="outline"
+              onClick={() => setEventType("event")}
+            >
+              Event
+            </Button>
+            <Button
+              class={twMerge(
+                "px-20",
+                eventType() === "task"
+                  ? "bg-purple-200 hover:bg-purple-300"
+                  : ""
+              )}
+              variant="outline"
+              onClick={() => setEventType("task")}
+            >
+              Task
+            </Button>
+          </div>
+          <TextInput
+            label="Title"
+            placeholder="Title"
+            value={title}
+            setValue={setTitle}
+          />
+          <TextInput
+            label="Location"
+            placeholder="Location"
+            setValue={setLocation}
+            value={location}
+          />
+          <p class="text-lg font-semibold">Time</p>
+          <TimeDateCalendar
+            label="Start Time"
+            date={timeStartDate}
+            setDate={setTimeStartDate}
+            time={timeStartTime}
+            setTime={setTimeStartTime}
+          />
+          <TimeDateCalendar
+            label="End Time"
+            date={timeEndDate}
+            setDate={setTimeEndDate}
+            time={timeEndTime}
+            setTime={setTimeEndTime}
+          />
+          <p class="text-lg font-semibold">Repeat</p>
+          <SelectInput
+            class="w-full p-1 rounded-lg py-6 ps-4 "
+            placeholder="Never"
+            options={
+              [
+                { value: "never", label: "Never" },
+                { value: "daily", label: "Daily" },
+                { value: "weekly", label: "Weekly" },
+                { value: "monthly", label: "Monthly" },
+              ] as const
+            }
+            setSelectedOption={setRepeat}
+          />
+          <p class="text-lg font-semibold">Person</p>
 
-        <SelectMultipleInput
-          class="w-full p-1 rounded-lg py-6 ps-4 "
-          placeholder="Person"
-          options={teamMemberOptions()}
-          setSelectedOptions={setTeamMemberIds}
-        />
-        <TextArea
-          label="Notes"
-          placeholder="Notes"
-          value={notes}
-          setValue={setNotes}
-        />
-        <div class="flex justify-end w-full">
-          <button
-            class="border p-2 rounded-lg"
-            type="submit"
-            onClick={createEventHandler}
-          >
-            Create
-          </button>
-        </div>
-      </form>
-      {/* temp */}
-      <div class="h-[88px]"></div>
-    </div>
+          <SelectMultipleInput
+            class="w-full p-1 rounded-lg py-6 ps-4 "
+            placeholder="Person"
+            options={teamMemberOptions()}
+            setSelectedOptions={setTeamMemberIds}
+          />
+          <TextArea
+            label="Notes"
+            placeholder="Notes"
+            value={notes}
+            setValue={setNotes}
+          />
+        </form>
+      </div>
+    </>
   );
 };
 

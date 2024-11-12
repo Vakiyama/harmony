@@ -1,8 +1,8 @@
 import { integer, text, sqliteTable } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 import { AttachedNote, notes } from "./Notes";
-import { Teams } from "./Teams";
-import { AttachedUser, Users } from "./Users";
+import { teams } from "./Teams";
+import { AttachedUser, users } from "./Users";
 import { AttachedRecipient } from "./Recipients";
 
 export const categoryEnumMeals = [
@@ -37,10 +37,10 @@ export const meals = sqliteTable("meals", {
     .default(sql`(unixepoch())`),
   noteId: integer("note_id").references(() => notes.id),
   teamId: integer("team_id")
-    .references(() => Teams.id)
+    .references(() => teams.id)
     .notNull(),
   userId: integer("user_id")
-    .references(() => Users.id)
+    .references(() => users.id)
     .notNull(),
 });
 

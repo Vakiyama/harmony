@@ -230,14 +230,17 @@ type StringifyError = {
   readonly _tag: "stringify";
 };
 
-const StringifyError = (): StringifyError => ({ _tag: "stringify" });
+export const StringifyError = (): StringifyError => ({ _tag: "stringify" });
 
 type FetchError = {
   readonly _tag: "fetch";
   error: Error;
 };
 
-const FetchError = (error: Error): FetchError => ({ _tag: "fetch", error });
+export const FetchError = (error: Error): FetchError => ({
+  _tag: "fetch",
+  error,
+});
 
 type JsonFetchError = {
   readonly _tag: "jsonFetch";
@@ -297,12 +300,12 @@ function handleJsonOrError<F extends ZodObjectAny>(
   });
 }
 
-type JsonParseError = {
+export type JsonParseError = {
   readonly _tag: "jsonParse";
   error: Error;
 };
 
-const JsonParseError = (error: Error): JsonParseError => ({
+export const JsonParseError = (error: Error): JsonParseError => ({
   _tag: "jsonParse",
   error,
 });

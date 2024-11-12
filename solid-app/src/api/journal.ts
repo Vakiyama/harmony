@@ -26,10 +26,11 @@ import {
   Meal,
   meals,
 } from "../../drizzle/schema/Meals";
+import { sessionManager } from "./kinde";
 import { Medications, medications } from "../../drizzle/schema/Medications";
-import { AttachedUser, User, Users } from "../../drizzle/schema/Users";
-import { Teams } from "../../drizzle/schema/Teams";
-import { Recipient, Recipients } from "../../drizzle/schema/Recipients";
+import { AttachedUser, User, users } from "../../drizzle/schema/Users";
+import { teams } from "../../drizzle/schema/Teams";
+import { Recipient, recipients } from "../../drizzle/schema/Recipients";
 import { getUserIdFromSession } from "./server";
 import { journals } from "../../drizzle/schema/Journals";
 
@@ -349,7 +350,7 @@ export const getTakenMedicationById = async (takenMedicationId: number) => {
       .from(takenMedications)
       .leftJoin(notes, eq(takenMedications.noteId, notes.id))
       .leftJoin(medications, eq(takenMedications.medicationId, medications.id))
-      .leftJoin(Users, eq(takenMedications.userId, Users.id))
+      .leftJoin(users, eq(takenMedications.userId, users.id))
       .where(
         and(
           eq(takenMedications.id, takenMedicationId),
@@ -1563,21 +1564,21 @@ export const getJournalsFromTeamId = async (teamId: number) => {
   if (userId === undefined) {
     return undefined;
   }
-  const userMedication = aliasedTable(Users, "userMedication");
-  const userMeal = aliasedTable(Users, "userMeal");
-  const userSleep = aliasedTable(Users, "userSleep");
-  const userNote = aliasedTable(Users, "userNote");
-  const userMood = aliasedTable(Users, "userMood");
+  const userMedication = aliasedTable(users, "userMedication");
+  const userMeal = aliasedTable(users, "userMeal");
+  const userSleep = aliasedTable(users, "userSleep");
+  const userNote = aliasedTable(users, "userNote");
+  const userMood = aliasedTable(users, "userMood");
 
   const medNote = aliasedTable(notes, "medNote");
   const mealNote = aliasedTable(notes, "mealNote");
   const sleepNote = aliasedTable(notes, "sleepNote");
   const moodNote = aliasedTable(notes, "moodNote");
 
-  const mealTeam = aliasedTable(Teams, "mealTeam");
-  const mealRecipient = aliasedTable(Recipients, "mealRecipient");
-  const sleepTeam = aliasedTable(Teams, "sleepTeam");
-  const sleepRecipient = aliasedTable(Recipients, "sleepRecipient");
+  const mealTeam = aliasedTable(teams, "mealTeam");
+  const mealRecipient = aliasedTable(recipients, "mealRecipient");
+  const sleepTeam = aliasedTable(teams, "sleepTeam");
+  const sleepRecipient = aliasedTable(recipients, "sleepRecipient");
   const [err, res] = await mightFail(
     db
       .select()

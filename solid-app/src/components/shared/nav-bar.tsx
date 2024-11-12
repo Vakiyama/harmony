@@ -9,7 +9,7 @@ import {
 import HarmonyIcon from "~/components/icon/harmony-icon";
 import NavBarItem from "./nav-bar-item";
 import HomeIcon from "~/components/icon/home-icon";
-import CalendarIcon from "~/components/icon/calendar-icon";
+import CalendarIcon from "~/components/icon/calendar-nav-icon";
 import JournalIcon from "~/components/icon/journal-icon";
 import ProfileIcon from "~/components/icon/profile-icon";
 import { twMerge } from "tailwind-merge";
@@ -48,7 +48,11 @@ export default function NavBar(props: {
   return (
     <nav
       class={twMerge(
-        "fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-md z-50"
+        "fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-md z-50", currentPath().includes("/harmony-ai/") ||
+        currentPath().includes(`/team/${params.id}/journal/`) ||
+        currentPath().includes(`/calendar/create`)
+        ? "hidden"
+        : ""
       )}
     >
       <div class="max-w-screen-lg mx-auto px-4">
