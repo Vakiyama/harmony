@@ -1,23 +1,16 @@
 import { ImageRoot, Image } from "~/components/ui/image";
-// import ArrowBack from "../images/arrow-back.svg";
 import HarmonyMascot from "../images/harmony-mascot-container.svg";
 import HarmonyMascotAnimated from "./harmony-mascot-animated.webp";
 import { createAudio } from "@solid-primitives/audio";
+import { clientSocket as socket } from "~/lib/clientSocket";
 
 import Speaker from "../images/Speaker.svg";
 import EndCall from "../images/end.svg";
 import Mute from "../images/BsMicMuteFill.svg";
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  onMount,
-  Show,
-} from "solid-js";
-import { A, useNavigate } from "@solidjs/router";
+import { createEffect, createSignal, onCleanup, onMount, Show } from "solid-js";
+import { A } from "@solidjs/router";
 import { twMerge } from "tailwind-merge";
 import { Effect, Exit, Option, pipe } from "effect";
-import { getAudio, processAudioFrame } from "~/api/voicemaker";
 import { ArrayMessage } from "~/api/claude/effectGraph/messages";
 import { useHarmonyChat } from "../chat/harmony-chat";
 import { getUser } from "~/api/server";
@@ -50,34 +43,35 @@ export default function HarmonyVoice() {
     "What can I help you with today?",
   );
 
+  const [currentStreamedRole, setCurrentStreamedRole] = createSignal<
+    "assitant" | "user"
+  >("assitant");
+
   const [user, setUser] = createSignal<Awaited<ReturnType<typeof getUser>>>();
-  const { messages, setMessages, handleConversation } = useHarmonyChat(user);
+  const {
+    messages,
+    setMessages: _,
+    handleConversation,
+  } = useHarmonyChat(user, true);
 
   const [audioSource, setAudioSource] = createSignal<string>();
   const [volume, ___] = createSignal(1);
   const [playing, setPlaying] = createSignal(false);
   const [audioState, __] = createAudio(audioSource, playing, volume);
-  const [streaming, setStreaming] = createSignal(false);
 
   const [lastTranscribedMessage, setLastTranscribedMessage] = createSignal("");
   const [transcribedMessage, setTranscribedMessage] = createSignal("");
-
-  const [micStream, setMicStream] = createSignal<
-    Option.Option<MediaStreamTrack>
-  >(Option.none());
+  const [recorder, setRecorder] = createSignal<MediaRecorder>();
+  const [muted, setMuted] = createSignal(false);
 
   createEffect(() => {
-    console.log(
-      "curr time",
-      audioState.currentTime,
-      "duration:",
-      audioState.duration,
-      "console.log to cleanup with now known functionality!",
-    );
-    if (audioState.currentTime === audioState.duration) {
-      setPlaying(false);
+    if (audioState.currentTime >= audioState.duration) {
+      console.log("Setting playing to false!");
+      setTimeout(() => {
+        setPlaying(false);
+      }, 3000);
     }
-  }, [playing, audioState]);
+  }, [playing, audioState, audioState.currentTime]);
 
   async function streamMessage(message: string) {
     if (messages().length === 0) return;
@@ -99,13 +93,10 @@ export default function HarmonyVoice() {
         .reverse()
         .join("");
       setStreamedMessage(clippedMessage);
+      setCurrentStreamedRole("assitant");
       if (messageRangeCutoff === message.length) break;
     }
   }
-
-  onMount(() => {
-    setInterval(() => setCounter(counter() + 1), 1000);
-  });
 
   createEffect(() => {
     if (messages().length === 0) return;
@@ -113,24 +104,6 @@ export default function HarmonyVoice() {
     if (typeof messageContent !== "string") return;
     streamMessage(messageContent);
   }, [messages]);
-
-  function base64ToBlob(base64: string, mime = "audio/mpeg") {
-    const byteCharacters = atob(base64);
-    const byteArrays = [];
-
-    const sliceSize = 512;
-    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-      const slice = byteCharacters.slice(offset, offset + sliceSize);
-      const byteNumbers = new Array(slice.length);
-      for (let i = 0; i < slice.length; i++) {
-        byteNumbers[i] = slice.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      byteArrays.push(byteArray);
-    }
-
-    return new Blob(byteArrays, { type: mime });
-  }
 
   class NoAudioStream {
     readonly _tag = "NoAudioStream";
@@ -141,46 +114,51 @@ export default function HarmonyVoice() {
   }
 
   function streamChunksToServer(mediaStreamTrack: MediaStreamTrack) {
-    if (streaming()) return;
-    setStreaming(true);
     console.log("Streaming chunks to server.");
     pipe(
       mediaStreamTrack,
       (stream) => new MediaStream([stream]),
       (mediaStream) => {
-        const options = { mimeType: "audio/webm;codecs=opus" };
-
-        return new MediaRecorder(mediaStream, options);
+        const recorder = new MediaRecorder(mediaStream, {
+          mimeType: "audio/webm;codecs=opus",
+          audioBitsPerSecond: 16000,
+        });
+        console.log(recorder.audioBitsPerSecond);
+        return recorder;
       },
       (mediaRecorder) => {
-        console.log("Media recorder event setup?");
         // create request and stream here
 
-        mediaRecorder.ondataavailable = async (event) => {
-          if (playing()) {
-            return console.log("Playing, ignoring audio stream...");
-          }
-          // console.log("Sending chunk...");
+        socket.emit("start-transcription");
 
+        socket.on("transcription-results", (message) => {
+          if (playing())
+            return console.log("Recieving, ignoring because playing.");
+          setTranscribedMessage(message);
+          if (!playing() && lastTranscribedMessage() !== transcribedMessage()) {
+            setStreamedMessage(message);
+            setCurrentStreamedRole("user");
+          }
+        });
+
+        mediaRecorder.ondataavailable = async (event) => {
+          if (playing() || muted()) {
+            // LOL DON'T LOOK PLEASE DONT EVEN ASK
+            if (Math.random() > 0.05) return;
+          }
           const base64AudioChunk = await pipe(
             event.data.arrayBuffer(),
             async (arrayBuffer) =>
               btoa(String.fromCharCode(...new Uint8Array(await arrayBuffer))),
           );
 
-          const message = processAudioFrame({
-            id: user() ? (await getUser()).id : user()!.id,
+          socket.emit("write-transcription", {
             base64AudioChunk,
-            options: { languageCode: "en-US" },
           });
-
-          setTranscribedMessage(await message);
-          if (!playing() && lastTranscribedMessage() !== transcribedMessage()) {
-            setStreamedMessage(await message);
-          }
         };
 
-        mediaRecorder.start(500);
+        mediaRecorder.start(100);
+        setRecorder(mediaRecorder);
       },
     );
   }
@@ -190,7 +168,6 @@ export default function HarmonyVoice() {
       lastTranscribedMessage() !== transcribedMessage() &&
       transcribedMessage() !== ""
     ) {
-      console.log("Setting 3000 ms timeout");
       clearTimeout(timeout);
       timeout = setTimeout(async () => {
         setLastTranscribedMessage(transcribedMessage());
@@ -204,20 +181,17 @@ export default function HarmonyVoice() {
   }, [transcribedMessage, lastTranscribedMessage]);
 
   createEffect(async () => {
-
-      await setAudioFromMessageText("Test message!");
-      setPlaying(true);
-
-    /*
     console.log(messages(), "messages");
     if (messages().at(-1)?.role === "assistant") {
       const lastMessage = messages().at(-1)!;
       if (typeof lastMessage.content !== "string") return;
       console.log("content sent:", lastMessage.content);
       await setAudioFromMessageText(lastMessage.content);
+      console.log("Audio set, playing!");
+
+      socket.emit("end-transcription");
       setPlaying(true);
     }
-    */
   }, [messages]);
 
   function getMicStreamWithPermission() {
@@ -236,25 +210,33 @@ export default function HarmonyVoice() {
         return Effect.succeed(tracks[0]);
       }),
       Effect.runPromiseExit,
-      async (result) =>
-        Exit.match(await result, {
+      async (result) => {
+        return Exit.match(await result, {
           onSuccess: (stream) => {
             console.log("Got audio stream!");
-
-            if (Option.isSome(micStream())) return;
-            setMicStream(Option.some(stream));
-
             streamChunksToServer(stream);
           },
           onFailure: console.error,
-        }),
+        });
+      },
     );
   }
 
+  onCleanup(() => {
+    if (!user()) return;
+    socket.emit("end-transcription");
+    if (recorder()) {
+      recorder()!.pause;
+    }
+  });
+
   onMount(async () => {
+    setInterval(() => setCounter(counter() + 1), 1000);
     const user = await getUser();
     setUser(user);
-    getMicStreamWithPermission();
+
+    if (recorder()) recorder()?.start();
+    else getMicStreamWithPermission();
   });
 
   /*
@@ -267,17 +249,30 @@ export default function HarmonyVoice() {
   async function setAudioFromMessageText(text: string) {
     {
       const req = {
-        VoiceId: "proplus-Aurora",
+        VoiceId: "proplus-Lily",
         Text: text,
+        turbo: "turbo",
       } as const;
 
-      const audioBlob = await getAudio(req);
+      const response = await fetch("/voicemaker/voice", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(req),
+      });
 
-      if (!audioBlob) {
-        return console.error("No audio blob returned from req!", req); // error
-      }
+      const blob = await response.blob();
 
-      pipe(base64ToBlob(audioBlob), URL.createObjectURL, (url) => {console.log(url); return url;}, setAudioSource);
+      pipe(
+        blob,
+        URL.createObjectURL,
+        (url) => {
+          console.log(url);
+          return url;
+        },
+        setAudioSource,
+      );
     }
   }
 
@@ -303,7 +298,7 @@ export default function HarmonyVoice() {
           <Image
             class="w-full"
             src={
-              messages().at(-1)?.role === "assistant"
+              messages().at(-1)?.role === "assistant" || !playing()
                 ? HarmonyMascotAnimated
                 : HarmonyMascot
             }
@@ -311,16 +306,10 @@ export default function HarmonyVoice() {
         </ImageRoot>
         <Show when={streamedMessage().length > 0}>
           <div class={`bg-white drop-shadow-xl  rounded-[28px] px-8 py-8`}>
-            <Show
-              when={
-                messages().at(-1)?.role === "assistant" ||
-                messages().length === 0
-              }
-            >
+            <Show when={currentStreamedRole() === "assitant"}>
               <div class="rounded-full w-4 h-4 absolute -top-6 left-14 bg-white"></div>
               <div class="rounded-full w-4 h-4 absolute -top-2 left-10 bg-white"></div>
             </Show>
-            {}
             <p>{streamedMessage()}</p>
           </div>
         </Show>
@@ -345,8 +334,16 @@ export default function HarmonyVoice() {
           </div>
         </A>
         <div class="flex flex-col items-center gap-2">
-          <div class="rounded-full bg-[#1E1E1E]/15 w-16 h-16 flex items-center justify-center">
-            <ImageRoot class="p-1">
+          <div
+            class={twMerge(
+              "rounded-full bg-[#1E1E1E]/15 w-16 h-16 flex items-center justify-center",
+              muted() ? "border-2 border-red-500" : "",
+            )}
+            onClick={() => {
+              setMuted((muted) => !muted);
+            }}
+          >
+            <ImageRoot class="p-1 ">
               <Image class="w-full" src={Mute} />
             </ImageRoot>
           </div>

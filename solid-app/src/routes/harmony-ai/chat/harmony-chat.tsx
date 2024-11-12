@@ -29,12 +29,13 @@ export function useHarmonyChat(
       }
     | undefined
   >,
+  voice?: boolean,
 ) {
   const [messages, setMessages] = createSignal<ArrayMessage[]>([]);
 
   async function handleConversation(messages: ArrayMessage[]) {
     if (!user()) return;
-    const response = await harmonyChat(messages, user()!.id);
+    const response = await harmonyChat(messages, user()!.id, voice);
     if (!response) return;
 
     setMessages(response);

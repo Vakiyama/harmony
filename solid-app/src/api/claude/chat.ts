@@ -40,7 +40,28 @@ you should keep your messages concise and friendly!
 Try to format responses to be non-technical.
 
 You have access to a journal that contains notes the caretaker may have taken. Use it to assist your user.
+Keep in mind, the caretaker notes are for the recipient.
+
 The current date is: ${new Date(Date.now()).toLocaleTimeString()}
+`;
+const CHAT_SYSTEM_MESSAGE_WITH_VOICE = `
+${CHAT_SYSTEM_MESSAGE}
+
+## Additional info:
+You're currently operating in voice mode. This means the following:
+
+Be more conversational in tone. Don't format responses in markdown, just in plain text. Your text
+will be spoken, so keep that in mind.
+
+Don't include any symbols for formatting! Omit dashes, for example. If you need to break up your text, do it with
+periods and commas.
+
+Also, try to ignore any typos in the message. We're picking up from the users microphone, so it might not format
+perfectly. Your name may be misheard as something like Hermiony, Hermny, so on. Just assume they meant Harmony.
+
+If you need to ask a series of questions, break it up into multiple conversation parts by asking one at a time.
+Your responses need to be at most 2 to 3 sentences long, with shorter, spoken sentences preferable.
+
 `;
 
 const categories = ["medication", "meals", "sleep", "mood", "notes"] as const;
@@ -267,10 +288,11 @@ const claudeTools = [
   createJournalEntryToolDefinition,
 ] as const;
 
-function makeClaudeToolCall(result: GraphState) {
+function makeClaudeToolCall(result: GraphState, voice?: boolean) {
+  console.log("Voice mode?", voice);
   return callClaudeWithTools({
     claudeSettings: defaultClaudeSettings,
-    system: CHAT_SYSTEM_MESSAGE,
+    system: voice ? `${CHAT_SYSTEM_MESSAGE}` : CHAT_SYSTEM_MESSAGE_WITH_VOICE,
     retryCount: 5,
     messages: getFirst(result.messages),
     type: "tools",
@@ -381,10 +403,10 @@ function handleClaudeResponse(
   });
 }
 
-function chat(state: GraphState, userId: number) {
+function chat(state: GraphState, userId: number, voice?: boolean) {
   return pipe(
     state,
-    makeClaudeToolCall,
+    (state) => makeClaudeToolCall(state, voice),
     Effect.flatMap((result) => handleClaudeResponse(result, state, userId)),
   );
 }
@@ -394,6 +416,7 @@ const chatStates: { messages: Message; id: number }[] = [];
 export const harmonyChat = async (
   message: ArrayMessage[],
   id: number,
+  voice?: boolean,
 ): Promise<ArrayMessage[] | void> => {
   const index = chatStates.findIndex((state) => state.id === id);
   if (index === -1) {
@@ -411,6 +434,7 @@ export const harmonyChat = async (
       ...(index === -1 ? chatStates.at(-1)! : chatStates[index]!),
     },
     id,
+    voice,
   );
 
   const next = await Effect.runPromiseExit(

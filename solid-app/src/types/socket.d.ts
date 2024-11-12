@@ -1,9 +1,6 @@
 import type { Server as HTTPServer } from "http";
 import type { Socket as NetSocket } from "net";
-import type {
-  Server as IOServer,
-  Socket as IOServerSocket,
-} from "socket.io";
+import type { Server as IOServer, Socket as IOServerSocket } from "socket.io";
 import type { Socket as IOClientSocket } from "socket.io-client";
 
 interface SocketServer extends HTTPServer {
@@ -18,11 +15,17 @@ export interface ServerToClientEvents {
   "user-connected": (name: string) => void;
   "chat-message": (data: { message: string; name: string }) => void;
   "user-disconnected": (name: string) => void;
+  "transcription-results": (message: string) => void;
 }
 
 export interface ClientToServerEvents {
   "new-user": (name: string) => void;
   "send-chat-message": (message: string) => void;
+  "write-transcription": (frameDataStream: {
+    base64AudioChunk: string;
+  }) => void;
+  "start-transcription": () => void;
+  "end-transcription": () => void;
 }
 
 interface InterServerEvents {
