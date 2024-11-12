@@ -35,10 +35,10 @@ import {
   meals,
   MealWithNoteUser,
 } from "../../drizzle/schema/Meals";
-import { medications } from "../../drizzle/schema/Medications";
+import { Medications, medications } from "../../drizzle/schema/Medications";
 import { AttachedUser, User, Users } from "../../drizzle/schema/Users";
 import { Teams } from "../../drizzle/schema/Teams";
-import { Recipients } from "../../drizzle/schema/Recipients";
+import { Recipient, Recipients } from "../../drizzle/schema/Recipients";
 import { getUserIdFromSession } from "./server";
 import { Journal, journals, journalType } from "../../drizzle/schema/Journals";
 
@@ -1521,193 +1521,7 @@ export const getMedicationsFromTeamId = async (teamId: number) => {
   return medicationsResult;
 };
 
-export const getJournalsFromTeamId = async (
-  teamId: number
-): Promise<AllJournals | undefined> => {
-  "use server";
-  const userId = await getUserIdFromSession();
-  if (userId === undefined) {
-    return undefined;
-  }
-
-  const [takenMedicationsError, takenMedicationsResult] = await mightFail(
-    db
-      .select({
-        date: takenMedications.date,
-        id: takenMedications.id,
-        teamId: takenMedications.teamId,
-        createdAt: takenMedications.createdAt,
-        updatedAt: takenMedications.updatedAt,
-        type: takenMedications.type,
-        hasMissed: takenMedications.hasMissed,
-        user: {
-          id: Users.id,
-          firstName: Users.firstName,
-          lastName: Users.lastName,
-          photo: Users.photo,
-        },
-        note: {
-          note: notes.note,
-        },
-        medications: {
-          name: medications.name,
-        },
-      })
-      .from(takenMedications)
-      .leftJoin(Users, eq(takenMedications.userId, Users.id))
-      .leftJoin(medications, eq(takenMedications.medicationId, medications.id))
-      .leftJoin(notes, eq(takenMedications.noteId, notes.id))
-      .where(eq(takenMedications.teamId, teamId))
-      .orderBy(desc(takenMedications.createdAt))
-  );
-  if (takenMedicationsError) {
-    return undefined;
-  }
-  const [moodsError, moodsResult] = await mightFail(
-    db
-      .select({
-        id: moods.id,
-        wellBeing: moods.wellBeing,
-        timeFrame: moods.timeFrame,
-        date: moods.date,
-        createdAt: moods.createdAt,
-        updatedAt: moods.updatedAt,
-        teamId: moods.teamId,
-        user: {
-          id: Users.id,
-          firstName: Users.firstName,
-          lastName: Users.lastName,
-          photo: Users.photo,
-        },
-        note: {
-          note: notes.note,
-        },
-      })
-      .from(moods)
-      .leftJoin(Users, eq(moods.userId, Users.id))
-      .leftJoin(notes, eq(moods.noteId, notes.id))
-      .where(eq(moods.teamId, teamId))
-      .orderBy(desc(moods.createdAt))
-  );
-  if (moodsError) {
-    return undefined;
-  }
-  const [mealsError, mealsResult] = await mightFail(
-    db
-      .select({
-        id: meals.id,
-        photo: meals.photo,
-        category: meals.category,
-        foodName: meals.foodName,
-        drinkName: meals.drinkName,
-        consumption: meals.consumption,
-        date: meals.date,
-        createdAt: meals.createdAt,
-        updatedAt: meals.updatedAt,
-        teamId: meals.teamId,
-        user: {
-          id: Users.id,
-          firstName: Users.firstName,
-          lastName: Users.lastName,
-          photo: Users.photo,
-        },
-        note: {
-          note: notes.note,
-        },
-        recipient: {
-          firstName: Recipients.firstName,
-        },
-      })
-      .from(meals)
-      .leftJoin(Users, eq(meals.userId, Users.id))
-      .leftJoin(notes, eq(meals.noteId, notes.id))
-      .leftJoin(Teams, eq(meals.teamId, Teams.id))
-      .leftJoin(Recipients, eq(Teams.recipientId, Recipients.id))
-      .where(eq(meals.teamId, teamId))
-      .orderBy(desc(meals.createdAt))
-  );
-  if (mealsError) {
-    return undefined;
-  }
-  const [sleepsError, sleepsResult] = await mightFail(
-    db
-      .select({
-        id: sleeps.id,
-        quality: sleeps.quality,
-        timeFrame: sleeps.timeFrame,
-        duration: sleeps.duration,
-        troubleSleeping: sleeps.troubleSleeping,
-        date: sleeps.date,
-        createdAt: sleeps.createdAt,
-        updatedAt: sleeps.updatedAt,
-        teamId: sleeps.teamId,
-        user: {
-          id: Users.id,
-          firstName: Users.firstName,
-          lastName: Users.lastName,
-          photo: Users.photo,
-        },
-        note: {
-          note: notes.note,
-        },
-        recipient: {
-          firstName: Recipients.firstName,
-        },
-      })
-      .from(sleeps)
-      .leftJoin(Users, eq(sleeps.userId, Users.id))
-      .leftJoin(notes, eq(sleeps.noteId, notes.id))
-      .leftJoin(Teams, eq(sleeps.teamId, Teams.id))
-      .leftJoin(Recipients, eq(Teams.recipientId, Recipients.id))
-      .where(eq(sleeps.teamId, teamId))
-      .orderBy(desc(sleeps.createdAt))
-  );
-  if (sleepsError) {
-    return undefined;
-  }
-  const [notesError, notesResult] = await mightFail(
-    db
-      .select({
-        id: notes.id,
-        note: notes.note,
-        createdAt: notes.createdAt,
-        updatedAt: notes.updatedAt,
-        teamId: notes.teamId,
-        user: {
-          id: Users.id,
-          firstName: Users.firstName,
-          lastName: Users.lastName,
-          photo: Users.photo,
-        },
-      })
-      .from(notes)
-      .leftJoin(Users, eq(notes.userId, Users.id))
-      .where(and(eq(notes.teamId, teamId), eq(notes.category, "general")))
-      .orderBy(desc(notes.createdAt))
-  );
-  if (notesError) {
-    return undefined;
-  }
-
-  const journals = {
-    takenMedications: takenMedicationsResult,
-    moods: moodsResult,
-    meals: mealsResult,
-    sleeps: sleepsResult,
-    notes: notesResult,
-  };
-  return journals;
-};
-
-export type AllJournals = {
-  takenMedications: TakenMedsWithNoteUser[];
-  moods: MoodsWithNoteUser[];
-  meals: MealWithNoteUser[];
-  sleeps: SleepWithNoteUser[];
-  notes: NoteWithUser[];
-};
-
-export const testJournalReferences = async (teamId: number) => {
+export const getJournalsFromTeamId = async (teamId: number) => {
   "use server";
   const userMedication = aliasedTable(Users, "userMedication");
   const userMeal = aliasedTable(Users, "userMeal");
@@ -1719,6 +1533,11 @@ export const testJournalReferences = async (teamId: number) => {
   const mealNote = aliasedTable(notes, "mealNote");
   const sleepNote = aliasedTable(notes, "sleepNote");
   const moodNote = aliasedTable(notes, "moodNote");
+
+  const mealTeam = aliasedTable(Teams, "mealTeam");
+  const mealRecipient = aliasedTable(Recipients, "mealRecipient");
+  const sleepTeam = aliasedTable(Teams, "sleepTeam");
+  const sleepRecipient = aliasedTable(Recipients, "sleepRecipient");
 
   const [err, res] = await mightFail(
     db
@@ -1745,6 +1564,8 @@ export const testJournalReferences = async (teamId: number) => {
       )
       .leftJoin(userMeal, eq(meals.userId, userMeal.id))
       .leftJoin(mealNote, eq(meals.noteId, mealNote.id))
+      .leftJoin(mealTeam, eq(meals.teamId, mealTeam.id))
+      .leftJoin(mealRecipient, eq(mealTeam.recipientId, mealRecipient.id))
       .leftJoin(
         sleeps,
         and(
@@ -1755,6 +1576,8 @@ export const testJournalReferences = async (teamId: number) => {
       )
       .leftJoin(userSleep, eq(sleeps.userId, userSleep.id))
       .leftJoin(sleepNote, eq(sleeps.noteId, sleepNote.id))
+      .leftJoin(sleepTeam, eq(sleeps.teamId, sleepTeam.id))
+      .leftJoin(sleepRecipient, eq(sleepTeam.recipientId, sleepRecipient.id))
       .leftJoin(
         moods,
         and(
@@ -1775,19 +1598,18 @@ export const testJournalReferences = async (teamId: number) => {
         )
       )
       .leftJoin(userNote, eq(notes.userId, userNote.id))
+      .orderBy(desc(journals.createdAt))
   );
   if (err) {
     console.log(err);
     return null;
   }
-  console.log("========================");
-  console.log(res);
 
   const transformedData = res.map((entry: TransformedJournalEntry) => {
-    const { id, type, entryId } = entry.journals;
+    const { id, type, entryId, createdAt } = entry.journals;
 
     let data: any = null;
-    const user: AttachedUser = {
+    let user: AttachedUser = {
       id: -1,
       firstName: "",
       lastName: "",
@@ -1796,45 +1618,42 @@ export const testJournalReferences = async (teamId: number) => {
     let note: AttachedNote = {
       note: "",
     };
+    let medication = {
+      name: "",
+    };
+    let recipient = {
+      firstName: "",
+    };
     switch (type) {
       case "medication":
         data = entry.taken_medications;
-        user.id = entry.userMedication?.id || -1;
-        user.firstName = entry.userMedication?.firstName || "";
-        user.lastName = entry.userMedication?.lastName || "";
-        user.photo = entry.userMedication?.photo || "";
-        note.note = entry.medNote?.note || "";
+        user = getUserDataTEHelper(entry, "userMedication");
+        note.note = getNoteDataTEHelper(entry, "medNote");
+        medication.name = entry.medications?.name || "";
+        data.medications = medication;
         break;
       case "meal":
         data = entry.meals;
-        user.id = entry.userMeal?.id || -1;
-        user.firstName = entry.userMeal?.firstName || "";
-        user.lastName = entry.userMeal?.lastName || "";
-        user.photo = entry.userMeal?.photo || "";
-        note.note = entry.mealNote?.note || "";
+        user = getUserDataTEHelper(entry, "userMeal");
+        note.note = getNoteDataTEHelper(entry, "mealNote");
+        recipient.firstName = entry.mealRecipient?.firstName || "";
+        data.recipient = recipient;
         break;
       case "sleep":
         data = entry.sleeps;
-        user.id = entry.userSleep?.id || -1;
-        user.firstName = entry.userSleep?.firstName || "";
-        user.lastName = entry.userSleep?.lastName || "";
-        user.photo = entry.userSleep?.photo || "";
-        note.note = entry.sleepNote?.note || "";
+        user = getUserDataTEHelper(entry, "userSleep");
+        note.note = getNoteDataTEHelper(entry, "sleepNote");
+        recipient.firstName = entry.mealRecipient?.firstName || "";
+        data.recipient = recipient;
         break;
       case "mood":
         data = entry.moods;
-        user.id = entry.userMood?.id || -1;
-        user.firstName = entry.userMood?.firstName || "";
-        user.lastName = entry.userMood?.lastName || "";
-        user.photo = entry.userMood?.photo || "";
-        note.note = entry.moodNote?.note || "";
+        user = getUserDataTEHelper(entry, "userMood");
+        note.note = getNoteDataTEHelper(entry, "moodNote");
         break;
       case "note":
         data = entry.notes;
-        user.id = entry.userNote?.id || -1;
-        user.firstName = entry.userNote?.firstName || "";
-        user.lastName = entry.userNote?.lastName || "";
-        user.photo = entry.userNote?.photo || "";
+        user = getUserDataTEHelper(entry, "userNote");
         break;
       default:
         break;
@@ -1850,6 +1669,7 @@ export const testJournalReferences = async (teamId: number) => {
       type,
       entryId,
       data,
+      createdAt,
     };
   });
 
@@ -1861,6 +1681,7 @@ interface TransformedJournalEntry {
     id: number;
     type: "note" | "mood" | "medication" | "sleep" | "meal";
     entryId: number;
+    createdAt: Date;
   };
   userMedication?: User;
   userMeal?: User;
@@ -1876,4 +1697,22 @@ interface TransformedJournalEntry {
   sleeps?: Sleep | null;
   moods?: Moods | null;
   notes?: Notes | null;
+  medications?: Medications | null;
+  mealRecipient?: Recipient | null;
+  sleepRecipient?: Recipient | null;
 }
+
+const getUserDataTEHelper = (entry: any, userKey: string) => {
+  const user = entry[userKey];
+  return {
+    id: user?.id ?? -1,
+    firstName: user?.firstName ?? "",
+    lastName: user?.lastName ?? "",
+    photo: user?.photo ?? "",
+  };
+};
+
+const getNoteDataTEHelper = (entry: any, noteKey: string) => {
+  const note = entry[noteKey];
+  return note?.note ?? "";
+};
