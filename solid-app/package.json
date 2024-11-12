@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@ark-ui/solid": "4.2",
+    "@google-cloud/speech": "^6.7.0",
     "@kinde-oss/kinde-typescript-sdk": "^2.9.1",
     "@kobalte/core": "^0.13.7",
     "@langchain/anthropic": "^0.3.6",

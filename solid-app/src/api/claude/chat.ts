@@ -28,28 +28,13 @@ import { sleeps } from "../../../drizzle/schema/Sleeps";
 import { notes } from "../../../drizzle/schema/Notes";
 import { meals } from "../../../drizzle/schema/Meals";
 import { medications } from "../../../drizzle/schema/Medications";
-import { InferInsertModel, InferSelectModel, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { takenMedications } from "../../../drizzle/schema/TakenMedications";
-import { Params } from "@solidjs/router";
-
-// we need to:
-// give claude access to the user's db so that we can fetch
-//
-// This feels like a problem where can give claude a simple query client for user related data,
-// instead of building a highly abstracted query client
-//
-// medication info
-// meals info
-// sleep info
-// mood info
-// notes info
-//
-// claude also needs to be able to:
-// create all journal entries
-// create calendar events
-//
-// it's clearly too dangerous to let claude freely query the db
-// claude is also likely to make a mistake when creating if it's running raw sql queries?
+import { getTeamFromTeamId } from "../team";
+import { Users } from "~/../drizzle/schema/Users";
+import { Teams } from "../../../drizzle/schema/Teams";
+import { TeamMembers } from "../../../drizzle/schema/TeamMembers";
+import { Recipients } from "../../../drizzle/schema/Recipients";
 
 const CHAT_SYSTEM_MESSAGE = `
 You are a helpful assitant to a caretaker. Your name is "Harmony".
@@ -60,7 +45,28 @@ you should keep your messages concise and friendly!
 Try to format responses to be non-technical.
 
 You have access to a journal that contains notes the caretaker may have taken. Use it to assist your user.
+Keep in mind, the caretaker notes are for the recipient.
+
 The current date is: ${new Date(Date.now()).toLocaleTimeString()}
+`;
+const CHAT_SYSTEM_MESSAGE_WITH_VOICE = `
+${CHAT_SYSTEM_MESSAGE}
+
+## Additional info:
+You're currently operating in voice mode. This means the following:
+
+Be more conversational in tone. Don't format responses in markdown, just in plain text. Your text
+will be spoken, so keep that in mind.
+
+Don't include any symbols for formatting! Omit dashes, for example. If you need to break up your text, do it with
+periods and commas.
+
+Also, try to ignore any typos in the message. We're picking up from the users microphone, so it might not format
+perfectly. Your name may be misheard as something like Hermiony, Hermny, so on. Just assume they meant Harmony.
+
+If you need to ask a series of questions, break it up into multiple conversation parts by asking one at a time.
+Your responses need to be at most 2 to 3 sentences long, with shorter, spoken sentences preferable.
+
 `;
 
 const categories = ["medication", "meals", "sleep", "mood", "notes"] as const;
@@ -287,16 +293,63 @@ const claudeTools = [
   createJournalEntryToolDefinition,
 ] as const;
 
-function makeClaudeToolCall(result: GraphState) {
-  return callClaudeWithTools({
-    claudeSettings: defaultClaudeSettings,
-    system: CHAT_SYSTEM_MESSAGE,
-    retryCount: 5,
-    messages: getFirst(result.messages),
-    type: "tools",
-    toolChoice: { type: "auto" },
-    tools: [...claudeTools],
-  });
+class QueryDBError {
+  readonly _tag = "QueryDBError";
+  error: unknown;
+
+  constructor(e: unknown) {
+    this.error = e;
+  }
+}
+
+async function getUserFromId(userId: number) {
+  const user = await db.select().from(Users).where(eq(Users.id, userId));
+  if (!user[0]) throw new Error("No user.");
+  return JSON.stringify(user[0], undefined, 2);
+}
+
+async function getRecipientFromUserId(userId: number) {
+  const teams = await db
+    .select({ recipient: Recipients })
+    .from(TeamMembers)
+    .innerJoin(Teams, eq(TeamMembers.userId, userId))
+    .innerJoin(Recipients, eq(Teams.recipientId, Recipients.id));
+
+  const recipient = teams[0];
+  if (!recipient) throw new Error("No teams?");
+  const formattedInfo = JSON.stringify(recipient.recipient, undefined, 2);
+  console.log(formattedInfo);
+
+  return { recipient: formattedInfo, user: await getUserFromId(userId) };
+}
+
+function makeClaudeToolCall(result: GraphState, id: number, voice?: boolean) {
+  console.log("Voice mode?", voice);
+  return Effect.tryPromise({
+    try: () => getRecipientFromUserId(id),
+    catch: (e) => new QueryDBError(e),
+  }).pipe(
+    Effect.flatMap((info) =>
+      callClaudeWithTools({
+        claudeSettings: defaultClaudeSettings,
+        system: `${voice ? CHAT_SYSTEM_MESSAGE_WITH_VOICE : CHAT_SYSTEM_MESSAGE}
+
+        ## Recipient Information:
+
+          ${info.recipient}
+
+        ## User information:
+
+          ${info.user}
+        `,
+        retryCount: 5,
+        messages: getFirst(result.messages),
+        type: "tools",
+        toolChoice: { type: "auto" },
+        tools: [...claudeTools],
+      }),
+    ),
+  );
 }
 
 type ExtractValue<T> = T extends Effect.Effect<infer R, any, any> ? R : never;
@@ -401,10 +454,10 @@ function handleClaudeResponse(
   });
 }
 
-function chat(state: GraphState, userId: number) {
+function chat(state: GraphState, userId: number, voice?: boolean) {
   return pipe(
     state,
-    makeClaudeToolCall,
+    (state) => makeClaudeToolCall(state, userId, voice),
     Effect.flatMap((result) => handleClaudeResponse(result, state, userId)),
   );
 }
@@ -414,6 +467,7 @@ const chatStates: { messages: Message; id: number }[] = [];
 export const harmonyChat = async (
   message: ArrayMessage[],
   id: number,
+  voice?: boolean,
 ): Promise<ArrayMessage[] | void> => {
   const index = chatStates.findIndex((state) => state.id === id);
   if (index === -1) {
@@ -431,6 +485,7 @@ export const harmonyChat = async (
       ...(index === -1 ? chatStates.at(-1)! : chatStates[index]!),
     },
     id,
+    voice,
   );
 
   const next = await Effect.runPromiseExit(
