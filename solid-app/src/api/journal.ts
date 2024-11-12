@@ -5,26 +5,18 @@ import { eq, and, desc, getTableColumns, aliasedTable } from "drizzle-orm";
 import {
   notes,
   categoryEnumNotes,
-  NoteWithUser,
   AttachedNote,
   Notes,
 } from "../../drizzle/schema/Notes";
 import {
   TakenMedications,
   takenMedications,
-  TakenMedsWithNoteUser,
 } from "../../drizzle/schema/TakenMedications";
-import {
-  Moods,
-  moods,
-  MoodsWithNoteUser,
-  timeFrameEnumMoods,
-} from "../../drizzle/schema/Moods";
+import { Moods, moods, timeFrameEnumMoods } from "../../drizzle/schema/Moods";
 import {
   sleeps,
   qualityEnum,
   timeFrameEnumSleeps,
-  SleepWithNoteUser,
   Sleep,
 } from "../../drizzle/schema/Sleeps";
 import { isMemberOfTeam, isValidEnumValue } from "~/api/dbHelper";
@@ -33,14 +25,13 @@ import {
   consumptionEnum,
   Meal,
   meals,
-  MealWithNoteUser,
 } from "../../drizzle/schema/Meals";
 import { Medications, medications } from "../../drizzle/schema/Medications";
 import { AttachedUser, User, Users } from "../../drizzle/schema/Users";
 import { Teams } from "../../drizzle/schema/Teams";
 import { Recipient, Recipients } from "../../drizzle/schema/Recipients";
 import { getUserIdFromSession } from "./server";
-import { Journal, journals, journalType } from "../../drizzle/schema/Journals";
+import { journals } from "../../drizzle/schema/Journals";
 
 const mapQuality = (value: number) => {
   return qualityEnum[value - 1];
@@ -197,6 +188,14 @@ export const deleteNoteAction = action(async (noteId: number) => {
   const isMember = await isMemberOfTeam(userId, originalNoteResult.teamId);
   if (!isMember) {
     return { error: "Insufficient Permissions" };
+  }
+  const [deleteReferenceError, deleteReferenceResult] = await mightFail(
+    db
+      .delete(journals)
+      .where(and(eq(journals.type, "note"), eq(journals.entryId, noteId)))
+  );
+  if (deleteReferenceError) {
+    return { error: "Could not delete reference" };
   }
   const [deleteError, deleteResult] = await mightFail(
     db.delete(notes).where(eq(notes.id, noteId))
@@ -574,6 +573,19 @@ export const deleteTakenMedicationAction = action(
         return { error: "Could not delete note" };
       }
     }
+    const [deleteReferenceError, deleteReferenceResult] = await mightFail(
+      db
+        .delete(journals)
+        .where(
+          and(
+            eq(journals.type, "medication"),
+            eq(journals.entryId, takenMedicationId)
+          )
+        )
+    );
+    if (deleteReferenceError) {
+      return { error: "Could not delete reference" };
+    }
     const [deleteMedError, deleteMedResult] = await mightFail(
       db
         .delete(takenMedications)
@@ -863,6 +875,14 @@ export const deleteMoodAction = action(async (moodId: number) => {
     if (deleteNoteError) {
       return { error: "Could not delete note" };
     }
+  }
+  const [deleteReferenceError, deleteReferenceResult] = await mightFail(
+    db
+      .delete(journals)
+      .where(and(eq(journals.type, "mood"), eq(journals.entryId, moodId)))
+  );
+  if (deleteReferenceError) {
+    return { error: "Could not delete reference" };
   }
   const [deleteMoodError, deleteMoodResult] = await mightFail(
     db.delete(moods).where(eq(moods.id, moodId))
@@ -1172,6 +1192,14 @@ export const deleteMealAction = action(async (mealId: number) => {
     if (deleteNoteError) {
       return { error: "Could not delete note" };
     }
+  }
+  const [deleteReferenceError, deleteReferenceResult] = await mightFail(
+    db
+      .delete(journals)
+      .where(and(eq(journals.type, "meal"), eq(journals.entryId, mealId)))
+  );
+  if (deleteReferenceError) {
+    return { error: "Could not delete reference" };
   }
   const [deleteMealError, deleteMealResult] = await mightFail(
     db.delete(meals).where(eq(meals.id, mealId))
@@ -1490,6 +1518,14 @@ export const deleteSleepAction = action(async (sleepId: number) => {
     if (deleteNoteError) {
       return { error: "Could not delete note" };
     }
+  }
+  const [deleteReferenceError, deleteReferenceResult] = await mightFail(
+    db
+      .delete(journals)
+      .where(and(eq(journals.type, "sleep"), eq(journals.entryId, sleepId)))
+  );
+  if (deleteReferenceError) {
+    return { error: "Could not delete reference" };
   }
   const [deleteSleepError, deleteSleepResult] = await mightFail(
     db.delete(sleeps).where(eq(sleeps.id, sleepId))
