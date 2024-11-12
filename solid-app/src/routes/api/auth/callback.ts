@@ -13,7 +13,7 @@ export const GET = async ({ request }: APIEvent) => {
   const infoString = cookies.get("register_obj") as string;
   let registerInfo: RegisterInfo | undefined;
   if (infoString) {
-    registerInfo = JSON.parse(infoString) as RegisterInfo;
+    registerInfo = JSON.parse(decodeURIComponent(infoString)) as RegisterInfo;
   }
   // console.log(registerInfo);
 

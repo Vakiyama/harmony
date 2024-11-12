@@ -5,6 +5,7 @@ import { db } from "./db";
 import { getKindeClient, sessionManager } from "./kinde";
 import { UserType } from "@kinde-oss/kinde-typescript-sdk";
 import { Users } from "../../drizzle/schema/Users";
+import { mightFail } from "might-fail";
 
 type UserTypeExtended = UserType & {
   dob?: string;
@@ -74,30 +75,27 @@ export async function loginOrRegister(kindeUser: UserTypeExtended) {
 export async function logout() {
   const manager = await sessionManager();
   const logoutUrl = await getKindeClient().logout(manager);
-  throw redirect(logoutUrl.toString());
+  return redirect(logoutUrl.toString());
 }
 
 export async function getUser() {
   const sessionManager = await checkAuthenticated();
-  const session = await sessionManager.getSession();
-  const userId = session.data.userId;
-
-  try {
-    const user = await db
-      .select()
-      .from(Users)
-      .where(eq(Users.id, userId))
-      .get();
-    if (!user) throw redirect("/api/auth/landing");
-    return {
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      photo: user.photo,
-    };
-  } catch {
-    throw logout();
+  const session = sessionManager?.getSession();
+  const userId = session?.data.userId;
+  if (!session || !session.data?.userId) {
+    throw redirect("/api/auth/landing");
   }
+  const [error, user] = await mightFail(
+    db.select().from(Users).where(eq(Users.id, userId)).get(),
+  );
+  if (error) throw logout();
+  if (!user) throw redirect("/api/auth/landing");
+  return {
+    id: user.id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    photo: user.photo,
+  };
 }
 
 export async function checkAuthenticated() {
@@ -105,7 +103,7 @@ export async function checkAuthenticated() {
   const isAuthenticated = await getKindeClient().isAuthenticated(manager);
 
   if (!isAuthenticated) {
-    throw redirect("/api/auth/landing");
+    return;
   }
 
   return manager;

@@ -3,6 +3,7 @@ export default function SleepIcon(props: {
   height?: string;
   iconColor?: string;
   bgColor?: string;
+  class?: string;
 }) {
   return (
     <svg
@@ -11,6 +12,7 @@ export default function SleepIcon(props: {
       viewBox="0 0 68 68"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      class={props.class || ""}
     >
       <rect
         x="0.275024"

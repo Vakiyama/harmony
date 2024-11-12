@@ -6,7 +6,10 @@
     "build": "vinxi build --preset node-server",
     "start": "vinxi start --preset node-server",
     "test": "vitest",
-    "seed": "bun ./drizzle/seed.ts "
+    "seed": "bun ./drizzle/seed.ts ",
+    "push": "bun drizzle-kit push",
+    "setup": "bun drizzle-kit push && bun run seed",
+    "studio": "bun drizzle-kit studio"
   },
   "devDependencies": {
     "@solidjs/testing-library": "^0.8.10",
@@ -23,6 +26,7 @@
   },
   "dependencies": {
     "@ark-ui/solid": "4.2",
+    "@google-cloud/speech": "^6.7.0",
     "@kinde-oss/kinde-typescript-sdk": "^2.9.1",
     "@kobalte/core": "^0.13.7",
     "@langchain/anthropic": "^0.3.6",
@@ -37,6 +41,8 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.31.4",
+    "drizzle-zod": "^0.5.1",
+    "effect": "^3.10.12",
     "might-fail": "^0.6.3",
     "moment": "^2.30.1",
     "socket.io": "^4.8.1",

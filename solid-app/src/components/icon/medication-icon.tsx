@@ -3,6 +3,7 @@ export default function MedicationIcon(props: {
   height?: string;
   iconColor?: string;
   bgColor?: string;
+  class?: string;
 }) {
   return (
     <svg
@@ -11,6 +12,7 @@ export default function MedicationIcon(props: {
       viewBox="0 0 66 66"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      class={props.class || ""}
     >
       <rect
         x="0.25"
