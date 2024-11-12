@@ -115,10 +115,6 @@ const CalendarSideMenu = (props: {
       });
     });
   });
-  createEffect(() => {
-    const selected = getSelectedMembers();
-    console.log("Selected members:", selected);
-  });
 
   return (
     <div
@@ -145,12 +141,12 @@ const CalendarSideMenu = (props: {
           </button>
         </div>
         <div class="flex-col justify-center items-center inline-flex w-full">
-          <div class="self-stretch py-[13px] justify-start items-center gap-2 flex border-b border-[#1e1e1e]/20 px-3">
+          {/* <div class="self-stretch py-[13px] justify-start items-center gap-2 flex border-b border-[#1e1e1e]/20 px-3">
             <CalendarIcon />
             <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
               Today
             </div>
-          </div>
+          </div> */}
           <div class="self-stretch py-[13px] justify-start items-center gap-2 flex border-b border-[#1e1e1e]/20 px-3">
             <BsGrid3x3GapFill />
             <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
