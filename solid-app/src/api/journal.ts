@@ -1,7 +1,7 @@
 import { action } from "@solidjs/router";
 import { mightFail } from "might-fail";
 import { db } from "./db";
-import { eq, and, desc, getTableColumns, aliasedTable } from "drizzle-orm";
+import { eq, and, desc, or, aliasedTable } from "drizzle-orm";
 import {
   notes,
   categoryEnumNotes,
@@ -1559,6 +1559,10 @@ export const getMedicationsFromTeamId = async (teamId: number) => {
 
 export const getJournalsFromTeamId = async (teamId: number) => {
   "use server";
+  const userId = await getUserIdFromSession();
+  if (userId === undefined) {
+    return undefined;
+  }
   const userMedication = aliasedTable(Users, "userMedication");
   const userMeal = aliasedTable(Users, "userMeal");
   const userSleep = aliasedTable(Users, "userSleep");
@@ -1574,7 +1578,6 @@ export const getJournalsFromTeamId = async (teamId: number) => {
   const mealRecipient = aliasedTable(Recipients, "mealRecipient");
   const sleepTeam = aliasedTable(Teams, "sleepTeam");
   const sleepRecipient = aliasedTable(Recipients, "sleepRecipient");
-
   const [err, res] = await mightFail(
     db
       .select()
@@ -1634,17 +1637,25 @@ export const getJournalsFromTeamId = async (teamId: number) => {
         )
       )
       .leftJoin(userNote, eq(notes.userId, userNote.id))
+      .where(
+        or(
+          eq(takenMedications.teamId, teamId),
+          eq(meals.teamId, teamId),
+          eq(sleeps.teamId, teamId),
+          eq(moods.teamId, teamId),
+          eq(notes.teamId, teamId)
+        )
+      )
       .orderBy(desc(journals.createdAt))
   );
   if (err) {
     console.log(err);
-    return null;
+    return undefined;
   }
-
   const transformedData = res.map((entry: TransformedJournalEntry) => {
     const { id, type, entryId, createdAt } = entry.journals;
 
-    let data: any = null;
+    let data: any = {};
     let user: AttachedUser = {
       id: -1,
       firstName: "",
@@ -1662,33 +1673,33 @@ export const getJournalsFromTeamId = async (teamId: number) => {
     };
     switch (type) {
       case "medication":
-        data = entry.taken_medications;
+        data = entry.taken_medications || {};
         user = getUserDataTEHelper(entry, "userMedication");
         note.note = getNoteDataTEHelper(entry, "medNote");
         medication.name = entry.medications?.name || "";
         data.medications = medication;
         break;
       case "meal":
-        data = entry.meals;
+        data = entry.meals || {};
         user = getUserDataTEHelper(entry, "userMeal");
         note.note = getNoteDataTEHelper(entry, "mealNote");
-        recipient.firstName = entry.mealRecipient?.firstName || "";
+        recipient.firstName = entry?.mealRecipient?.firstName || "";
         data.recipient = recipient;
         break;
       case "sleep":
-        data = entry.sleeps;
+        data = entry.sleeps || {};
         user = getUserDataTEHelper(entry, "userSleep");
         note.note = getNoteDataTEHelper(entry, "sleepNote");
         recipient.firstName = entry.mealRecipient?.firstName || "";
         data.recipient = recipient;
         break;
       case "mood":
-        data = entry.moods;
+        data = entry.moods || {};
         user = getUserDataTEHelper(entry, "userMood");
         note.note = getNoteDataTEHelper(entry, "moodNote");
         break;
       case "note":
-        data = entry.notes;
+        data = entry.notes || {};
         user = getUserDataTEHelper(entry, "userNote");
         break;
       default:
@@ -1708,7 +1719,6 @@ export const getJournalsFromTeamId = async (teamId: number) => {
       createdAt,
     };
   });
-
   return transformedData;
 };
 

@@ -115,7 +115,7 @@ export const getListOfTeams = async () => {
   if (!userId) {
     return [];
   }
-  console.log(userId);
+  console.log("userid", userId);
   const [teamsError, teamsResult] = await mightFail(
     db
       .select({

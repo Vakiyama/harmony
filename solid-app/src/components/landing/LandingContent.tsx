@@ -46,11 +46,6 @@ const LandingContent = () => {
   );
   const journalsData = createMemo(() => getJournals());
 
-  const dddd = createMemo(async () => {
-    const res = await getJournalsFromTeamId(defaultTeam()?.team.id || 1);
-    console.log(res);
-    return res;
-  });
   const getTabIcon = (tabName: string) => {
     switch (tabName) {
       case "Medication Taken":
