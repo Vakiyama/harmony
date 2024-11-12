@@ -85,28 +85,11 @@ export async function getUser() {
   if (!session || !session.data?.userId) {
     return redirect("/api/auth/landing");
   }
-  try {
-    const user = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, userId))
-      .get();
-    if (!user) return redirect("/api/auth/landing");
-    return {
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      photo: user.photo,
-    };
-  } catch (err) {
-    console.log(err);
-    return logout();
-  }
   const [error, user] = await mightFail(
-    db.select().from(users).where(eq(users.id, userId)).get(),
+    db.select().from(users).where(eq(users.id, userId)).get()
   );
-  if (error) throw logout();
-  if (!user) throw redirect("/api/auth/landing");
+  if (error) return logout();
+  if (!user) return redirect("/api/auth/landing");
   return {
     id: user.id,
     firstName: user.firstName,
