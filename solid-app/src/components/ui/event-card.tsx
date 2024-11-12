@@ -15,6 +15,9 @@ const EventCard = (props: { event: Event }) => {
   });
 
   const getEventBackground = (event: Event) => {
+    if (event.type === "task") {
+      return "bg-[#e2f4dc]";
+    }
     return "bg-[#f1eefc]";
   };
 
@@ -34,18 +37,18 @@ const EventCard = (props: { event: Event }) => {
         {props.event.type === "event" ? (
           <div class="w-0.5 h-10 bg-[#7859ea] rounded-[20px]" />
         ) : (
-          <FaRegularCircleCheck class="text-lg ml-0.5" />
+          <FaRegularCircleCheck class="text-lg ml-0.5 text-[#6FC94F]" />
         )}
         <div class="grow shrink basis-0 h-7 justify-between items-center flex">
           <div class="grow shrink relative basis-0 h-7 flex-col justify-between items-start inline-flex">
-            <div class="self-stretch h-3 text-[#1e1e1e]/75 text-base font-['SF Pro'] leading-tight">
+            <div class="self-stretch h-3 text-[#1e1e1e]/75 text-base font-sf-pro leading-tight">
               {concatTitle(props.event.title)}
             </div>
             <div class="flex space-x-1">
               <For each={response()}>
                 {(data, i) => (
                   <Show when={data.status !== "yes"}>
-                    <div class="self-stretch h-[9px] text-[#1e1e1e]/50 text-[13px] font-normal font-['SF Pro'] leading-none">
+                    <div class="self-stretch h-[9px] text-[#1e1e1e]/50 text-[13px] font-normal font-sf-pro leading-none">
                       {data.participant.firstName} {data.participant.lastName}
                       <Show when={response()!.length > 1}>
                         {i() === response.length ? "," : ""}
@@ -57,11 +60,11 @@ const EventCard = (props: { event: Event }) => {
             </div>
           </div>
           <div class="w-[123px] h-7 flex-col justify-between absolute right-2 items-end inline-flex">
-            <div class="self-stretch h-2.5 text-right text-[#1e1e1e]/50 text-[13px] font-normal font-['SF Pro'] uppercase leading-none">
+            <div class="self-stretch h-2.5 text-right text-[#1e1e1e]/50 text-[13px] font-normal font-sf-pro uppercase leading-none">
               {moment(props.event.timeStart).format("h:mm A")}
             </div>
             {props.event.timeEnd && (
-              <div class="self-stretch h-3 text-right text-[#1e1e1e]/50 text-[13px] font-normal font-['SF Pro'] uppercase leading-none">
+              <div class="self-stretch h-3 text-right text-[#1e1e1e]/50 text-[13px] font-normal font-sf-pro uppercase leading-none">
                 {moment(props.event.timeEnd).format("h:mm A")}
               </div>
             )}

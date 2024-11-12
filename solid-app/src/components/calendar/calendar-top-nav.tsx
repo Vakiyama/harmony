@@ -1,7 +1,11 @@
 import { A } from "@solidjs/router";
-import { Accessor } from "solid-js";
+import { Accessor, Setter } from "solid-js";
 
-export default function CalendarTopNav(props: { month: Accessor<string> }) {
+export default function CalendarTopNav(props: {
+  month: Accessor<string>;
+  setIsSideMenuOpen: Setter<boolean>;
+  isSideMenuOpen: Accessor<boolean>;
+}) {
   return (
     <div class="sticky top-0 w-full flex flex-row h-[95px] bg-white shadow-md">
       <div class="w-full flex flex-row justify-between items-end px-4 mb-4">
@@ -65,7 +69,10 @@ export default function CalendarTopNav(props: { month: Accessor<string> }) {
               />
             </svg>
           </A>
-          <A href="/" class="text-md">
+          <button
+            class="text-md"
+            onclick={() => props.setIsSideMenuOpen(!props.isSideMenuOpen())}
+          >
             {/* hamburger menu icon */}
             <svg
               width="22"
@@ -79,7 +86,7 @@ export default function CalendarTopNav(props: { month: Accessor<string> }) {
                 fill="#1E1E1E"
               />
             </svg>
-          </A>
+          </button>
         </div>
       </div>
     </div>

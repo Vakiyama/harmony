@@ -1,5 +1,4 @@
 import { JSX } from "solid-js";
-import ModalOption from "~/components/shared/modal-option";
 
 export default function UpdateEventModal(props: {
   onClose?: () => void;

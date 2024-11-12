@@ -25,10 +25,10 @@ const EventCalendarDisplay = (props: { events: Accessor<Event[]> }) => {
   };
 
   return (
-    <div class="w-[366px] flex-col justify-start items-end gap-5 inline-flex overflow-scroll max-h-screen">
+    <div class="w-full flex-col justify-start items-end gap-5 inline-flex overflow-scroll max-h-screen">
       <For each={getDates()}>
         {(date) => (
-          <div class="self-stretch justify-between items-start inline-flex">
+          <div class="self-stretch justify-between items-start inline-flex space-x-5">
             <div class="w-8 flex-col justify-start items-center gap-0.5 inline-flex">
               <div class="self-stretch text-center text-[#5d5d5d]/75 text-[11px] font-normal font-['SF Pro'] leading-[13.20px]">
                 {getDayName(date)}
@@ -37,7 +37,7 @@ const EventCalendarDisplay = (props: { events: Accessor<Event[]> }) => {
                 {getDayNumber(date)}
               </div>
             </div>
-            <div class="w-[315px] flex-col justify-start items-end gap-1 inline-flex">
+            <div class="w-full flex-col justify-start items-end gap-1 inline-flex">
               <For each={getGroupedEvents()[date]}>
                 {(event) => <EventCard event={event} />}
               </For>

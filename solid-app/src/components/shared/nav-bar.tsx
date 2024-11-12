@@ -9,7 +9,7 @@ import {
 import HarmonyIcon from "~/components/icon/harmony-icon";
 import NavBarItem from "./nav-bar-item";
 import HomeIcon from "~/components/icon/home-icon";
-import CalendarIcon from "~/components/icon/calendar-icon";
+import CalendarIcon from "~/components/icon/calendar-nav-icon";
 import JournalIcon from "~/components/icon/journal-icon";
 import ProfileIcon from "~/components/icon/profile-icon";
 import { twMerge } from "tailwind-merge";
