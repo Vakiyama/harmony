@@ -1,41 +1,38 @@
 import { action } from "@solidjs/router";
 import { mightFail } from "might-fail";
 import { db } from "./db";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, or, aliasedTable } from "drizzle-orm";
 import {
   notes,
   categoryEnumNotes,
-  NoteWithUser,
+  AttachedNote,
+  Notes,
 } from "../../drizzle/schema/Notes";
 import {
+  TakenMedications,
   takenMedications,
-  TakenMedsWithNoteUser,
 } from "../../drizzle/schema/TakenMedications";
-import {
-  moods,
-  MoodsWithNoteUser,
-  timeFrameEnumMoods,
-} from "../../drizzle/schema/Moods";
+import { Moods, moods, timeFrameEnumMoods } from "../../drizzle/schema/Moods";
 import {
   sleeps,
   qualityEnum,
   timeFrameEnumSleeps,
-  SleepWithNoteUser,
+  Sleep,
 } from "../../drizzle/schema/Sleeps";
 import { isMemberOfTeam, isValidEnumValue } from "~/api/dbHelper";
 import {
   categoryEnumMeals,
   consumptionEnum,
+  Meal,
   meals,
-  MealWithNoteUser,
 } from "../../drizzle/schema/Meals";
 import { sessionManager } from "./kinde";
-import { medications } from "../../drizzle/schema/Medications";
-import { teamMembers } from "../../drizzle/schema/TeamMembers";
-import { users } from "../../drizzle/schema/Users";
+import { Medications, medications } from "../../drizzle/schema/Medications";
+import { AttachedUser, User, users } from "../../drizzle/schema/Users";
 import { teams } from "../../drizzle/schema/Teams";
-import { recipients } from "../../drizzle/schema/Recipients";
+import { Recipient, recipients } from "../../drizzle/schema/Recipients";
 import { getUserIdFromSession } from "./server";
+import { journals } from "../../drizzle/schema/Journals";
 
 const mapQuality = (value: number) => {
   return qualityEnum[value - 1];
@@ -75,11 +72,22 @@ export const createNoteAction = action(async (formData: FormData) => {
   const notesInput = { note, teamId, userId };
 
   const [noteError, noteResult] = await mightFail(
-    db.insert(notes).values(notesInput)
+    db
+      .insert(notes)
+      .values(notesInput)
+      .returning()
+      .then((res) => res[0])
   );
   if (noteError) {
     console.error("Database insertion error:", noteError);
     return { error: "Failed to create note." };
+  }
+  const [journalReferenceError, journalReferenceResult] = await mightFail(
+    db.insert(journals).values({ type: "note", entryId: noteResult.id })
+  );
+  if (journalReferenceError) {
+    console.error("Error making reference to journal", journalReferenceError);
+    return { error: "Failed to make journal reference" };
   }
   return { success: true, message: "Note successfully created." };
 }, "createNoteAction");
@@ -182,6 +190,14 @@ export const deleteNoteAction = action(async (noteId: number) => {
   if (!isMember) {
     return { error: "Insufficient Permissions" };
   }
+  const [deleteReferenceError, deleteReferenceResult] = await mightFail(
+    db
+      .delete(journals)
+      .where(and(eq(journals.type, "note"), eq(journals.entryId, noteId)))
+  );
+  if (deleteReferenceError) {
+    return { error: "Could not delete reference" };
+  }
   const [deleteError, deleteResult] = await mightFail(
     db.delete(notes).where(eq(notes.id, noteId))
   );
@@ -283,11 +299,24 @@ export const createTakenMedicationAction = action(
     };
 
     const [takenMedicationError, takenMedicationResult] = await mightFail(
-      db.insert(takenMedications).values(medicationInput)
+      db
+        .insert(takenMedications)
+        .values(medicationInput)
+        .returning()
+        .then((res) => res[0])
     );
     if (takenMedicationError) {
       console.error("Database insertion error:", takenMedicationError);
       return { error: "Failed to insert medication entry." };
+    }
+    const [journalReferenceError, journalReferenceResult] = await mightFail(
+      db
+        .insert(journals)
+        .values({ type: "medication", entryId: takenMedicationResult.id })
+    );
+    if (journalReferenceError) {
+      console.error("Error making reference to journal", journalReferenceError);
+      return { error: "Failed to make journal reference" };
     }
     return { success: true, message: "Medication successfully created." };
   },
@@ -545,6 +574,19 @@ export const deleteTakenMedicationAction = action(
         return { error: "Could not delete note" };
       }
     }
+    const [deleteReferenceError, deleteReferenceResult] = await mightFail(
+      db
+        .delete(journals)
+        .where(
+          and(
+            eq(journals.type, "medication"),
+            eq(journals.entryId, takenMedicationId)
+          )
+        )
+    );
+    if (deleteReferenceError) {
+      return { error: "Could not delete reference" };
+    }
     const [deleteMedError, deleteMedResult] = await mightFail(
       db
         .delete(takenMedications)
@@ -620,11 +662,22 @@ export const createMoodAction = action(async (formData: FormData) => {
     userId,
   };
   const [moodError, moodResult] = await mightFail(
-    db.insert(moods).values(moodInput)
+    db
+      .insert(moods)
+      .values(moodInput)
+      .returning()
+      .then((res) => res[0])
   );
   if (moodError) {
     console.error("Database update error:", moodError);
     return { error: "Failed to update mood entry." };
+  }
+  const [journalReferenceError, journalReferenceResult] = await mightFail(
+    db.insert(journals).values({ type: "mood", entryId: moodResult.id })
+  );
+  if (journalReferenceError) {
+    console.error("Error making reference to journal", journalReferenceError);
+    return { error: "Failed to make journal reference" };
   }
   return { success: true, message: "Mood entry updated successfully" };
 }, "createMoodAction");
@@ -824,6 +877,14 @@ export const deleteMoodAction = action(async (moodId: number) => {
       return { error: "Could not delete note" };
     }
   }
+  const [deleteReferenceError, deleteReferenceResult] = await mightFail(
+    db
+      .delete(journals)
+      .where(and(eq(journals.type, "mood"), eq(journals.entryId, moodId)))
+  );
+  if (deleteReferenceError) {
+    return { error: "Could not delete reference" };
+  }
   const [deleteMoodError, deleteMoodResult] = await mightFail(
     db.delete(moods).where(eq(moods.id, moodId))
   );
@@ -907,11 +968,22 @@ export const createMealAction = action(async (formData: FormData) => {
   };
 
   const [mealError, mealResult] = await mightFail(
-    db.insert(meals).values(mealInput)
+    db
+      .insert(meals)
+      .values(mealInput)
+      .returning()
+      .then((res) => res[0])
   );
   if (mealError) {
     console.error("Database insertion error:", mealError);
     return { error: "Failed to insert meal entry" };
+  }
+  const [journalReferenceError, journalReferenceResult] = await mightFail(
+    db.insert(journals).values({ type: "meal", entryId: mealResult.id })
+  );
+  if (journalReferenceError) {
+    console.error("Error making reference to journal", journalReferenceError);
+    return { error: "Failed to make journal reference" };
   }
   return { success: true, message: "Meal entry created successfully" };
 }, "createMealAction");
@@ -1122,6 +1194,14 @@ export const deleteMealAction = action(async (mealId: number) => {
       return { error: "Could not delete note" };
     }
   }
+  const [deleteReferenceError, deleteReferenceResult] = await mightFail(
+    db
+      .delete(journals)
+      .where(and(eq(journals.type, "meal"), eq(journals.entryId, mealId)))
+  );
+  if (deleteReferenceError) {
+    return { error: "Could not delete reference" };
+  }
   const [deleteMealError, deleteMealResult] = await mightFail(
     db.delete(meals).where(eq(meals.id, mealId))
   );
@@ -1209,13 +1289,23 @@ export const createSleepAction = action(async (formData: FormData) => {
   };
 
   const [sleepError, sleepResult] = await mightFail(
-    db.insert(sleeps).values(sleepInput)
+    db
+      .insert(sleeps)
+      .values(sleepInput)
+      .returning()
+      .then((res) => res[0])
   );
   if (sleepError) {
     console.error("Database insertion error:", sleepError);
     return { error: "Failed to create sleep entry." }; // Return error if insertion fails
   }
-
+  const [journalReferenceError, journalReferenceResult] = await mightFail(
+    db.insert(journals).values({ type: "sleep", entryId: sleepResult.id })
+  );
+  if (journalReferenceError) {
+    console.error("Error making reference to journal", journalReferenceError);
+    return { error: "Failed to make journal reference" };
+  }
   return { success: true, message: "Sleep entry created successfully" }; // Return success message
 }, "createSleepAction");
 
@@ -1430,6 +1520,14 @@ export const deleteSleepAction = action(async (sleepId: number) => {
       return { error: "Could not delete note" };
     }
   }
+  const [deleteReferenceError, deleteReferenceResult] = await mightFail(
+    db
+      .delete(journals)
+      .where(and(eq(journals.type, "sleep"), eq(journals.entryId, sleepId)))
+  );
+  if (deleteReferenceError) {
+    return { error: "Could not delete reference" };
+  }
   const [deleteSleepError, deleteSleepResult] = await mightFail(
     db.delete(sleeps).where(eq(sleeps.id, sleepId))
   );
@@ -1460,188 +1558,208 @@ export const getMedicationsFromTeamId = async (teamId: number) => {
   return medicationsResult;
 };
 
-export const getJournalsFromTeamId = async (
-  teamId: number
-): Promise<AllJournals | undefined> => {
+export const getJournalsFromTeamId = async (teamId: number) => {
   "use server";
   const userId = await getUserIdFromSession();
   if (userId === undefined) {
     return undefined;
   }
+  const userMedication = aliasedTable(users, "userMedication");
+  const userMeal = aliasedTable(users, "userMeal");
+  const userSleep = aliasedTable(users, "userSleep");
+  const userNote = aliasedTable(users, "userNote");
+  const userMood = aliasedTable(users, "userMood");
 
-  const [takenMedicationsError, takenMedicationsResult] = await mightFail(
+  const medNote = aliasedTable(notes, "medNote");
+  const mealNote = aliasedTable(notes, "mealNote");
+  const sleepNote = aliasedTable(notes, "sleepNote");
+  const moodNote = aliasedTable(notes, "moodNote");
+
+  const mealTeam = aliasedTable(teams, "mealTeam");
+  const mealRecipient = aliasedTable(recipients, "mealRecipient");
+  const sleepTeam = aliasedTable(teams, "sleepTeam");
+  const sleepRecipient = aliasedTable(recipients, "sleepRecipient");
+  const [err, res] = await mightFail(
     db
-      .select({
-        date: takenMedications.date,
-        id: takenMedications.id,
-        teamId: takenMedications.teamId,
-        createdAt: takenMedications.createdAt,
-        updatedAt: takenMedications.updatedAt,
-        type: takenMedications.type,
-        hasMissed: takenMedications.hasMissed,
-        user: {
-          id: users.id,
-          firstName: users.firstName,
-          lastName: users.lastName,
-          photo: users.photo,
-        },
-        note: {
-          note: notes.note,
-        },
-        medications: {
-          name: medications.name,
-        },
-      })
-      .from(takenMedications)
-      .leftJoin(users, eq(takenMedications.userId, users.id))
+      .select()
+      .from(journals)
+      .leftJoin(
+        takenMedications,
+        and(
+          eq(journals.entryId, takenMedications.id),
+          eq(journals.type, "medication"),
+          eq(takenMedications.teamId, teamId)
+        )
+      )
+      .leftJoin(userMedication, eq(takenMedications.userId, userMedication.id))
       .leftJoin(medications, eq(takenMedications.medicationId, medications.id))
-      .leftJoin(notes, eq(takenMedications.noteId, notes.id))
-      .where(eq(takenMedications.teamId, teamId))
-      .orderBy(desc(takenMedications.createdAt))
+      .leftJoin(medNote, eq(takenMedications.noteId, medNote.id))
+      .leftJoin(
+        meals,
+        and(
+          eq(journals.entryId, meals.id),
+          eq(journals.type, "meal"),
+          eq(meals.teamId, teamId)
+        )
+      )
+      .leftJoin(userMeal, eq(meals.userId, userMeal.id))
+      .leftJoin(mealNote, eq(meals.noteId, mealNote.id))
+      .leftJoin(mealTeam, eq(meals.teamId, mealTeam.id))
+      .leftJoin(mealRecipient, eq(mealTeam.recipientId, mealRecipient.id))
+      .leftJoin(
+        sleeps,
+        and(
+          eq(journals.entryId, sleeps.id),
+          eq(journals.type, "sleep"),
+          eq(sleeps.teamId, teamId)
+        )
+      )
+      .leftJoin(userSleep, eq(sleeps.userId, userSleep.id))
+      .leftJoin(sleepNote, eq(sleeps.noteId, sleepNote.id))
+      .leftJoin(sleepTeam, eq(sleeps.teamId, sleepTeam.id))
+      .leftJoin(sleepRecipient, eq(sleepTeam.recipientId, sleepRecipient.id))
+      .leftJoin(
+        moods,
+        and(
+          eq(journals.entryId, moods.id),
+          eq(journals.type, "mood"),
+          eq(moods.teamId, teamId)
+        )
+      )
+      .leftJoin(userMood, eq(moods.userId, userMood.id))
+      .leftJoin(moodNote, eq(moods.noteId, moodNote.id))
+      .leftJoin(
+        notes,
+        and(
+          eq(journals.entryId, notes.id),
+          eq(journals.type, "note"),
+          eq(notes.teamId, teamId),
+          eq(notes.category, "general")
+        )
+      )
+      .leftJoin(userNote, eq(notes.userId, userNote.id))
+      .where(
+        or(
+          eq(takenMedications.teamId, teamId),
+          eq(meals.teamId, teamId),
+          eq(sleeps.teamId, teamId),
+          eq(moods.teamId, teamId),
+          eq(notes.teamId, teamId)
+        )
+      )
+      .orderBy(desc(journals.createdAt))
   );
-  if (takenMedicationsError) {
+  if (err) {
+    console.log(err);
     return undefined;
   }
-  const [moodsError, moodsResult] = await mightFail(
-    db
-      .select({
-        id: moods.id,
-        wellBeing: moods.wellBeing,
-        timeFrame: moods.timeFrame,
-        date: moods.date,
-        createdAt: moods.createdAt,
-        updatedAt: moods.updatedAt,
-        teamId: moods.teamId,
-        user: {
-          id: users.id,
-          firstName: users.firstName,
-          lastName: users.lastName,
-          photo: users.photo,
-        },
-        note: {
-          note: notes.note,
-        },
-      })
-      .from(moods)
-      .leftJoin(users, eq(moods.userId, users.id))
-      .leftJoin(notes, eq(moods.noteId, notes.id))
-      .where(eq(moods.teamId, teamId))
-      .orderBy(desc(moods.createdAt))
-  );
-  if (moodsError) {
-    return undefined;
-  }
-  const [mealsError, mealsResult] = await mightFail(
-    db
-      .select({
-        id: meals.id,
-        photo: meals.photo,
-        category: meals.category,
-        foodName: meals.foodName,
-        drinkName: meals.drinkName,
-        consumption: meals.consumption,
-        date: meals.date,
-        createdAt: meals.createdAt,
-        updatedAt: meals.updatedAt,
-        teamId: meals.teamId,
-        user: {
-          id: users.id,
-          firstName: users.firstName,
-          lastName: users.lastName,
-          photo: users.photo,
-        },
-        note: {
-          note: notes.note,
-        },
-        recipient: {
-          firstName: recipients.firstName,
-        },
-      })
-      .from(meals)
-      .leftJoin(users, eq(meals.userId, users.id))
-      .leftJoin(notes, eq(meals.noteId, notes.id))
-      .leftJoin(teams, eq(meals.teamId, teams.id))
-      .leftJoin(recipients, eq(teams.recipientId, recipients.id))
-      .where(eq(meals.teamId, teamId))
-      .orderBy(desc(meals.createdAt))
-  );
-  if (mealsError) {
-    return undefined;
-  }
-  const [sleepsError, sleepsResult] = await mightFail(
-    db
-      .select({
-        id: sleeps.id,
-        quality: sleeps.quality,
-        timeFrame: sleeps.timeFrame,
-        duration: sleeps.duration,
-        troubleSleeping: sleeps.troubleSleeping,
-        date: sleeps.date,
-        createdAt: sleeps.createdAt,
-        updatedAt: sleeps.updatedAt,
-        teamId: sleeps.teamId,
-        user: {
-          id: users.id,
-          firstName: users.firstName,
-          lastName: users.lastName,
-          photo: users.photo,
-        },
-        note: {
-          note: notes.note,
-        },
-        recipient: {
-          firstName: recipients.firstName,
-        },
-      })
-      .from(sleeps)
-      .leftJoin(users, eq(sleeps.userId, users.id))
-      .leftJoin(notes, eq(sleeps.noteId, notes.id))
-      .leftJoin(teams, eq(sleeps.teamId, teams.id))
-      .leftJoin(recipients, eq(teams.recipientId, recipients.id))
-      .where(eq(sleeps.teamId, teamId))
-      .orderBy(desc(sleeps.createdAt))
-  );
-  if (sleepsError) {
-    return undefined;
-  }
-  const [notesError, notesResult] = await mightFail(
-    db
-      .select({
-        id: notes.id,
-        note: notes.note,
-        createdAt: notes.createdAt,
-        updatedAt: notes.updatedAt,
-        teamId: notes.teamId,
-        user: {
-          id: users.id,
-          firstName: users.firstName,
-          lastName: users.lastName,
-          photo: users.photo,
-        },
-      })
-      .from(notes)
-      .leftJoin(users, eq(notes.userId, users.id))
-      .where(and(eq(notes.teamId, teamId), eq(notes.category, "general")))
-      .orderBy(desc(notes.createdAt))
-  );
-  if (notesError) {
-    return undefined;
-  }
+  const transformedData = res.map((entry: TransformedJournalEntry) => {
+    const { id, type, entryId, createdAt } = entry.journals;
 
-  const journals = {
-    takenMedications: takenMedicationsResult,
-    moods: moodsResult,
-    meals: mealsResult,
-    sleeps: sleepsResult,
-    notes: notesResult,
-  };
-  return journals;
+    let data: any = {};
+    let user: AttachedUser = {
+      id: -1,
+      firstName: "",
+      lastName: "",
+      photo: "",
+    };
+    let note: AttachedNote = {
+      note: "",
+    };
+    let medication = {
+      name: "",
+    };
+    let recipient = {
+      firstName: "",
+    };
+    switch (type) {
+      case "medication":
+        data = entry.taken_medications || {};
+        user = getUserDataTEHelper(entry, "userMedication");
+        note.note = getNoteDataTEHelper(entry, "medNote");
+        medication.name = entry.medications?.name || "";
+        data.medications = medication;
+        break;
+      case "meal":
+        data = entry.meals || {};
+        user = getUserDataTEHelper(entry, "userMeal");
+        note.note = getNoteDataTEHelper(entry, "mealNote");
+        recipient.firstName = entry?.mealRecipient?.firstName || "";
+        data.recipient = recipient;
+        break;
+      case "sleep":
+        data = entry.sleeps || {};
+        user = getUserDataTEHelper(entry, "userSleep");
+        note.note = getNoteDataTEHelper(entry, "sleepNote");
+        recipient.firstName = entry.mealRecipient?.firstName || "";
+        data.recipient = recipient;
+        break;
+      case "mood":
+        data = entry.moods || {};
+        user = getUserDataTEHelper(entry, "userMood");
+        note.note = getNoteDataTEHelper(entry, "moodNote");
+        break;
+      case "note":
+        data = entry.notes || {};
+        user = getUserDataTEHelper(entry, "userNote");
+        break;
+      default:
+        break;
+    }
+    if (note.note !== "" && data !== null) {
+      data.note = note;
+    }
+    if (user.id !== -1 && data !== null) {
+      data.user = user;
+    }
+    return {
+      id,
+      type,
+      entryId,
+      data,
+      createdAt,
+    };
+  });
+  return transformedData;
 };
 
-export type AllJournals = {
-  takenMedications: TakenMedsWithNoteUser[];
-  moods: MoodsWithNoteUser[];
-  meals: MealWithNoteUser[];
-  sleeps: SleepWithNoteUser[];
-  notes: NoteWithUser[];
+interface TransformedJournalEntry {
+  journals: {
+    id: number;
+    type: "note" | "mood" | "medication" | "sleep" | "meal";
+    entryId: number;
+    createdAt: Date;
+  };
+  userMedication?: User;
+  userMeal?: User;
+  userSleep?: User;
+  userMood?: User;
+  userNote?: User;
+  medNote?: Notes;
+  mealNote?: Notes;
+  sleepNote?: Notes;
+  moodNote?: Notes;
+  taken_medications?: TakenMedications | null;
+  meals?: Meal | null;
+  sleeps?: Sleep | null;
+  moods?: Moods | null;
+  notes?: Notes | null;
+  medications?: Medications | null;
+  mealRecipient?: Recipient | null;
+  sleepRecipient?: Recipient | null;
+}
+
+const getUserDataTEHelper = (entry: any, userKey: string) => {
+  const user = entry[userKey];
+  return {
+    id: user?.id ?? -1,
+    firstName: user?.firstName ?? "",
+    lastName: user?.lastName ?? "",
+    photo: user?.photo ?? "",
+  };
+};
+
+const getNoteDataTEHelper = (entry: any, noteKey: string) => {
+  const note = entry[noteKey];
+  return note?.note ?? "";
 };

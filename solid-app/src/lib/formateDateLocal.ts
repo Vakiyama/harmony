@@ -25,3 +25,13 @@ export const formatTimeForPicker = (date: Date | null | undefined) => {
 
   return `${hours}:${min}`;
 };
+
+export const formatCreatedDate = (date: Date) => {
+  return `${new Date(date).toLocaleDateString("en-us", {
+    month: "short",
+    day: "numeric",
+  })}. - ${new Date(date).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  })}`;
+};
