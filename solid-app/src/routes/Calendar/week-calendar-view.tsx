@@ -92,7 +92,7 @@ const WeekCalendarView = (props: {
 
   return (
     <div
-      class="bg-[#d9d9d9]"
+      class="bg-[#F2F2F2]"
       ontouchstart={handleTouchStart}
       ontouchend={handleTouchEnd}
     >

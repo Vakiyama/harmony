@@ -76,7 +76,7 @@ const CalendarView = (props: {
 
   return (
     <div
-      class="bg-[#d9d9d9] pt-4 pb-1"
+      class="bg-[#F2F2F2] pt-4 pb-1"
       ontouchstart={handleTouchStart}
       ontouchend={handleTouchEnd}
     >

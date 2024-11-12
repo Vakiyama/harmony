@@ -1,13 +1,15 @@
-import { createSignal, onMount } from "solid-js";
+import { createSignal, onMount, Show } from "solid-js";
 import { mightFail } from "might-fail";
 import type { Event } from "@/schema/Events";
-import { getAllEvents } from "~/api/calendar";
+import { getAllEvents, getTeamMembersFromTeamId } from "~/api/calendar";
 import moment from "moment";
 import CalendarView from "./CalendarView";
 import WeekCalendarView from "./week-calendar-view";
 import CalendarSideMenu from "./CalendarSideMenu";
 import EventCalendarDisplay from "./EventCalendarDisplay";
 import CalendarTopNav from "~/components/calendar/calendar-top-nav";
+import { User } from "@/schema/Users";
+import { TeamMember } from "@/schema/TeamMembers";
 moment.locale("en");
 moment.updateLocale("en", { weekdaysMin: "S_M_T_W_T_F_S".split("_") });
 
@@ -20,7 +22,13 @@ export type EventFormData = {
 };
 
 export default function CalendarPage() {
+  // temp get calendar Id
+  const teamId = 1;
+  const calendarId = 1;
   const [events, setEvents] = createSignal<Event[]>([]);
+  const [teamMembers, setTeamMembers] = createSignal<
+    { users: User; teammembers: TeamMember }[]
+  >([]);
   const [currentdDay, setCurrentDay] = createSignal<number>(moment().date());
   const [currentMonth, setCurrentMonth] = createSignal(moment().format("MMMM"));
   const [currentYear, setCurrentYear] = createSignal<number>(moment().year());
@@ -30,10 +38,10 @@ export default function CalendarPage() {
   );
   const [selectedYear, setSelectedYear] = createSignal<number>(moment().year());
   onMount(async () => {
-    // temp get calendar Id
-    await fetchEvents(1);
+    await fetchEvents(calendarId);
+    await fetchTeamMembers(teamId);
   });
-
+  const [isSideMenuOpen, setIsSideMenuOpen] = createSignal(false);
   const fetchEvents = async (calendarId: number) => {
     const [eventError, eventResult] = await mightFail(getAllEvents(calendarId));
     if (eventError) {
@@ -41,11 +49,30 @@ export default function CalendarPage() {
     }
     setEvents(eventResult);
   };
+  const fetchTeamMembers = async (teamId: number) => {
+    const [eventError, eventResult] = await mightFail(
+      getTeamMembersFromTeamId(calendarId)
+    );
+    if (eventError) {
+      return console.error(eventError);
+    }
+    setTeamMembers(eventResult);
+    console.log(teamMembers());
+  };
 
   return (
-    <div class="relative">
-      <CalendarTopNav month={currentMonth} />
-      {/* <CalendarSideMenu /> */}
+    <div class="relative h-full">
+      <Show when={isSideMenuOpen()}>
+        <CalendarSideMenu
+          setIsSideMenuOpen={setIsSideMenuOpen}
+          teamMembers={teamMembers}
+        />
+      </Show>
+      <CalendarTopNav
+        month={currentMonth}
+        setIsSideMenuOpen={setIsSideMenuOpen}
+        isSideMenuOpen={isSideMenuOpen}
+      />
       <div class="max-w-[vw-50%] flex flex-col ">
         {/* <CalendarView
           selectedYear={selectedYear}
@@ -69,7 +96,7 @@ export default function CalendarPage() {
           setCurrentYear={setCurrentYear}
           events={events}
         />
-        <div class="flex justify-center pt-4">
+        <div class="flex justify-center pt-4 px-3">
           <EventCalendarDisplay events={events} />
         </div>
       </div>
