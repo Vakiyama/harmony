@@ -120,12 +120,12 @@ export default function CreateNote() {
                 <label class="text-h4">Add Media</label>
                 <div class="flex flex-row w-full gap-2">
                   <div class="w-full" onClick={() => setShowAddPhoto(true)}>
-                    <Upload description="Tap to add a photo" />
+                    <Upload type="photo" description="Tap to add a photo" />
                   </div>
                   <label class="w-full cursor-pointer">
                     <input type="file" id="fileInput" hidden />
                     <div>
-                      <Upload description="Tap to upload a file" />
+                      <Upload type="file" description="Tap to upload a file" />
                     </div>
                   </label>
                 </div>
