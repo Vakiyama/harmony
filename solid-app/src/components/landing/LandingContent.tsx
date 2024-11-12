@@ -7,7 +7,7 @@ import {
 } from "~/components/ui/landing/landing-tabs";
 import { JournalCard } from "./journal-card/JournalCard";
 import { createMemo, createResource, Show, useContext } from "solid-js";
-import { getJournalsFromTeamId } from "~/api/journal";
+import { getJournalsFromTeamId, testJournalReferences } from "~/api/journal";
 import ReallyTerrible from "~/routes/Team/[id]/journal/really-terrible";
 import SomewhatBad from "~/routes/Team/[id]/journal/somewhat-bad";
 import CompletelyOkay from "~/routes/Team/[id]/journal/completely-okay";
@@ -42,6 +42,10 @@ const LandingContent = () => {
   );
   const journalsData = createMemo(() => getJournals());
 
+  const d = createMemo(async () => {
+    const res = await testJournalReferences(defaultTeam()?.team.id || 1);
+    console.log(res);
+  });
   const getTabIcon = (tabName: string) => {
     switch (tabName) {
       case "Medication Taken":

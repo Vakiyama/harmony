@@ -1,17 +1,21 @@
 import { action } from "@solidjs/router";
 import { mightFail } from "might-fail";
 import { db } from "./db";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, getTableColumns, aliasedTable } from "drizzle-orm";
 import {
   notes,
   categoryEnumNotes,
   NoteWithUser,
+  AttachedNote,
+  Notes,
 } from "../../drizzle/schema/Notes";
 import {
+  TakenMedications,
   takenMedications,
   TakenMedsWithNoteUser,
 } from "../../drizzle/schema/TakenMedications";
 import {
+  Moods,
   moods,
   MoodsWithNoteUser,
   timeFrameEnumMoods,
@@ -21,20 +25,22 @@ import {
   qualityEnum,
   timeFrameEnumSleeps,
   SleepWithNoteUser,
+  Sleep,
 } from "../../drizzle/schema/Sleeps";
 import { isMemberOfTeam, isValidEnumValue } from "~/api/dbHelper";
 import {
   categoryEnumMeals,
   consumptionEnum,
+  Meal,
   meals,
   MealWithNoteUser,
 } from "../../drizzle/schema/Meals";
-import { sessionManager } from "./kinde";
 import { medications } from "../../drizzle/schema/Medications";
-import { Users } from "../../drizzle/schema/Users";
+import { AttachedUser, User, Users } from "../../drizzle/schema/Users";
 import { Teams } from "../../drizzle/schema/Teams";
 import { Recipients } from "../../drizzle/schema/Recipients";
 import { getUserIdFromSession } from "./server";
+import { Journal, journals, journalType } from "../../drizzle/schema/Journals";
 
 const mapQuality = (value: number) => {
   return qualityEnum[value - 1];
@@ -74,11 +80,22 @@ export const createNoteAction = action(async (formData: FormData) => {
   const notesInput = { note, teamId, userId };
 
   const [noteError, noteResult] = await mightFail(
-    db.insert(notes).values(notesInput)
+    db
+      .insert(notes)
+      .values(notesInput)
+      .returning()
+      .then((res) => res[0])
   );
   if (noteError) {
     console.error("Database insertion error:", noteError);
     return { error: "Failed to create note." };
+  }
+  const [journalReferenceError, journalReferenceResult] = await mightFail(
+    db.insert(journals).values({ type: "note", entryId: noteResult.id })
+  );
+  if (journalReferenceError) {
+    console.error("Error making reference to journal", journalReferenceError);
+    return { error: "Failed to make journal reference" };
   }
   return { success: true, message: "Note successfully created." };
 }, "createNoteAction");
@@ -282,11 +299,24 @@ export const createTakenMedicationAction = action(
     };
 
     const [takenMedicationError, takenMedicationResult] = await mightFail(
-      db.insert(takenMedications).values(medicationInput)
+      db
+        .insert(takenMedications)
+        .values(medicationInput)
+        .returning()
+        .then((res) => res[0])
     );
     if (takenMedicationError) {
       console.error("Database insertion error:", takenMedicationError);
       return { error: "Failed to insert medication entry." };
+    }
+    const [journalReferenceError, journalReferenceResult] = await mightFail(
+      db
+        .insert(journals)
+        .values({ type: "medication", entryId: takenMedicationResult.id })
+    );
+    if (journalReferenceError) {
+      console.error("Error making reference to journal", journalReferenceError);
+      return { error: "Failed to make journal reference" };
     }
     return { success: true, message: "Medication successfully created." };
   },
@@ -619,11 +649,22 @@ export const createMoodAction = action(async (formData: FormData) => {
     userId,
   };
   const [moodError, moodResult] = await mightFail(
-    db.insert(moods).values(moodInput)
+    db
+      .insert(moods)
+      .values(moodInput)
+      .returning()
+      .then((res) => res[0])
   );
   if (moodError) {
     console.error("Database update error:", moodError);
     return { error: "Failed to update mood entry." };
+  }
+  const [journalReferenceError, journalReferenceResult] = await mightFail(
+    db.insert(journals).values({ type: "mood", entryId: moodResult.id })
+  );
+  if (journalReferenceError) {
+    console.error("Error making reference to journal", journalReferenceError);
+    return { error: "Failed to make journal reference" };
   }
   return { success: true, message: "Mood entry updated successfully" };
 }, "createMoodAction");
@@ -906,11 +947,22 @@ export const createMealAction = action(async (formData: FormData) => {
   };
 
   const [mealError, mealResult] = await mightFail(
-    db.insert(meals).values(mealInput)
+    db
+      .insert(meals)
+      .values(mealInput)
+      .returning()
+      .then((res) => res[0])
   );
   if (mealError) {
     console.error("Database insertion error:", mealError);
     return { error: "Failed to insert meal entry" };
+  }
+  const [journalReferenceError, journalReferenceResult] = await mightFail(
+    db.insert(journals).values({ type: "meal", entryId: mealResult.id })
+  );
+  if (journalReferenceError) {
+    console.error("Error making reference to journal", journalReferenceError);
+    return { error: "Failed to make journal reference" };
   }
   return { success: true, message: "Meal entry created successfully" };
 }, "createMealAction");
@@ -1208,13 +1260,23 @@ export const createSleepAction = action(async (formData: FormData) => {
   };
 
   const [sleepError, sleepResult] = await mightFail(
-    db.insert(sleeps).values(sleepInput)
+    db
+      .insert(sleeps)
+      .values(sleepInput)
+      .returning()
+      .then((res) => res[0])
   );
   if (sleepError) {
     console.error("Database insertion error:", sleepError);
     return { error: "Failed to create sleep entry." }; // Return error if insertion fails
   }
-
+  const [journalReferenceError, journalReferenceResult] = await mightFail(
+    db.insert(journals).values({ type: "sleep", entryId: sleepResult.id })
+  );
+  if (journalReferenceError) {
+    console.error("Error making reference to journal", journalReferenceError);
+    return { error: "Failed to make journal reference" };
+  }
   return { success: true, message: "Sleep entry created successfully" }; // Return success message
 }, "createSleepAction");
 
@@ -1644,3 +1706,174 @@ export type AllJournals = {
   sleeps: SleepWithNoteUser[];
   notes: NoteWithUser[];
 };
+
+export const testJournalReferences = async (teamId: number) => {
+  "use server";
+  const userMedication = aliasedTable(Users, "userMedication");
+  const userMeal = aliasedTable(Users, "userMeal");
+  const userSleep = aliasedTable(Users, "userSleep");
+  const userNote = aliasedTable(Users, "userNote");
+  const userMood = aliasedTable(Users, "userMood");
+
+  const medNote = aliasedTable(notes, "medNote");
+  const mealNote = aliasedTable(notes, "mealNote");
+  const sleepNote = aliasedTable(notes, "sleepNote");
+  const moodNote = aliasedTable(notes, "moodNote");
+
+  const [err, res] = await mightFail(
+    db
+      .select()
+      .from(journals)
+      .leftJoin(
+        takenMedications,
+        and(
+          eq(journals.entryId, takenMedications.id),
+          eq(journals.type, "medication"),
+          eq(takenMedications.teamId, teamId)
+        )
+      )
+      .leftJoin(userMedication, eq(takenMedications.userId, userMedication.id))
+      .leftJoin(medications, eq(takenMedications.medicationId, medications.id))
+      .leftJoin(medNote, eq(takenMedications.noteId, medNote.id))
+      .leftJoin(
+        meals,
+        and(
+          eq(journals.entryId, meals.id),
+          eq(journals.type, "meal"),
+          eq(meals.teamId, teamId)
+        )
+      )
+      .leftJoin(userMeal, eq(meals.userId, userMeal.id))
+      .leftJoin(mealNote, eq(meals.noteId, mealNote.id))
+      .leftJoin(
+        sleeps,
+        and(
+          eq(journals.entryId, sleeps.id),
+          eq(journals.type, "sleep"),
+          eq(sleeps.teamId, teamId)
+        )
+      )
+      .leftJoin(userSleep, eq(sleeps.userId, userSleep.id))
+      .leftJoin(sleepNote, eq(sleeps.noteId, sleepNote.id))
+      .leftJoin(
+        moods,
+        and(
+          eq(journals.entryId, moods.id),
+          eq(journals.type, "mood"),
+          eq(moods.teamId, teamId)
+        )
+      )
+      .leftJoin(userMood, eq(moods.userId, userMood.id))
+      .leftJoin(moodNote, eq(moods.noteId, moodNote.id))
+      .leftJoin(
+        notes,
+        and(
+          eq(journals.entryId, notes.id),
+          eq(journals.type, "note"),
+          eq(notes.teamId, teamId),
+          eq(notes.category, "general")
+        )
+      )
+      .leftJoin(userNote, eq(notes.userId, userNote.id))
+  );
+  if (err) {
+    console.log(err);
+    return null;
+  }
+  console.log("========================");
+  console.log(res);
+
+  const transformedData = res.map((entry: TransformedJournalEntry) => {
+    const { id, type, entryId } = entry.journals;
+
+    let data: any = null;
+    const user: AttachedUser = {
+      id: -1,
+      firstName: "",
+      lastName: "",
+      photo: "",
+    };
+    let note: AttachedNote = {
+      note: "",
+    };
+    switch (type) {
+      case "medication":
+        data = entry.taken_medications;
+        user.id = entry.userMedication?.id || -1;
+        user.firstName = entry.userMedication?.firstName || "";
+        user.lastName = entry.userMedication?.lastName || "";
+        user.photo = entry.userMedication?.photo || "";
+        note.note = entry.medNote?.note || "";
+        break;
+      case "meal":
+        data = entry.meals;
+        user.id = entry.userMeal?.id || -1;
+        user.firstName = entry.userMeal?.firstName || "";
+        user.lastName = entry.userMeal?.lastName || "";
+        user.photo = entry.userMeal?.photo || "";
+        note.note = entry.mealNote?.note || "";
+        break;
+      case "sleep":
+        data = entry.sleeps;
+        user.id = entry.userSleep?.id || -1;
+        user.firstName = entry.userSleep?.firstName || "";
+        user.lastName = entry.userSleep?.lastName || "";
+        user.photo = entry.userSleep?.photo || "";
+        note.note = entry.sleepNote?.note || "";
+        break;
+      case "mood":
+        data = entry.moods;
+        user.id = entry.userMood?.id || -1;
+        user.firstName = entry.userMood?.firstName || "";
+        user.lastName = entry.userMood?.lastName || "";
+        user.photo = entry.userMood?.photo || "";
+        note.note = entry.moodNote?.note || "";
+        break;
+      case "note":
+        data = entry.notes;
+        user.id = entry.userNote?.id || -1;
+        user.firstName = entry.userNote?.firstName || "";
+        user.lastName = entry.userNote?.lastName || "";
+        user.photo = entry.userNote?.photo || "";
+        break;
+      default:
+        break;
+    }
+    if (note.note !== "" && data !== null) {
+      data.note = note;
+    }
+    if (user.id !== -1 && data !== null) {
+      data.user = user;
+    }
+    return {
+      id,
+      type,
+      entryId,
+      data,
+    };
+  });
+
+  return transformedData;
+};
+
+interface TransformedJournalEntry {
+  journals: {
+    id: number;
+    type: "note" | "mood" | "medication" | "sleep" | "meal";
+    entryId: number;
+  };
+  userMedication?: User;
+  userMeal?: User;
+  userSleep?: User;
+  userMood?: User;
+  userNote?: User;
+  medNote?: Notes;
+  mealNote?: Notes;
+  sleepNote?: Notes;
+  moodNote?: Notes;
+  taken_medications?: TakenMedications | null;
+  meals?: Meal | null;
+  sleeps?: Sleep | null;
+  moods?: Moods | null;
+  notes?: Notes | null;
+}
