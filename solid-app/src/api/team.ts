@@ -64,7 +64,7 @@ export const createMedicationAction = action(
         };
       }
       const [medicationError] = await mightFail(
-        db.insert(medications).values({ ...medication, teamId })
+        db.insert(medications).values({ ...medication, teamId }),
       );
       if (medicationError) {
         console.error("Medications insertion error:", medicationError);
@@ -76,7 +76,7 @@ export const createMedicationAction = action(
       message: "Medications successfully created.",
     };
   },
-  "createMedicationAction"
+  "createMedicationAction",
 );
 
 export const getRecipientName = async (teamId: number) => {
@@ -100,7 +100,7 @@ export const getRecipientName = async (teamId: number) => {
       .from(teams)
       .where(eq(teams.id, teamId))
       .leftJoin(recipients, eq(teams.recipientId, recipients.id))
-      .then((res) => res[0])
+      .then((res) => res[0]),
   );
   if (recipientError || !recipientResult) {
     return undefined;
@@ -116,7 +116,7 @@ export const getListOfTeams = async () => {
   if (!userId) {
     return [];
   }
-  console.log(userId);
+  console.log("userid", userId);
   const [teamsError, teamsResult] = await mightFail(
     db
       .select({
@@ -129,7 +129,7 @@ export const getListOfTeams = async () => {
       })
       .from(teamMembers)
       .leftJoin(teams, eq(teamMembers.teamId, teams.id))
-      .where(eq(teamMembers.userId, userId))
+      .where(eq(teamMembers.userId, userId)),
   );
   console.log(teamsResult);
   if (teamsError || !teamsResult.length) {
@@ -153,8 +153,8 @@ export const getTeamFromTeamId = async (teamId: number) => {
       .select()
       .from(teamMembers)
       .where(
-        and(eq(teamMembers.userId, userId), eq(teamMembers.teamId, teamId))
-      )
+        and(eq(teamMembers.userId, userId), eq(teamMembers.teamId, teamId)),
+      ),
   );
   if (memberError || !memberResult.length) {
     memberError ? console.error(memberError) : "";
@@ -167,7 +167,7 @@ export const getTeamFromTeamId = async (teamId: number) => {
       .from(teams)
       .leftJoin(recipients, eq(teams.recipientId, recipients.id))
       .where(eq(teams.id, teamId))
-      .then((res) => res[0])
+      .then((res) => res[0]),
   );
   if (teamError || !teamResult) {
     teamError ? console.error(teamError) : "";
@@ -184,13 +184,12 @@ export const getTeamFromTeamId = async (teamId: number) => {
       })
       .from(teamMembers)
       .leftJoin(users, eq(teamMembers.userId, users.id))
-      .where(eq(teamMembers.teamId, teamId))
+      .where(eq(teamMembers.teamId, teamId)),
   );
   if (teamMembersError || !teamMembersResult) {
     teamMembersError ? console.error(teamMembersError) : "";
     return undefined;
   }
-  console.log(teamResult);
   const medications = await getMedicationsFromTeamId(teamId);
   const data: TeamFromTeamId = {
     data: teamResult,
@@ -221,8 +220,11 @@ export const updateDefaultTeam = action(async (teamId: number) => {
         .update(teamMembers)
         .set({ defaultTeam: false })
         .where(
-          and(eq(teamMembers.userId, userId), eq(teamMembers.defaultTeam, true))
-        )
+          and(
+            eq(teamMembers.userId, userId),
+            eq(teamMembers.defaultTeam, true),
+          ),
+        ),
     );
 
     if (updateError) {
@@ -238,8 +240,8 @@ export const updateDefaultTeam = action(async (teamId: number) => {
         .update(teamMembers)
         .set({ defaultTeam: true })
         .where(
-          and(eq(teamMembers.userId, userId), eq(teamMembers.teamId, teamId))
-        )
+          and(eq(teamMembers.userId, userId), eq(teamMembers.teamId, teamId)),
+        ),
     );
 
     if (newDefaultError) {
@@ -263,7 +265,7 @@ export const updateDefaultTeam = action(async (teamId: number) => {
         })
         .from(teamMembers)
         .leftJoin(teams, eq(teamMembers.teamId, teams.id))
-        .where(eq(teamMembers.userId, userId))
+        .where(eq(teamMembers.userId, userId)),
     );
 
     if (selectError) {
@@ -339,7 +341,7 @@ export const createRecipientAction = action(
     const [recipientError, recipientResult] = await mightFail(
       db.insert(recipients).values(recipientInput).returning({
         recipientId: recipients.id,
-      })
+      }),
     );
     if (recipientError) {
       console.error("Recipient insertion error:", recipientError);
@@ -351,7 +353,7 @@ export const createRecipientAction = action(
       recipientId: recipientResult[0].recipientId,
     };
   },
-  "createRecipientAction"
+  "createRecipientAction",
 );
 
 export const createTeamAction = action(
@@ -380,14 +382,14 @@ export const createTeamAction = action(
       return { error: "Don't have recipient id" };
     }
     const [teamError, teamResult] = await mightFail(
-      db.insert(teams).values(teamInput).returning({ teamId: teams.id })
+      db.insert(teams).values(teamInput).returning({ teamId: teams.id }),
     );
     if (teamError) {
       console.error("Team insertion error:", teamError);
       return { error: "Failed to insert team." };
     }
     const [teamsError, teamsResult] = await mightFail(
-      db.select().from(teamMembers).where(eq(teamMembers.userId, userId))
+      db.select().from(teamMembers).where(eq(teamMembers.userId, userId)),
     );
     if (teamsError) {
       return { error: "failed to get list of teams" };
@@ -402,7 +404,7 @@ export const createTeamAction = action(
         userId,
         role: "admin",
         defaultTeam,
-      })
+      }),
     );
     if (teamMemberError) {
       return { error: "error creating team member relationship" };
@@ -413,7 +415,7 @@ export const createTeamAction = action(
       teamId: teamResult[0].teamId,
     };
   },
-  "createTeamAction"
+  "createTeamAction",
 );
 
 export const createSurgeryAction = action(
@@ -445,7 +447,7 @@ export const createSurgeryAction = action(
       }
       console.log("backend:", surgery);
       const [surgeriesError] = await mightFail(
-        db.insert(importantSurgeries).values({ ...surgery, recipientId })
+        db.insert(importantSurgeries).values({ ...surgery, recipientId }),
       );
       if (surgeriesError) {
         console.error("Surgeries insertion error:", surgeriesError);
@@ -457,7 +459,7 @@ export const createSurgeryAction = action(
       message: "Important Surgeries successfully created.",
     };
   },
-  "createSurgeryAction"
+  "createSurgeryAction",
 );
 export const createPastInjuryAction = action(
   async ({
@@ -488,7 +490,7 @@ export const createPastInjuryAction = action(
         return { error: "Injury name is required" };
       }
       const [injuriesError] = await mightFail(
-        db.insert(pastInjuries).values({ ...injury, recipientId })
+        db.insert(pastInjuries).values({ ...injury, recipientId }),
       );
       if (injuriesError) {
         console.error("Injuries insertion error:", injuriesError);
@@ -500,5 +502,5 @@ export const createPastInjuryAction = action(
       message: "Past Injuries successfully created.",
     };
   },
-  "createPastInjuryAction"
+  "createPastInjuryAction",
 );
