@@ -3,15 +3,14 @@ import { createStore } from "solid-js/store";
 import { clientSocket as socket } from "~/lib/clientSocket";
 import { getUser } from "~/api";
 
-const user = await getUser()
-
-export default function ChatRoom() {
+export default async function ChatRoom() {
+  const user = await getUser();
   const [messageInput, setMessageInput] = createSignal("");
   const [messages, setMessages] = createStore<string[]>([]);
-  
-  onMount(() => { 
-    const username = user.displayName || "unknown"
-    socket.emit("new-user", username)
+
+  onMount(() => {
+    const username = user.displayName || "unknown";
+    socket.emit("new-user", username);
 
     appendMessage("You joined");
     socket.on("chat-message", (data) => {
@@ -38,19 +37,19 @@ export default function ChatRoom() {
 
   return (
     <>
-    {JSON.stringify(Response.json)}
+      {JSON.stringify(Response.json)}
       <div id="message-container">
         <For each={messages}>{(msg) => <div>{msg}</div>}</For>
       </div>
       <form id="send-container" onSubmit={handleInput}>
-      <input
-        placeholder="Send a message..."
-        type="text"
-        value={messageInput()}
-        onChange={(e) => setMessageInput(e.target.value)}
-        id="message-input"
-        class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 text-gray-700 bg-gray-100"
-      />
+        <input
+          placeholder="Send a message..."
+          type="text"
+          value={messageInput()}
+          onChange={(e) => setMessageInput(e.target.value)}
+          id="message-input"
+          class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 text-gray-700 bg-gray-100"
+        />
         <button type="submit" id="send-button">
           Send
         </button>
