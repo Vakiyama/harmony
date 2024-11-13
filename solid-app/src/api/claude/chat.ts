@@ -28,12 +28,13 @@ import { sleeps } from "../../../drizzle/schema/Sleeps";
 import { notes } from "../../../drizzle/schema/Notes";
 import { meals } from "../../../drizzle/schema/Meals";
 import { medications } from "../../../drizzle/schema/Medications";
-import { eq } from "drizzle-orm";
+import { InferInsertModel, eq } from "drizzle-orm";
 import { takenMedications } from "../../../drizzle/schema/TakenMedications";
 import { users } from "../../../drizzle/schema/Users";
 import { teams } from "../../../drizzle/schema/Teams";
 import { teamMembers } from "../../../drizzle/schema/TeamMembers";
 import { recipients } from "../../../drizzle/schema/Recipients";
+import { journals } from "../../../drizzle/schema/Journals";
 
 const CHAT_SYSTEM_MESSAGE = `
 You are a helpful assitant to a caretaker. Your name is "Harmony".
@@ -68,13 +69,14 @@ Your responses need to be at most 2 to 3 sentences long, with shorter, spoken se
 
 `;
 
-const categories = ["medication", "meals", "sleep", "mood", "notes"] as const;
+const categories = ["medication", "meal", "sleep", "mood", "note"] as const;
+
 const journalTables = {
-  medications,
-  meals,
-  sleeps,
-  moods,
-  notes,
+  medication: medications,
+  meal: meals,
+  sleep: sleeps,
+  mood: moods,
+  note: notes,
 };
 
 const takenMedicationsSchema = createInsertSchema(takenMedications);
@@ -88,24 +90,24 @@ const omitValues = { createdAt: true, id: true, updatedAt: true } as const;
 const createJournalEntryToolSchema = z.object({
   entry: z.discriminatedUnion("category", [
     z.object({
-      category: z.literal("takenMedications"),
+      category: z.literal("medication"),
       values: takenMedicationsSchema.omit(omitValues),
     }),
     z.object({
-      category: z.literal("meals"),
+      category: z.literal("meal"),
       values: mealsSchema.omit(omitValues),
     }),
     z.object({
-      category: z.literal("sleeps"),
+      category: z.literal("sleep"),
       values: sleepSchema.omit(omitValues),
     }),
     z.object({
-      category: z.literal("moods"),
+      category: z.literal("mood"),
       values: moodSchema.omit(omitValues),
       withNote: z.optional(notesSchema.omit(omitValues)),
     }),
     z.object({
-      category: z.literal("notes"),
+      category: z.literal("note"),
       values: notesSchema.omit(omitValues),
     }),
   ]),
@@ -169,11 +171,16 @@ function createJournalTool(params: {
     }),
     Effect.flatMap(() =>
       Effect.tryPromise({
-        try: () => {
-          const result = db
+        try: async () => {
+          const result = await db
             .insert(journalTables[value![0] as keyof typeof journalTables])
             .values(params.entry.values)
             .returning();
+
+          await db.insert(journals).values({
+            type: params.entry.category,
+            entryId: result[0].id,
+          });
           return result;
         },
         catch: (e) => new InsertDBError(e, params.toolCall),
@@ -236,13 +243,13 @@ function queryJournalTool(
         catch: (error) => new QueryJournalDBError(error),
       }),
     ),
-    Match.when({ category: "notes" }, () =>
+    Match.when({ category: "note" }, () =>
       Effect.tryPromise({
         try: () => db.select().from(notes).where(eq(notes.userId, userId)),
         catch: (error) => new QueryJournalDBError(error),
       }),
     ),
-    Match.when({ category: "meals" }, () =>
+    Match.when({ category: "meal" }, () =>
       Effect.tryPromise({
         try: () =>
           db
@@ -315,18 +322,21 @@ async function getRecipientFromUserId(userId: number) {
     .innerJoin(recipients, eq(teams.recipientId, recipients.id));
 
   const recipient = teamsResults[0];
-  if (!recipient) throw new Error("No teams?");
+  if (!recipient) {
+    throw new Error("No teams?");
+  }
   const formattedInfo = JSON.stringify(recipient.recipient, undefined, 2);
-  console.log(formattedInfo);
 
   return { recipient: formattedInfo, user: await getUserFromId(userId) };
 }
 
 function makeClaudeToolCall(result: GraphState, id: number, voice?: boolean) {
-  console.log("Voice mode?", voice);
   return Effect.tryPromise({
     try: () => getRecipientFromUserId(id),
-    catch: (e) => new QueryDBError(e),
+    catch: (e) => {
+      console.error(e);
+      return new QueryDBError(e);
+    },
   }).pipe(
     Effect.flatMap((info) =>
       callClaudeWithTools({

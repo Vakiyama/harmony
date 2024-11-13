@@ -8,6 +8,13 @@
       "when": 1730066685596,
       "tag": "0000_strange_owl",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1731479320046,
+      "tag": "0001_public_tag",
+      "breakpoints": true
     }
   ]
 }
