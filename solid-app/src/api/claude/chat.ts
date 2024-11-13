@@ -30,11 +30,10 @@ import { meals } from "../../../drizzle/schema/Meals";
 import { medications } from "../../../drizzle/schema/Medications";
 import { eq } from "drizzle-orm";
 import { takenMedications } from "../../../drizzle/schema/TakenMedications";
-import { getTeamFromTeamId } from "../team";
-import { Users } from "~/../drizzle/schema/Users";
-import { Teams } from "../../../drizzle/schema/Teams";
-import { TeamMembers } from "../../../drizzle/schema/TeamMembers";
-import { Recipients } from "../../../drizzle/schema/Recipients";
+import { users } from "../../../drizzle/schema/Users";
+import { teams } from "../../../drizzle/schema/Teams";
+import { teamMembers } from "../../../drizzle/schema/TeamMembers";
+import { recipients } from "../../../drizzle/schema/Recipients";
 
 const CHAT_SYSTEM_MESSAGE = `
 You are a helpful assitant to a caretaker. Your name is "Harmony".
@@ -303,19 +302,19 @@ class QueryDBError {
 }
 
 async function getUserFromId(userId: number) {
-  const user = await db.select().from(Users).where(eq(Users.id, userId));
+  const user = await db.select().from(users).where(eq(users.id, userId));
   if (!user[0]) throw new Error("No user.");
   return JSON.stringify(user[0], undefined, 2);
 }
 
 async function getRecipientFromUserId(userId: number) {
-  const teams = await db
-    .select({ recipient: Recipients })
-    .from(TeamMembers)
-    .innerJoin(Teams, eq(TeamMembers.userId, userId))
-    .innerJoin(Recipients, eq(Teams.recipientId, Recipients.id));
+  const teamsResults = await db
+    .select({ recipient: recipients })
+    .from(teamMembers)
+    .innerJoin(teams, eq(teamMembers.userId, userId))
+    .innerJoin(recipients, eq(teams.recipientId, recipients.id));
 
-  const recipient = teams[0];
+  const recipient = teamsResults[0];
   if (!recipient) throw new Error("No teams?");
   const formattedInfo = JSON.stringify(recipient.recipient, undefined, 2);
   console.log(formattedInfo);
