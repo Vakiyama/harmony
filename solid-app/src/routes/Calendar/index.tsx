@@ -3,10 +3,10 @@ import { mightFail } from "might-fail";
 import type { Event } from "@/schema/Events";
 import { getAllEvents, getTeamMembersFromTeamId } from "~/api/calendar";
 import moment from "moment";
-import CalendarView from "./CalendarView";
+import MonthCalendarView from "./month-calendar-view";
 import WeekCalendarView from "./week-calendar-view";
-import CalendarSideMenu from "./CalendarSideMenu";
-import EventCalendarDisplay from "./EventCalendarDisplay";
+import CalendarSideMenu from "./calendar-side-menu";
+import EventCalendarDisplay from "./event-calendar-display";
 import CalendarTopNav from "~/components/calendar/calendar-top-nav";
 import { User } from "@/schema/Users";
 import { TeamMember } from "@/schema/TeamMembers";
@@ -42,6 +42,7 @@ export default function CalendarPage() {
     await fetchTeamMembers(teamId);
   });
   const [isSideMenuOpen, setIsSideMenuOpen] = createSignal(false);
+
   const fetchEvents = async (calendarId: number) => {
     const [eventError, eventResult] = await mightFail(getAllEvents(calendarId));
     if (eventError) {
@@ -49,32 +50,32 @@ export default function CalendarPage() {
     }
     setEvents(eventResult);
   };
+
   const fetchTeamMembers = async (teamId: number) => {
     const [eventError, eventResult] = await mightFail(
-      getTeamMembersFromTeamId(calendarId)
+      getTeamMembersFromTeamId(teamId)
     );
     if (eventError) {
       return console.error(eventError);
     }
     setTeamMembers(eventResult);
-    console.log(teamMembers());
   };
 
   return (
     <div class="relative h-full">
-      <Show when={isSideMenuOpen()}>
+      <div class={`${isSideMenuOpen() ? "" : "hidden"}`}>
         <CalendarSideMenu
           setIsSideMenuOpen={setIsSideMenuOpen}
           teamMembers={teamMembers}
         />
-      </Show>
+      </div>
       <CalendarTopNav
         month={currentMonth}
         setIsSideMenuOpen={setIsSideMenuOpen}
         isSideMenuOpen={isSideMenuOpen}
       />
-      <div class="max-w-[vw-50%] flex flex-col ">
-        {/* <CalendarView
+      <div class="flex flex-col">
+        {/* <MonthCalendarView
           selectedYear={selectedYear}
           setSelectedYear={setSelectedYear}
           selectedMonth={selectedMonth}
@@ -97,7 +98,17 @@ export default function CalendarPage() {
           events={events}
         />
         <div class="flex justify-center pt-4 px-3">
-          <EventCalendarDisplay events={events} />
+          <EventCalendarDisplay
+            events={events}
+            selectedYear={selectedYear}
+            selectedMonth={selectedMonth}
+            selectedDay={selectedDay}
+            setSelectedYear={setSelectedYear}
+            setSelectedMonth={setSelectedMonth}
+            setSelectedDay={setSelectedDay}
+            setCurrentMonth={setCurrentMonth}
+            setCurrentYear={setCurrentYear}
+          />
         </div>
       </div>
     </div>

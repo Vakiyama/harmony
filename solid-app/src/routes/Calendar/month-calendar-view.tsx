@@ -2,7 +2,7 @@ import { Accessor, createSignal, For, Setter, Show } from "solid-js";
 import moment from "moment";
 import { Event } from "@/schema/Events";
 
-const CalendarView = (props: {
+const MonthCalendarView = (props: {
   selectedMonth: Accessor<string>;
   setSelectedMonth: Setter<string>;
   selectedDay: Accessor<number>;
@@ -119,4 +119,4 @@ const CalendarView = (props: {
   );
 };
 
-export default CalendarView;
+export default MonthCalendarView;

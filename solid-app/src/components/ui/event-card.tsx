@@ -24,6 +24,14 @@ const EventCard = (props: { event: Event }) => {
   const concatTitle = (title: string) => {
     return title.length > 23 ? title.slice(0, 23).concat("...") : title;
   };
+
+  const getEventIcon = (eventType: string) => {
+    return eventType === "event" ? (
+      <div class="w-0.5 h-10 bg-[#7859ea] rounded-[20px]" />
+    ) : (
+      <FaRegularCircleCheck class="text-lg ml-0.5 text-[#6FC94F]" />
+    );
+  };
   return (
     <>
       <div
@@ -34,14 +42,10 @@ const EventCard = (props: { event: Event }) => {
           navigate(`/calendar/event/${props.event.id}`);
         }}
       >
-        {props.event.type === "event" ? (
-          <div class="w-0.5 h-10 bg-[#7859ea] rounded-[20px]" />
-        ) : (
-          <FaRegularCircleCheck class="text-lg ml-0.5 text-[#6FC94F]" />
-        )}
-        <div class="grow shrink basis-0 h-7 justify-between items-center flex">
-          <div class="grow shrink relative basis-0 h-7 flex-col justify-between items-start inline-flex">
-            <div class="self-stretch h-3 text-[#1e1e1e]/75 text-base font-sf-pro leading-tight">
+        {getEventIcon(props.event.type)}
+        <div class="h-7 justify-between items-center flex">
+          <div class="h-7 flex-col justify-between items-start inline-flex">
+            <div class="self-stretch h-3 text-[#1e1e1e]/75 text-base font-semibold font-sf-pro leading-tight">
               {concatTitle(props.event.title)}
             </div>
             <div class="flex space-x-1">
