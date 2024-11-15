@@ -17,6 +17,11 @@ const DayCalendarView = (props: {
   setSelectedMonth: Setter<string>;
   selectedYear: Accessor<number>;
   setSelectedYear: Setter<number>;
+  setCurrentMonth: Setter<string>;
+  setCurrentYear: Setter<number>;
+  setCurrentDay: Setter<number>;
+  currentMonth: Accessor<string>;
+  currentYear: Accessor<number>;
   events: Accessor<Event[]>;
 }) => {
   const [startX, setStartX] = createSignal(0);
@@ -75,6 +80,15 @@ const DayCalendarView = (props: {
     props.setSelectedDay(newMoment.date());
     props.setSelectedMonth(newMoment.format("MMMM"));
     props.setSelectedYear(newMoment.year());
+
+    props.setCurrentDay(newMoment.date());
+    if (props.currentMonth() !== newMoment.format("MMMM")) {
+      props.setCurrentMonth(newMoment.format("MMMM"));
+    }
+    if (props.currentYear() !== newMoment.year()) {
+      props.setCurrentYear(newMoment.year());
+    }
+
     getEventsForSelectedDay();
   };
 
@@ -92,15 +106,14 @@ const DayCalendarView = (props: {
       handleNavigateDay(-1);
     }
   };
-
   return (
     <div class="flex flex-col p-4 bg-white rounded shadow pb-20">
       <div
-        class="text-lg font-medium text-black fixed w-full bg-gray-300 -ml-5 -mt-5 flex flex-col align-center"
+        class="text-lg font-medium text-black fixed w-full bg-[#F2F2F2] border-y-1 border-black15 -ml-5 -mt-5 flex flex-col align-center"
         ontouchstart={handleTouchStart}
         ontouchend={handleTouchEnd}
       >
-        <h2 class="p-2 text-h4">{getFormattedDate()}</h2>
+        <h2 class="p-2 text-h4 px-4">{getFormattedDate()}</h2>
       </div>
       <div class="flex flex-col h-full pt-10">
         <For each={Array.from({ length: 24 }, (_, hour) => hour)}>
@@ -120,8 +133,7 @@ const DayCalendarView = (props: {
                         {(event) => {
                           return (
                             <div class="w-full flex">
-                              <div class="w-16"></div>
-                              <div class="w-full flex-col inline-flex ">
+                              <div class="w-full flex-col inline-flex ml-16 mr-2">
                                 <EventCard event={event} />
                               </div>
                             </div>

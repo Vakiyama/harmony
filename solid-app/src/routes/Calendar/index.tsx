@@ -108,11 +108,16 @@ export default function CalendarPage() {
         <Show when={currentView() === "day"}>
           <DayCalendarView
             selectedDay={selectedDay}
-            setSelectedDay={setSelectedDay}
             selectedMonth={selectedMonth}
-            setSelectedMonth={setSelectedMonth}
             selectedYear={selectedYear}
+            setSelectedDay={setSelectedDay}
+            setSelectedMonth={setSelectedMonth}
             setSelectedYear={setSelectedYear}
+            setCurrentMonth={setCurrentMonth}
+            setCurrentYear={setCurrentYear}
+            setCurrentDay={setCurrentDay}
+            currentMonth={currentMonth}
+            currentYear={currentYear}
             events={events}
           />
         </Show>

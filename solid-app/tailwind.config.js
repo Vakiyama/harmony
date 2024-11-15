@@ -80,6 +80,7 @@ module.exports = {
           foreground: "hsl(var(--card-foreground))",
         },
         lofiGray: "#D9D9D9",
+        black15: "rgb(30,30,30, 0.15)",
         black50: "rgb(30,30,30, 0.5)",
         black75: "rgb(30,30,30, 0.75)",
         "primary-purple-500": "#7859EA",
@@ -96,7 +97,7 @@ module.exports = {
         moodIconBackground: "#761739",
         nutritionBackground: "#D4EFCA",
         nutritionIconBackground: "#19370E",
-        error: "#FE463C"
+        error: "#FE463C",
       },
 
       borderRadius: {
