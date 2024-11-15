@@ -10,6 +10,7 @@ import EventCalendarDisplay from "./EventCalendarDisplay";
 import CalendarTopNav from "~/components/calendar/calendar-top-nav";
 import { User } from "@/schema/Users";
 import { TeamMember } from "@/schema/TeamMembers";
+import DayCalendarView from "./day-calendar-view";
 moment.locale("en");
 moment.updateLocale("en", { weekdaysMin: "S_M_T_W_T_F_S".split("_") });
 
@@ -26,10 +27,13 @@ export default function CalendarPage() {
   const teamId = 1;
   const calendarId = 1;
   const [events, setEvents] = createSignal<Event[]>([]);
+  const [currentView, setCurrentView] = createSignal<"day" | "week" | "month">(
+    "week"
+  );
   const [teamMembers, setTeamMembers] = createSignal<
     { users: User; teammembers: TeamMember }[]
   >([]);
-  const [currentdDay, setCurrentDay] = createSignal<number>(moment().date());
+  const [currentDay, setCurrentDay] = createSignal<number>(moment().date());
   const [currentMonth, setCurrentMonth] = createSignal(moment().format("MMMM"));
   const [currentYear, setCurrentYear] = createSignal<number>(moment().year());
   const [selectedDay, setSelectedDay] = createSignal<number>(moment().date());
@@ -66,6 +70,7 @@ export default function CalendarPage() {
         <CalendarSideMenu
           setIsSideMenuOpen={setIsSideMenuOpen}
           teamMembers={teamMembers}
+          setCurrentView={setCurrentView}
         />
       </Show>
       <CalendarTopNav
@@ -74,31 +79,43 @@ export default function CalendarPage() {
         isSideMenuOpen={isSideMenuOpen}
       />
       <div class="max-w-[vw-50%] flex flex-col ">
-        {/* <CalendarView
-          selectedYear={selectedYear}
-          setSelectedYear={setSelectedYear}
-          selectedMonth={selectedMonth}
-          setSelectedMonth={setSelectedMonth}
-          selectedDay={selectedDay}
-          setSelectedDay={setSelectedDay}
-          events={events}
-        /> */}
-        <WeekCalendarView
-          selectedYear={selectedYear}
-          setSelectedYear={setSelectedYear}
-          selectedMonth={selectedMonth}
-          setSelectedMonth={setSelectedMonth}
-          selectedDay={selectedDay}
-          setSelectedDay={setSelectedDay}
-          currentMonth={currentMonth}
-          currentYear={currentYear}
-          setCurrentMonth={setCurrentMonth}
-          setCurrentYear={setCurrentYear}
-          events={events}
-        />
-        <div class="flex justify-center pt-4 px-3">
-          <EventCalendarDisplay events={events} />
-        </div>
+        <Show when={currentView() === "month"}>
+          <CalendarView
+            selectedYear={selectedYear}
+            setSelectedYear={setSelectedYear}
+            selectedMonth={selectedMonth}
+            setSelectedMonth={setSelectedMonth}
+            selectedDay={selectedDay}
+            setSelectedDay={setSelectedDay}
+            events={events}
+          />
+        </Show>
+        <Show when={currentView() === "week"}>
+          <WeekCalendarView
+            selectedYear={selectedYear}
+            setSelectedYear={setSelectedYear}
+            selectedMonth={selectedMonth}
+            setSelectedMonth={setSelectedMonth}
+            selectedDay={selectedDay}
+            setSelectedDay={setSelectedDay}
+            currentMonth={currentMonth}
+            currentYear={currentYear}
+            setCurrentMonth={setCurrentMonth}
+            setCurrentYear={setCurrentYear}
+            events={events}
+          />
+        </Show>
+        <Show when={currentView() === "day"}>
+          <DayCalendarView
+            selectedDay={selectedDay}
+            setSelectedDay={setSelectedDay}
+            selectedMonth={selectedMonth}
+            setSelectedMonth={setSelectedMonth}
+            selectedYear={selectedYear}
+            setSelectedYear={setSelectedYear}
+            events={events}
+          />
+        </Show>
       </div>
     </div>
   );

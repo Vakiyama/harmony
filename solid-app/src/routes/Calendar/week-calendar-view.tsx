@@ -1,6 +1,7 @@
 import { Accessor, createSignal, For, Setter, Show } from "solid-js";
 import moment from "moment";
 import { Event } from "@/schema/Events";
+import EventCalendarDisplay from "./EventCalendarDisplay";
 
 const WeekCalendarView = (props: {
   selectedDay: Accessor<number>;
@@ -126,6 +127,9 @@ const WeekCalendarView = (props: {
             );
           }}
         </For>
+      </div>
+      <div class="flex justify-center pt-4 px-3">
+        <EventCalendarDisplay events={props.events} />
       </div>
     </div>
   );

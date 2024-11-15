@@ -34,6 +34,7 @@ const DEFAULT_FILTERS: CalendarFilterType[] = [
 const CalendarSideMenu = (props: {
   setIsSideMenuOpen: Setter<boolean>;
   teamMembers: Accessor<{ users: User; teammembers: TeamMember }[]>;
+  setCurrentView: Setter<"day" | "week" | "month">;
 }) => {
   const DEFAULT_TEAMMEMBERS = props
     .teamMembers()
@@ -147,24 +148,30 @@ const CalendarSideMenu = (props: {
               Today
             </div>
           </div> */}
-          <div class="self-stretch py-[13px] justify-start items-center gap-2 flex border-b border-[#1e1e1e]/20 px-3">
-            <BsGrid3x3GapFill />
-            <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
-              Month
+          <button onClick={() => props.setCurrentView("month")} class="w-full">
+            <div class="self-stretch py-[13px] justify-start items-center gap-2 flex border-b border-[#1e1e1e]/20 px-3">
+              <BsGrid3x3GapFill />
+              <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
+                Month
+              </div>
             </div>
-          </div>
-          <div class="self-stretch py-[13px] justify-start items-center gap-2 flex border-b border-[#1e1e1e]/20 px-3">
-            <BsGrid2x3GapFill />
-            <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
-              Week
+          </button>
+          <button onClick={() => props.setCurrentView("week")} class="w-full">
+            <div class="self-stretch py-[13px] justify-start items-center gap-2 flex border-b border-[#1e1e1e]/20 px-3">
+              <BsGrid2x3GapFill />
+              <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
+                Week
+              </div>
             </div>
-          </div>
-          <div class="self-stretch py-[13px] justify-start items-center gap-2 flex px-3">
-            <TbRectangleFilled />
-            <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
-              Day
+          </button>
+          <button onClick={() => props.setCurrentView("day")} class="w-full">
+            <div class="self-stretch py-[13px] justify-start items-center gap-2 flex px-3">
+              <TbRectangleFilled />
+              <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
+                Day
+              </div>
             </div>
-          </div>
+          </button>
         </div>
         <div class="w-full flex-col justify-center items-start pt-[18px] space-y-[18px]">
           <button
