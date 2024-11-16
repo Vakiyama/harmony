@@ -28,7 +28,7 @@ RUN bun install
 COPY . .
 
 # Build application
-RUN bun --bun run build
+RUN bun run build
 
 # Remove development dependencies
 RUN rm -rf node_modules && \
