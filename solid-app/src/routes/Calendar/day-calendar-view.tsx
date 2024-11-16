@@ -9,7 +9,9 @@ import {
 import moment from "moment";
 import type { Event } from "@/schema/Events";
 import EventCard from "~/components/ui/event-card";
-
+interface NestedEvent extends Event {
+  nestedEvents?: Event[];
+}
 const DayCalendarView = (props: {
   selectedDay: Accessor<number>;
   setSelectedDay: Setter<number>;
@@ -31,10 +33,9 @@ const DayCalendarView = (props: {
       "YYYY-MMMM-D"
     ).format("dddd D, YYYY");
   };
-
-  const getEventsForSelectedDay = (): Event[] => {
-    return props.events().filter((event) => {
-      if (!event.timeStart) return false;
+  const getEventsForSelectedDay = (): NestedEvent[] => {
+    const filteredEvents = props.events().filter((event) => {
+      if (!event.timeStart || !event.timeEnd) return false;
       const eventDate = moment(event.timeStart);
       return (
         eventDate.date() === props.selectedDay() &&
@@ -42,34 +43,60 @@ const DayCalendarView = (props: {
         eventDate.year() === props.selectedYear()
       );
     });
-  };
-  const getEventsByHour = () => {
-    const eventsByHour = Array(24)
-      .fill(null)
-      .map(() => [] as Event[]);
 
-    getEventsForSelectedDay().forEach((event) => {
-      if (!event.timeStart) return;
-      const eventStartHour = moment(event.timeStart).hour();
-      eventsByHour[eventStartHour].push(event);
+    filteredEvents.sort((a, b) =>
+      moment(a.timeStart).isBefore(moment(b.timeStart)) ? -1 : 1
+    );
+
+    const nestedEventsSet = new Set<number>();
+    const mappedEvents: Event[] = filteredEvents.map((event, index) => {
+      const nestedEvents: Event[] = filteredEvents
+        .slice(index + 1)
+        .filter((potentialNestedEvent) => {
+          return (
+            moment(potentialNestedEvent.timeStart).isAfter(
+              moment(event.timeStart)
+            ) &&
+            moment(potentialNestedEvent.timeEnd).isBefore(moment(event.timeEnd))
+          );
+        });
+
+      nestedEvents.forEach((nestedEvent) => {
+        nestedEventsSet.add(nestedEvent.id);
+      });
+
+      return {
+        ...event,
+        nestedEvents: nestedEvents.length > 0 ? nestedEvents : undefined,
+      };
     });
 
-    return eventsByHour;
+    const finalEvents = mappedEvents.filter(
+      (event) => !nestedEventsSet.has(event.id)
+    );
+    console.log(finalEvents);
+    return finalEvents;
+  };
+  const calculateEventPosition = (
+    event: Event,
+    parentStartMinutes: number = 0
+  ) => {
+    const start = moment(event.timeStart);
+    const end = moment(event.timeEnd);
+
+    const startMinutes =
+      start.hours() * 60 + start.minutes() - parentStartMinutes;
+    const endMinutes = end.hours() * 60 + end.minutes() - parentStartMinutes;
+
+    const top = 10 + (startMinutes / 60) * 96;
+    let height = ((endMinutes - startMinutes) / 60) * 96;
+    if (height < 48) {
+      height = 48;
+    }
+
+    return { top: `${top}px`, height: `${height}px` };
   };
 
-  const eventsByHour = createMemo(() => {
-    const eventsByHour = Array(24)
-      .fill(null)
-      .map(() => [] as Event[]);
-
-    getEventsForSelectedDay().forEach((event) => {
-      if (!event.timeStart) return;
-      const eventStartHour = moment(event.timeStart).hour();
-      eventsByHour[eventStartHour].push(event);
-    });
-
-    return eventsByHour;
-  });
   const handleNavigateDay = (direction: number) => {
     const currentMoment = moment(
       `${props.selectedYear()}-${props.selectedMonth()}-${props.selectedDay()}`,
@@ -107,46 +134,81 @@ const DayCalendarView = (props: {
     }
   };
   return (
-    <div class="flex flex-col p-4 bg-white rounded shadow pb-20">
+    <div class="flex flex-col p-4 h-full">
       <div
-        class="text-lg font-medium text-black fixed w-full bg-[#F2F2F2] border-y-1 border-black15 -ml-5 -mt-5 flex flex-col align-center"
+        class="text-lg font-medium text-black fixed w-full bg-[#F2F2F2] border-y-1 border-black15 -ml-5 -mt-5 flex flex-col align-center z-10"
         ontouchstart={handleTouchStart}
         ontouchend={handleTouchEnd}
       >
         <h2 class="p-2 text-h4 px-4">{getFormattedDate()}</h2>
       </div>
-      <div class="flex flex-col h-full pt-10">
-        <For each={Array.from({ length: 24 }, (_, hour) => hour)}>
-          {(hour) => (
-            <>
-              <div class="flex items-center">
-                <div class="w-16 text-right pr-2 text-sm text-gray-500">
+      <div class="w-full h-full pt-10 pb-32">
+        <div class="relative w-full h-full">
+          <For each={Array.from({ length: 24 }, (_, hour) => hour)}>
+            {(hour) => (
+              <div
+                class="absolute w-full flex items-center text-sm text-gray-500"
+                style={{
+                  top: `${hour * 96}px`,
+                }}
+              >
+                <div class="w-16 text-right pr-2">
                   {moment({ hour }).format("h A")}
                 </div>
-                <div class=" bg-gray-300 w-full h-[0.1px]" />
+                <div class="bg-gray-300 w-full h-px" />
               </div>
-              <div class="flex items-start gap-2 py-2">
-                <div class="flex-1">
-                  <Show when={eventsByHour()[hour].length > 0} fallback={<></>}>
-                    <div class="w-full flex-col justify-start items-end gap-5 inline-flex max-h-screen">
-                      <For each={eventsByHour()[hour]}>
-                        {(event) => {
-                          return (
-                            <div class="w-full flex">
-                              <div class="w-full flex-col inline-flex ml-16 mr-2">
-                                <EventCard event={event} />
-                              </div>
-                            </div>
-                          );
-                        }}
-                      </For>
-                    </div>
-                  </Show>
+            )}
+          </For>
+          <For each={getEventsForSelectedDay()}>
+            {(event) => {
+              const { top, height } = calculateEventPosition(event);
+              return (
+                <div
+                  class="absolute flex-col inline-flex justify-between items-start w-[calc(100%-0.5rem)]"
+                  style={{
+                    top,
+                    height,
+                  }}
+                >
+                  <EventCard
+                    event={event}
+                    class="ml-[66px] h-full rounded-lg px-4 py-2 shadow-md"
+                  />
+                  {event.nestedEvents && event.nestedEvents.length > 0 && (
+                    <For each={event.nestedEvents}>
+                      {(nestedEvent: Event) => {
+                        const parentStartMinutes =
+                          moment(event.timeStart).hours() * 60 +
+                          moment(event.timeStart).minutes() +
+                          6;
+
+                        const { top, height } = calculateEventPosition(
+                          nestedEvent,
+                          parentStartMinutes
+                        );
+
+                        return (
+                          <div
+                            class="absolute left-24 w-[calc(100%-4rem)] flex flex-col justify-between items-start"
+                            style={{
+                              top,
+                              height,
+                            }}
+                          >
+                            <EventCard
+                              event={nestedEvent}
+                              class="w-[calc(100%-2rem)] rounded-lg px-4 py-2 shadow-md relative z-[1] border-2 border-white"
+                            />
+                          </div>
+                        );
+                      }}
+                    </For>
+                  )}
                 </div>
-              </div>
-            </>
-          )}
-        </For>
+              );
+            }}
+          </For>
+        </div>
       </div>
     </div>
   );

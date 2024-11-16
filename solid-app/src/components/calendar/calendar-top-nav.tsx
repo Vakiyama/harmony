@@ -1,13 +1,29 @@
 import { A } from "@solidjs/router";
+import moment from "moment";
 import { Accessor, Setter } from "solid-js";
 
 export default function CalendarTopNav(props: {
   month: Accessor<string>;
   setIsSideMenuOpen: Setter<boolean>;
   isSideMenuOpen: Accessor<boolean>;
+  setCurrentDay: Setter<number>;
+  setCurrentMonth: Setter<string>;
+  setCurrentYear: Setter<number>;
+  setSelectedDay: Setter<number>;
+  setSelectedMonth: Setter<string>;
+  setSelectedYear: Setter<number>;
 }) {
+  const handleReturnToToday = () => {
+    props.setCurrentDay(moment().date());
+    props.setCurrentMonth(moment().format("MMMM"));
+    props.setCurrentYear(moment().year());
+
+    props.setSelectedDay(moment().date());
+    props.setSelectedMonth(moment().format("MMMM"));
+    props.setSelectedYear(moment().year());
+  };
   return (
-    <div class="sticky top-0 w-full flex flex-row h-[95px] bg-white shadow-md">
+    <div class="sticky top-0 w-full flex flex-row h-[95px] bg-white shadow-md z-10">
       <div class="w-full flex flex-row justify-between items-end px-4 mb-4">
         <div class="flex flex-row gap-x-3 items-center justify-center">
           <A href="/" class="text-3xl">
@@ -39,6 +55,14 @@ export default function CalendarTopNav(props: {
           </svg>
         </div>
         <div class="flex justify-end gap-x-6">
+          <button
+            class="w-5 h-5 border-2 rounded-sm border-black flex flex-col align-center justify-center"
+            onClick={handleReturnToToday}
+          >
+            <p class="text-subtitle13 w-full font-grotesque">
+              {moment().date()}
+            </p>
+          </button>
           <A href="/" class="text-md">
             {/* search icon */}
             <svg

@@ -28,7 +28,7 @@ export default function CalendarPage() {
   const calendarId = 1;
   const [events, setEvents] = createSignal<Event[]>([]);
   const [currentView, setCurrentView] = createSignal<"day" | "week" | "month">(
-    "week"
+    "day"
   );
   const [teamMembers, setTeamMembers] = createSignal<
     { users: User; teammembers: TeamMember }[]
@@ -65,7 +65,7 @@ export default function CalendarPage() {
   };
 
   return (
-    <div class="relative h-full">
+    <div class="h-full fixed w-full overflow-y-auto">
       <Show when={isSideMenuOpen()}>
         <CalendarSideMenu
           setIsSideMenuOpen={setIsSideMenuOpen}
@@ -77,51 +77,55 @@ export default function CalendarPage() {
         month={currentMonth}
         setIsSideMenuOpen={setIsSideMenuOpen}
         isSideMenuOpen={isSideMenuOpen}
+        setCurrentDay={setCurrentDay}
+        setCurrentMonth={setCurrentMonth}
+        setCurrentYear={setCurrentYear}
+        setSelectedDay={setSelectedDay}
+        setSelectedMonth={setSelectedMonth}
+        setSelectedYear={setSelectedYear}
       />
-      <div class="max-w-[vw-50%] flex flex-col ">
-        <Show when={currentView() === "month"}>
-          <CalendarView
-            selectedYear={selectedYear}
-            setSelectedYear={setSelectedYear}
-            selectedMonth={selectedMonth}
-            setSelectedMonth={setSelectedMonth}
-            selectedDay={selectedDay}
-            setSelectedDay={setSelectedDay}
-            events={events}
-          />
-        </Show>
-        <Show when={currentView() === "week"}>
-          <WeekCalendarView
-            selectedYear={selectedYear}
-            setSelectedYear={setSelectedYear}
-            selectedMonth={selectedMonth}
-            setSelectedMonth={setSelectedMonth}
-            selectedDay={selectedDay}
-            setSelectedDay={setSelectedDay}
-            currentMonth={currentMonth}
-            currentYear={currentYear}
-            setCurrentMonth={setCurrentMonth}
-            setCurrentYear={setCurrentYear}
-            events={events}
-          />
-        </Show>
-        <Show when={currentView() === "day"}>
-          <DayCalendarView
-            selectedDay={selectedDay}
-            selectedMonth={selectedMonth}
-            selectedYear={selectedYear}
-            setSelectedDay={setSelectedDay}
-            setSelectedMonth={setSelectedMonth}
-            setSelectedYear={setSelectedYear}
-            setCurrentMonth={setCurrentMonth}
-            setCurrentYear={setCurrentYear}
-            setCurrentDay={setCurrentDay}
-            currentMonth={currentMonth}
-            currentYear={currentYear}
-            events={events}
-          />
-        </Show>
-      </div>
+      <Show when={currentView() === "month"}>
+        <CalendarView
+          selectedYear={selectedYear}
+          setSelectedYear={setSelectedYear}
+          selectedMonth={selectedMonth}
+          setSelectedMonth={setSelectedMonth}
+          selectedDay={selectedDay}
+          setSelectedDay={setSelectedDay}
+          events={events}
+        />
+      </Show>
+      <Show when={currentView() === "week"}>
+        <WeekCalendarView
+          selectedYear={selectedYear}
+          setSelectedYear={setSelectedYear}
+          selectedMonth={selectedMonth}
+          setSelectedMonth={setSelectedMonth}
+          selectedDay={selectedDay}
+          setSelectedDay={setSelectedDay}
+          currentMonth={currentMonth}
+          currentYear={currentYear}
+          setCurrentMonth={setCurrentMonth}
+          setCurrentYear={setCurrentYear}
+          events={events}
+        />
+      </Show>
+      <Show when={currentView() === "day"}>
+        <DayCalendarView
+          selectedDay={selectedDay}
+          selectedMonth={selectedMonth}
+          selectedYear={selectedYear}
+          setSelectedDay={setSelectedDay}
+          setSelectedMonth={setSelectedMonth}
+          setSelectedYear={setSelectedYear}
+          setCurrentMonth={setCurrentMonth}
+          setCurrentYear={setCurrentYear}
+          setCurrentDay={setCurrentDay}
+          currentMonth={currentMonth}
+          currentYear={currentYear}
+          events={events}
+        />
+      </Show>
     </div>
   );
 }
