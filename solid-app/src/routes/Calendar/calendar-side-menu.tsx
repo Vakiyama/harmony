@@ -1,6 +1,11 @@
 import { TeamMember } from "@/schema/TeamMembers";
 import { User } from "@/schema/Users";
-import { useNavigate, useSearchParams } from "@solidjs/router";
+import { useSearchParams } from "@solidjs/router";
+import {
+  NavigateOptions,
+  SearchParams,
+  SetSearchParams,
+} from "node_modules/@solidjs/router/dist/types";
 import { FaSolidAngleDown, FaSolidAngleUp } from "solid-icons/fa";
 import {
   Accessor,
@@ -16,42 +21,50 @@ import BsGrid2x3GapFill from "~/components/icon/bs-grid-2x3-gap-fill";
 import BsGrid3x3GapFill from "~/components/icon/bs-grid-3x3-gap-fill";
 import TbRectangleFilled from "~/components/icon/tb-rectangle-filled";
 import Checkbox from "~/components/shared/checkbox";
-type CalendarFilterType =
-  | "events"
-  | "tasks"
-  | "medication"
-  | "complete"
-  | "uncompleted";
+import { CalendarFilterType } from ".";
 
-const DEFAULT_FILTERS: CalendarFilterType[] = [
-  "events",
-  "tasks",
-  "medication",
-  "complete",
-  "uncompleted",
-];
 const CalendarSideMenu = (props: {
   setIsSideMenuOpen: Setter<boolean>;
   teamMembers: Accessor<{ users: User; teammembers: TeamMember }[]>;
+  searchParams: Partial<SearchParams>;
+  setSearchParams: (
+    params: SetSearchParams,
+    options?: Partial<NavigateOptions>
+  ) => void;
+  params: Accessor<SetSearchParams>;
+  setParams: Setter<SetSearchParams>;
 }) => {
-  const DEFAULT_TEAMMEMBERS = props
-    .teamMembers()
-    .map((t) => t.users.id.toString());
-  const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   const [isPeopleOpen, setIsPeopleOpen] = createSignal(false);
   const [isCalendarOpen, setIsCalendarOpen] = createSignal(false);
   const [isTeamOpen, setIsTeamOpen] = createSignal(false);
 
+  const updateFilters = (newFilters: string) => {
+    props.setSearchParams(
+      { ...props.searchParams, filters: newFilters },
+      { replace: true }
+    );
+    props.setParams({ ...props.searchParams, filters: newFilters });
+  };
+
+  const updateSelected = (newSelected: string) => {
+    props.setSearchParams(
+      { ...props.searchParams, selected: newSelected },
+      { replace: true }
+    );
+    props.setParams({ ...props.searchParams, selected: newSelected });
+  };
+
   const getSelectedFilters = () => {
-    return searchParams.filters
-      ? (searchParams.filters.toString().split(",") as CalendarFilterType[])
+    return props.searchParams.filters
+      ? (props.searchParams.filters
+          .toString()
+          .split(",") as CalendarFilterType[])
       : [];
   };
 
   const getSelectedMembers = () => {
-    return searchParams.selected
-      ? searchParams.selected.toString().split(",")
+    return props.searchParams.selected
+      ? props.searchParams.selected.toString().split(",")
       : [];
   };
 
@@ -82,7 +95,7 @@ const CalendarSideMenu = (props: {
     }
 
     batch(() => {
-      setSearchParams({ selected: newSelected.join(",") });
+      updateSelected(newSelected.join(","));
     });
   };
 
@@ -96,24 +109,9 @@ const CalendarSideMenu = (props: {
       newFilters = [...currentFilters, filterType];
     }
     batch(() => {
-      setSearchParams({
-        filters: newFilters.join(","),
-      });
+      updateFilters(newFilters.join(","));
     });
   };
-
-  onMount(() => {
-    batch(() => {
-      setSearchParams({
-        filters: searchParams.filters
-          ? searchParams.filters
-          : DEFAULT_FILTERS.join(","),
-        selected: searchParams.select
-          ? searchParams.select
-          : DEFAULT_TEAMMEMBERS.join(","),
-      });
-    });
-  });
 
   return (
     <div

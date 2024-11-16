@@ -130,10 +130,6 @@ const seedData = async () => {
       teamId: teamsList[0].id,
       name: "Team Alpha Calendar",
     },
-    {
-      teamId: teamsList[1].id,
-      name: "Team Beta Calendar",
-    },
   ];
 
   for await (const data of calendarsData) {
@@ -177,55 +173,9 @@ const seedData = async () => {
       timeStart: new Date("2024-11-03T14:00:00"),
       timeEnd: new Date("2024-11-03T15:00:00"),
     },
-    {
-      calendarId: Calendars[1].id,
-      title: "Physical Therapy Session",
-      notes: "Attend session with client.",
-      location: "Rehabilitation Center",
-      repeat: "never",
-      type: "event",
-      timeStart: new Date("2024-10-31T09:00:00"),
-      timeEnd: new Date("2024-10-31T10:00:00"),
-    },
-    {
-      calendarId: Calendars[1].id,
-      title: "Weekly Check-in",
-      notes: "Discuss care plan and progress.",
-      location: "Home",
-      repeat: "weekly",
-      type: "event",
-      timeStart: new Date("2024-11-02T16:00:00"),
-      timeEnd: new Date("2024-11-02T17:00:00"),
-    },
-    {
-      calendarId: Calendars[1].id,
-      title: "Monthly Health Check-up",
-      notes: "Check blood pressure and vitals",
-      timeStart: new Date(
-        moment().add(1, "month").set({ date: 29, hour: 10, minute: 0 }).format()
-      ), // 29th of next month at 10 AM
-      timeEnd: new Date(
-        moment().add(1, "month").set({ date: 29, hour: 11, minute: 0 }).format()
-      ),
-      location: "Health Clinic",
-      repeat: "never",
-      type: "event",
-    },
   ];
   for await (const data of eventsData) {
-    await db
-      .insert(events)
-      .values({
-        notes: data.notes,
-        title: data.title,
-        calendarId: data.calendarId,
-        repeat: data.repeat,
-        location: data.location,
-        timeEnd: data.timeEnd,
-        timeStart: data.timeStart,
-        type: data.type,
-      })
-      .onConflictDoNothing();
+    await db.insert(events).values(data).onConflictDoNothing();
   }
 
   // Seed EventsParticipants

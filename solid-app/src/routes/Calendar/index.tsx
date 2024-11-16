@@ -1,7 +1,18 @@
-import { createSignal, onMount, Show } from "solid-js";
+import {
+  batch,
+  createEffect,
+  createResource,
+  createSignal,
+  onMount,
+  Show,
+} from "solid-js";
 import { mightFail } from "might-fail";
 import type { Event } from "@/schema/Events";
-import { getAllEvents, getTeamMembersFromTeamId } from "~/api/calendar";
+import {
+  getAllEvents,
+  getCalendarData,
+  getTeamMembersFromTeamId,
+} from "~/api/calendar";
 import moment from "moment";
 import MonthCalendarView from "./month-calendar-view";
 import WeekCalendarView from "./week-calendar-view";
@@ -10,8 +21,17 @@ import EventCalendarDisplay from "./event-calendar-display";
 import CalendarTopNav from "~/components/calendar/calendar-top-nav";
 import { User } from "@/schema/Users";
 import { TeamMember } from "@/schema/TeamMembers";
+import { useSearchParams } from "@solidjs/router";
+import { SetSearchParams } from "node_modules/@solidjs/router/dist/types";
 moment.locale("en");
 moment.updateLocale("en", { weekdaysMin: "S_M_T_W_T_F_S".split("_") });
+
+export type CalendarFilterType =
+  | "events"
+  | "tasks"
+  | "medication"
+  | "complete"
+  | "uncompleted";
 
 export type EventFormData = {
   title: string;
@@ -29,6 +49,14 @@ export default function CalendarPage() {
   const [teamMembers, setTeamMembers] = createSignal<
     { users: User; teammembers: TeamMember }[]
   >([]);
+  const DEFAULT_FILTERS: CalendarFilterType[] = [
+    "events",
+    "tasks",
+    "medication",
+    "complete",
+    "uncompleted",
+  ];
+  const DEFAULT_TEAMMEMBERS = teamMembers().map((t) => t.users.id.toString());
   const [currentdDay, setCurrentDay] = createSignal<number>(moment().date());
   const [currentMonth, setCurrentMonth] = createSignal(moment().format("MMMM"));
   const [currentYear, setCurrentYear] = createSignal<number>(moment().year());
@@ -37,11 +65,43 @@ export default function CalendarPage() {
     moment().format("MMMM")
   );
   const [selectedYear, setSelectedYear] = createSignal<number>(moment().year());
+  const [isSideMenuOpen, setIsSideMenuOpen] = createSignal(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [params, setParams] = createSignal<SetSearchParams>({
+    filters: searchParams.filters
+      ? searchParams.filters.toString()
+      : DEFAULT_FILTERS.join(","),
+    select: searchParams.select
+      ? searchParams.select.toString()
+      : DEFAULT_TEAMMEMBERS.join(","),
+  });
+
   onMount(async () => {
     await fetchEvents(calendarId);
     await fetchTeamMembers(teamId);
   });
-  const [isSideMenuOpen, setIsSideMenuOpen] = createSignal(false);
+
+  const [resource, { mutate, refetch }] = createResource(params(), async () => {
+    const params = searchParams.filters
+      ? searchParams.filters.toString().split(",")
+      : "";
+    return await getCalendarData({
+      teamId,
+      filters: {
+        uncomplete: params.includes("uncompleted"),
+        event: params.includes("events"),
+        task: params.includes("tasks"),
+        complete: params.includes("complete"),
+      },
+    });
+  });
+
+  // for testing, whenever resources is reloaded (which is refetched based on the params)
+  createEffect(async () => {
+    console.log(searchParams.filters);
+    console.log(searchParams.selected);
+    console.log(resource(), "hello?");
+  }, [params()]);
 
   const fetchEvents = async (calendarId: number) => {
     const [eventError, eventResult] = await mightFail(getAllEvents(calendarId));
@@ -65,8 +125,12 @@ export default function CalendarPage() {
     <div class="relative h-full">
       <div class={`${isSideMenuOpen() ? "" : "hidden"}`}>
         <CalendarSideMenu
+          searchParams={searchParams}
+          setSearchParams={setSearchParams}
           setIsSideMenuOpen={setIsSideMenuOpen}
           teamMembers={teamMembers}
+          params={params}
+          setParams={setParams}
         />
       </div>
       <CalendarTopNav
