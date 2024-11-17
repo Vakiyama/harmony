@@ -24,6 +24,7 @@ import Checkbox from "~/components/shared/checkbox";
 import { CalendarFilterType } from ".";
 
 const CalendarSideMenu = (props: {
+  refetchData: () => void;
   setIsSideMenuOpen: Setter<boolean>;
   teamMembers: Accessor<{ users: User; teammembers: TeamMember }[]>;
   searchParams: Partial<SearchParams>;
@@ -38,12 +39,13 @@ const CalendarSideMenu = (props: {
   const [isCalendarOpen, setIsCalendarOpen] = createSignal(false);
   const [isTeamOpen, setIsTeamOpen] = createSignal(false);
 
-  const updateFilters = (newFilters: string) => {
+  const updateFilters = async (newFilters: string) => {
     props.setSearchParams(
       { ...props.searchParams, filters: newFilters },
       { replace: true }
     );
     props.setParams({ ...props.searchParams, filters: newFilters });
+    await props.refetchData();
   };
 
   const updateSelected = (newSelected: string) => {

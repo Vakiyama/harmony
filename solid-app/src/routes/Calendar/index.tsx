@@ -95,13 +95,16 @@ export default function CalendarPage() {
       },
     });
   });
+  const handleRefetch = async () => {
+    await refetch(); // This will re-fetch the data based on the current `params()`
+  };
 
   // for testing, whenever resources is reloaded (which is refetched based on the params)
   createEffect(async () => {
     console.log(searchParams.filters);
     console.log(searchParams.selected);
     console.log(resource(), "hello?");
-  }, [params()]);
+  }, [resource()]);
 
   const fetchEvents = async (calendarId: number) => {
     const [eventError, eventResult] = await mightFail(getAllEvents(calendarId));
@@ -125,6 +128,7 @@ export default function CalendarPage() {
     <div class="relative h-full">
       <div class={`${isSideMenuOpen() ? "" : "hidden"}`}>
         <CalendarSideMenu
+          refetchData={handleRefetch}
           searchParams={searchParams}
           setSearchParams={setSearchParams}
           setIsSideMenuOpen={setIsSideMenuOpen}

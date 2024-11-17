@@ -7,6 +7,8 @@ import { and, eq, or, sql } from "drizzle-orm";
 import { TeamMember, teamMembers } from "../../drizzle/schema/TeamMembers";
 import { User, users } from "../../drizzle/schema/Users";
 import { eventParticipants } from "../../drizzle/schema/EventParticipants";
+import { getUserIdFromSession } from "./server";
+import { isMemberOfTeam } from "./dbHelper";
 
 // Alarms
 export const getAlarmsByEventId = cache(async (eventId: number) => {
@@ -113,6 +115,14 @@ export const getCalendarData = async (props: {
   };
 }) => {
   "use server";
+  const userId = await getUserIdFromSession();
+  if (userId === undefined) {
+    return { error: "User is not Authenticated" };
+  }
+  const isMember = await isMemberOfTeam(userId, props.teamId);
+  if (!isMember) {
+    return { error: "Insufficient Permissions" };
+  }
   console.log(props.filters);
   // Set default values
   props.page = props.page ? props.page : 1;
@@ -122,7 +132,7 @@ export const getCalendarData = async (props: {
     : { task: true, event: true, complete: true, uncomplete: true };
 
   const offset = (props.page - 1) * props.pageSize;
-
+  const conditions: any[] = [];
   // Start with the base query and make it dynamic
   let query = db
     .select({
@@ -131,29 +141,28 @@ export const getCalendarData = async (props: {
     })
     .from(events)
     .leftJoin(eventParticipants, eq(eventParticipants.eventId, events.id))
-    .leftJoin(teamMembers, eq(teamMembers.userId, eventParticipants.userId))
-    .leftJoin(users, eq(users.id, teamMembers.userId))
-    .where(eq(teamMembers.teamId, props.teamId))
+    .leftJoin(users, eq(users.id, eventParticipants.userId))
     .$dynamic();
 
   // Add type filters dynamically
   if (props.filters.task && props.filters.event) {
-    query = query.where(or(eq(events.type, "task"), eq(events.type, "event")));
+    console.log("both");
+    conditions.push(or(eq(events.type, "task"), eq(events.type, "event")));
   } else if (props.filters.task) {
-    query = query.where(eq(events.type, "task"));
+    console.log("tasks only");
+    conditions.push(eq(events.type, "task"));
   } else if (props.filters.event) {
-    query = query.where(eq(events.type, "event"));
+    console.log("events only");
+    conditions.push(eq(events.type, "event"));
   }
 
   // Add completion status filters dynamically
   if (props.filters.complete && props.filters.uncomplete) {
-    query = query.where(
-      or(eq(events.complete, true), eq(events.complete, false))
-    );
+    conditions.push(or(eq(events.complete, true), eq(events.complete, false)));
   } else if (props.filters.complete) {
-    query = query.where(eq(events.complete, true));
+    conditions.push(eq(events.complete, true));
   } else if (props.filters.uncomplete) {
-    query = query.where(eq(events.complete, false));
+    conditions.push(eq(events.complete, false));
   }
 
   // Apply pagination
@@ -161,7 +170,8 @@ export const getCalendarData = async (props: {
 
   // Execute the query
   try {
-    const result = await query;
+    const result = await query.where(and(...conditions));
+    console.log("this", result);
     return result;
   } catch (error) {
     console.log(error);
