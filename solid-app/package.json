@@ -38,6 +38,7 @@
     "@solidjs/meta": "^0.29.4",
     "@solidjs/router": "^0.14.10",
     "@solidjs/start": "^1.0.9",
+    "@use-gesture/vanilla": "^10.3.1",
     "@zentered/solid-markdown": "^1.0.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",

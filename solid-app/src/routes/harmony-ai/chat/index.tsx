@@ -1,55 +1,38 @@
-import { ImageRoot, Image } from "~/components/ui/image";
+import { getUser } from "~/api/server";
 import { HarmonyChat } from "./harmony-chat";
-import HarmonyMascot from "../images/harmony-mascot-container.svg";
-import { Button } from "~/components/ui/button";
-import { JSXElement } from "solid-js";
-import { twMerge } from "tailwind-merge";
+import { createAsync, redirect, useNavigate } from "@solidjs/router";
+import { Show, createSignal, onMount } from "solid-js";
+import { InferSelectModel } from "drizzle-orm";
+import { users } from "@/schema/Users";
+import { BottomModal } from "./components/bottom-modal";
+import { OnboardingIntro } from "./components/onboarding-intro";
 
-/*<BottomModal>
-        <OnboardingIntro />
-      </BottomModal>*/
 export default function Index() {
-  return <HarmonyChat />;
-}
+  const [user, setUser] = createSignal<null | InferSelectModel<typeof users>>();
 
-// ignore these components i'll refac it later
+  onMount(fetchUser);
 
-function BottomModal(props: { children: JSXElement; height?: number }) {
+  async function fetchUser() {
+    const user = await getUser();
+
+    if (user.type === "user") {
+      setUser(user);
+      return user;
+    } else setTimeout(fetchUser, 200);
+  }
+
   return (
     <>
-      <div
-        class={twMerge(
-          "absolute top-0 left-0 backdrop-blur bg-black/60 w-full z-10 h-screen",
-        )}
-      />
-      <div
-        class={`
-        rounded-b-none
-        py-5
-        fixed bottom-0 w-full flex flex-col items-center z-10 bg-white h-fit border rounded-[45px]`}
-        style={{ height: props.height ? `${props.height}px` : "fit-content" }}
-      >
-        {props.children}
-      </div>
+      <Show when={user() && !user()?.chosenVoice}>
+        <BottomModal>
+          <OnboardingIntro user={user()!} fetchUser={fetchUser} />
+        </BottomModal>
+      </Show>
+      <Show when={user() && user()!.chosenVoice}>
+        <HarmonyChat />
+      </Show>
     </>
   );
-}
 
-function OnboardingIntro() {
-  return (
-    <>
-      <p class="opacity-50 mt-2 text-xl">Hi, Tina</p>
-      <h2 class="my-2 text-4xl">I am Harmony!</h2>
-      <p class="opacity-50 text-xl">Your partner in care</p>
-      <ImageRoot class="rounded-none w-60 h-60">
-        <Image src={HarmonyMascot} class="w-full" />
-      </ImageRoot>
-      <Button
-        class="bg-[#D9D9D9] mt-10 w-[calc(100%_-_40px)] rounded-full hover:bg-[#D9D9D9] h-11" // fix this
-        size="lg"
-      >
-        <span class="text-black">Next</span>
-      </Button>
-    </>
-  );
+  // <HarmonyChat />;
 }

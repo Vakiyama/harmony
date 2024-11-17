@@ -8,7 +8,7 @@ const VOICEMAKER_API_ENDPOINT = "https://developer.voicemaker.in/voice/api";
 
 const voicemakerApiKey = process.env.VOICEMAKER_API_KEY;
 
-type VoiceId = "proplus-Lily" | "proplus-Aurora";
+export type VoiceId = "proplus-Lily" | "proplus-Aurora";
 
 type VoicemakerBody = {
   Engine: "neural";

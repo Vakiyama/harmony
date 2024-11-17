@@ -1,10 +1,12 @@
 import { JSX } from "solid-js";
 import { useLocation, useParams } from "@solidjs/router";
+import { twMerge } from "tailwind-merge";
 
 export default function TopNav(props: {
   name?: JSX.Element;
   leftNavigation?: JSX.Element;
   rightNavigation?: JSX.Element;
+  class?: string;
 }) {
   const location = useLocation();
   const params = useParams();
@@ -24,7 +26,12 @@ export default function TopNav(props: {
   }
 
   return (
-    <div class="w-full flex flex-row h-[95px] bg-white fixed top-0">
+    <div
+      class={twMerge(
+        "w-full flex flex-row h-[95px] bg-white fixed top-0",
+        props.class ? props.class : "",
+      )}
+    >
       <div class="w-full flex flex-row justify-between items-end px-4 mb-4">
         <div class="flex items-center">
           <a href={backLocation}>{props.leftNavigation}</a>

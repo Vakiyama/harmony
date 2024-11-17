@@ -10,10 +10,12 @@ import Mute from "../images/BsMicMuteFill.svg";
 import { createEffect, createSignal, onCleanup, onMount, Show } from "solid-js";
 import { A } from "@solidjs/router";
 import { twMerge } from "tailwind-merge";
-import { Effect, Exit, Option, pipe } from "effect";
+import { Effect, Exit, pipe } from "effect";
 import { ArrayMessage } from "~/api/claude/effectGraph/messages";
 import { useHarmonyChat } from "../chat/harmony-chat";
 import { getUser } from "~/api/server";
+import { InferSelectModel } from "drizzle-orm";
+import { users } from "@/schema/Users";
 
 function toTwoDigits(value: number): string {
   return value.toString().length === 1 ? `0${value}` : `${value}`;
@@ -51,7 +53,7 @@ export default function HarmonyVoice() {
   const {
     messages,
     setMessages: _,
-    handleConversation,
+    handleConversation, //@ts-ignore ?????? :((((((
   } = useHarmonyChat(user, true);
 
   const [audioSource, setAudioSource] = createSignal<string>();
@@ -249,7 +251,9 @@ export default function HarmonyVoice() {
   async function setAudioFromMessageText(text: string) {
     {
       const req = {
-        VoiceId: "proplus-Lily",
+        VoiceId: (user() as InferSelectModel<typeof users>).chosenVoice
+          ? (user() as InferSelectModel<typeof users>).chosenVoice
+          : "proplus-Lily",
         Text: text,
         turbo: "turbo",
       } as const;

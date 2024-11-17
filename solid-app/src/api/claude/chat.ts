@@ -338,11 +338,11 @@ function makeClaudeToolCall(result: GraphState, id: number, voice?: boolean) {
       return new QueryDBError(e);
     },
   }).pipe(
-    Effect.flatMap((info) =>
-      callClaudeWithTools({
-        claudeSettings: defaultClaudeSettings,
-        system: `${voice ? CHAT_SYSTEM_MESSAGE_WITH_VOICE : CHAT_SYSTEM_MESSAGE}
-
+    Effect.either,
+    Effect.flatMap((info) => {
+      const extra = info.pipe(
+        Either.match({
+          onRight: (info) => `
         ## Recipient Information:
 
           ${info.recipient}
@@ -350,14 +350,22 @@ function makeClaudeToolCall(result: GraphState, id: number, voice?: boolean) {
         ## User information:
 
           ${info.user}
+`,
+          onLeft: () => "",
+        }),
+      );
+      return callClaudeWithTools({
+        claudeSettings: defaultClaudeSettings,
+        system: `${voice ? CHAT_SYSTEM_MESSAGE_WITH_VOICE : CHAT_SYSTEM_MESSAGE}
+        ${extra} 
         `,
         retryCount: 5,
         messages: getFirst(result.messages),
         type: "tools",
         toolChoice: { type: "auto" },
         tools: [...claudeTools],
-      }),
-    ),
+      });
+    }),
   );
 }
 
