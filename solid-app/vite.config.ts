@@ -8,11 +8,12 @@ export default defineConfig({
     alias: {
       "~": resolve(__dirname, "./src"),
       "~src/components": resolve(__dirname, "./src/components"),
-      "~libs/cn": resolve(__dirname, "./src/libs/cn")
+      "~libs/cn": resolve(__dirname, "./src/libs/cn"),
+      "@": resolve(__dirname, "src"),
     },
     conditions: ["development", "browser"],
   },
   build: {
     sourcemap: false,
-  }
-})
+  },
+});
