@@ -225,10 +225,9 @@ function PageTwo(props: {
       <Button
         class="bg-primary-purple-300 mt-10 w-[calc(100%_-_40px)] rounded-full hover:bg-primary-purple-400 h-11"
         size="lg"
+        onClick={() => props.setPageIndex(2)}
       >
-        <span class="text-black" onClick={() => props.setPageIndex(2)}>
-          Next
-        </span>
+        <span class="text-black">Next</span>
       </Button>
     </>
   );
