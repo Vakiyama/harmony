@@ -6,9 +6,9 @@
     "build": "vinxi build --preset node-server",
     "start": "bun .output/server/index.mjs",
     "test": "vitest",
-    "seed": "bun ./drizzle/seed.ts ",
-    "push": "bun drizzle-kit push",
-    "setup": "bun drizzle-kit push && bun run seed",
+    "seed": "npx tsx ./drizzle/seed.ts ",
+    "push": "npx tsx drizzle-kit push",
+    "setup": "npx tsx drizzle-kit push && bun run seed",
     "studio": "bun drizzle-kit studio"
   },
   "devDependencies": {
