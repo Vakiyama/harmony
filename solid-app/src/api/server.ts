@@ -1,6 +1,6 @@
 "use server";
 import { redirect } from "@solidjs/router";
-import { eq } from "drizzle-orm";
+import { InferInsertModel, eq } from "drizzle-orm";
 import { db } from "./db";
 import { getKindeClient, sessionManager } from "./kinde";
 import { UserType } from "@kinde-oss/kinde-typescript-sdk";
@@ -86,16 +86,39 @@ export async function getUser() {
     return redirect("/api/auth/landing");
   }
   const [error, user] = await mightFail(
-    db.select().from(users).where(eq(users.id, userId)).get()
+    db.select().from(users).where(eq(users.id, userId)).get(),
   );
-  if (error) return logout();
+  if (error) {
+    console.error(error);
+    return logout();
+  }
   if (!user) return redirect("/api/auth/landing");
   return {
-    id: user.id,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    photo: user.photo,
+    type: "user",
+    ...user,
   };
+}
+
+class UpdateUserError {
+  readonly _tag = "UpdateUserError";
+}
+
+export async function updateUser(
+  user: Partial<InferInsertModel<typeof users>>,
+) {
+  const userId = await getUserIdFromSession();
+  if (!userId) return;
+
+  const [error, result] = await mightFail(
+    db.update(users).set(user).where(eq(users.id, userId)),
+  );
+
+  if (error) {
+    console.error(error);
+    return new UpdateUserError();
+  }
+
+  return { _tag: "success" } as const;
 }
 
 export async function checkAuthenticated() {
@@ -111,7 +134,7 @@ export async function checkAuthenticated() {
 
 export async function getUserIdFromSession() {
   const manager = await sessionManager();
-  const session = await manager.getSession();
+  const session = manager.getSession();
   const userId: number | undefined = session.data.userId;
   return userId;
 }

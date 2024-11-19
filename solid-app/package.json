@@ -6,11 +6,10 @@
     "build": "vinxi build --preset node-server",
     "start": "bun .output/server/index.mjs",
     "test": "vitest",
-    "seed": "bun ./drizzle/seed.ts ",
-    "push": "bun drizzle-kit push",
-    "setup": "bun drizzle-kit push && bun run seed",
-    "studio": "bun drizzle-kit studio",
-    "postinstall": "patch-package"
+    "seed": "npx tsx ./drizzle/seed.ts ",
+    "push": "npx tsx drizzle-kit push",
+    "setup": "npx tsx drizzle-kit push && bun run seed",
+    "studio": "bun drizzle-kit studio"
   },
   "devDependencies": {
     "@flydotio/dockerfile": "^0.5.9",
@@ -28,6 +27,7 @@
   },
   "dependencies": {
     "@ark-ui/solid": "4.2",
+    "@deepgram/sdk": "^3.9.0",
     "@google-cloud/speech": "^6.7.0",
     "@kinde-oss/kinde-typescript-sdk": "^2.9.1",
     "@kobalte/core": "^0.13.7",
@@ -40,6 +40,7 @@
     "@solidjs/meta": "^0.29.4",
     "@solidjs/router": "^0.14.10",
     "@solidjs/start": "^1.0.9",
+    "@use-gesture/vanilla": "^10.3.1",
     "@zentered/solid-markdown": "^1.0.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",

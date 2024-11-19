@@ -1,6 +1,10 @@
 import { integer, text, sqliteTable } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
+const voicesEnum = ["proplus-Lily", "proplus-Aurora", "proplus-Lucas"] as const;
+
+const aiPreferencesEnum = ["Voice", "Text"] as const;
+
 export const users = sqliteTable("users", {
   id: integer("id").primaryKey({ autoIncrement: true }).unique().notNull(),
   kindeId: text("kindeId").unique().notNull(),
@@ -17,6 +21,8 @@ export const users = sqliteTable("users", {
     .default(sql`(unixepoch())`),
   roleType: text("role_type").notNull(), // family/neighbor - company - other
   birthDate: integer("birth_date", { mode: "timestamp" }),
+  chosenVoice: text("chosen_voice", { enum: voicesEnum }),
+  aiPreference: text("ai_preference", { enum: aiPreferencesEnum }),
 });
 
 export type User = typeof users.$inferSelect;

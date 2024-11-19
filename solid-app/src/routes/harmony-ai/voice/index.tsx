@@ -1,7 +1,7 @@
-import { ImageRoot, Image } from "~/components/ui/image";
-import HarmonyMascot from "../images/harmony-mascot-container.svg";
 import HarmonyMascotAnimated from "./harmony-mascot-animated.webp";
+import HarmonyMascot from "../images/harmony-mascot.svg";
 import { createAudio } from "@solid-primitives/audio";
+import { io, Socket } from "socket.io-client";
 import { clientSocket as socket } from "~/lib/clientSocket";
 
 import Speaker from "../images/Speaker.svg";
@@ -10,10 +10,14 @@ import Mute from "../images/BsMicMuteFill.svg";
 import { createEffect, createSignal, onCleanup, onMount, Show } from "solid-js";
 import { A } from "@solidjs/router";
 import { twMerge } from "tailwind-merge";
-import { Effect, Exit, Option, pipe } from "effect";
+import { Effect, Exit, pipe } from "effect";
 import { ArrayMessage } from "~/api/claude/effectGraph/messages";
 import { useHarmonyChat } from "../chat/harmony-chat";
 import { getUser } from "~/api/server";
+import { InferSelectModel } from "drizzle-orm";
+import { users } from "@/schema/Users";
+import { ImageRoot, Image } from "~/components/ui/image";
+import { DefaultEventsMap } from "socket.io";
 
 function toTwoDigits(value: number): string {
   return value.toString().length === 1 ? `0${value}` : `${value}`;
@@ -42,6 +46,7 @@ export default function HarmonyVoice() {
   const [streamedMessage, setStreamedMessage] = createSignal(
     "What can I help you with today?",
   );
+  const [loudness, setLoudness] = createSignal(0);
 
   const [currentStreamedRole, setCurrentStreamedRole] = createSignal<
     "assitant" | "user"
@@ -51,7 +56,7 @@ export default function HarmonyVoice() {
   const {
     messages,
     setMessages: _,
-    handleConversation,
+    handleConversation, //@ts-ignore ?????? :((((((
   } = useHarmonyChat(user, true);
 
   const [audioSource, setAudioSource] = createSignal<string>();
@@ -65,11 +70,14 @@ export default function HarmonyVoice() {
   const [muted, setMuted] = createSignal(false);
 
   createEffect(() => {
-    if (audioState.currentTime >= audioState.duration) {
+    console.log(audioState.currentTime, audioState.duration);
+    if (
+      audioState.currentTime >= audioState.duration &&
+      playing() &&
+      audioState.currentTime !== 0
+    ) {
       console.log("Setting playing to false!");
-      setTimeout(() => {
-        setPlaying(false);
-      }, 3000);
+      setPlaying(false);
     }
   }, [playing, audioState, audioState.currentTime]);
 
@@ -118,6 +126,41 @@ export default function HarmonyVoice() {
     pipe(
       mediaStreamTrack,
       (stream) => new MediaStream([stream]),
+      (stream) => {
+        const audioContext = new AudioContext();
+
+        // Create a MediaStreamSource from the MediaStream
+        const source = audioContext.createMediaStreamSource(stream);
+
+        // Create an AnalyserNode
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256; // Adjust as needed
+
+        // Connect the source to the analyser
+        source.connect(analyser);
+
+        function updateLoudness() {
+          // Function to compute loudness and update animations
+          const bufferLength = analyser.frequencyBinCount;
+          const dataArray = new Uint8Array(bufferLength);
+          analyser.getByteTimeDomainData(dataArray);
+
+          // Compute the RMS amplitude
+          let sum = 0;
+          for (let i = 0; i < bufferLength; i++) {
+            const normalizedValue = dataArray[i] / 128 - 1; // Normalize to [-1, 1]
+            sum += normalizedValue * normalizedValue;
+          }
+          const rms = Math.sqrt(sum / bufferLength); // RMS value between 0 and 1
+
+          setLoudness(muted() || playing() ? 0 : rms);
+        }
+        setInterval(() => {
+          updateLoudness();
+        }, 100);
+
+        return stream;
+      },
       (mediaStream) => {
         const recorder = new MediaRecorder(mediaStream, {
           mimeType: "audio/webm;codecs=opus",
@@ -132,8 +175,9 @@ export default function HarmonyVoice() {
         socket.emit("start-transcription");
 
         socket.on("transcription-results", (message) => {
+          if (message === "") return;
           if (playing())
-            return console.log("Recieving, ignoring because playing.");
+            return console.log("Receiving, ignoring because playing.");
           setTranscribedMessage(message);
           if (!playing() && lastTranscribedMessage() !== transcribedMessage()) {
             setStreamedMessage(message);
@@ -141,23 +185,40 @@ export default function HarmonyVoice() {
           }
         });
 
+        socket.on("end-utterance", () => {
+          if (playing()) return;
+          setLastTranscribedMessage(transcribedMessage());
+          console.log("Handling conv after utterance end event");
+          setPlaying(true);
+          socket.emit("start-transcription");
+          handleConversation([
+            ...messages(),
+            { role: "user", content: transcribedMessage() } as ArrayMessage,
+          ]);
+        });
+
+        mediaRecorder.onstop = () => {
+          mediaStreamTrack.stop();
+        };
         mediaRecorder.ondataavailable = async (event) => {
           if (playing() || muted()) {
-            // LOL DON'T LOOK PLEASE DONT EVEN ASK
-            if (Math.random() > 0.15) return;
+            return;
           }
+          /*
           const base64AudioChunk = await pipe(
             event.data.arrayBuffer(),
             async (arrayBuffer) =>
               btoa(String.fromCharCode(...new Uint8Array(await arrayBuffer))),
           );
+          */
 
+          console.log("Sending data...");
           socket.emit("write-transcription", {
-            base64AudioChunk,
+            dataBlob: event.data,
           });
         };
 
-        mediaRecorder.start(50);
+        mediaRecorder.start(100);
         setRecorder(mediaRecorder);
       },
     );
@@ -168,15 +229,19 @@ export default function HarmonyVoice() {
       lastTranscribedMessage() !== transcribedMessage() &&
       transcribedMessage() !== ""
     ) {
+      /*
       clearTimeout(timeout);
       timeout = setTimeout(async () => {
         setLastTranscribedMessage(transcribedMessage());
         console.log("Handling conv after 3000 sec timeout");
+        setPlaying(true);
+        socket.emit("start-transcription");
         await handleConversation([
           ...messages(),
           { role: "user", content: transcribedMessage() } as ArrayMessage,
         ]);
       }, 3000);
+      */
     }
   }, [transcribedMessage, lastTranscribedMessage]);
 
@@ -188,9 +253,9 @@ export default function HarmonyVoice() {
       console.log("content sent:", lastMessage.content);
       await setAudioFromMessageText(lastMessage.content);
       console.log("Audio set, playing!");
-
-      socket.emit("end-transcription");
       setPlaying(true);
+
+      socket.emit("start-transcription");
     }
   }, [messages]);
 
@@ -222,21 +287,25 @@ export default function HarmonyVoice() {
     );
   }
 
-  onCleanup(() => {
+  function handleCleanup() {
     if (!user()) return;
-    socket.emit("end-transcription");
-    if (recorder()) {
-      recorder()!.pause;
+    const recorderSignal = recorder();
+    if (recorderSignal) {
+      console.log("Attempting to turn off recorder signal.");
+      recorderSignal.stop();
+      setRecorder(undefined);
     }
-  });
+    // socket?.disconnect();
+  }
+
+  onCleanup(handleCleanup);
 
   onMount(async () => {
     setInterval(() => setCounter(counter() + 1), 1000);
     const user = await getUser();
     setUser(user);
-
-    if (recorder()) recorder()?.start();
-    else getMicStreamWithPermission();
+    setPlaying(false);
+    getMicStreamWithPermission();
   });
 
   /*
@@ -249,7 +318,9 @@ export default function HarmonyVoice() {
   async function setAudioFromMessageText(text: string) {
     {
       const req = {
-        VoiceId: "proplus-Lily",
+        VoiceId: (user() as InferSelectModel<typeof users>).chosenVoice
+          ? (user() as InferSelectModel<typeof users>).chosenVoice
+          : "proplus-Lily",
         Text: text,
         turbo: "turbo",
       } as const;
@@ -284,6 +355,18 @@ export default function HarmonyVoice() {
             {formatCounter(counter())}
           </h3>
           <h2 class="text-4xl mt-2 text-white">Harmony</h2>
+          <div class="flex flex-row bg-black/15 rounded-full px-4 gap-0.5 h-6 items-center mt-2">
+            {Array(7)
+              .fill(null)
+              .map((_) => (
+                <div
+                  class="bg-white w-1 h-1 rounded-full transition-all max-h-4 "
+                  style={{
+                    height: `${4 + loudness() * 200 * Math.random()}px`,
+                  }}
+                />
+              ))}
+          </div>
         </div>
       </div>
       <div class="px-4 flex flex-col items-center gap-6">
@@ -295,14 +378,7 @@ export default function HarmonyVoice() {
               : "",
           )}
         >
-          <Image
-            class="w-full"
-            src={
-              messages().at(-1)?.role === "assistant" || !playing()
-                ? HarmonyMascotAnimated
-                : HarmonyMascot
-            }
-          />
+          <Image class="w-full" src={HarmonyMascotAnimated} />
         </ImageRoot>
         <Show when={streamedMessage().length > 0}>
           <div class={`bg-white drop-shadow-xl  rounded-[28px] px-8 py-8`}>
@@ -323,7 +399,7 @@ export default function HarmonyVoice() {
           </div>
           <p>Speaker</p>
         </div>
-        <A href="/harmony-ai/chat">
+        <A onClick={handleCleanup} href="/harmony-ai/chat">
           <div class="flex flex-col items-center gap-2">
             <div class="rounded-full bg-[#FE463C] w-20 h-20 flex items-center justify-center">
               <ImageRoot class="">
@@ -340,7 +416,15 @@ export default function HarmonyVoice() {
               muted() ? "border-2 border-red-500" : "",
             )}
             onClick={() => {
-              setMuted((muted) => !muted);
+              setMuted((muted) => {
+                const newMuted = !muted;
+
+                socket.emit(
+                  newMuted ? "end-transcription" : "start-transcription",
+                );
+
+                return newMuted;
+              });
             }}
           >
             <ImageRoot class="p-1 ">

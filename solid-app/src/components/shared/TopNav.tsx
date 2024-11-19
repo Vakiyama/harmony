@@ -1,10 +1,12 @@
-import { JSX } from "solid-js";
-import { useLocation, useParams } from "@solidjs/router";
+import { JSX, Show } from "solid-js";
+import { A, useLocation, useParams } from "@solidjs/router";
+import { twMerge } from "tailwind-merge";
 
 export default function TopNav(props: {
   name?: JSX.Element;
   leftNavigation?: JSX.Element;
   rightNavigation?: JSX.Element;
+  class?: string;
 }) {
   const location = useLocation();
   const params = useParams();
@@ -18,25 +20,33 @@ export default function TopNav(props: {
   if (location.pathname.includes("/harmony-ai/chat")) {
     backLocation = "/";
   }
+  console.log(backLocation);
 
   if (location.pathname.includes("/harmony-ai/voice")) {
     backLocation = "/harmony-ai/chat";
   }
 
   return (
-    <div class="w-full flex flex-row h-[95px] bg-white fixed top-0">
-      <div class="w-full flex flex-row justify-between items-end px-4 mb-4">
-        <div class="flex items-center">
-          <a href={backLocation}>{props.leftNavigation}</a>
-        </div>
-        <div class="flex-1 flex justify-center">
-          <h4 class="text-md">{props.name}</h4>
-        </div>
-        <div class="flex justify-end">
-          <a href="/" class="text-md">
+    <div
+      class={twMerge(
+        "w-full flex flex-row h-[95px] bg-white fixed top-0",
+        props.class ? props.class : "",
+      )}
+    >
+      <div class="flex-1 flex justify-center mx-auto w-screen absolute h-full items-center z-0">
+        <h4 class="text-md">{props.name}</h4>
+      </div>
+      <div class="w-screen flex flex-row px-4 mb-4 h-full items-center justify-between z-10">
+        <Show when={backLocation && props.leftNavigation}>
+          <A href={backLocation!} class="flex items-center">
+            {props.leftNavigation}
+          </A>
+        </Show>
+        <Show when={props.rightNavigation}>
+          <A href="/" class="text-md">
             {props.rightNavigation}
-          </a>
-        </div>
+          </A>
+        </Show>
       </div>
     </div>
   );

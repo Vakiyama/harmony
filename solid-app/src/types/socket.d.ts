@@ -16,14 +16,13 @@ export interface ServerToClientEvents {
   "chat-message": (data: { message: string; name: string }) => void;
   "user-disconnected": (name: string) => void;
   "transcription-results": (message: string) => void;
+  "end-utterance": () => void;
 }
 
 export interface ClientToServerEvents {
   "new-user": (name: string) => void;
   "send-chat-message": (message: string) => void;
-  "write-transcription": (frameDataStream: {
-    base64AudioChunk: string;
-  }) => void;
+  "write-transcription": (frameDataStream: { dataBlob: Blob }) => void;
   "start-transcription": () => void;
   "end-transcription": () => void;
 }
