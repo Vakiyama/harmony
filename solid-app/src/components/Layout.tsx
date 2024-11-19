@@ -27,12 +27,13 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
     refetchTrigger,
     setRefetchTrigger,
   };
-  const RenderTopNav = () => {
+  const renderTopNav = () => {
     if (location.pathname.startsWith(`/team/${params.id}/journal/`)) {
       return (
         <TopNav
           name=""
-          leftNavigation={<div>Back</div>}
+          leftNavigation={"Back"}
+          /*
           rightNavigation={
             <div class="flex items-center justify-center aspect-square bg-black rounded-full w-[30px] h-[30px]">
               <svg
@@ -49,6 +50,7 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
               </svg>
             </div>
           }
+          */
         />
       );
     } else if (
@@ -68,7 +70,7 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
   return (
     <TeamContext.Provider value={contextValue}>
       <div class="h-full">
-        <RenderTopNav />
+        {renderTopNav()}
         <div class="h-full">{props.children}</div>
         {location.pathname.startsWith("/api") ||
         location.pathname.startsWith("/harmony-ai") ||

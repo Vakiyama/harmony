@@ -6,6 +6,7 @@ import { getKindeClient, sessionManager } from "./kinde";
 import { UserType } from "@kinde-oss/kinde-typescript-sdk";
 import { users } from "../../drizzle/schema/Users";
 import { mightFail } from "might-fail";
+import { seedData } from "../../drizzle/seed";
 
 type UserTypeExtended = UserType & {
   dob?: string;
@@ -39,7 +40,7 @@ async function register(kindeUser: UserTypeExtended) {
     .where(eq(users.kindeId, kindeUser.id))
     .get();
   if (existingUser) throw new Error("User already exists");
-  return await db
+  const user = await db
     .insert(users)
     .values({
       kindeId: kindeUser.id,
@@ -53,6 +54,10 @@ async function register(kindeUser: UserTypeExtended) {
     })
     .returning()
     .get();
+
+  await seedData();
+
+  return user;
 }
 
 export async function loginOrRegister(kindeUser: UserTypeExtended) {

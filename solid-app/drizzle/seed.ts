@@ -12,7 +12,7 @@ import { medications } from "./schema/Medications";
 import { eventParticipants } from "./schema/EventParticipants";
 import moment from "moment";
 
-const seedData = async () => {
+export const seedData = async () => {
   const usersData = await db.select().from(users);
   if (usersData.length <= 0) {
     throw new Error("Please create a user first using kinde");
@@ -202,10 +202,16 @@ const seedData = async () => {
       title: "Monthly Health Check-up",
       notes: "Check blood pressure and vitals",
       timeStart: new Date(
-        moment().add(1, "month").set({ date: 29, hour: 10, minute: 0 }).format()
+        moment()
+          .add(1, "month")
+          .set({ date: 29, hour: 10, minute: 0 })
+          .format(),
       ), // 29th of next month at 10 AM
       timeEnd: new Date(
-        moment().add(1, "month").set({ date: 29, hour: 11, minute: 0 }).format()
+        moment()
+          .add(1, "month")
+          .set({ date: 29, hour: 11, minute: 0 })
+          .format(),
       ),
       location: "Health Clinic",
       repeat: "never",
