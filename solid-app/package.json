@@ -7,8 +7,8 @@
     "start": "bun .output/server/index.mjs",
     "test": "vitest",
     "seed": "npx tsx ./drizzle/seed.ts ",
-    "push": "npx tsx drizzle-kit push",
-    "setup": "npx tsx drizzle-kit push && bun run seed",
+    "push": "npx drizzle-kit push",
+    "setup": "npx drizzle-kit push && bun run seed",
     "studio": "bun drizzle-kit studio"
   },
   "devDependencies": {
