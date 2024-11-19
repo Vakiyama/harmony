@@ -11,8 +11,10 @@ import { medications } from "./schema/Medications";
 import { eventParticipants } from "./schema/EventParticipants";
 import moment from "moment";
 import { InferSelectModel } from "drizzle-orm";
+import { v4 } from "uuid";
 
 export const seedData = async (user?: InferSelectModel<typeof users>) => {
+  console.log("Seeding...");
   const usersData = user ? [user] : await db.select().from(users);
   if (usersData.length <= 0) {
     throw new Error("Please create a user first using kinde");
@@ -23,7 +25,7 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
       displayName: "grandma",
       email: "grandma@gmail.com",
       firstName: "grandma",
-      kindeId: "ajksdlasjdkl",
+      kindeId: v4(),
       lastName: "",
       roleType: "User",
     })
@@ -36,7 +38,7 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
       displayName: "grandpa",
       email: "grandpa@gmail.com",
       firstName: "grandpa",
-      kindeId: "ajksddkl",
+      kindeId: v4(),
       lastName: "",
       roleType: "User",
     })

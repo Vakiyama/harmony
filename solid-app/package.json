@@ -58,6 +58,7 @@
     "solid-markdown": "^2.0.13",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
+    "uuid": "^11.0.3",
     "vinxi": "^0.4.3",
     "zod": "^3.23.8"
   },
