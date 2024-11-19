@@ -17,7 +17,7 @@ export default function ProfileHeaderHome() {
               />
             </svg>
           </div> */}
-          <div>
+          <a href="/profile/settings">
             <svg
               width="37"
               height="32"
@@ -30,7 +30,7 @@ export default function ProfileHeaderHome() {
                 fill="black"
               />
             </svg>
-          </div>
+          </a>
         </div>
       </div>
     </>

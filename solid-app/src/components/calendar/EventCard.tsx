@@ -1,5 +1,5 @@
 import { Event } from "../../../drizzle/schema/Events";
-import { TaskName } from "~/components/landing/TaskName";
+import { TaskName } from "../landing/TaskName";
 
 export default function EventCard({ event }: { event: Event }) {
   if (event.type === "task") {

@@ -54,8 +54,8 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
         />
       );
     } else if (
-      location.pathname.startsWith("/landing") ||
-      location.pathname.startsWith(`/team/${params.id}/journal`)
+      location.pathname.startsWith(`/team/${params.id}/journal`) ||
+      location.pathname === "/"
     ) {
       return (
         <LandingHeader

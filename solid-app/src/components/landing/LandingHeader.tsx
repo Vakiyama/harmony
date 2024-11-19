@@ -55,7 +55,11 @@ export function LandingHeader(props: {
         <div class="flex flex-col">
           <Suspense fallback={<div>Loading team...</div>}>
             <h1 class="text-2xl mr-2">
-              {teamName() || `Hello ${user()?.firstName} ${user()?.lastName}`}
+              {teamName() !== undefined
+                ? teamName()
+                : `Hello ${user()?.firstName || ""} ${
+                    user()?.lastName || ""
+                  }`.trim() || "Team"}
             </h1>
           </Suspense>
 

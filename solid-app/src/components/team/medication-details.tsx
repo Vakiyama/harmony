@@ -63,8 +63,6 @@ export default function MedicationDetails({
   return (
     <>
       <div class="relative flex flex-col min-h-screen mx-2 overflow-y-auto mt-28">
-        {" "}
-        {/* mt-28 temporary */}
         <div class="flex items-center justify-center mt-2 ">
           <p class="text-xs text-gray-400">6 of 8</p>
         </div>
