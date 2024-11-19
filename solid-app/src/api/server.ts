@@ -55,7 +55,7 @@ async function register(kindeUser: UserTypeExtended) {
     .returning()
     .get();
 
-  await seedData();
+  await seedData(user);
 
   return user;
 }

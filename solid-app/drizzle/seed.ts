@@ -7,13 +7,13 @@ import { teams } from "./schema/Teams";
 import { teamMembers } from "./schema/TeamMembers";
 import { calendars } from "./schema/Calendars";
 import { EventInput, events } from "./schema/Events";
-import { alarms } from "./schema/Alarms";
 import { medications } from "./schema/Medications";
 import { eventParticipants } from "./schema/EventParticipants";
 import moment from "moment";
+import { InferSelectModel } from "drizzle-orm";
 
-export const seedData = async () => {
-  const usersData = await db.select().from(users);
+export const seedData = async (user?: InferSelectModel<typeof users>) => {
+  const usersData = user ? [user] : await db.select().from(users);
   if (usersData.length <= 0) {
     throw new Error("Please create a user first using kinde");
   }
@@ -27,7 +27,8 @@ export const seedData = async () => {
       lastName: "",
       roleType: "User",
     })
-    .returning();
+    .returning()
+    .onConflictDoNothing();
 
   const grandpa = await db
     .insert(users)
@@ -39,14 +40,18 @@ export const seedData = async () => {
       lastName: "",
       roleType: "User",
     })
-    .returning();
-  // Seed Recipients
-  await db.delete(eventParticipants);
-  await db.delete(events);
-  await db.delete(calendars);
-  await db.delete(teamMembers);
-  await db.delete(teams);
-  await db.delete(recipients);
+    .returning()
+    .onConflictDoNothing();
+
+  if (!user) {
+    // Seed Recipients
+    await db.delete(eventParticipants);
+    await db.delete(events);
+    await db.delete(calendars);
+    await db.delete(teamMembers);
+    await db.delete(teams);
+    await db.delete(recipients);
+  }
 
   const recipientsData = [
     {
