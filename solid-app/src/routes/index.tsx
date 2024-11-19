@@ -42,11 +42,9 @@ export default function Index() {
         </div>
       </section>
       <section class="">
-        <div class="sticky top-24">
-          <div class="h-full flex flex-col overflow-hidden">
-            <p class="text-h3 font-medium">While you were away...</p>
-            <LandingContent />
-          </div>
+        <div class="h-full flex flex-col">
+          <p class="text-h3 font-medium">While you were away...</p>
+          <LandingContent />
         </div>
       </section>
     </main>

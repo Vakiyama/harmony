@@ -118,7 +118,7 @@ const LandingContent = () => {
           <TabsIndicator />
         </TabsList>
 
-        <div class="p-2 flex-grow">
+        <div class="p-2 flex-grow h-full">
           <Show when={journalsData()}>
             <For each={journalsData()}>
               {(entry) => {

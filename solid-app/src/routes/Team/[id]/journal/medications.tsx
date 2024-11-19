@@ -139,9 +139,9 @@ export default function Medication() {
   ];
 
   return (
-    <main class="w-full h-full p-4 flex flex-col items-center justify-center space-y-2">
-      <section class="mb-8 flex flex-col w-full justify-center text-start">
-        <div class="flex flex-col items-center gap-1 mt-16">
+    <main class="w-full h-full px-2 flex flex-col items-center justify-center">
+      <section class="flex flex-col w-full justify-center text-start">
+        <div class="flex flex-col items-center gap-1">
           <MedicationIcon iconColor="#FE7258" bgColor="#5B0E00" />
           <Header
             title={isEditing() ? "Edit Entry" : "Medication Taken"}
@@ -239,7 +239,7 @@ export default function Medication() {
               {isEditing() && (
                 <Button
                   onClick={() => setShowDeleteConfirmation(true)}
-                  class="bg-transparent shadow-none font-sf-pro font-medium text-base text-error hover:bg-transparent"
+                  class="bg-transparent shadow-none font-sf-pro font-medium text-base text-error hover:bg-transparent mb-4"
                 >
                   Delete Entry
                 </Button>
