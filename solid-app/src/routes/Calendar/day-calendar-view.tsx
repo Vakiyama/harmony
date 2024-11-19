@@ -272,7 +272,7 @@ const DayCalendarView = (props: {
                                 top,
                                 height,
                                 left,
-                                width: `calc(97vw - ${left} + 0px)`,
+                                width: `calc(97vw - ${left} + 1px)`,
                                 "z-index": getNestedLevel(event),
                               }}
                             >
