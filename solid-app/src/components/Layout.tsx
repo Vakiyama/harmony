@@ -69,9 +69,9 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
 
   return (
     <TeamContext.Provider value={contextValue}>
-      <div class="h-full">
+      <div class="h-full mt-28">
         {renderTopNav()}
-        <div class="h-full">{props.children}</div>
+        <div class="">{props.children}</div>
         {location.pathname.startsWith("/api") ||
         location.pathname.startsWith("/harmony-ai") ||
         location.pathname.startsWith("/team/create") ? null : (

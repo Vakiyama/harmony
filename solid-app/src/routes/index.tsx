@@ -25,11 +25,11 @@ export default function Index() {
     async ({ teamId }) => await getAllEvents(teamId, 3)
   );
   return (
-    <main class="h-screen overflow-hidden flex flex-col">
-      <section class="h-full mt-20">
+    <main class="h-screen overflow-y-auto flex flex-col m-4 gap-4">
+      <section class="h-full">
         <div class="flex flex-row items-center justify-between">
-          <h1 class="ml-4 text-2xl">Coming up</h1>
-          <p class="mr-4 text-neutral-600">see all</p>
+          <h2 class="text-h3 font-medium">Coming up</h2>
+          <p class="text-black">See all</p>
         </div>
         <div>
           <Show when={events()}>
@@ -41,10 +41,12 @@ export default function Index() {
           </Show>
         </div>
       </section>
-      <section>
-        <div class="flex flex-col">
-          <p class="text-2xl font-semibold mt-8 ml-4">While you were away...</p>
-          <LandingContent />
+      <section class="">
+        <div class="sticky top-24">
+          <div class="h-full flex flex-col overflow-hidden">
+            <p class="text-h3 font-medium">While you were away...</p>
+            <LandingContent />
+          </div>
         </div>
       </section>
     </main>
