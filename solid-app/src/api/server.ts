@@ -66,7 +66,7 @@ export async function loginOrRegister(kindeUser: UserTypeExtended) {
     if (!user) {
       user = await register(kindeUser);
     }
-    user && await seedData(user);
+    user && (await mightFail(seedData(user)));
     const session = (await sessionManager()).getSession();
     await session.update((d) => {
       d.userId = user.id;
