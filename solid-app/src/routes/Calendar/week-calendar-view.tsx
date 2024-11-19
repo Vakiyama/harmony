@@ -128,7 +128,7 @@ const WeekCalendarView = (props: {
           }}
         </For>
       </div>
-      <div class="flex justify-center pt-4 px-3">
+      <div class="flex justify-center pt-4 px-3 bg-white">
         <EventCalendarDisplay events={props.events} />
       </div>
     </div>

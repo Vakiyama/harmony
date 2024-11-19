@@ -61,7 +61,6 @@ export default function CalendarPage() {
       return console.error(eventError);
     }
     setTeamMembers(eventResult);
-    console.log(teamMembers());
   };
 
   return (

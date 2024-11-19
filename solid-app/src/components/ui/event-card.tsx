@@ -11,7 +11,7 @@ const EventCard = (props: {
   class?: string;
   style?: JSX.CSSProperties;
 }) => {
-  // temp
+  // temporary
   const teamId = 1;
   const navigate = useNavigate();
   const [response] = createResource(async () => {

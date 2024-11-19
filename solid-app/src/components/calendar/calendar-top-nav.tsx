@@ -23,7 +23,7 @@ export default function CalendarTopNav(props: {
     props.setSelectedYear(moment().year());
   };
   return (
-    <div class="sticky top-0 w-full flex flex-row h-[95px] bg-white shadow-md z-10">
+    <div class="sticky top-0 w-full flex flex-row h-[95px] bg-white shadow-md z-[100]">
       <div class="w-full flex flex-row justify-between items-end px-4 mb-4">
         <div class="flex flex-row gap-x-3 items-center justify-center">
           <A href="/" class="text-3xl">
