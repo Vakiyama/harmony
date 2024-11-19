@@ -46,10 +46,10 @@ export default function SleepTracker() {
     Omit<SleepWithNoteUser, "user" | "recipient"> | undefined
   >();
   const recipient = createAsync(
-    async () => await getRecipientName(parseInt(params.id)),
+    async () => await getRecipientName(parseInt(params.id))
   );
   const sleepData = createAsync(
-    async () => await getSleepById(parseInt(existingEntry)),
+    async () => await getSleepById(parseInt(existingEntry))
   );
   const recipientData = createMemo(() => recipient());
   createMemo(() => {
@@ -83,7 +83,7 @@ export default function SleepTracker() {
       setError("");
       formRef()?.reset();
       showNotification(
-        isEditing() ? "Sleep Entry Updated" : "Sleep Entry Posted",
+        isEditing() ? "Sleep Entry Updated" : "Sleep Entry Posted"
       );
       navigate(`/team/${params.id}/journal`);
     } else if (result.error) {
@@ -103,9 +103,9 @@ export default function SleepTracker() {
   };
 
   return (
-    <main class="w-full h-full p-4 flex flex-col items-center justify-center space-y-2">
-      <section class="mt-8 mb-8 flex flex-col w-full justify-center text-start">
-        <div class="flex flex-col items-center gap-1 mt-16">
+    <main class="w-full px-2 flex flex-col items-center justify-center mb-4">
+      <section class="flex flex-col w-full justify-center text-start">
+        <div class="flex flex-col items-center gap-1">
           <SleepIcon iconColor="#7F99DD" bgColor="#091E54" />
           <Header
             title={isEditing() ? "Edit Entry" : "Sleep"}

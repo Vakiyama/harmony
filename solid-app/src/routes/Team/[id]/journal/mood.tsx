@@ -103,16 +103,16 @@ export default function MoodTracker() {
   };
 
   return (
-    <main class="w-full h-full p-4 flex flex-col items-center justify-center space-y-2">
-      <section class="mt-8 mb-8 flex flex-col w-full justify-center text-start">
-        <div class="flex flex-col items-center gap-1 mt-16">
+    <main class="w-full px-2 flex flex-col items-center justify-center mb-4">
+      <section class="flex flex-col w-full justify-center text-start">
+        <div class="flex flex-col items-center gap-1 h-full">
           <MoodIcon iconColor="#FE83B0" bgColor="#761739" />
           <Header
             title={isEditing() ? "Edit Entry" : "Mood"}
             description="Keep track of daily moods to see how the day went."
           />
         </div>
-        <div class="flex flex-col mt-2 gap-2 w-full">
+        <div class="flex flex-col mt-2 gap-2 w-full h-full">
           <ShowError error={error()}></ShowError>
           <form
             ref={setFormRef}

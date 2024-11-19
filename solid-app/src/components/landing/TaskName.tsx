@@ -32,21 +32,25 @@ export function TaskName({ props }: { props: TaskProps }) {
   const { taskName, taskDescription, startTime, endTime, icon, colour } = props;
 
   return (
-    <div class={`mt-4 rounded-md ${colour ? colour : ""}  mx-4`}>
-      <div class="grid grid-cols-[auto_1fr_auto] items-center">
-        {/* icon */}
-        <div class="mx-4">{icon ? icon : null}</div>
+    <div class={`rounded-md ${colour ? colour : ""}`}>
+      <div class="flex flex-col gap-2 items-center">
+        <div class="flex flex-row items-center justify-between">
+          {/* icon */}
+          <div class="mx-4">{icon ? icon : null}</div>
 
-        {/* taskName and taskDescription */}
-        <div class="flex flex-col my-2">
-          <h1 class="text-md-[36px] font-semibold">{taskName}</h1>
-          <p class=" text-neutral-500 text-sm">{taskDescription}</p>
-        </div>
+          {/* taskName and taskDescription */}
+          <div class="flex flex-col my-2">
+            <h1 class="text-md-[36px] font-semibold">{taskName}</h1>
+            <p class=" text-neutral-500 text-sm">{taskDescription}</p>
+          </div>
 
-        {/* startTime and endTime */}
-        <div class="flex flex-col ml-8 py-2 mr-4 justify-end text-right">
-          <p class=" text-neutral-500 text-sm">{startTime ? startTime : ""}</p>
-          <p class=" text-neutral-500 text-sm">{endTime ? endTime : ""}</p>
+          {/* startTime and endTime */}
+          <div class="flex flex-col py-2 justify-end text-right">
+            <p class=" text-neutral-500 text-sm">
+              {startTime ? startTime : ""}
+            </p>
+            <p class=" text-neutral-500 text-sm">{endTime ? endTime : ""}</p>
+          </div>
         </div>
       </div>
     </div>
