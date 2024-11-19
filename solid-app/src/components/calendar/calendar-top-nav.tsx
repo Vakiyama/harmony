@@ -7,8 +7,8 @@ export default function CalendarTopNav(props: {
   isSideMenuOpen: Accessor<boolean>;
 }) {
   return (
-    <div class="sticky top-0 w-full flex flex-row h-[95px] bg-white shadow-md">
-      <div class="w-full flex flex-row justify-between items-end px-4 mb-4">
+    <div class="sticky top-0 w-full flex flex-row h-[84px] bg-white shadow-md">
+      <div class="w-full flex flex-row justify-between items-center px-4 mb-4 h-full">
         <div class="flex flex-row gap-x-3 items-center justify-center">
           <A href="/" class="text-3xl">
             {props.month()}
