@@ -27,7 +27,7 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
     refetchTrigger,
     setRefetchTrigger,
   };
-  const renderTopNav = () => {
+  const RenderTopNav = () => {
     if (location.pathname.startsWith(`/team/${params.id}/journal/`)) {
       return (
         <TopNav
@@ -68,7 +68,7 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
   return (
     <TeamContext.Provider value={contextValue}>
       <div class="h-full">
-        {renderTopNav()}
+        <RenderTopNav />
         <div class="h-full">{props.children}</div>
         {location.pathname.startsWith("/api") ||
         location.pathname.startsWith("/harmony-ai") ||
