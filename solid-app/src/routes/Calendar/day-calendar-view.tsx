@@ -244,12 +244,13 @@ const DayCalendarView = (props: {
                       top,
                       height,
                       width: "97%",
+                      left: "1vw",
                       "z-index": getNestedLevel(event),
                     }}
                   >
                     <EventCard
                       event={event}
-                      class="ml-[66px] h-full rounded-lg px-4 py-2 shadow-md"
+                      class="ml-[66px] h-full rounded-lg px-4 py-2"
                     />
                     {event.nestedEvents && event.nestedEvents.length > 0 && (
                       <For each={event.nestedEvents}>
@@ -266,12 +267,12 @@ const DayCalendarView = (props: {
                           );
                           return (
                             <div
-                              class={`absolute w-[calc(100%-3rem)] flex flex-col justify-between items-start`}
+                              class={`absolute w-[calc(100%-3rem)]`}
                               style={{
                                 top,
                                 height,
                                 left,
-                                width: `calc(90% - ${left} + 70px)`,
+                                width: `calc(97vw - ${left} + 0px)`,
                                 "z-index": getNestedLevel(event),
                               }}
                             >
