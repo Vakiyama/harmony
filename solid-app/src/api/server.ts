@@ -72,7 +72,7 @@ export async function loginOrRegister(kindeUser: UserTypeExtended) {
       d.userId = user.id;
     });
   } catch (err) {
-    // console.log(err);
+    console.error(err);
     return err as Error;
   }
 }
