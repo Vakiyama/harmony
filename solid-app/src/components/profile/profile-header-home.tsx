@@ -1,7 +1,7 @@
 export default function ProfileHeaderHome() {
   return (
     <>
-      <div class="w-full flex flex-row items-center justify-end h-[84px] p-2">
+      <div class="fixed top-0 w-full flex flex-row items-center justify-end h-[84px] p-2">
         <div class="flex flex-row space-x-3 items-center">
           {/* <div>
             <svg
@@ -17,7 +17,7 @@ export default function ProfileHeaderHome() {
               />
             </svg>
           </div> */}
-          <div>
+          <a href="/profile/settings">
             <svg
               width="37"
               height="32"
@@ -30,7 +30,7 @@ export default function ProfileHeaderHome() {
                 fill="black"
               />
             </svg>
-          </div>
+          </a>
         </div>
       </div>
     </>

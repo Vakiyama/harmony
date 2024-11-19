@@ -26,17 +26,21 @@ export default function TopNav(props: {
     backLocation = "/harmony-ai/chat";
   }
 
+  if (location.pathname.includes("/profile/settings")) {
+    backLocation = "/profile";
+  }
+
   return (
     <div
       class={twMerge(
-        "w-full flex flex-row h-[95px] bg-white fixed top-0",
-        props.class ? props.class : "",
+        "w-full flex flex-row min-h-[95px] bg-white fixed top-0",
+        props.class ? props.class : ""
       )}
     >
-      <div class="flex-1 flex justify-center mx-auto w-screen absolute h-full items-center z-0">
+      <div class="flex-1 flex justify-center mx-auto w-screen absolute h-full items-center">
         <h4 class="text-md">{props.name}</h4>
       </div>
-      <div class="w-screen flex flex-row px-4 mb-4 h-full items-center justify-between z-10">
+      <div class="w-screen flex flex-row px-4 mb-4 h-full items-center justify-between">
         <Show when={backLocation && props.leftNavigation}>
           <A href={backLocation!} class="flex items-center">
             {props.leftNavigation}
