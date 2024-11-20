@@ -25,13 +25,13 @@ export default function Index() {
     async ({ teamId }) => await getAllEvents(teamId, 3)
   );
   return (
-    <main class="h-screen overflow-y-auto flex flex-col m-4 gap-4">
-      <section class="h-full">
+    <main class="flex flex-col m-2 gap-4">
+      <section class="h-full flex flex-col gap-2">
         <div class="flex flex-row items-center justify-between">
           <h2 class="text-h3 font-medium">Coming up</h2>
           <p class="text-black">See all</p>
         </div>
-        <div>
+        <div class="flex flex-col gap-2">
           <Show when={events()}>
             <>
               {events()?.map((event, index) => {
@@ -42,11 +42,9 @@ export default function Index() {
         </div>
       </section>
       <section class="">
-        <div class="sticky top-24">
-          <div class="h-full flex flex-col overflow-hidden">
-            <p class="text-h3 font-medium">While you were away...</p>
-            <LandingContent />
-          </div>
+        <div class="h-full flex flex-col">
+          <p class="text-h3 font-medium">While you were away...</p>
+          <LandingContent />
         </div>
       </section>
     </main>

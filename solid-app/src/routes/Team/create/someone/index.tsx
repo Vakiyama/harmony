@@ -1,5 +1,5 @@
 import { useAction, useNavigate } from "@solidjs/router";
-import { createEffect, createSignal, For, Show } from "solid-js";
+import { createEffect, createSignal, Show } from "solid-js";
 import { useTeam } from "~/context/team-context";
 import { showNotification } from "~/routes/api/notificationStore";
 
@@ -44,7 +44,6 @@ export default function CreateSomeone() {
   const [error, setError] = createSignal<string | null>(null);
   const [isCreating, setIsCreating] = createSignal(false);
   const team = useTeam();
-  const navigate = useNavigate();
 
   const recipientAction = useAction(createRecipientAction);
 
@@ -63,7 +62,6 @@ export default function CreateSomeone() {
   };
 
   const handleSubmit = async (event?: MouseEvent) => {
-    // event.preventDefault();
     setIsCreating(true);
     try {
       // create recipient
@@ -147,8 +145,7 @@ export default function CreateSomeone() {
       showNotification("Created Team successfully");
       await new Promise((resolve) => setTimeout(resolve, 3000));
       team.resetForm();
-      //landing needs to rerender
-      window.location.href = "/landing";
+      window.location.href = "/";
     } catch (error) {
       console.error("Error creating team or recipient:", error);
       showNotification("Failed to create team or recipient");
@@ -167,101 +164,95 @@ export default function CreateSomeone() {
         rightAction={team.currentStep() === 10 ? handleSubmit : undefined}
         isCreating={isCreating()}
       />
-      <div>
-        <form onSubmit={(e) => e.preventDefault()} class="mt-24">
-          {/* step 1: team Name */}
-          <Show when={team.currentStep() === 1}>
-            <div class="relative flex flex-col min-h-screen mx-4">
-              <div class="flex items-center justify-center mt-2">
-                <p class="text-xs text-gray-400">2 of 8</p>
-              </div>
-              {/* Space */}
-              <div class="flex-grow"></div>
-              {/* pick person to care */}
-              <div class="px-2">
-                <p class="text-[23px] font-semi">
-                  Who is receiving care? <span class="text-red-500">*</span>
-                </p>
-                <TextFieldRoot class="space-y-2 mt-5">
-                  <TextField
-                    name="firstName"
-                    placeholder="Enter name"
-                    required
-                    onInput={(e) =>
-                      team.updateRecipientField(
-                        "firstName",
-                        e.currentTarget.value
-                      )
-                    }
-                    value={team.state.recipient.firstName}
-                  />
-                  {error() && <p class="text-red-500 text-sm">{error()}</p>}
-                </TextFieldRoot>
-                <Button
-                  type="button"
-                  onClick={handleNext}
-                  class="rounded-full w-full mt-4 bg-[#AE9BF2] text-black h-[50px]"
-                >
-                  Next
-                </Button>
-              </div>
-              {/* Space for bottom */}
-              <div class="h-[122px]"></div> {/* temporary */}
+      <form onSubmit={(e) => e.preventDefault()} class="h-full flex flex-col">
+        {/* step 1: team Name */}
+        <Show when={team.currentStep() === 1}>
+          <p class="flex justify-center text-subtitle13 text-stepsGray mt-3">
+            2 of 8
+          </p>
+          {/* pick person to care */}
+          <div class="flex items-center justify-end flex-col h-full mb-[46px] mx-3">
+            <div class="flex flex-col justify-end w-full">
+              <p class="text-[23px] font-medium font-grotesque leading-[120%]">
+                Who is receiving care? <span class="text-red-500">*</span>
+              </p>
+              <TextFieldRoot class="space-y-2 mt-3 text-base">
+                <TextField
+                  name="firstName"
+                  placeholder="Name"
+                  required
+                  onInput={(e) =>
+                    team.updateRecipientField(
+                      "firstName",
+                      e.currentTarget.value
+                    )
+                  }
+                  value={team.state.recipient.firstName}
+                />
+                {error() && <p class="text-red-500 text-sm">{error()}</p>}
+              </TextFieldRoot>
+              <Button
+                type="button"
+                onClick={handleNext}
+                class="rounded-full w-full mt-4 bg-primary-purple-300 text-black text-base h-12"
+              >
+                Next
+              </Button>
             </div>
-          </Show>
+          </div>
+        </Show>
 
-          {/* step 2: upload photo */}
-          <Show when={team.currentStep() === 2}>
-            <UploadPhoto />
-          </Show>
+        {/* step 2: upload photo */}
+        <Show when={team.currentStep() === 2}>
+          <UploadPhoto />
+        </Show>
 
-          {/* step 3: phoneNumber, email */}
-          <Show when={team.currentStep() === 3}>
-            <UserInfo1 />
-          </Show>
+        {/* step 3: phoneNumber, email */}
+        <Show when={team.currentStep() === 3}>
+          <UserInfo1 />
+        </Show>
 
-          {/* step 4: userInfo2 */}
-          <Show when={team.currentStep() === 4}>
-            <UserInfo2 />
-          </Show>
+        {/* step 4: userInfo2 */}
+        <Show when={team.currentStep() === 4}>
+          <UserInfo2 />
+        </Show>
 
-          {/* step 5: userHealth1 */}
-          <Show when={team.currentStep() === 5}>
-            <UserHealth1 />
-          </Show>
+        {/* step 5: userHealth1 */}
+        <Show when={team.currentStep() === 5}>
+          <UserHealth1 />
+        </Show>
 
-          {/* step 6: userHealth2 */}
-          <Show when={team.currentStep() === 6}>
-            <UserHealth2 />
-          </Show>
+        {/* step 6: userHealth2 */}
+        <Show when={team.currentStep() === 6}>
+          <UserHealth2 />
+        </Show>
 
-          {/* step 7: addMed */}
-          <Show when={team.currentStep() === 7}>
-            <AddMedication />
-          </Show>
+        {/* step 7: addMed */}
+        <Show when={team.currentStep() === 7}>
+          <AddMedication />
+        </Show>
 
-          {/* step 8: specify the role */}
-          <Show when={team.currentStep() === 8}>
-            <UserRole />
-          </Show>
+        {/* step 8: specify the role */}
+        <Show when={team.currentStep() === 8}>
+          <UserRole />
+        </Show>
 
-          {/* step 9: team Name */}
-          <Show when={team.currentStep() === 9}>
-            <TeamUserRole />
-          </Show>
-          {/* step 10: review */}
-          <Show when={team.currentStep() === 10}>
-            <ReviewTeamInfo />
-          </Show>
-        </form>
+        {/* step 9: team Name */}
+        <Show when={team.currentStep() === 9}>
+          <TeamUserRole />
+        </Show>
+        {/* step 10: review */}
+        <Show when={team.currentStep() === 10}>
+          <ReviewTeamInfo />
+        </Show>
+      </form>
 
-        {isNotificationVisible() && (
-          <Notification
-            title={notificationMessage()}
-            onClose={hideNotification}
-          />
-        )}
-      </div>
+      {isNotificationVisible() && (
+        <Notification
+          title={notificationMessage()}
+          onClose={hideNotification}
+        />
+      )}
     </>
   );
 }

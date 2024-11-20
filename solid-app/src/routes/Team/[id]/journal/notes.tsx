@@ -94,9 +94,9 @@ export default function CreateNote() {
 
   return (
     <>
-      <main class="w-full h-full p-4 flex flex-col items-center justify-center space-y-2">
-        <section class="mt-8 mb-8 flex flex-col w-full justify-center text-start">
-          <div class="flex flex-col items-center gap-1 mt-16">
+      <main class="flex flex-col items-center justify-center mb-4 mx-2">
+        <section class="flex flex-col w-full justify-center text-start">
+          <div class="flex flex-col items-center gap-1">
             <NotesIcon iconColor="#F7D844" bgColor="#4E412B" />
             <Header
               title={isEditing() ? "Edit Entry" : "Note"}

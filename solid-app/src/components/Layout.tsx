@@ -69,14 +69,28 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
 
   return (
     <TeamContext.Provider value={contextValue}>
-      <div class="h-full mt-28">
-        {renderTopNav()}
-        <div class="">{props.children}</div>
-        {location.pathname.startsWith("/api") ||
-        location.pathname.startsWith("/harmony-ai") ||
-        location.pathname.startsWith("/team/create") ? null : (
-          <NavBar teamData={teamListData()} />
-        )}
+      <div class="flex flex-col h-screen w-screen overflow-hidden">
+        <div class="flex-none h-[104px]">{renderTopNav()}</div>
+        <div
+          class={`flex-grow overflow-y-auto ${
+            location.pathname.startsWith(`/team/${params.id}/journal/`) ||
+            location.pathname.startsWith(`/harmony-ai`) ||
+            location.pathname.startsWith(`/team/create`) ||
+            location.pathname.startsWith(`/api/auth`)
+              ? ""
+              : "mb-20"
+          }`}
+        >
+          {props.children}
+        </div>
+
+        <div class="flex-none max-h-[77px] bg-transparent">
+          {location.pathname.startsWith("/api") ||
+          location.pathname.startsWith("/harmony-ai") ||
+          location.pathname.startsWith("/team/create") ? null : (
+            <NavBar teamData={teamListData()} />
+          )}
+        </div>
       </div>
     </TeamContext.Provider>
   );
