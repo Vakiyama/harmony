@@ -121,9 +121,7 @@ export default function AddMedication() {
       </Show>
 
       <Show when={showMedicationForm()}>
-        <div class="fixed inset-0">
-          <MedicationDetails onMedicationAdded={handleMedicationAdded} />
-        </div>
+        <MedicationDetails onMedicationAdded={handleMedicationAdded} />
       </Show>
     </>
   );
