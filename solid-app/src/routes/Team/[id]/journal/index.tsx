@@ -29,7 +29,7 @@ export default function Journal() {
   return (
     <MetaProvider>
       <div class="flex flex-col w-full text-start h-full">
-        <div class="w-full flex flex-col gap-2 mt-20 overflow-hidden">
+        <div class="fixed h-full w-full flex flex-col gap-2 overflow-hidden">
           <div class="flex flex-row justify-between items-center mx-2">
             <h2 class="font-medium text-[24px]">Journal Entry</h2>
             <button

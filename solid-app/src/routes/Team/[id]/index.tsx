@@ -1,14 +1,8 @@
 import { createAsync, useParams } from "@solidjs/router";
 import { createMemo, Show } from "solid-js";
 import { getTeamFromTeamId } from "~/api/team";
-import GeneralInfo from "~/components/profile/general-info";
 import ProfileTeamContent from "~/components/profile/profile-team-content";
-import ProfileTeamTab from "~/components/profile/profile-team-content";
 import ProfileUserName from "~/components/profile/profile-user-name";
-import TeamHeader from "~/components/profile/team-header";
-import TeamTab from "~/components/profile/team-tab";
-import TeamMenuBar from "~/components/profile/team-tab";
-import TeamNav from "~/components/profile/team-tab";
 import TopNav from "~/components/shared/TopNav";
 
 export default function SpecificTeamInfo() {

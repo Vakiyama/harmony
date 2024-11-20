@@ -91,7 +91,7 @@ export async function getUser() {
     return redirect("/api/auth/landing");
   }
   const [error, user] = await mightFail(
-    db.select().from(users).where(eq(users.id, userId)).get(),
+    db.select().from(users).where(eq(users.id, userId)).get()
   );
   if (error) {
     console.error(error);
@@ -109,13 +109,13 @@ class UpdateUserError {
 }
 
 export async function updateUser(
-  user: Partial<InferInsertModel<typeof users>>,
+  user: Partial<InferInsertModel<typeof users>>
 ) {
   const userId = await getUserIdFromSession();
   if (!userId) return;
 
   const [error, result] = await mightFail(
-    db.update(users).set(user).where(eq(users.id, userId)),
+    db.update(users).set(user).where(eq(users.id, userId))
   );
 
   if (error) {

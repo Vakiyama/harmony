@@ -7,10 +7,6 @@ import "./input.css";
 import Layout from "./components/Layout";
 import { MetaProvider } from "@solidjs/meta";
 import RootWrapper from "./components/shared/root-wrapper";
-import {
-  BottomNavContext,
-  BottomNavProvider,
-} from "./context/bottom-nav-provider";
 import { TeamProvider } from "./context/team-context";
 
 export default function App() {

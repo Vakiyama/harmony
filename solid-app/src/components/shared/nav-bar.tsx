@@ -34,14 +34,14 @@ export default function NavBar(props: {
 
   createEffect(() => {
     const defaultTeam = props.teamData?.find(
-      (team) => team.team.defaultTeam === true,
+      (team) => team.team.defaultTeam === true
     );
     setTeamId(defaultTeam?.team.id || undefined);
   });
 
   const routes = createMemo(() => {
     return [
-      { icon: <HomeIcon />, label: "Home", href: "/landing" },
+      { icon: <HomeIcon />, label: "Home", href: "/" },
       { icon: <CalendarIcon />, label: "Calendar", href: "/calendar" },
       {
         icon: <HarmonyIcon />,
@@ -70,7 +70,7 @@ export default function NavBar(props: {
           currentPath().includes(`/team/${params.id}/journal/`) ||
           currentPath().includes(`/calendar/create`)
           ? "hidden"
-          : "",
+          : ""
       )}
     >
       <div class="max-w-screen-lg mx-auto px-4">
