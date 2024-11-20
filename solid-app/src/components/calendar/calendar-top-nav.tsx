@@ -1,19 +1,38 @@
 import { A } from "@solidjs/router";
+import moment from "moment";
 import { Accessor, Setter } from "solid-js";
 
 export default function CalendarTopNav(props: {
   month: Accessor<string>;
   setIsSideMenuOpen: Setter<boolean>;
   isSideMenuOpen: Accessor<boolean>;
+  setCurrentDay: Setter<number>;
+  setCurrentMonth: Setter<string>;
+  setCurrentYear: Setter<number>;
+  setSelectedDay: Setter<number>;
+  setSelectedMonth: Setter<string>;
+  setSelectedYear: Setter<number>;
+  setIsCalendarOpen: Setter<boolean>;
+  isCalendarOpen: Accessor<boolean>;
 }) {
+  const handleReturnToToday = () => {
+    props.setCurrentDay(moment().date());
+    props.setCurrentMonth(moment().format("MMMM"));
+    props.setCurrentYear(moment().year());
+
+    props.setSelectedDay(moment().date());
+    props.setSelectedMonth(moment().format("MMMM"));
+    props.setSelectedYear(moment().year());
+  };
   return (
-    <div class="fixed top-0 w-full flex flex-row h-[104px] bg-white">
-      <div class="w-full flex flex-row justify-between items-end px-4">
-        {/* Left section: Month and dropdown */}
-        <div class="flex flex-row gap-x-3 items-center">
-          <A href="/" class="text-h2 font-medium">
-            {props.month()}
-          </A>
+    <div class="fixed top-0 w-full flex flex-row h-[110px] bg-white shadow-md">
+      {/* Left section: Month and dropdown */}
+      <div class="w-full flex flex-row justify-between items-end px-4 mb-4 h-full">
+        <div
+          class="flex flex-row gap-x-3 items-center justify-center pb-[9px] cursor-pointer"
+          onclick={() => props.setIsCalendarOpen(!props.isCalendarOpen())}
+        >
+          <button class="text-3xl">{props.month()}</button>
           <svg
             width="15"
             height="8"
@@ -41,7 +60,15 @@ export default function CalendarTopNav(props: {
         </div>
 
         {/* Right section: Icons */}
-        <div class="flex flex-row items-center py-2 gap-x-6">
+        <div class="flex flex-row items-center py-2 gap-x-6 pb-[9px]">
+          <button
+            class="w-5 h-5 border-2 rounded-sm border-black flex flex-col align-center justify-center"
+            onClick={handleReturnToToday}
+          >
+            <p class="text-subtitle13 w-full font-grotesque">
+              {moment().date()}
+            </p>
+          </button>
           <A href="/" class="text-md">
             {/* Search icon */}
             <svg

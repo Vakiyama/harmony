@@ -67,7 +67,7 @@ export default function SelectMultipleInput<T>(props: {
           }}
         </SelectValue>
       </SelectTrigger>
-      {/* temp fix z pls (if select is in modal, options dont show) */}
+      {/* temporary fix z pls (if select is in modal, options dont show) */}
       <SelectContent class="z-[10000]" />
     </Select>
   );

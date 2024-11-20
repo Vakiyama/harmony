@@ -3,10 +3,12 @@ import { AlarmInput, alarms } from "../../drizzle/schema/Alarms";
 import { CalendarInput, calendars } from "../../drizzle/schema/Calendars";
 import { EventInput, events } from "../../drizzle/schema/Events";
 import { db } from "./db";
-import { and, eq } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { TeamMember, teamMembers } from "../../drizzle/schema/TeamMembers";
 import { User, users } from "../../drizzle/schema/Users";
 import { eventParticipants } from "../../drizzle/schema/EventParticipants";
+import { getUserIdFromSession } from "./server";
+import { isMemberOfTeam } from "./dbHelper";
 
 // Alarms
 export const getAlarmsByEventId = cache(async (eventId: number) => {
@@ -99,6 +101,82 @@ export const getAllEvents = async (calendarId: number, limit?: number) => {
     query.limit(limit);
   }
   return await query.execute();
+};
+
+export const getCalendarData = async (props: {
+  teamId: number;
+  page?: number;
+  pageSize?: number;
+  filters?: {
+    task?: boolean;
+    event?: boolean;
+    complete?: boolean;
+    uncomplete?: boolean;
+  };
+}) => {
+  "use server";
+  const userId = await getUserIdFromSession();
+  if (userId === undefined) {
+    return { error: "User is not Authenticated" };
+  }
+  const isMember = await isMemberOfTeam(userId, props.teamId);
+  if (!isMember) {
+    return { error: "Insufficient Permissions" };
+  }
+  console.log(props.filters);
+  // Set default values
+  props.page = props.page ? props.page : 1;
+  props.pageSize = props.pageSize ? props.pageSize : 10;
+  props.filters = props.filters
+    ? props.filters
+    : { task: true, event: true, complete: true, uncomplete: true };
+
+  const offset = (props.page - 1) * props.pageSize;
+  const conditions: any[] = [];
+  // Start with the base query and make it dynamic
+  let query = db
+    .select({
+      event: events,
+      users: users,
+    })
+    .from(events)
+    .leftJoin(eventParticipants, eq(eventParticipants.eventId, events.id))
+    .leftJoin(users, eq(users.id, eventParticipants.userId))
+    .$dynamic();
+
+  // Add type filters dynamically
+  if (props.filters.task && props.filters.event) {
+    console.log("both");
+    conditions.push(or(eq(events.type, "task"), eq(events.type, "event")));
+  } else if (props.filters.task) {
+    console.log("tasks only");
+    conditions.push(eq(events.type, "task"));
+  } else if (props.filters.event) {
+    console.log("events only");
+    conditions.push(eq(events.type, "event"));
+  }
+
+  // Add completion status filters dynamically
+  if (props.filters.complete && props.filters.uncomplete) {
+    conditions.push(or(eq(events.complete, true), eq(events.complete, false)));
+  } else if (props.filters.complete) {
+    conditions.push(eq(events.complete, true));
+  } else if (props.filters.uncomplete) {
+    conditions.push(eq(events.complete, false));
+  }
+
+  // Apply pagination
+  query = query.limit(props.pageSize).offset(offset);
+
+  // Execute the query
+  try {
+    const result = await query.where(and(...conditions));
+    console.log("this", result);
+    return result;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 };
 
 export const getEvent = cache(async (eventId: number) => {
