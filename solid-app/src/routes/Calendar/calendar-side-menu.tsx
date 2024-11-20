@@ -37,7 +37,7 @@ const DEFAULT_FILTERS: CalendarFilterType[] = [
 ];
 
 const CalendarSideMenu = (props: {
-  refetchData: () => void;
+  refetchData: () => Promise<void>;
   setIsSideMenuOpen: Setter<boolean>;
   teamMembers: Accessor<{ users: User; teammembers: TeamMember }[]>;
   params: Accessor<SetSearchParams>;
@@ -50,9 +50,6 @@ const CalendarSideMenu = (props: {
 
   setCurrentView: Setter<"day" | "week" | "month">;
 }) => {
-  const DEFAULT_TEAMMEMBERS = props
-    .teamMembers()
-    .map((t) => t.users.id.toString());
   const [searchParams, setSearchParams] = useSearchParams();
   const [isPeopleOpen, setIsPeopleOpen] = createSignal(false);
   const [isCalendarOpen, setIsCalendarOpen] = createSignal(false);
@@ -67,12 +64,13 @@ const CalendarSideMenu = (props: {
     await props.refetchData();
   };
 
-  const updateSelected = (newSelected: string) => {
+  const updateSelected = async (newSelected: string) => {
     props.setSearchParams(
       { ...props.searchParams, selected: newSelected },
       { replace: true }
     );
     props.setParams({ ...props.searchParams, selected: newSelected });
+    await props.refetchData();
   };
 
   const getSelectedFilters = () => {
@@ -116,7 +114,7 @@ const CalendarSideMenu = (props: {
     }
 
     batch(() => {
-      setSearchParams({ selected: newSelected.join(",") });
+      updateSelected(newSelected.join(","));
     });
   };
 

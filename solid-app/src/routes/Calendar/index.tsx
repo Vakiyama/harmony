@@ -100,8 +100,6 @@ export default function CalendarPage() {
 
   // for testing, whenever resources is reloaded (which is refetched based on the params)
   createEffect(async () => {
-    console.log(searchParams.filters);
-    console.log(searchParams.selected);
     console.log(resource(), "hello?");
   }, [resource()]);
 
