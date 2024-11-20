@@ -14,7 +14,7 @@ export default function Settings() {
                 <button
                   name="logout"
                   type="submit"
-                  class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg"
+                  class="w-[366px] bg-primary-purple-400 hover:bg-primary-purple-300 text-white font-medium text-h4 py-2 px-4 rounded-lg"
                 >
                   Logout
                 </button>
