@@ -23,7 +23,7 @@ export default function UploadPhoto() {
         <div class="border-[1px] border-photoBoxGray w-full h-[310px] rounded-[8px] mt-6 flex flex-col justify-center ">
           <label
             for="photo-upload"
-            class="flex flex-col items-center justify-center"
+            class="flex flex-col h-full items-center justify-center"
           >
             <input
               id="photo-upload"
