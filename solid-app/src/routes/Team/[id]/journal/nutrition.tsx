@@ -103,7 +103,7 @@ export default function NutritionTracker() {
   };
 
   return (
-    <main class="w-full px-2 flex flex-col items-center justify-center mb-4">
+    <main class="mx-2 flex flex-col items-center justify-center mb-4">
       <section class="flex flex-col w-full justify-center text-start">
         <div class="flex flex-col items-center gap-1">
           <NutritionIcon iconColor="#6FC94F" bgColor="#19370E" />

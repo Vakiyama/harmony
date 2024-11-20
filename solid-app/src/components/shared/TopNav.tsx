@@ -37,22 +37,29 @@ export default function TopNav(props: {
         props.class ? props.class : ""
       )}
     >
-      <Show when={props.name}>
-        <div class="flex-1 flex justify-center mx-auto w-screen absolute h-full items-center">
-          <h4 class="text-md">{props.name}</h4>
+      <div class="w-full flex flex-row px-4 h-full items-center">
+        {/* Left column */}
+        <div class="flex-1">
+          {backLocation && props.leftNavigation ? (
+            <A href={backLocation} class="flex items-center">
+              {props.leftNavigation}
+            </A>
+          ) : null}
         </div>
-      </Show>
-      <div class="w-full flex flex-row px-4 h-full items-center justify-between">
-        <Show when={backLocation && props.leftNavigation}>
-          <A href={backLocation!} class="flex items-center">
-            {props.leftNavigation}
-          </A>
-        </Show>
-        <Show when={props.rightNavigation}>
-          <A href="/" class="text-md">
-            {props.rightNavigation}
-          </A>
-        </Show>
+
+        {/* Center column */}
+        <div class="flex-1 flex justify-center items-center">
+          {props.name ? <h4 class="text-md">{props.name}</h4> : null}
+        </div>
+
+        {/* Right column */}
+        <div class="flex-1 flex justify-end">
+          {props.rightNavigation ? (
+            <A href="/" class="text-md">
+              {props.rightNavigation}
+            </A>
+          ) : null}
+        </div>
       </div>
     </div>
   );

@@ -26,12 +26,12 @@ export default function Index() {
   );
   return (
     <main class="flex flex-col m-4 gap-4">
-      <section class="h-full">
+      <section class="h-full flex flex-col gap-2">
         <div class="flex flex-row items-center justify-between">
           <h2 class="text-h3 font-medium">Coming up</h2>
           <p class="text-black">See all</p>
         </div>
-        <div>
+        <div class="flex flex-col gap-2">
           <Show when={events()}>
             <>
               {events()?.map((event, index) => {

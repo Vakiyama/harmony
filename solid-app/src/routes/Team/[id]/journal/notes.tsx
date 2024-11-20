@@ -94,7 +94,7 @@ export default function CreateNote() {
 
   return (
     <>
-      <main class="w-full px-2 flex flex-col items-center justify-center mb-4">
+      <main class="flex flex-col items-center justify-center mb-4 mx-2">
         <section class="flex flex-col w-full justify-center text-start">
           <div class="flex flex-col items-center gap-1">
             <NotesIcon iconColor="#F7D844" bgColor="#4E412B" />

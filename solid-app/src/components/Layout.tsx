@@ -73,7 +73,8 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
         <div class="flex-none h-[104px]">{renderTopNav()}</div>
         <div
           class={`flex-grow overflow-y-auto ${
-            location.pathname.startsWith(`/team/${params.id}/journal/`)
+            location.pathname.startsWith(`/team/${params.id}/journal/`) ||
+            location.pathname.startsWith(`/harmony-ai`)
               ? ""
               : "mb-20"
           }`}
