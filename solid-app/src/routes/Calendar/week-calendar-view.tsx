@@ -1,7 +1,7 @@
 import { Accessor, createSignal, For, Setter, Show } from "solid-js";
 import moment from "moment";
 import { Event } from "@/schema/Events";
-import EventCalendarDisplay from "./EventCalendarDisplay";
+import EventCalendarDisplay from "./event-calendar-display";
 
 const WeekCalendarView = (props: {
   selectedDay: Accessor<number>;
@@ -15,6 +15,7 @@ const WeekCalendarView = (props: {
   currentYear: Accessor<number>;
   setCurrentYear: Setter<number>;
   events: Accessor<Event[]>;
+  isCalendarOpen: Accessor<boolean>;
 }) => {
   const weekdays = moment.weekdaysMin();
 
@@ -92,46 +93,50 @@ const WeekCalendarView = (props: {
   };
 
   return (
-    <div
-      class="bg-[#F2F2F2]"
-      ontouchstart={handleTouchStart}
-      ontouchend={handleTouchEnd}
-    >
-      <div class="grid grid-cols-7 text-center text-lg font-medium text-[#00000080] mb-1">
-        <For each={weekdays}>
-          {(weekDayName) => <div class="py-2">{weekDayName}</div>}
-        </For>
-      </div>
-      <div class="grid grid-cols-7 pb-3">
-        <For each={daysWithDates()}>
-          {(dayInfo) => {
-            return (
-              <div class="relative pb-2">
-                <div
-                  role="button"
-                  onClick={() => handleSelectDay(dayInfo)}
-                  class={`flex items-center justify-center w-7 h-7 mx-auto cursor-pointer ${
-                    parseInt(dayInfo.day) === props.selectedDay() &&
-                    dayInfo.month === props.selectedMonth() &&
-                    dayInfo.year === props.selectedYear()
-                      ? "bg-[#7859ea] text-white"
-                      : "text-[#5d5d5d]"
-                  } rounded-full`}
-                >
-                  {dayInfo.day}
-                </div>
-                <Show when={hasEventsOnDay(dayInfo)}>
-                  <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full aspect-square h-2 bg-[#9b82f3]" />
-                </Show>
-              </div>
-            );
-          }}
-        </For>
-      </div>
+    <>
+      <Show when={props.isCalendarOpen()}>
+        <div
+          class="bg-[#F2F2F2]"
+          ontouchstart={handleTouchStart}
+          ontouchend={handleTouchEnd}
+        >
+          <div class="grid grid-cols-7 text-center text-lg font-medium text-[#00000080] mb-1">
+            <For each={weekdays}>
+              {(weekDayName) => <div class="py-2">{weekDayName}</div>}
+            </For>
+          </div>
+          <div class="grid grid-cols-7 pb-3">
+            <For each={daysWithDates()}>
+              {(dayInfo) => {
+                return (
+                  <div class="relative pb-2">
+                    <div
+                      role="button"
+                      onClick={() => handleSelectDay(dayInfo)}
+                      class={`flex items-center justify-center w-7 h-7 mx-auto cursor-pointer ${
+                        parseInt(dayInfo.day) === props.selectedDay() &&
+                        dayInfo.month === props.selectedMonth() &&
+                        dayInfo.year === props.selectedYear()
+                          ? "bg-[#7859ea] text-white"
+                          : "text-[#5d5d5d]"
+                      } rounded-full`}
+                    >
+                      {dayInfo.day}
+                    </div>
+                    <Show when={hasEventsOnDay(dayInfo)}>
+                      <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full aspect-square h-2 bg-[#9b82f3]" />
+                    </Show>
+                  </div>
+                );
+              }}
+            </For>
+          </div>
+        </div>
+      </Show>
       <div class="flex justify-center pt-4 px-3 bg-white">
         <EventCalendarDisplay events={props.events} />
       </div>
-    </div>
+    </>
   );
 };
 

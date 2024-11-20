@@ -12,6 +12,8 @@ export default function CalendarTopNav(props: {
   setSelectedDay: Setter<number>;
   setSelectedMonth: Setter<string>;
   setSelectedYear: Setter<number>;
+  setIsCalendarOpen: Setter<boolean>;
+  isCalendarOpen: Accessor<boolean>;
 }) {
   const handleReturnToToday = () => {
     props.setCurrentDay(moment().date());
@@ -23,12 +25,13 @@ export default function CalendarTopNav(props: {
     props.setSelectedYear(moment().year());
   };
   return (
-    <div class="fixed top-0 w-full flex flex-row h-[84px] bg-white shadow-md">
-      <div class="w-full flex flex-row justify-between items-center px-4 mb-4 h-full">
-        <div class="flex flex-row gap-x-3 items-center justify-center">
-          <A href="/" class="text-3xl">
-            {props.month()}
-          </A>
+    <div class="fixed top-0 w-full flex flex-row h-[110px] bg-white shadow-md">
+      <div class="w-full flex flex-row justify-between items-end px-4 mb-4 h-full">
+        <div
+          class="flex flex-row gap-x-3 items-center justify-center pb-[9px] cursor-pointer"
+          onclick={() => props.setIsCalendarOpen(!props.isCalendarOpen())}
+        >
+          <button class="text-3xl">{props.month()}</button>
           <svg
             width="15"
             height="8"
@@ -54,7 +57,7 @@ export default function CalendarTopNav(props: {
             </defs>
           </svg>
         </div>
-        <div class="flex justify-end gap-x-6">
+        <div class="flex justify-end gap-x-6 pb-[9px]">
           <button
             class="w-5 h-5 border-2 rounded-sm border-black flex flex-col align-center justify-center"
             onClick={handleReturnToToday}

@@ -3,10 +3,9 @@ import { mightFail } from "might-fail";
 import type { Event } from "@/schema/Events";
 import { getAllEvents, getTeamMembersFromTeamId } from "~/api/calendar";
 import moment from "moment";
-import CalendarView from "./CalendarView";
+import MonthCalendarView from "./month-calendar-view";
 import WeekCalendarView from "./week-calendar-view";
-import CalendarSideMenu from "./CalendarSideMenu";
-import EventCalendarDisplay from "./EventCalendarDisplay";
+import CalendarSideMenu from "./calendar-side-menu";
 import CalendarTopNav from "~/components/calendar/calendar-top-nav";
 import { User } from "@/schema/Users";
 import { TeamMember } from "@/schema/TeamMembers";
@@ -28,7 +27,7 @@ export default function CalendarPage() {
   const calendarId = 1;
   const [events, setEvents] = createSignal<Event[]>([]);
   const [currentView, setCurrentView] = createSignal<"day" | "week" | "month">(
-    "day"
+    "week"
   );
   const [teamMembers, setTeamMembers] = createSignal<
     { users: User; teammembers: TeamMember }[]
@@ -46,6 +45,7 @@ export default function CalendarPage() {
     await fetchTeamMembers(teamId);
   });
   const [isSideMenuOpen, setIsSideMenuOpen] = createSignal(false);
+  const [isCalendarOpen, setIsCalendarOpen] = createSignal(true);
   const fetchEvents = async (calendarId: number) => {
     const [eventError, eventResult] = await mightFail(getAllEvents(calendarId));
     if (eventError) {
@@ -82,9 +82,11 @@ export default function CalendarPage() {
         setSelectedDay={setSelectedDay}
         setSelectedMonth={setSelectedMonth}
         setSelectedYear={setSelectedYear}
+        setIsCalendarOpen={setIsCalendarOpen}
+        isCalendarOpen={isCalendarOpen}
       />
       <Show when={currentView() === "month"}>
-        <CalendarView
+        <MonthCalendarView
           selectedYear={selectedYear}
           setSelectedYear={setSelectedYear}
           selectedMonth={selectedMonth}
@@ -92,6 +94,7 @@ export default function CalendarPage() {
           selectedDay={selectedDay}
           setSelectedDay={setSelectedDay}
           events={events}
+          isCalendarOpen={isCalendarOpen}
         />
       </Show>
       <Show when={currentView() === "week"}>
@@ -107,6 +110,7 @@ export default function CalendarPage() {
           setCurrentMonth={setCurrentMonth}
           setCurrentYear={setCurrentYear}
           events={events}
+          isCalendarOpen={isCalendarOpen}
         />
       </Show>
       <Show when={currentView() === "day"}>
@@ -123,6 +127,7 @@ export default function CalendarPage() {
           currentMonth={currentMonth}
           currentYear={currentYear}
           events={events}
+          isCalendarOpen={isCalendarOpen}
         />
       </Show>
     </div>

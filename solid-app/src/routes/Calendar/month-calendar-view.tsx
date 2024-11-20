@@ -1,7 +1,7 @@
 import { Accessor, createSignal, For, Setter, Show } from "solid-js";
 import moment from "moment";
 import { Event } from "@/schema/Events";
-import EventCalendarDisplay from "./EventCalendarDisplay";
+import EventCalendarDisplay from "./event-calendar-display";
 
 const CalendarView = (props: {
   selectedMonth: Accessor<string>;
@@ -11,6 +11,7 @@ const CalendarView = (props: {
   selectedYear: Accessor<number>;
   setSelectedYear: Setter<number>;
   events: Accessor<Event[]>;
+  isCalendarOpen: Accessor<boolean>;
 }) => {
   const weekdays = moment.weekdaysMin();
   const months = moment.months();
@@ -77,47 +78,49 @@ const CalendarView = (props: {
 
   return (
     <>
-      <div
-        class="bg-[#F2F2F2] pt-4 pb-1"
-        ontouchstart={handleTouchStart}
-        ontouchend={handleTouchEnd}
-      >
-        <div class="mb-6">
-          <div class="grid grid-cols-7 text-center text-lg font-medium text-[#00000080]  mb-1">
-            <For each={weekdays}>
-              {(weekDayName) => <div class="py-2">{weekDayName}</div>}
+      <Show when={props.isCalendarOpen()}>
+        <div
+          class="bg-[#F2F2F2] pt-4 pb-1"
+          ontouchstart={handleTouchStart}
+          ontouchend={handleTouchEnd}
+        >
+          <div class="mb-6">
+            <div class="grid grid-cols-7 text-center text-lg font-medium text-[#00000080]  mb-1">
+              <For each={weekdays}>
+                {(weekDayName) => <div class="py-2">{weekDayName}</div>}
+              </For>
+            </div>
+
+            <For each={fullYear[props.selectedMonth()]}>
+              {(days) => (
+                <Show when={days[0] || days[6]}>
+                  <div class="grid grid-cols-7">
+                    <For each={days}>
+                      {(day) => {
+                        return (
+                          <div
+                            role="button"
+                            onClick={() => handleSelectDay(day)}
+                            class={`flex items-center justify-center w-10 h-10 mx-auto cursor-pointer ${
+                              parseInt(day) === props.selectedDay() &&
+                              currentMonth() === props.selectedMonth() &&
+                              currentYear() === props.selectedYear()
+                                ? "bg-[#7859ea] text-white"
+                                : "text-[#5d5d5d]"
+                            } rounded-full`}
+                          >
+                            {day}
+                          </div>
+                        );
+                      }}
+                    </For>
+                  </div>
+                </Show>
+              )}
             </For>
           </div>
-
-          <For each={fullYear[props.selectedMonth()]}>
-            {(days) => (
-              <Show when={days[0] || days[6]}>
-                <div class="grid grid-cols-7">
-                  <For each={days}>
-                    {(day) => {
-                      return (
-                        <div
-                          role="button"
-                          onClick={() => handleSelectDay(day)}
-                          class={`flex items-center justify-center w-10 h-10 mx-auto cursor-pointer ${
-                            parseInt(day) === props.selectedDay() &&
-                            currentMonth() === props.selectedMonth() &&
-                            currentYear() === props.selectedYear()
-                              ? "bg-[#7859ea] text-white"
-                              : "text-[#5d5d5d]"
-                          } rounded-full`}
-                        >
-                          {day}
-                        </div>
-                      );
-                    }}
-                  </For>
-                </div>
-              </Show>
-            )}
-          </For>
         </div>
-      </div>
+      </Show>
       <div class="flex justify-center pt-4 px-3 bg-white">
         <EventCalendarDisplay events={props.events} />
       </div>

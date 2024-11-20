@@ -25,6 +25,7 @@ const DayCalendarView = (props: {
   currentMonth: Accessor<string>;
   currentYear: Accessor<number>;
   events: Accessor<Event[]>;
+  isCalendarOpen: Accessor<boolean>;
 }) => {
   const [startX, setStartX] = createSignal(0);
   const getFormattedDate = () => {
@@ -205,13 +206,15 @@ const DayCalendarView = (props: {
   return (
     <>
       <div class="flex flex-col p-4 h-full">
-        <div
-          class="text-lg font-medium z-10 text-black fixed w-full bg-[#F2F2F2] border-y-1 border-black15 -ml-5 -mt-5 flex flex-col align-center"
-          ontouchstart={handleTouchStart}
-          ontouchend={handleTouchEnd}
-        >
-          <h2 class="p-2 text-h4 px-4">{getFormattedDate()}</h2>
-        </div>
+        <Show when={props.isCalendarOpen()}>
+          <div
+            class="text-lg font-medium z-10 text-black fixed w-full bg-[#F2F2F2] border-y-1 border-black15 -ml-5 -mt-5 flex flex-col align-center"
+            ontouchstart={handleTouchStart}
+            ontouchend={handleTouchEnd}
+          >
+            <h2 class="p-2 text-h4 px-4">{getFormattedDate()}</h2>
+          </div>
+        </Show>
         <div class="w-full h-full">
           <div class="relative w-full h-full overflow-scroll overflow-x-hidden">
             <div class="sticky left-0">

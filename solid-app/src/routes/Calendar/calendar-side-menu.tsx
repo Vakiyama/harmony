@@ -1,11 +1,10 @@
 import { TeamMember } from "@/schema/TeamMembers";
 import { User } from "@/schema/Users";
-import { useNavigate, useSearchParams } from "@solidjs/router";
+import { useSearchParams } from "@solidjs/router";
 import { FaSolidAngleDown, FaSolidAngleUp } from "solid-icons/fa";
 import {
   Accessor,
   batch,
-  createEffect,
   createSignal,
   For,
   onMount,
@@ -14,7 +13,6 @@ import {
 } from "solid-js";
 import BsGrid2x3GapFill from "~/components/icon/bs-grid-2x3-gap-fill";
 import BsGrid3x3GapFill from "~/components/icon/bs-grid-3x3-gap-fill";
-import CalendarIcon from "~/components/icon/calendar-icon";
 import TbRectangleFilled from "~/components/icon/tb-rectangle-filled";
 import Checkbox from "~/components/shared/checkbox";
 type CalendarFilterType =
@@ -31,6 +29,7 @@ const DEFAULT_FILTERS: CalendarFilterType[] = [
   "complete",
   "uncompleted",
 ];
+
 const CalendarSideMenu = (props: {
   setIsSideMenuOpen: Setter<boolean>;
   teamMembers: Accessor<{ users: User; teammembers: TeamMember }[]>;
@@ -40,7 +39,6 @@ const CalendarSideMenu = (props: {
     .teamMembers()
     .map((t) => t.users.id.toString());
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   const [isPeopleOpen, setIsPeopleOpen] = createSignal(false);
   const [isCalendarOpen, setIsCalendarOpen] = createSignal(false);
   const [isTeamOpen, setIsTeamOpen] = createSignal(false);
@@ -142,13 +140,13 @@ const CalendarSideMenu = (props: {
           </button>
         </div>
         <div class="flex-col justify-center items-center inline-flex w-full">
-          {/* <div class="self-stretch py-[13px] justify-start items-center gap-2 flex border-b border-[#1e1e1e]/20 px-3">
-            <CalendarIcon />
-            <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
-              Today
-            </div>
-          </div> */}
-          <button onClick={() => props.setCurrentView("month")} class="w-full">
+          <button
+            onClick={() => {
+              props.setCurrentView("month");
+              props.setIsSideMenuOpen(false);
+            }}
+            class="w-full"
+          >
             <div class="self-stretch py-[13px] justify-start items-center gap-2 flex border-b border-[#1e1e1e]/20 px-3">
               <BsGrid3x3GapFill />
               <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
@@ -156,7 +154,13 @@ const CalendarSideMenu = (props: {
               </div>
             </div>
           </button>
-          <button onClick={() => props.setCurrentView("week")} class="w-full">
+          <button
+            onClick={() => {
+              props.setCurrentView("week");
+              props.setIsSideMenuOpen(false);
+            }}
+            class="w-full"
+          >
             <div class="self-stretch py-[13px] justify-start items-center gap-2 flex border-b border-[#1e1e1e]/20 px-3">
               <BsGrid2x3GapFill />
               <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
@@ -164,7 +168,14 @@ const CalendarSideMenu = (props: {
               </div>
             </div>
           </button>
-          <button onClick={() => props.setCurrentView("day")} class="w-full">
+          <button
+            onClick={() => {
+              props.setCurrentView("day");
+              props.setIsSideMenuOpen(false)
+
+            }}
+            class="w-full"
+          >
             <div class="self-stretch py-[13px] justify-start items-center gap-2 flex px-3">
               <TbRectangleFilled />
               <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
