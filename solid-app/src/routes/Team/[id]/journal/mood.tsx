@@ -103,7 +103,7 @@ export default function MoodTracker() {
   };
 
   return (
-    <main class="w-full flex flex-col items-center justify-center mb-4 mx-2">
+    <main class="flex flex-col items-center justify-center mb-4 mx-2">
       <section class="flex flex-col w-full justify-center text-start">
         <div class="flex flex-col items-center gap-1 h-full">
           <MoodIcon iconColor="#FE83B0" bgColor="#761739" />

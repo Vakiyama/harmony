@@ -8,17 +8,17 @@ export default function TeamCard(props: {
   href: string;
 }) {
   return (
-    <div class="flex flex-col items-center border-2 border-gray-300 rounded-md min-w-[177px] min-h-[196px] w-full h-full">
-      <A href={props.href} class="flex flex-grow">
+    <A
+      href={props.href}
+      class="flex flex-col items-center border-2 border-gray-300 rounded-md min-w-[177px] min-h-[196px] w-full h-full"
+    >
+      <div class="flex flex-grow">
         <TeamImage teamName={props.teamName} imageUrl={props.imageUrl} />
-      </A>
+      </div>
 
-      <A
-        href={props.href}
-        class="flex items-center justify-center text-base font-medium w-full h-[35px]"
-      >
-        <div>{props.teamName}</div>
-      </A>
-    </div>
+      <div class="flex items-center justify-center text-base font-medium w-full h-[35px]">
+        {props.teamName}
+      </div>
+    </A>
   );
 }
