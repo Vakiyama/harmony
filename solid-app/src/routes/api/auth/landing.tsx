@@ -16,7 +16,7 @@ export default function Landing() {
     return await oauthAction(formData);
   };
   return (
-    <main class="w-full h-full mt-28 p-4 flex items-center justify-center space-y-2 overflow-hidden">
+    <main class="w-full h-full p-4 flex items-center justify-center space-y-2 overflow-hidden">
       <div class="mt-8 mb-8 flex flex-col items-center justify-center w-full">
         <WordMark class="mt-8 mb-8" />
         <form

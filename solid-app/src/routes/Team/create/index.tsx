@@ -1,31 +1,31 @@
-import { A } from "@solidjs/router";
-import { onCleanup, onMount, useContext } from "solid-js";
-import TopNav from "~/components/shared/TopNav";
+import { useNavigate } from "@solidjs/router";
 import TeamTopNav from "~/components/team/team-top-nav";
 import UserType from "~/components/team/user-type";
-import { BottomNavContext } from "~/context/bottom-nav-provider";
 
 export default function Create() {
+  const navigate = useNavigate();
   return (
-    <div class="relative flex flex-col min-h-screen">
-      <TeamTopNav backNavigation={() => {}} cancelNavigation="/" />
+    <div class="h-full flex flex-col">
+      <TeamTopNav
+        leftNavigation={() => {
+          navigate("/profile");
+        }}
+        rightText=""
+        isCreating={false}
+      />
 
-      <div class="flex items-center justify-center mt-2">
-        <p class="text-xs text-gray-400">1 of 8</p>
+      <p class="flex justify-center text-subtitle13 text-stepsGray mt-3 ">
+        1 of 8
+      </p>
+      <div class="flex items-center justify-end flex-col h-full mb-[53px] mx-3">
+        <div class="flex flex-col justify-end w-full">
+          <p class="text-h3 font-medium leading-[120%]">
+            Who is receiving care?
+          </p>
+          {/* <UserType name="Me" link="/team/create/me" /> */}
+          <UserType name="Someone Else" link="/team/create/someone" />
+        </div>
       </div>
-
-      {/* Space */}
-      <div class="flex-grow"></div>
-
-      {/* pick person to care */}
-      <div class="px-2">
-        <p class="text-[23px] font-semi">Who is receiving care?</p>
-        <UserType name="Me" link="/team/create/me" />
-        <UserType name="Someone Else" link="/team/create/someone" />
-      </div>
-
-      {/* Space for bottom */}
-      <div class="h-[32px]"></div>
     </div>
   );
 }

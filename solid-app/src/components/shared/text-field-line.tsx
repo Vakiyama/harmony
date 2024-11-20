@@ -37,6 +37,7 @@ export default function TextFieldLine({
         placeholder={placeholder}
         value={value}
         onInput={onInput}
+        class="text-base"
       />
       <Show when={error}>
         <div class="min-h-[20px]">

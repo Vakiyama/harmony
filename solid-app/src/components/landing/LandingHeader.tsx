@@ -61,7 +61,7 @@ export function LandingHeader(props: {
                   }`.trim() || "Team"}
             </h1>
           </Suspense>
-          <div onClick={toggleDropdown}>
+          <div class="flex-none" onClick={toggleDropdown}>
             <svg
               width="15"
               height="9"

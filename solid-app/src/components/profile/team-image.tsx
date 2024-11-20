@@ -10,7 +10,7 @@ export default function TeamImage(props: {
   return (
     <>
       <div class="">
-        <ImageRoot class="items-center justify-center w-[191px] h-[110px] bg-neutral-300 overflow-hidden">
+        <ImageRoot class="items-center justify-center h-full w-full object-cover">
           <Image src={props.imageUrl} alt={props.teamName} class="" />
           <ImageFallback class="font-semi items-center justify-center bg-purple-200"></ImageFallback>
         </ImageRoot>
