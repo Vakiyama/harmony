@@ -49,7 +49,9 @@ export default function TopNav(props: {
 
         {/* Center column */}
         <div class="flex-1 flex justify-center items-center">
-          {props.name ? <h4 class="text-md">{props.name}</h4> : null}
+          {props.name ? (
+            <h4 class="text-h4 font-medium">{props.name}</h4>
+          ) : null}
         </div>
 
         {/* Right column */}
