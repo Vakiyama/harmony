@@ -103,16 +103,16 @@ export default function NutritionTracker() {
   };
 
   return (
-    <main class="w-full h-full p-4 flex flex-col items-center justify-center space-y-2">
-      <section class="mt-8 mb-8 flex flex-col w-full h-full justify-center text-start">
-        <div class="flex flex-col items-center gap-1 mt-16 overflow-hidden">
+    <main class="mx-2 flex flex-col items-center justify-center mb-4">
+      <section class="flex flex-col w-full justify-center text-start">
+        <div class="flex flex-col items-center gap-1">
           <NutritionIcon iconColor="#6FC94F" bgColor="#19370E" />
           <Header
             title={isEditing() ? "Edit Entry" : "Nutrition"}
             description="Log meals and snacks to track nutrition throughout the day."
           />
         </div>
-        <div class="flex flex-col mt-2 gap-2 w-full overflow-y-scroll">
+        <div class="flex flex-col mt-2 gap-2 w-full">
           <ShowError error={error()}></ShowError>
           <form
             ref={setFormRef}

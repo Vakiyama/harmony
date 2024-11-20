@@ -1,5 +1,4 @@
 import { Component, JSXElement } from "solid-js";
-import { Button } from "~/components/ui/button";
 
 export default function TeamTopNav(props: {
   leftNavigation: () => void;
@@ -8,38 +7,21 @@ export default function TeamTopNav(props: {
   isCreating: boolean;
 }) {
   return (
-    <div class="w-full flex flex-row h-[95px] bg-white shadow-md fixed top-0 z-50">
+    <div class="w-full flex flex-row h-[104px] bg-white fixed top-0">
       <div class="w-full flex flex-row justify-between items-end px-4 mb-4">
         <div class="flex items-center">
           <button
             onClick={props.leftNavigation}
             class="text-gray-600 hover:text-gray-800 transition-colors"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
+            Back
           </button>
         </div>
 
         <div class="flex items-center gap-2">
           {typeof props.rightText === "string" ? (
             props.rightAction ? (
-              <button
-                onClick={props.rightAction}
-                disabled={props.isCreating}
-                // class="bg-[#AE9BF2] text-black hover:bg-[#9B85F0] disabled:bg-gray-300 disabled:cursor-not-allowed rounded-full px-6 py-2 transition-colors"
-              >
+              <button onClick={props.rightAction} disabled={props.isCreating}>
                 {props.isCreating ? (
                   <div class="flex items-center gap-2">
                     <svg

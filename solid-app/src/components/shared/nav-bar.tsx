@@ -41,7 +41,7 @@ export default function NavBar(props: {
 
   const routes = createMemo(() => {
     return [
-      { icon: <HomeIcon />, label: "Home", href: "/landing" },
+      { icon: <HomeIcon />, label: "Home", href: "/" },
       { icon: <CalendarIcon />, label: "Calendar", href: "/calendar" },
       {
         icon: <HarmonyIcon />,
@@ -65,7 +65,7 @@ export default function NavBar(props: {
   return (
     <nav
       class={twMerge(
-        "fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-md z-50",
+        "fixed w-full bottom-0 bg-white border-t border-gray-200 shadow-md",
         currentPath().includes("/harmony-ai/") ||
           currentPath().includes(`/team/${params.id}/journal/`) ||
           currentPath().includes(`/calendar/create`)

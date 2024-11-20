@@ -73,7 +73,7 @@ export default function CalendarPage() {
         setIsSideMenuOpen={setIsSideMenuOpen}
         isSideMenuOpen={isSideMenuOpen}
       />
-      <div class="max-w-[vw-50%] flex flex-col ">
+      <div class="w-full flex flex-col gap-4">
         {/* <CalendarView
           selectedYear={selectedYear}
           setSelectedYear={setSelectedYear}
@@ -96,7 +96,7 @@ export default function CalendarPage() {
           setCurrentYear={setCurrentYear}
           events={events}
         />
-        <div class="flex justify-center pt-4 px-3">
+        <div class="flex justify-center px-2">
           <EventCalendarDisplay events={events} />
         </div>
       </div>

@@ -7,13 +7,15 @@ import { teams } from "./schema/Teams";
 import { teamMembers } from "./schema/TeamMembers";
 import { calendars } from "./schema/Calendars";
 import { EventInput, events } from "./schema/Events";
-import { alarms } from "./schema/Alarms";
 import { medications } from "./schema/Medications";
 import { eventParticipants } from "./schema/EventParticipants";
 import moment from "moment";
+import { InferSelectModel } from "drizzle-orm";
+import { v4 } from "uuid";
 
-const seedData = async () => {
-  const usersData = await db.select().from(users);
+export const seedData = async (user?: InferSelectModel<typeof users>) => {
+  console.log("Seeding...");
+  const usersData = user ? [user] : await db.select().from(users);
   if (usersData.length <= 0) {
     throw new Error("Please create a user first using kinde");
   }
@@ -23,11 +25,12 @@ const seedData = async () => {
       displayName: "grandma",
       email: "grandma@gmail.com",
       firstName: "grandma",
-      kindeId: "ajksdlasjdkl",
+      kindeId: v4(),
       lastName: "",
       roleType: "User",
     })
-    .returning();
+    .returning()
+    .onConflictDoNothing();
 
   const grandpa = await db
     .insert(users)
@@ -35,18 +38,22 @@ const seedData = async () => {
       displayName: "grandpa",
       email: "grandpa@gmail.com",
       firstName: "grandpa",
-      kindeId: "ajksddkl",
+      kindeId: v4(),
       lastName: "",
       roleType: "User",
     })
-    .returning();
-  // Seed Recipients
-  await db.delete(eventParticipants);
-  await db.delete(events);
-  await db.delete(calendars);
-  await db.delete(teamMembers);
-  await db.delete(teams);
-  await db.delete(recipients);
+    .returning()
+    .onConflictDoNothing();
+
+  if (!user) {
+    // Seed Recipients
+    await db.delete(eventParticipants);
+    await db.delete(events);
+    await db.delete(calendars);
+    await db.delete(teamMembers);
+    await db.delete(teams);
+    await db.delete(recipients);
+  }
 
   const recipientsData = [
     {
@@ -202,10 +209,16 @@ const seedData = async () => {
       title: "Monthly Health Check-up",
       notes: "Check blood pressure and vitals",
       timeStart: new Date(
-        moment().add(1, "month").set({ date: 29, hour: 10, minute: 0 }).format()
+        moment()
+          .add(1, "month")
+          .set({ date: 29, hour: 10, minute: 0 })
+          .format(),
       ), // 29th of next month at 10 AM
       timeEnd: new Date(
-        moment().add(1, "month").set({ date: 29, hour: 11, minute: 0 }).format()
+        moment()
+          .add(1, "month")
+          .set({ date: 29, hour: 11, minute: 0 })
+          .format(),
       ),
       location: "Health Clinic",
       repeat: "never",

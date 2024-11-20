@@ -11,6 +11,7 @@ module.exports = {
     "bg-moodIconBackground",
     "bg-nutritionBackground",
     "bg-nutritionIconBackground",
+    "bg-createTeamBackground",
   ],
   darkMode: ["class", '[data-kb-theme="dark"]'],
   content: ["src/routes/**/*.{ts,tsx}", "src/components/**/*.{ts,tsx}"],
@@ -96,7 +97,12 @@ module.exports = {
         moodIconBackground: "#761739",
         nutritionBackground: "#D4EFCA",
         nutritionIconBackground: "#19370E",
+        createTeamBackground: "#E4DEFB",
         error: "#FE463C",
+        stepsGray: "#8E8E8E",
+        photoBoxGray: "#A1A1A1",
+        photoBoxLabel: "#5A5A5A",
+        addGray: "#A5A5A5",
       },
 
       borderRadius: {

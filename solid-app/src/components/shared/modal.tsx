@@ -1,4 +1,3 @@
-import { useParams } from "@solidjs/router";
 import ModalOption from "./modal-option";
 import { createResource, useContext } from "solid-js";
 import { TeamContext } from "../Layout-Context";

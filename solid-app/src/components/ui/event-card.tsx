@@ -27,7 +27,7 @@ const EventCard = (props: { event: Event }) => {
   return (
     <>
       <div
-        class={`relative self-stretch h-12 pl-1 pr-2 py-1 ${getEventBackground(
+        class={`self-stretch h-12 pl-1 pr-2 py-1 ${getEventBackground(
           props.event
         )} rounded-md justify-start items-center gap-1.5 inline-flex`}
         onClick={() => {

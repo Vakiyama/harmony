@@ -101,7 +101,7 @@ const LandingContent = () => {
   return (
     <div class="">
       <Tabs defaultValue="all" class="w-full">
-        <TabsList class="w-full text-black px-2 overflow-scroll rounded-none pb-2">
+        <TabsList class="w-full bg-white text-black px-2 overflow-x-scroll">
           {[
             "All",
             "Medication Taken",
@@ -118,8 +118,7 @@ const LandingContent = () => {
           <TabsIndicator />
         </TabsList>
 
-        <div class="p-2 overflow-y-scroll h-[calc(100vh_-_330px)]">
-          {/* this pb and h-calc above is hacky, fix it*/}
+        <div class="p-2 flex-grow h-full">
           <Show when={journalsData()}>
             <For each={journalsData()}>
               {(entry) => {
@@ -146,31 +145,6 @@ const LandingContent = () => {
               }}
             </For>
           </Show>
-          {/* <Show when={journalsData()}>
-            {journalsData()?.takenMedications.map((med) => (
-              <MedicationCard med={med} />
-            ))}
-          </Show>
-          <Show when={journalsData()}>
-            {journalsData()?.moods.map((mood) => (
-              <MoodCard mood={mood} />
-            ))}
-          </Show>
-          <Show when={journalsData()}>
-            {journalsData()?.notes.map((data) => (
-              <NoteCard note={data} />
-            ))}
-          </Show>
-          <Show when={journalsData()}>
-            {journalsData()?.meals.map((meal) => (
-              <MealCard meal={meal} />
-            ))}
-          </Show>
-          <Show when={journalsData()}>
-            {journalsData()?.sleeps.map((sleep) => (
-              <SleepCard sleep={sleep} />
-            ))}
-          </Show> */}
         </div>
       </Tabs>
     </div>

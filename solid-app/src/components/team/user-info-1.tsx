@@ -1,8 +1,5 @@
-import { A } from "@solidjs/router";
-import { createEffect, createSignal, For } from "solid-js";
-import { createStore } from "solid-js/store";
+import { createSignal, For } from "solid-js";
 import TextFieldLine from "~/components/shared/text-field-line";
-import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
 import { useTeam } from "~/context/team-context";
 import { FormState } from "~/context/team-context"; // Import the type if needed
@@ -53,18 +50,24 @@ export default function UserInfo1() {
 
   return (
     <>
-      <div class="relative flex flex-col min-h-screen mx-2">
-        <div class="flex items-center justify-center mt-2">
-          <p class="text-xs text-gray-400">4 of 8</p>
-        </div>
-        <div class="px-2 mt-6 flex flex-col flex-grow">
-          <p class="text-[30px] font-semi">Tell us about "User"</p>
-          <p class="text-[24px] mt-2">Contact Information</p>
+      <p class="flex justify-center text-subtitle13 text-stepsGray mt-3">
+        4 of 8
+      </p>
+      <div class="flex items-center justify-start flex-col h-full mt-4 mb-[46px] mx-3">
+        <p class="self-start text-h2 font-grotesque leading-[120%] font-medium">
+          Tell us about "User"
+        </p>
+        <p class="self-start text-h3 font-grotesque leading-[120%] mt-[18px]">
+          Contact Information
+        </p>
+        <div class="w-full">
           <For each={formFields}>
-            {(field) => (
+            {(field, index) => (
               <TextFieldLine
                 name={field.name}
                 label={field.label}
+                classRoot={(index() === 0 ? "mt-3" : "mt-6") + " space-y-0"}
+                classLabel="text-h4 font-grotesque leading-[120%] inline-block mb-1"
                 placeholder={field.placeholder}
                 error={errors()[field.name]} // TODO: error has not shown yet
                 onInput={(e) =>
@@ -76,19 +79,15 @@ export default function UserInfo1() {
             )}
           </For>
         </div>
-        {/* space */}
-        <div class="flex-grow"></div>
-        <div class="flex flex-col items-center justify-center">
+        <div class="flex flex-col justify-end w-full flex-grow">
           <Button
             type="button"
             onClick={handleNext}
-            class="rounded-full w-full bg-[#AE9BF2] text-black h-[50px]"
+            class="rounded-full w-full bg-primary-purple-300 text-black text-base h-12"
           >
             Next
           </Button>
         </div>
-        {/* Space for bottom */}
-        <div class="h-[102px]"></div> {/* temporary */}
       </div>
     </>
   );

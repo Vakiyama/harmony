@@ -32,7 +32,7 @@ export function TaskName({ props }: { props: TaskProps }) {
   const { taskName, taskDescription, startTime, endTime, icon, colour } = props;
 
   return (
-    <div class={`mt-4 rounded-md ${colour ? colour : ""}  mx-4`}>
+    <div class={`rounded-md ${colour ? colour : ""}`}>
       <div class="grid grid-cols-[auto_1fr_auto] items-center">
         {/* icon */}
         <div class="mx-4">{icon ? icon : null}</div>
