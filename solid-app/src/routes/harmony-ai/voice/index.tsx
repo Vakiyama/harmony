@@ -187,10 +187,10 @@ export default function HarmonyVoice() {
 
         socket.on("end-utterance", () => {
           if (playing()) return;
+          setPlaying(true);
           setLastTranscribedMessage(transcribedMessage());
           console.log("Handling conv after utterance end event");
-          setPlaying(true);
-          socket.emit("start-transcription");
+          socket.emit("end-transcription");
           handleConversation([
             ...messages(),
             { role: "user", content: transcribedMessage() } as ArrayMessage,
@@ -224,26 +224,6 @@ export default function HarmonyVoice() {
     );
   }
 
-  createEffect(() => {
-    if (
-      lastTranscribedMessage() !== transcribedMessage() &&
-      transcribedMessage() !== ""
-    ) {
-      /*
-      clearTimeout(timeout);
-      timeout = setTimeout(async () => {
-        setLastTranscribedMessage(transcribedMessage());
-        console.log("Handling conv after 3000 sec timeout");
-        setPlaying(true);
-        socket.emit("start-transcription");
-        await handleConversation([
-          ...messages(),
-          { role: "user", content: transcribedMessage() } as ArrayMessage,
-        ]);
-      }, 3000);
-      */
-    }
-  }, [transcribedMessage, lastTranscribedMessage]);
 
   createEffect(async () => {
     console.log(messages(), "messages");

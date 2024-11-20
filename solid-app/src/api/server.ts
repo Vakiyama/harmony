@@ -7,6 +7,7 @@ import { UserType } from "@kinde-oss/kinde-typescript-sdk";
 import { users } from "../../drizzle/schema/Users";
 import { mightFail } from "might-fail";
 import { seedData } from "../../drizzle/seed";
+import { teams } from "../../drizzle/schema/Teams";
 
 type UserTypeExtended = UserType & {
   dob?: string;
@@ -55,8 +56,6 @@ async function register(kindeUser: UserTypeExtended) {
     .returning()
     .get();
 
-  await seedData();
-
   return user;
 }
 
@@ -67,12 +66,13 @@ export async function loginOrRegister(kindeUser: UserTypeExtended) {
     if (!user) {
       user = await register(kindeUser);
     }
+    // user && (await mightFail(seedData(user)));
     const session = (await sessionManager()).getSession();
     await session.update((d) => {
       d.userId = user.id;
     });
   } catch (err) {
-    // console.log(err);
+    console.error(err);
     return err as Error;
   }
 }
