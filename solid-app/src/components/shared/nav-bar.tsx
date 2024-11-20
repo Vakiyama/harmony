@@ -34,7 +34,7 @@ export default function NavBar(props: {
 
   createEffect(() => {
     const defaultTeam = props.teamData?.find(
-      (team) => team.team.defaultTeam === true,
+      (team) => team.team.defaultTeam === true
     );
     setTeamId(defaultTeam?.team.id || undefined);
   });
@@ -70,11 +70,11 @@ export default function NavBar(props: {
           currentPath().includes(`/team/${params.id}/journal/`) ||
           currentPath().includes(`/calendar/create`)
           ? "hidden"
-          : "",
+          : ""
       )}
     >
-      <div class="max-w-screen-lg mx-auto px-4">
-        <div class="flex justify-between items-center py-2">
+      <div class="max-w-screen-lg mx-auto">
+        <div class="flex justify-between items-center pt-2 pb-5 mx-3">
           <For each={routes()}>
             {(route) => (
               <NavBarItem
