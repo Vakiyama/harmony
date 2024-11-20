@@ -11,35 +11,35 @@ import { useTeam } from "~/context/team-context";
 // temporary set name: any
 const formFields: Array<{ name: any; label: string; placeholder: string }> = [
   {
+    name: "schedule",
+    label: "Medication Schedule",
+    placeholder: "Example: Morning and Night",
+  },
+  {
+    name: "instructions",
+    label: "Instructions",
+    placeholder: "Instructions for Medication",
+  },
+  {
     name: "name",
     label: "Medication Name",
     placeholder: "Medication Name",
   },
   { name: "dosage", label: "Dosage", placeholder: "Example: 100mg" },
   {
-    name: "typeOfMedication",
-    label: "Type of Medication",
-    placeholder: "Example: Oral Pill",
-  },
-  {
     name: "frequency",
     label: "Frequency",
     placeholder: "Example: Twice a Day",
   },
   {
-    name: "schedule",
-    label: "Medication Schedule",
-    placeholder: "Example: Morning and Night",
+    name: "typeOfMedication",
+    label: "Type of Medication",
+    placeholder: "Example: Oral Pill",
   },
   {
     name: "sideEffects",
     label: "Side Effects",
     placeholder: "Medication Side Effects",
-  },
-  {
-    name: "instructions",
-    label: "Instructions",
-    placeholder: "Instructions for Medication",
   },
   {
     name: "pharmacyInfo",
@@ -62,47 +62,45 @@ export default function MedicationDetails({
 
   return (
     <>
-      <div class="relative flex flex-col min-h-screen mx-2 overflow-y-auto mt-28">
-        <div class="flex items-center justify-center mt-2 ">
-          <p class="text-xs text-gray-400">6 of 8</p>
+      {/* Health profile part */}
+      <div class="flex items-center justify-start flex-col h-full mt-4 mx-3">
+        <p class="self-start text-h2 font-grotesque leading-[120%] font-medium">
+          Medication Details
+        </p>
+        <div class="w-full">
+          {/* Render surgery input fields */}
+          <For each={formFields}>
+            {(field, index) => (
+              <TextFieldLine
+                name={field.name}
+                label={field.label}
+                onInput={(e) =>
+                  team.updateMedication(
+                    currentMedicationIndex,
+                    field.name,
+                    e.currentTarget.value
+                  )
+                }
+                placeholder={field.placeholder}
+                classRoot={(index() === 0 ? "mt-3" : "mt-6") + " space-y-0"}
+                classLabel="text-h4 font-grotesque leading-[120%] inline-block mb-2"
+              />
+            )}
+          </For>
+          <p class="text-h4 font-grotesque leading-[120%] mb-2 mt-6">
+            Medication Photo
+          </p>
+          <AddPhoto />
         </div>
-        {/* Health profile part */}
-        <div class="px-2 mt-6 flex flex-col">
-          <p class="text-[30px] font-semi">Medication Details</p>
-          <div>
-            {/* Render surgery input fields */}
-            <For each={formFields}>
-              {(field) => (
-                <TextFieldLine
-                  name={field.name}
-                  label={field.label}
-                  onInput={(e) =>
-                    team.updateMedication(
-                      currentMedicationIndex,
-                      field.name,
-                      e.currentTarget.value
-                    )
-                  }
-                  placeholder={field.placeholder}
-                  classLabel="text-lg font-semibold"
-                />
-              )}
-            </For>
-          </div>
-        </div>
-        <AddPhoto />
-        {/* Space */}
-        <div class="flex-grow"></div>
         {/* Button */}
-        <div class="flex flex-col items-center justify-center">
+        <div class="flex flex-col justify-end w-full flex-grow">
           <Button
             onClick={handleAddMedication}
-            class="rounded-full w-full bg-[#AE9BF2] text-black h-[50px]"
+            class="rounded-full w-full bg-primary-purple-300 text-black text-base h-12 mt-6 mb-[46px]"
           >
             Add Medication
           </Button>
         </div>
-        <div class="h-[122px]"></div> {/* temporary */}
       </div>
     </>
   );
