@@ -25,7 +25,7 @@ export default function Index() {
     async ({ teamId }) => await getAllEvents(teamId, 3)
   );
   return (
-    <main class="flex flex-col m-4 gap-4">
+    <main class="flex flex-col m-2 gap-4">
       <section class="h-full flex flex-col gap-2">
         <div class="flex flex-row items-center justify-between">
           <h2 class="text-h3 font-medium">Coming up</h2>
