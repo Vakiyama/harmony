@@ -1,8 +1,5 @@
-import { A } from "@solidjs/router";
 import { createSignal, For } from "solid-js";
-import { createStore } from "solid-js/store";
 import TextFieldLine from "~/components/shared/text-field-line";
-import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
 import { FormState, useTeam } from "~/context/team-context";
 
@@ -15,19 +12,19 @@ const formFields: {
   {
     name: "healthCondition",
     label: "Health Condition",
-    placeholder: "Dementia",
+    placeholder: "Example: Dementia",
     required: true,
   },
   {
     name: "allergies",
     label: "Allergies",
-    placeholder: "None",
+    placeholder: "Example: Peanuts",
     required: false,
   },
   {
     name: "dietaryRestrictions",
     label: "Dietary Restrictions/Preference",
-    placeholder: "Must have 85g each meal",
+    placeholder: "Example: Must have 85g each meal",
     required: false,
   },
 ];
@@ -60,21 +57,26 @@ export default function UserHealth1() {
   };
   return (
     <>
-      <div class="relative flex flex-col min-h-screen mx-2">
-        <div class="flex items-center justify-center mt-2">
-          <p class="text-xs text-gray-400">5 of 8</p>
-        </div>
-        {/* upload photo part */}
-        <div class="px-2 mt-6 flex flex-col flex-grow">
-          <p class="text-[30px] font-semi">Tell us about "User's" Health</p>
-          <p class="text-[24px] mt-2">Health Profile</p>
+      <p class="flex justify-center text-subtitle13 text-stepsGray mt-3">
+        5 of 8
+      </p>
+      {/* upload photo part */}
+      <div class="flex items-center justify-start flex-col h-full mt-4 mb-[46px] mx-3">
+        <p class="self-start text-h2 font-grotesque leading-[120%] font-medium">
+          Tell us about "User's" Health
+        </p>
+        <p class="self-start text-h3 font-grotesque leading-[120%] font-medium mt-[18px]">
+          Health Profile
+        </p>
+        <div class="w-full">
           <For each={formFields}>
-            {(field) => (
+            {(field, index) => (
               <TextFieldLine
                 name={field.name}
                 label={field.label}
                 placeholder={field.placeholder}
-                classLabel="text-lg"
+                classRoot={(index() === 0 ? "mt-3" : "mt-6") + " space-y-0"}
+                classLabel="text-h4 font-grotesque leading-[120%] inline-block mb-2"
                 error={errors()[field.name]} // TODO: error not shown here
                 required={field.required}
                 onInput={(e) =>
@@ -85,19 +87,15 @@ export default function UserHealth1() {
             )}
           </For>
         </div>
-        {/* space */}
-        <div class="flex-grow"></div>
-        <div class="flex flex-col items-center justify-center">
+        <div class="flex flex-col justify-end w-full flex-grow">
           <Button
             type="button"
             onClick={team.nextStep}
-            class="rounded-full w-full bg-[#AE9BF2] text-black h-[50px]"
+            class="rounded-full w-full bg-primary-purple-300 text-black text-base h-12"
           >
             Next
           </Button>
         </div>
-        {/* Space for bottom */}
-        <div class="h-[102px]"></div> {/* temporary */}
       </div>
     </>
   );

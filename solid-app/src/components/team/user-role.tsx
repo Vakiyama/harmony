@@ -1,6 +1,4 @@
-import { A } from "@solidjs/router";
 import TextFieldLine from "~/components/shared/text-field-line";
-import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
 import { useTeam } from "~/context/team-context";
 
@@ -8,28 +6,33 @@ export default function UserRole() {
   const team = useTeam();
   return (
     <>
-      <div class="relative flex flex-col min-h-screen mx-4">
-        <div class="flex items-center justify-center mt-2">
-          <p class="text-xs text-gray-400">7 of 8</p>
-        </div>
-        {/* Space */}
-        <div class="flex-grow"></div>
-        <div class="px-2">
-          <p class="text-[23px] font-semi">Please Specify</p>
+      <p class="flex justify-center text-subtitle13 text-stepsGray mt-3">
+        7 of 8
+      </p>
+      <div class="flex items-center justify-start flex-col h-full mt-4 mx-3 mb-[46px]">
+        <p class="self-start text-h2 font-grotesque leading-[120%] font-medium">
+          What is your role in the care team?
+        </p>
+        <div class="w-full">
+          <p class="self-start text-h3 font-grotesque leading-[120%] font-medium mt-[18px]">
+            Please Specify
+          </p>
           <TextFieldLine
             name="recipient name"
             label=""
-            placeholder="Enter role"
+            placeholder="Example: Daughter, Cousin, Nurse, etc."
+            classRoot="mt-1"
           />
+        </div>
+        <div class="flex flex-col justify-end w-full flex-grow">
           <Button
+            type="button"
             onClick={team.nextStep}
-            class="rounded-full w-full mt-4 bg-[#AE9BF2] text-black h-[50px]"
+            class="rounded-full w-full mt-3 bg-primary-purple-300 text-black text-base h-12"
           >
             Next
           </Button>
         </div>
-        {/* Space for bottom */}
-        <div class="h-[122px]"></div> {/* temporary */}
       </div>
     </>
   );

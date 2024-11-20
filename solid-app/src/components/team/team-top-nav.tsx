@@ -8,7 +8,7 @@ export default function TeamTopNav(props: {
   isCreating: boolean;
 }) {
   return (
-    <div class="w-full flex flex-row h-[95px] bg-white shadow-md fixed top-0 z-50">
+    <div class="w-full flex flex-row h-[104px] bg-white shadow-md fixed top-0 z-50">
       <div class="w-full flex flex-row justify-between items-end px-4 mb-4">
         <div class="flex items-center">
           <button

@@ -17,7 +17,7 @@ export default function TeamGeneralInfo() {
     <div class="p-2 overflow-y-scroll pb-[200px] h-[calc(100vh_-_130px)]">
       <TeamInfoCard
         title="Contact Information"
-        value={"general information"}
+        value={"general"}
         icon={
           <svg
             width="14"

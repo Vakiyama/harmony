@@ -74,7 +74,8 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
         <div
           class={`flex-grow overflow-y-auto ${
             location.pathname.startsWith(`/team/${params.id}/journal/`) ||
-            location.pathname.startsWith(`/harmony-ai`)
+            location.pathname.startsWith(`/harmony-ai`) ||
+            location.pathname.startsWith(`/team/create`)
               ? ""
               : "mb-20"
           }`}
