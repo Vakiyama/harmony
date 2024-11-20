@@ -19,6 +19,7 @@ export const events = sqliteTable("events", {
     .references(() => calendars.id)
     .notNull(),
   title: text("title").notNull(),
+  complete: integer("complete", { mode: "boolean" }).default(false),
   notes: text("notes").notNull(),
   timeStart: integer("timeStart", { mode: "timestamp" }).default(
     sql`(unixepoch())`

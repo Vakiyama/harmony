@@ -1,11 +1,15 @@
 import { TeamMember } from "@/schema/TeamMembers";
 import { User } from "@/schema/Users";
-import { useNavigate, useSearchParams } from "@solidjs/router";
+import { useSearchParams } from "@solidjs/router";
+import {
+  NavigateOptions,
+  SearchParams,
+  SetSearchParams,
+} from "node_modules/@solidjs/router/dist/types";
 import { FaSolidAngleDown, FaSolidAngleUp } from "solid-icons/fa";
 import {
   Accessor,
   batch,
-  createEffect,
   createSignal,
   For,
   onMount,
@@ -31,22 +35,49 @@ const DEFAULT_FILTERS: CalendarFilterType[] = [
   "complete",
   "uncompleted",
 ];
+
 const CalendarSideMenu = (props: {
+  refetchData: () => Promise<void>;
   setIsSideMenuOpen: Setter<boolean>;
   teamMembers: Accessor<{ users: User; teammembers: TeamMember }[]>;
+  params: Accessor<SetSearchParams>;
+  setParams: Setter<SetSearchParams>;
+  setSearchParams: (
+    params: SetSearchParams,
+    options?: Partial<NavigateOptions>
+  ) => void;
+  searchParams: Partial<SearchParams>;
+
+  setCurrentView: Setter<"day" | "week" | "month">;
 }) => {
-  const DEFAULT_TEAMMEMBERS = props
-    .teamMembers()
-    .map((t) => t.users.id.toString());
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   const [isPeopleOpen, setIsPeopleOpen] = createSignal(false);
   const [isCalendarOpen, setIsCalendarOpen] = createSignal(false);
   const [isTeamOpen, setIsTeamOpen] = createSignal(false);
 
+  const updateFilters = async (newFilters: string) => {
+    props.setSearchParams(
+      { ...props.searchParams, filters: newFilters },
+      { replace: true }
+    );
+    props.setParams({ ...props.searchParams, filters: newFilters });
+    await props.refetchData();
+  };
+
+  const updateSelected = async (newSelected: string) => {
+    props.setSearchParams(
+      { ...props.searchParams, selected: newSelected },
+      { replace: true }
+    );
+    props.setParams({ ...props.searchParams, selected: newSelected });
+    await props.refetchData();
+  };
+
   const getSelectedFilters = () => {
-    return searchParams.filters
-      ? (searchParams.filters.toString().split(",") as CalendarFilterType[])
+    return props.searchParams.filters
+      ? (props.searchParams.filters
+          .toString()
+          .split(",") as CalendarFilterType[])
       : [];
   };
 
@@ -83,7 +114,7 @@ const CalendarSideMenu = (props: {
     }
 
     batch(() => {
-      setSearchParams({ selected: newSelected.join(",") });
+      updateSelected(newSelected.join(","));
     });
   };
 
@@ -97,24 +128,9 @@ const CalendarSideMenu = (props: {
       newFilters = [...currentFilters, filterType];
     }
     batch(() => {
-      setSearchParams({
-        filters: newFilters.join(","),
-      });
+      updateFilters(newFilters.join(","));
     });
   };
-
-  onMount(() => {
-    batch(() => {
-      setSearchParams({
-        filters: searchParams.filters
-          ? searchParams.filters
-          : DEFAULT_FILTERS.join(","),
-        selected: searchParams.select
-          ? searchParams.select
-          : DEFAULT_TEAMMEMBERS.join(","),
-      });
-    });
-  });
 
   return (
     <div
@@ -141,30 +157,48 @@ const CalendarSideMenu = (props: {
           </button>
         </div>
         <div class="flex-col justify-center items-center inline-flex w-full">
-          {/* <div class="self-stretch py-[13px] justify-start items-center gap-2 flex border-b border-[#1e1e1e]/20 px-3">
-            <CalendarIcon />
-            <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
-              Today
+          <button
+            onClick={() => {
+              props.setCurrentView("month");
+              props.setIsSideMenuOpen(false);
+            }}
+            class="w-full"
+          >
+            <div class="self-stretch py-[13px] justify-start items-center gap-2 flex border-b border-[#1e1e1e]/20 px-3">
+              <BsGrid3x3GapFill />
+              <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
+                Month
+              </div>
             </div>
-          </div> */}
-          <div class="self-stretch py-[13px] justify-start items-center gap-2 flex border-b border-[#1e1e1e]/20 px-3">
-            <BsGrid3x3GapFill />
-            <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
-              Month
+          </button>
+          <button
+            onClick={() => {
+              props.setCurrentView("week");
+              props.setIsSideMenuOpen(false);
+            }}
+            class="w-full"
+          >
+            <div class="self-stretch py-[13px] justify-start items-center gap-2 flex border-b border-[#1e1e1e]/20 px-3">
+              <BsGrid2x3GapFill />
+              <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
+                Week
+              </div>
             </div>
-          </div>
-          <div class="self-stretch py-[13px] justify-start items-center gap-2 flex border-b border-[#1e1e1e]/20 px-3">
-            <BsGrid2x3GapFill />
-            <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
-              Week
+          </button>
+          <button
+            onClick={() => {
+              props.setCurrentView("day");
+              props.setIsSideMenuOpen(false);
+            }}
+            class="w-full"
+          >
+            <div class="self-stretch py-[13px] justify-start items-center gap-2 flex px-3">
+              <TbRectangleFilled />
+              <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
+                Day
+              </div>
             </div>
-          </div>
-          <div class="self-stretch py-[13px] justify-start items-center gap-2 flex px-3">
-            <TbRectangleFilled />
-            <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
-              Day
-            </div>
-          </div>
+          </button>
         </div>
         <div class="w-full flex-col justify-center items-start pt-[18px] space-y-[18px]">
           <button

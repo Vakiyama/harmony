@@ -81,6 +81,7 @@ module.exports = {
           foreground: "hsl(var(--card-foreground))",
         },
         lofiGray: "#D9D9D9",
+        black15: "rgb(30,30,30, 0.15)",
         black50: "rgb(30,30,30, 0.5)",
         black75: "rgb(30,30,30, 0.75)",
         "primary-purple-500": "#7859EA",
