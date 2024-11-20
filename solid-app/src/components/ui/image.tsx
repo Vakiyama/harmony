@@ -21,7 +21,7 @@ export const ImageRoot = <T extends ValidComponent = "span">(
   return (
     <ImagePrimitive
       class={cn(
-        "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
+        "flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
         local.class
       )}
       {...rest}
