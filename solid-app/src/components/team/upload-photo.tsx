@@ -25,6 +25,13 @@ export default function UploadPhoto() {
             for="photo-upload"
             class="flex flex-col items-center justify-center"
           >
+            <input
+              id="photo-upload"
+              type="file"
+              accept="image/*"
+              name="photo"
+              hidden
+            />
             <svg
               width="16"
               height="14"
@@ -40,13 +47,6 @@ export default function UploadPhoto() {
             </svg>
             <p class="text-subtitle13 text-photoBoxLabel">Tab to add a photo</p>
           </label>
-          <input
-            id="photo-upload"
-            type="file"
-            accept="image/*"
-            class="hidden"
-            name="photo"
-          />
         </div>
         <Button
           type="button"
