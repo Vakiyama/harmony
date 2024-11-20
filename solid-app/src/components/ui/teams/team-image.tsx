@@ -40,7 +40,7 @@ export const Image = <T extends ValidComponent = "img">(
 
   return (
     <ImagePrimitive.Img
-      class={cn("aspect-square h-full w-full mt-0 pt-0", local.class)}
+      class={cn("object-cover h-full w-full", local.class)}
       {...rest}
     />
   );
