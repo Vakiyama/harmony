@@ -127,9 +127,9 @@ export function HarmonyChat() {
         name="Harmony AI"
         leftNavigation={<div>Back</div>}
         rightNavigation={<div class=""></div>}
-        class="border-b-black/15 border"
+        class="border-b-black/15 border bg-white"
       />
-      <form onSubmit={handleSubmit} class="h-full">
+      <form onSubmit={handleSubmit} class="h-full pt-28">
         <div class="flex flex-col overflow-scroll h-[calc(100%_-_85px)]">
           <Show
             when={messages().length > 0}
