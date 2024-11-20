@@ -1,7 +1,7 @@
 import { Accessor, createSignal, For, Setter, Show } from "solid-js";
 import moment from "moment";
 import { Event } from "@/schema/Events";
-import EventCalendarDisplay from "./event-calendar-display";
+import EventCalendarDisplay from "./EventCalendarDisplay";
 
 const WeekCalendarView = (props: {
   selectedDay: Accessor<number>;
