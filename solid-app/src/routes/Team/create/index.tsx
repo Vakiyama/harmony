@@ -22,7 +22,7 @@ export default function Create() {
           <p class="text-h3 font-medium leading-[120%]">
             Who is receiving care?
           </p>
-          <UserType name="Me" link="/team/create/me" />
+          {/* <UserType name="Me" link="/team/create/me" /> */}
           <UserType name="Someone Else" link="/team/create/someone" />
         </div>
       </div>
