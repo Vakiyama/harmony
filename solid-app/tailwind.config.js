@@ -11,6 +11,7 @@ module.exports = {
     "bg-moodIconBackground",
     "bg-nutritionBackground",
     "bg-nutritionIconBackground",
+    "bg-createTeamBackground",
   ],
   darkMode: ["class", '[data-kb-theme="dark"]'],
   content: ["src/routes/**/*.{ts,tsx}", "src/components/**/*.{ts,tsx}"],
@@ -97,6 +98,7 @@ module.exports = {
         moodIconBackground: "#761739",
         nutritionBackground: "#D4EFCA",
         nutritionIconBackground: "#19370E",
+        createTeamBackground: "#E4DEFB",
         error: "#FE463C",
       },
 
@@ -107,6 +109,10 @@ module.exports = {
         button: "100px",
       },
       keyframes: {
+        "sound-wave": {
+          "0%, 100%": { transform: "scaleY(0.95)" },
+          "50%": { transform: "scaleY(1)" },
+        },
         "accordion-down": {
           from: { height: 0 },
           to: { height: "var(--kb-accordion-content-height)" },
@@ -135,6 +141,7 @@ module.exports = {
         "collapsible-down": "collapsible-down 0.2s ease-out",
         "collapsible-up": "collapsible-up 0.2s ease-out",
         "caret-blink": "caret-blink 1.25s ease-out infinite",
+        "sound-wave": "sound-wave 2s ease-out infinite",
       },
     },
   },

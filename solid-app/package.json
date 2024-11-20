@@ -4,14 +4,15 @@
   "scripts": {
     "dev": "vinxi dev --preset node-server",
     "build": "vinxi build --preset node-server",
-    "start": "vinxi start --preset node-server",
+    "start": "bun .output/server/index.mjs",
     "test": "vitest",
-    "seed": "bun ./drizzle/seed.ts ",
-    "push": "bun drizzle-kit push",
-    "setup": "bun drizzle-kit push && bun run seed",
+    "seed": "npx tsx ./drizzle/seed.ts ",
+    "push": "npx drizzle-kit push",
+    "setup": "npx drizzle-kit push && bun run seed",
     "studio": "bun drizzle-kit studio"
   },
   "devDependencies": {
+    "@flydotio/dockerfile": "^0.5.9",
     "@solidjs/testing-library": "^0.8.10",
     "@testing-library/jest-dom": "^6.6.2",
     "@testing-library/user-event": "^14.5.2",
@@ -26,6 +27,7 @@
   },
   "dependencies": {
     "@ark-ui/solid": "4.2",
+    "@deepgram/sdk": "^3.9.0",
     "@google-cloud/speech": "^6.7.0",
     "@kinde-oss/kinde-typescript-sdk": "^2.9.1",
     "@kobalte/core": "^0.13.7",
@@ -38,6 +40,7 @@
     "@solidjs/meta": "^0.29.4",
     "@solidjs/router": "^0.14.10",
     "@solidjs/start": "^1.0.9",
+    "@use-gesture/vanilla": "^10.3.1",
     "@zentered/solid-markdown": "^1.0.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -47,6 +50,7 @@
     "effect": "^3.10.12",
     "might-fail": "^0.6.3",
     "moment": "^2.30.1",
+    "patch-package": "^8.0.0",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "solid-icons": "^1.1.0",
@@ -54,6 +58,7 @@
     "solid-markdown": "^2.0.13",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
+    "uuid": "^11.0.3",
     "vinxi": "^0.4.3",
     "zod": "^3.23.8"
   },

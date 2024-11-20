@@ -1,25 +1,54 @@
-import { createAsync, type RouteDefinition } from "@solidjs/router";
-import { getUser, logout } from "~/api";
+import LandingContent from "~/components/landing/LandingContent";
+import { getAllEvents } from "~/api/calendar";
+import { createResource, Show, useContext } from "solid-js";
+import EventCard from "~/components/calendar/EventCard";
+import { TeamContext } from "~/components/Layout-Context";
 
-export const route = {
-  preload() {
-    getUser();
-  },
-} satisfies RouteDefinition;
+export default function Index() {
+  const context = useContext(TeamContext);
 
-export default function Home() {
-  const user = createAsync(async () => await getUser(), { deferStream: true });
+  if (!context) {
+    return <div>No team data available</div>;
+  }
+
+  const { teamListData, refetchTrigger } = context;
+
+  const defaultTeam = () =>
+    teamListData()?.find((team) => team.team.defaultTeam === true);
+
+  const [events] = createResource(
+    () => {
+      const teamId = defaultTeam()?.team.id;
+      const refetch = refetchTrigger();
+      return teamId ? { teamId, refetch } : undefined;
+    },
+    async ({ teamId }) => await getAllEvents(teamId, 3)
+  );
   return (
-    <main class="w-full p-4 space-y-2">
-      <h2 class="font-bold text-3xl">
-        Hello {user()?.firstName || user()?.lastName}
-      </h2>
-      <h3 class="font-bold text-xl">Message board</h3>
-      <form action={logout} method="post">
-        <button name="logout" type="submit">
-          Logout
-        </button>
-      </form>
+    <main class="h-screen overflow-y-auto flex flex-col m-4 gap-4">
+      <section class="h-full">
+        <div class="flex flex-row items-center justify-between">
+          <h2 class="text-h3 font-medium">Coming up</h2>
+          <p class="text-black">See all</p>
+        </div>
+        <div>
+          <Show when={events()}>
+            <>
+              {events()?.map((event, index) => {
+                return <EventCard event={event}></EventCard>;
+              })}
+            </>
+          </Show>
+        </div>
+      </section>
+      <section class="">
+        <div class="sticky top-24">
+          <div class="h-full flex flex-col overflow-hidden">
+            <p class="text-h3 font-medium">While you were away...</p>
+            <LandingContent />
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

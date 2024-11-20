@@ -17,6 +17,7 @@
           bun
           turso-cli
           sqld
+          flyctl
         ];
 
         shellHook = ''

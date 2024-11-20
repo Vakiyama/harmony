@@ -1,0 +1,62 @@
+# flyctl launch added from .gitignore
+**/.direnv
+
+# flyctl launch added from native-app/.gitignore
+native-app/**/node_modules
+native-app/**/.expo
+native-app/**/dist
+native-app/**/npm-debug.*
+native-app/**/*.jks
+native-app/**/*.p8
+native-app/**/*.p12
+native-app/**/*.key
+native-app/**/*.mobileprovision
+native-app/**/*.orig.*
+native-app/**/web-build
+
+# macOS
+native-app/**/.DS_Store
+
+# flyctl launch added from native-app/node_modules/wonka/esy.lock/.gitignore
+
+# Reset any possible .gitignore, we want all esy.lock to be un-ignored.
+!native-app/node_modules/wonka/esy.lock/**/*
+
+# flyctl launch added from solid-app/.gitignore
+
+solid-app/**/dist
+solid-app/**/.solid
+solid-app/**/.output
+solid-app/**/.vercel
+solid-app/**/.netlify
+solid-app/**/.vinxi
+solid-app/**/app.config.timestamp_*.js
+
+# Environment
+solid-app/**/.env
+solid-app/**/.env*.local
+
+# dependencies
+solid-app/node_modules
+
+# IDEs and editors
+solid-app/.idea
+solid-app/**/.project
+solid-app/**/.classpath
+solid-app/**/*.launch
+solid-app/**/.settings
+
+# Temp
+solid-app/**/gitignore
+
+# System Files
+solid-app/**/.DS_Store
+solid-app/**/Thumbs.db
+
+# NixOS
+
+solid-app/**/.direnv
+
+# flyctl launch added from solid-app/node_modules/tailwindcss/stubs/.gitignore
+!solid-app/node_modules/tailwindcss/stubs/**/*
+fly.toml

@@ -4,6 +4,7 @@ import {
   createMemo,
   createSignal,
   For,
+  onMount,
   Suspense,
 } from "solid-js";
 import HarmonyIcon from "~/components/icon/harmony-icon";
@@ -14,6 +15,9 @@ import JournalIcon from "~/components/icon/journal-icon";
 import ProfileIcon from "~/components/icon/profile-icon";
 import { twMerge } from "tailwind-merge";
 import { TeamWithDefault } from "../../../drizzle/schema/Teams";
+import { getUser } from "~/api/server";
+import { users } from "@/schema/Users";
+import { InferSelectModel } from "drizzle-orm";
 
 export default function NavBar(props: {
   teamData: { team: TeamWithDefault }[] | undefined;
@@ -22,6 +26,11 @@ export default function NavBar(props: {
   const currentPath = createMemo(() => location.pathname);
   const params = useParams();
   const [teamId, setTeamId] = createSignal<number | undefined>();
+  const [user, setUser] = createSignal<Awaited<ReturnType<typeof getUser>>>();
+
+  onMount(async () => {
+    setUser(await getUser());
+  });
 
   createEffect(() => {
     const defaultTeam = props.teamData?.find(
@@ -32,9 +41,17 @@ export default function NavBar(props: {
 
   const routes = createMemo(() => {
     return [
-      { icon: <HomeIcon />, label: "Home", href: "/landing" },
+      { icon: <HomeIcon />, label: "Home", href: "/" },
       { icon: <CalendarIcon />, label: "Calendar", href: "/calendar" },
-      { icon: <HarmonyIcon />, label: "Harmony", href: "/harmony-ai/chat" },
+      {
+        icon: <HarmonyIcon />,
+        label: "Harmony",
+        href:
+          user() &&
+          (user() as InferSelectModel<typeof users>).aiPreference === "Voice"
+            ? "/harmony-ai/voice"
+            : "/harmony-ai/chat",
+      },
       {
         icon: <JournalIcon />,
         label: "Journal",
@@ -48,11 +65,12 @@ export default function NavBar(props: {
   return (
     <nav
       class={twMerge(
-        "fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-md z-50", currentPath().includes("/harmony-ai/") ||
-        currentPath().includes(`/team/${params.id}/journal/`) ||
-        currentPath().includes(`/calendar/create`)
-        ? "hidden"
-        : ""
+        "fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-md z-50",
+        currentPath().includes("/harmony-ai/") ||
+          currentPath().includes(`/team/${params.id}/journal/`) ||
+          currentPath().includes(`/calendar/create`)
+          ? "hidden"
+          : ""
       )}
     >
       <div class="max-w-screen-lg mx-auto px-4">

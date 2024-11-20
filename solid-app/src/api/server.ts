@@ -1,11 +1,13 @@
 "use server";
 import { redirect } from "@solidjs/router";
-import { eq } from "drizzle-orm";
+import { InferInsertModel, eq } from "drizzle-orm";
 import { db } from "./db";
 import { getKindeClient, sessionManager } from "./kinde";
 import { UserType } from "@kinde-oss/kinde-typescript-sdk";
 import { users } from "../../drizzle/schema/Users";
 import { mightFail } from "might-fail";
+import { seedData } from "../../drizzle/seed";
+import { teams } from "../../drizzle/schema/Teams";
 
 type UserTypeExtended = UserType & {
   dob?: string;
@@ -39,7 +41,7 @@ async function register(kindeUser: UserTypeExtended) {
     .where(eq(users.kindeId, kindeUser.id))
     .get();
   if (existingUser) throw new Error("User already exists");
-  return await db
+  const user = await db
     .insert(users)
     .values({
       kindeId: kindeUser.id,
@@ -53,6 +55,8 @@ async function register(kindeUser: UserTypeExtended) {
     })
     .returning()
     .get();
+
+  return user;
 }
 
 export async function loginOrRegister(kindeUser: UserTypeExtended) {
@@ -62,12 +66,13 @@ export async function loginOrRegister(kindeUser: UserTypeExtended) {
     if (!user) {
       user = await register(kindeUser);
     }
+    // user && (await mightFail(seedData(user)));
     const session = (await sessionManager()).getSession();
     await session.update((d) => {
       d.userId = user.id;
     });
   } catch (err) {
-    // console.log(err);
+    console.error(err);
     return err as Error;
   }
 }
@@ -88,14 +93,37 @@ export async function getUser() {
   const [error, user] = await mightFail(
     db.select().from(users).where(eq(users.id, userId)).get()
   );
-  if (error) return logout();
+  if (error) {
+    console.error(error);
+    return logout();
+  }
   if (!user) return redirect("/api/auth/landing");
   return {
-    id: user.id,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    photo: user.photo,
+    type: "user",
+    ...user,
   };
+}
+
+class UpdateUserError {
+  readonly _tag = "UpdateUserError";
+}
+
+export async function updateUser(
+  user: Partial<InferInsertModel<typeof users>>
+) {
+  const userId = await getUserIdFromSession();
+  if (!userId) return;
+
+  const [error, result] = await mightFail(
+    db.update(users).set(user).where(eq(users.id, userId))
+  );
+
+  if (error) {
+    console.error(error);
+    return new UpdateUserError();
+  }
+
+  return { _tag: "success" } as const;
 }
 
 export async function checkAuthenticated() {
@@ -111,7 +139,7 @@ export async function checkAuthenticated() {
 
 export async function getUserIdFromSession() {
   const manager = await sessionManager();
-  const session = await manager.getSession();
+  const session = manager.getSession();
   const userId: number | undefined = session.data.userId;
   return userId;
 }

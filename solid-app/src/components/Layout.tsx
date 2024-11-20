@@ -32,7 +32,8 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
       return (
         <TopNav
           name=""
-          leftNavigation={<div>Back</div>}
+          leftNavigation={"Back"}
+          /*
           rightNavigation={
             <div class="flex items-center justify-center aspect-square bg-black rounded-full w-[30px] h-[30px]">
               <svg
@@ -49,11 +50,12 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
               </svg>
             </div>
           }
+          */
         />
       );
     } else if (
-      location.pathname.startsWith("/landing") ||
-      location.pathname.startsWith(`/team/${params.id}/journal`)
+      location.pathname.startsWith(`/team/${params.id}/journal`) ||
+      location.pathname === "/"
     ) {
       return (
         <LandingHeader
@@ -67,9 +69,9 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
 
   return (
     <TeamContext.Provider value={contextValue}>
-      <div class="h-full">
+      <div class="h-full mt-28">
         {renderTopNav()}
-        <div class="h-full">{props.children}</div>
+        <div class="">{props.children}</div>
         {location.pathname.startsWith("/api") ||
         location.pathname.startsWith("/harmony-ai") ||
         location.pathname.startsWith("/team/create") ? null : (

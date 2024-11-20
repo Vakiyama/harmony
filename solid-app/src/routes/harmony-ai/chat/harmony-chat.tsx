@@ -18,6 +18,9 @@ import { A, CustomResponse } from "@solidjs/router";
 import { ArrayMessage } from "~/api/claude/effectGraph/messages";
 import { ToolUse } from "~/api/claude/effectGraph/callClaude";
 import { getUser } from "~/api/server";
+import NavBar from "~/components/shared/nav-bar";
+import { User } from "@/schema/Users";
+import TopNav from "~/components/shared/TopNav";
 
 export function useHarmonyChat(
   user: Accessor<
@@ -120,7 +123,13 @@ export function HarmonyChat() {
 
   return (
     <div class="bg-white h-full relative overflow-hidden text-lg">
-      <form onSubmit={handleSubmit} class="h-full">
+      <TopNav
+        name="Harmony AI"
+        leftNavigation={<div>Back</div>}
+        rightNavigation={<div class=""></div>}
+        class="border-b-black/15 border bg-white"
+      />
+      <form onSubmit={handleSubmit} class="h-full pt-28">
         <div class="flex flex-col overflow-scroll h-[calc(100%_-_85px)]">
           <Show
             when={messages().length > 0}
@@ -133,7 +142,7 @@ export function HarmonyChat() {
                     </ImageRoot>
                     <Show when={user()}>
                       <h2 class="text-4xl my-1 w-full px-4 text-center max-w-none block">
-                        Good {currentTimeOfDay}, {user()!.firstName}!
+                        Good {currentTimeOfDay}, {(user() as User)!.firstName}!
                       </h2>
                     </Show>
                     <h3 class="opacity-50">What can I help with today?</h3>
