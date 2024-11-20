@@ -1,4 +1,5 @@
 import ModalOption from "../shared/modal-option";
+import TeamModalOption from "./team-modal-option";
 
 interface ModalProps {
   onClose?: () => void;
@@ -38,10 +39,12 @@ export default function TeamModal(props: ModalProps) {
             />
           </svg>
         </button>
-        <ModalOption
+        <TeamModalOption
           title="Join a Team"
-          description="Join an existing team"
+          description=""
           link="/profile/join-team/"
+          background="createTeamBackground"
+          iconBackground="#091E54"
           svg={
             <svg
               width="12"
@@ -57,10 +60,12 @@ export default function TeamModal(props: ModalProps) {
             </svg>
           }
         />
-        <ModalOption
+        <TeamModalOption
           title="Create a New Team"
-          description="Description here"
-          link="/team/1"
+          description=""
+          link="/team/create"
+          background="createTeamBackground"
+          iconBackground="white"
           svg={
             <svg
               width="12"
