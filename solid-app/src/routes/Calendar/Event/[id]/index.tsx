@@ -431,8 +431,8 @@ export default function EventPage() {
           >
             <DeleteConfirmation
               onDelete={handleDeleteEvent}
-              buttonText="Event"
-              description="event"
+              buttonText=" Event"
+              description=""
               onCancel={() => setIsDeleteOpen(false)}
               onClose={() => setIsDeleteOpen(false)}
               title="Event"

@@ -58,7 +58,7 @@ export default function SelectInput<T>(props: {
           }}
         </SelectValue>
       </SelectTrigger>
-      {/* temp fix z pls (if select is in modal, options dont show) */}
+      {/* temporary fix z pls (if select is in modal, options dont show) */}
       <SelectContent class="z-[10000]" />
       <SelectHiddenSelect />
     </Select>

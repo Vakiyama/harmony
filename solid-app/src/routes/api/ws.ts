@@ -1,15 +1,16 @@
 import { APIEvent } from "@solidjs/start/server";
 import { Server } from "socket.io";
 import { SocketWithIO, IOSocketServer } from "~/types/socket";
+import {
+  createClient,
+  ListenLiveClient,
+  LiveTranscriptionEvents,
+} from "@deepgram/sdk";
 
-import { SpeechClient } from "@google-cloud/speech";
+// URL for the realtime streaming audio you would like to transcribe
+const deepgram = createClient(process.env.DEEPGRAM_API_KEY);
 
-type RecognizeStream = ReturnType<SpeechClient["streamingRecognize"]>;
-
-console.log({ apiKey: process.env.GOOGLE_API_KEY! });
-const client = new SpeechClient({ apiKey: process.env.GOOGLE_API_KEY! });
-
-export function GET({ request, nativeEvent }: APIEvent) {
+export function GET({ nativeEvent }: APIEvent) {
   const socket = nativeEvent.node.res.socket as SocketWithIO | null;
   if (!socket) return;
   if (socket.server.io) {
@@ -41,51 +42,76 @@ export async function processAudioFrame(frameDataStream: {
   */
 
     io.on("connection", (socket) => {
-      let recognizeStream = client
-        .streamingRecognize({
-          config: {
-            encoding: "WEBM_OPUS",
-            sampleRateHertz: 16000,
-            languageCode: "en-US",
-          },
-          interimResults: true,
-        })
-        .on("error", (error) => {
-          console.error("Error during streaming recognition:", error);
+      const connection = deepgram.listen.live({
+        model: "nova-2",
+        language: "en-US",
+        smart_format: true,
+        interim_results: true,
+        utterance_end_ms: 1000,
+        keywords: ["Harmony", "mood", "journal", "entry", "note"],
+      });
+
+      const keepAlive = setInterval(() => {
+        connection.keepAlive();
+      }, 5000);
+
+      connection.on(LiveTranscriptionEvents.Open, () => {
+        connection.on(LiveTranscriptionEvents.Close, () => {
+          console.log("Connection close event.");
         });
 
-      socket.on("start-transcription", () => {
-        console.log("Started transcription");
+        connection.on(LiveTranscriptionEvents.Transcript, (data) => {
+          console.log(
+            `Transcription: ${data.channel.alternatives[0].transcript}`,
+          );
+          socket.emit(
+            "transcription-results",
+            data.channel.alternatives[0].transcript,
+          );
+        });
 
-        recognizeStream.on("data", (data) => {
-          if (data && data.results[0] && data.results[0].alternatives[0]) {
-            console.log(
-              `Transcription: ${data.results[0].alternatives[0].transcript}`,
-            );
+        connection.on(LiveTranscriptionEvents.Metadata, (data) => {
+          console.log("meta:", data);
+        });
 
-            socket.emit(
-              "transcription-results",
-              data.results[0].alternatives[0].transcript,
-            );
-          }
+        connection.on(LiveTranscriptionEvents.Error, (err) => {
+          console.error(err);
+        });
+
+        connection.on(LiveTranscriptionEvents.UtteranceEnd, () => {
+          socket.emit("end-utterance");
         });
       });
 
       socket.on("write-transcription", (frameDataStream) => {
+        /*
         const bufferChunk = Buffer.from(
           frameDataStream.base64AudioChunk,
           "base64",
         );
-        console.log("Received audio chunk of size:", bufferChunk.byteLength);
+        */
+        /*
+        console.log(
+                    frameDataStream.dataBlob
+            .arrayBuffer()
+            .then((buffer) => buffer.byteLength),
+        );
+        */
 
-        recognizeStream.write(bufferChunk);
+        connection.send(frameDataStream.dataBlob);
       });
+
+      /*
+      socket.on("end-transcription", () => {
+        console.log("end transcription");
+        stopStream();
+      });
+      */
 
       socket.on("disconnect", () => {
         console.log("Client disconnected");
-        if (recognizeStream) {
-          recognizeStream.end();
-        }
+        clearInterval(keepAlive);
+        connection.requestClose();
       });
 
       socket.on("new-user", (name) => {

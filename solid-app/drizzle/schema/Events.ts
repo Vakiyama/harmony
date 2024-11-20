@@ -26,7 +26,6 @@ export const events = sqliteTable("events", {
   timeEnd: integer("timeEnd", { mode: "timestamp" }).default(
     sql`(unixepoch())`
   ),
-  complete: integer("complete", { mode: "boolean" }).default(false),
   location: text("location").notNull(),
   repeat: text("repeat", { enum: eventsFrequencyEnum }).notNull(),
   type: text("type", { enum: eventsTypeEnum }).notNull(),

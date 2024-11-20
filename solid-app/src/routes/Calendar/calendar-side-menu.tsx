@@ -10,7 +10,6 @@ import { FaSolidAngleDown, FaSolidAngleUp } from "solid-icons/fa";
 import {
   Accessor,
   batch,
-  createEffect,
   createSignal,
   For,
   onMount,
@@ -19,22 +18,42 @@ import {
 } from "solid-js";
 import BsGrid2x3GapFill from "~/components/icon/bs-grid-2x3-gap-fill";
 import BsGrid3x3GapFill from "~/components/icon/bs-grid-3x3-gap-fill";
+import CalendarIcon from "~/components/icon/calendar-icon";
 import TbRectangleFilled from "~/components/icon/tb-rectangle-filled";
 import Checkbox from "~/components/shared/checkbox";
-import { CalendarFilterType } from ".";
+type CalendarFilterType =
+  | "events"
+  | "tasks"
+  | "medication"
+  | "complete"
+  | "uncompleted";
+
+const DEFAULT_FILTERS: CalendarFilterType[] = [
+  "events",
+  "tasks",
+  "medication",
+  "complete",
+  "uncompleted",
+];
 
 const CalendarSideMenu = (props: {
   refetchData: () => void;
   setIsSideMenuOpen: Setter<boolean>;
   teamMembers: Accessor<{ users: User; teammembers: TeamMember }[]>;
-  searchParams: Partial<SearchParams>;
+  params: Accessor<SetSearchParams>;
+  setParams: Setter<SetSearchParams>;
   setSearchParams: (
     params: SetSearchParams,
     options?: Partial<NavigateOptions>
   ) => void;
-  params: Accessor<SetSearchParams>;
-  setParams: Setter<SetSearchParams>;
+  searchParams: Partial<SearchParams>;
+
+  setCurrentView: Setter<"day" | "week" | "month">;
 }) => {
+  const DEFAULT_TEAMMEMBERS = props
+    .teamMembers()
+    .map((t) => t.users.id.toString());
+  const [searchParams, setSearchParams] = useSearchParams();
   const [isPeopleOpen, setIsPeopleOpen] = createSignal(false);
   const [isCalendarOpen, setIsCalendarOpen] = createSignal(false);
   const [isTeamOpen, setIsTeamOpen] = createSignal(false);
@@ -65,8 +84,8 @@ const CalendarSideMenu = (props: {
   };
 
   const getSelectedMembers = () => {
-    return props.searchParams.selected
-      ? props.searchParams.selected.toString().split(",")
+    return searchParams.selected
+      ? searchParams.selected.toString().split(",")
       : [];
   };
 
@@ -97,7 +116,7 @@ const CalendarSideMenu = (props: {
     }
 
     batch(() => {
-      updateSelected(newSelected.join(","));
+      setSearchParams({ selected: newSelected.join(",") });
     });
   };
 
@@ -140,30 +159,48 @@ const CalendarSideMenu = (props: {
           </button>
         </div>
         <div class="flex-col justify-center items-center inline-flex w-full">
-          {/* <div class="self-stretch py-[13px] justify-start items-center gap-2 flex border-b border-[#1e1e1e]/20 px-3">
-            <CalendarIcon />
-            <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
-              Today
+          <button
+            onClick={() => {
+              props.setCurrentView("month");
+              props.setIsSideMenuOpen(false);
+            }}
+            class="w-full"
+          >
+            <div class="self-stretch py-[13px] justify-start items-center gap-2 flex border-b border-[#1e1e1e]/20 px-3">
+              <BsGrid3x3GapFill />
+              <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
+                Month
+              </div>
             </div>
-          </div> */}
-          <div class="self-stretch py-[13px] justify-start items-center gap-2 flex border-b border-[#1e1e1e]/20 px-3">
-            <BsGrid3x3GapFill />
-            <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
-              Month
+          </button>
+          <button
+            onClick={() => {
+              props.setCurrentView("week");
+              props.setIsSideMenuOpen(false);
+            }}
+            class="w-full"
+          >
+            <div class="self-stretch py-[13px] justify-start items-center gap-2 flex border-b border-[#1e1e1e]/20 px-3">
+              <BsGrid2x3GapFill />
+              <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
+                Week
+              </div>
             </div>
-          </div>
-          <div class="self-stretch py-[13px] justify-start items-center gap-2 flex border-b border-[#1e1e1e]/20 px-3">
-            <BsGrid2x3GapFill />
-            <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
-              Week
+          </button>
+          <button
+            onClick={() => {
+              props.setCurrentView("day");
+              props.setIsSideMenuOpen(false);
+            }}
+            class="w-full"
+          >
+            <div class="self-stretch py-[13px] justify-start items-center gap-2 flex px-3">
+              <TbRectangleFilled />
+              <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
+                Day
+              </div>
             </div>
-          </div>
-          <div class="self-stretch py-[13px] justify-start items-center gap-2 flex px-3">
-            <TbRectangleFilled />
-            <div class="txt-[#1e1e1e] text-base font-normal font-sf-pro leading-tight">
-              Day
-            </div>
-          </div>
+          </button>
         </div>
         <div class="w-full flex-col justify-center items-start pt-[18px] space-y-[18px]">
           <button

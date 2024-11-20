@@ -1,5 +1,4 @@
 import {
-  batch,
   createEffect,
   createResource,
   createSignal,
@@ -17,21 +16,14 @@ import moment from "moment";
 import MonthCalendarView from "./month-calendar-view";
 import WeekCalendarView from "./week-calendar-view";
 import CalendarSideMenu from "./calendar-side-menu";
-import EventCalendarDisplay from "./event-calendar-display";
 import CalendarTopNav from "~/components/calendar/calendar-top-nav";
 import { User } from "@/schema/Users";
 import { TeamMember } from "@/schema/TeamMembers";
+import DayCalendarView from "./day-calendar-view";
 import { useSearchParams } from "@solidjs/router";
 import { SetSearchParams } from "node_modules/@solidjs/router/dist/types";
 moment.locale("en");
 moment.updateLocale("en", { weekdaysMin: "S_M_T_W_T_F_S".split("_") });
-
-export type CalendarFilterType =
-  | "events"
-  | "tasks"
-  | "medication"
-  | "complete"
-  | "uncompleted";
 
 export type EventFormData = {
   title: string;
@@ -40,15 +32,17 @@ export type EventFormData = {
   timeEnd: Date | null;
   location: string;
 };
+export type CalendarFilterType =
+  | "events"
+  | "tasks"
+  | "medication"
+  | "complete"
+  | "uncompleted";
 
 export default function CalendarPage() {
   // temp get calendar Id
   const teamId = 1;
   const calendarId = 1;
-  const [events, setEvents] = createSignal<Event[]>([]);
-  const [teamMembers, setTeamMembers] = createSignal<
-    { users: User; teammembers: TeamMember }[]
-  >([]);
   const DEFAULT_FILTERS: CalendarFilterType[] = [
     "events",
     "tasks",
@@ -56,8 +50,15 @@ export default function CalendarPage() {
     "complete",
     "uncompleted",
   ];
+  const [events, setEvents] = createSignal<Event[]>([]);
+  const [currentView, setCurrentView] = createSignal<"day" | "week" | "month">(
+    "week"
+  );
+  const [teamMembers, setTeamMembers] = createSignal<
+    { users: User; teammembers: TeamMember }[]
+  >([]);
   const DEFAULT_TEAMMEMBERS = teamMembers().map((t) => t.users.id.toString());
-  const [currentdDay, setCurrentDay] = createSignal<number>(moment().date());
+  const [currentDay, setCurrentDay] = createSignal<number>(moment().date());
   const [currentMonth, setCurrentMonth] = createSignal(moment().format("MMMM"));
   const [currentYear, setCurrentYear] = createSignal<number>(moment().year());
   const [selectedDay, setSelectedDay] = createSignal<number>(moment().date());
@@ -65,7 +66,6 @@ export default function CalendarPage() {
     moment().format("MMMM")
   );
   const [selectedYear, setSelectedYear] = createSignal<number>(moment().year());
-  const [isSideMenuOpen, setIsSideMenuOpen] = createSignal(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [params, setParams] = createSignal<SetSearchParams>({
     filters: searchParams.filters
@@ -75,7 +75,6 @@ export default function CalendarPage() {
       ? searchParams.select.toString()
       : DEFAULT_TEAMMEMBERS.join(","),
   });
-
   onMount(async () => {
     await fetchEvents(calendarId);
     await fetchTeamMembers(teamId);
@@ -106,6 +105,8 @@ export default function CalendarPage() {
     console.log(resource(), "hello?");
   }, [resource()]);
 
+  const [isSideMenuOpen, setIsSideMenuOpen] = createSignal(false);
+  const [isCalendarOpen, setIsCalendarOpen] = createSignal(true);
   const fetchEvents = async (calendarId: number) => {
     const [eventError, eventResult] = await mightFail(getAllEvents(calendarId));
     if (eventError) {
@@ -113,19 +114,19 @@ export default function CalendarPage() {
     }
     setEvents(eventResult);
   };
-
   const fetchTeamMembers = async (teamId: number) => {
     const [eventError, eventResult] = await mightFail(
-      getTeamMembersFromTeamId(teamId)
+      getTeamMembersFromTeamId(calendarId)
     );
     if (eventError) {
       return console.error(eventError);
     }
     setTeamMembers(eventResult);
+    console.log(teamMembers());
   };
 
   return (
-    <div class="relative h-full">
+    <div class="h-full fixed w-full overflow-y-auto">
       <div class={`${isSideMenuOpen() ? "" : "hidden"}`}>
         <CalendarSideMenu
           refetchData={handleRefetch}
@@ -133,6 +134,7 @@ export default function CalendarPage() {
           setSearchParams={setSearchParams}
           setIsSideMenuOpen={setIsSideMenuOpen}
           teamMembers={teamMembers}
+          setCurrentView={setCurrentView}
           params={params}
           setParams={setParams}
         />
@@ -141,9 +143,17 @@ export default function CalendarPage() {
         month={currentMonth}
         setIsSideMenuOpen={setIsSideMenuOpen}
         isSideMenuOpen={isSideMenuOpen}
+        setCurrentDay={setCurrentDay}
+        setCurrentMonth={setCurrentMonth}
+        setCurrentYear={setCurrentYear}
+        setSelectedDay={setSelectedDay}
+        setSelectedMonth={setSelectedMonth}
+        setSelectedYear={setSelectedYear}
+        setIsCalendarOpen={setIsCalendarOpen}
+        isCalendarOpen={isCalendarOpen}
       />
-      <div class="flex flex-col">
-        {/* <MonthCalendarView
+      <Show when={currentView() === "month"}>
+        <MonthCalendarView
           selectedYear={selectedYear}
           setSelectedYear={setSelectedYear}
           selectedMonth={selectedMonth}
@@ -151,7 +161,10 @@ export default function CalendarPage() {
           selectedDay={selectedDay}
           setSelectedDay={setSelectedDay}
           events={events}
-        /> */}
+          isCalendarOpen={isCalendarOpen}
+        />
+      </Show>
+      <Show when={currentView() === "week"}>
         <WeekCalendarView
           selectedYear={selectedYear}
           setSelectedYear={setSelectedYear}
@@ -164,21 +177,26 @@ export default function CalendarPage() {
           setCurrentMonth={setCurrentMonth}
           setCurrentYear={setCurrentYear}
           events={events}
+          isCalendarOpen={isCalendarOpen}
         />
-        <div class="flex justify-center pt-4 px-3">
-          <EventCalendarDisplay
-            events={events}
-            selectedYear={selectedYear}
-            selectedMonth={selectedMonth}
-            selectedDay={selectedDay}
-            setSelectedYear={setSelectedYear}
-            setSelectedMonth={setSelectedMonth}
-            setSelectedDay={setSelectedDay}
-            setCurrentMonth={setCurrentMonth}
-            setCurrentYear={setCurrentYear}
-          />
-        </div>
-      </div>
+      </Show>
+      <Show when={currentView() === "day"}>
+        <DayCalendarView
+          selectedDay={selectedDay}
+          selectedMonth={selectedMonth}
+          selectedYear={selectedYear}
+          setSelectedDay={setSelectedDay}
+          setSelectedMonth={setSelectedMonth}
+          setSelectedYear={setSelectedYear}
+          setCurrentMonth={setCurrentMonth}
+          setCurrentYear={setCurrentYear}
+          setCurrentDay={setCurrentDay}
+          currentMonth={currentMonth}
+          currentYear={currentYear}
+          events={events}
+          isCalendarOpen={isCalendarOpen}
+        />
+      </Show>
     </div>
   );
 }

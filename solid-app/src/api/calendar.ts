@@ -3,7 +3,7 @@ import { AlarmInput, alarms } from "../../drizzle/schema/Alarms";
 import { CalendarInput, calendars } from "../../drizzle/schema/Calendars";
 import { EventInput, events } from "../../drizzle/schema/Events";
 import { db } from "./db";
-import { and, eq, or, sql } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { TeamMember, teamMembers } from "../../drizzle/schema/TeamMembers";
 import { User, users } from "../../drizzle/schema/Users";
 import { eventParticipants } from "../../drizzle/schema/EventParticipants";

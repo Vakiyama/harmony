@@ -1,33 +1,17 @@
-import { createAsync, useLocation } from "@solidjs/router";
-import { createMemo, createSignal, Show } from "solid-js";
+import { createAsync } from "@solidjs/router";
+import { createSignal, Show } from "solid-js";
 import { getUser } from "~/api";
 import { getListOfTeams } from "~/api/team";
 import ProfileHeaderHome from "~/components/profile/profile-header-home";
-import ProfilePopover from "~/components/profile/profile-popover";
 import ProfileUserName from "~/components/profile/profile-user-name";
 import TeamCard from "~/components/profile/team-card";
 import TeamModal from "~/components/profile/team-modal";
-import Modal from "~/components/shared/modal";
-import TopNav from "~/components/shared/TopNav";
 export default function Profile() {
   const [isModalOpen, setIsModalOpen] = createSignal(false);
-  const location = useLocation();
   const user = createAsync(async () => await getUser(), { deferStream: true });
   const teams = createAsync(async () => await getListOfTeams(), {
     deferStream: true,
   });
-
-  const getHeader = () => {
-    const path = location.pathname;
-
-    if (path === "/profile") {
-      return <ProfileHeaderHome />;
-    } else if (path.startsWith("/profile/specific-team-info")) {
-      return <TopNav leftNavigation="Back" name="Lola's Care Circle" />;
-    } else {
-      return <ProfileHeaderHome />;
-    }
-  };
 
   const handleButtonClick = () => {
     setIsModalOpen((prev) => !prev);
@@ -44,7 +28,7 @@ export default function Profile() {
   };
   return (
     <>
-      <div>{getHeader()}</div>
+      <ProfileHeaderHome />
       <div class="relative p-4">
         <Show when={user()}>
           <ProfileUserName
