@@ -13,6 +13,7 @@ import {
 } from "solid-js";
 import BsGrid2x3GapFill from "~/components/icon/bs-grid-2x3-gap-fill";
 import BsGrid3x3GapFill from "~/components/icon/bs-grid-3x3-gap-fill";
+import CalendarIcon from "~/components/icon/calendar-icon";
 import TbRectangleFilled from "~/components/icon/tb-rectangle-filled";
 import Checkbox from "~/components/shared/checkbox";
 type CalendarFilterType =
