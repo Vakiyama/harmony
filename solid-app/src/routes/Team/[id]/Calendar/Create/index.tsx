@@ -6,7 +6,7 @@ import { twMerge } from "tailwind-merge";
 import TimeDateCalendar from "./TimeDateCalendar";
 import SelectInput from "~/components/shadcn/Select";
 import { createEvent, getTeamMembersFromTeamId } from "~/api/calendar";
-import { createAsync, useNavigate } from "@solidjs/router";
+import { createAsync, useNavigate, useParams } from "@solidjs/router";
 import type { TeamMember } from "@/schema/TeamMembers";
 import { User } from "@/schema/Users";
 import { mightFail } from "might-fail";
@@ -18,8 +18,8 @@ import { getTeamFromTeamId } from "~/api/team";
 
 const CalendarCreateEvent = () => {
   const navigate = useNavigate();
-  // temp get teamId first
-  const teamId = 1;
+  const params = useParams();
+  const teamId = parseInt(params.id);
   const teamMembers = createAsync(
     async () => await getTeamMembersFromTeamId(teamId),
     { deferStream: true }
@@ -58,7 +58,6 @@ const CalendarCreateEvent = () => {
 
   async function createEventHandler(e: Event) {
     e.preventDefault();
-    // temp
     if (!title() || title().trim() === "") {
       return setError("Title is required.");
     }
@@ -96,11 +95,12 @@ const CalendarCreateEvent = () => {
     if (createEventError) {
       return console.error(createEventError);
     }
-    navigate("/calendar");
+    navigate(`/team/${teamId}/calendar`);
   }
   return (
     <>
       <EventCreateTopNav
+        teamId={teamId}
         handleCreate={createEventHandler}
         name={team()?.data.recipients?.firstName}
       />

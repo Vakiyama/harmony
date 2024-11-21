@@ -47,17 +47,19 @@ export const deleteAlarm = async (alarmId: number) => {
 };
 
 // Calendars
-export const getCalendarsFromTeamId = cache(async (teamId: number) => {
+export const getCalendarFromTeamId = async (teamId: number) => {
   "use server";
-  return await db.select().from(calendars).where(eq(calendars.teamId, teamId));
-}, "calendars");
+  return (
+    await db.select().from(calendars).where(eq(calendars.teamId, teamId))
+  )[0];
+};
 
-export const getCalendar = cache(async (calendarId: number) => {
+export const getCalendar = async (calendarId: number) => {
   "use server";
   return (
     await db.select().from(calendars).where(eq(calendars.id, calendarId))
   )[0];
-}, "calendar");
+};
 
 export const createCalendar = async (calendarInput: CalendarInput) => {
   "use server";

@@ -26,6 +26,7 @@ const DayCalendarView = (props: {
   currentYear: Accessor<number>;
   events: Accessor<Event[]>;
   isCalendarOpen: Accessor<boolean>;
+  teamId: number;
 }) => {
   const [startX, setStartX] = createSignal(0);
   const getFormattedDate = () => {
@@ -252,6 +253,7 @@ const DayCalendarView = (props: {
                     }}
                   >
                     <EventCard
+                      teamId={props.teamId}
                       event={event}
                       class="ml-[66px] h-full rounded-lg px-4 py-2"
                     />
@@ -280,6 +282,7 @@ const DayCalendarView = (props: {
                               }}
                             >
                               <EventCard
+                                teamId={props.teamId}
                                 event={nestedEvent}
                                 class={`w-[calc(100%-2rem)] rounded-lg px-4 py-2 relative z-[1] border-2 border-white h-full`}
                               />

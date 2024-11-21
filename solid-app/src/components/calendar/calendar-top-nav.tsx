@@ -14,6 +14,7 @@ export default function CalendarTopNav(props: {
   setSelectedYear: Setter<number>;
   setIsCalendarOpen: Setter<boolean>;
   isCalendarOpen: Accessor<boolean>;
+  teamId: number;
 }) {
   const handleReturnToToday = () => {
     props.setCurrentDay(moment().date());
@@ -84,7 +85,7 @@ export default function CalendarTopNav(props: {
               />
             </svg>
           </A>
-          <A href="/calendar/create" class="text-md">
+          <A href={`/team/${props.teamId}/calendar/create`} class="text-md">
             {/* Create icon */}
             <svg
               width="21"
