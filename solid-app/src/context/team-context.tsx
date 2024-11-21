@@ -58,26 +58,26 @@ interface FormContextValue {
   updateTeamId: (value: number) => void;
   updateRecipientField: (
     field: keyof FormState["recipient"],
-    value: string,
+    value: string
   ) => void;
   updateTeamName: (value: string) => void;
   addSurgery: () => void;
   updateSurgery: (
     index: number,
     field: keyof FormState["importantSurgeries"][0],
-    value: string,
+    value: string
   ) => void;
   addMedication: () => void;
   updateMedication: (
     index: number,
     field: keyof FormState["medications"][0],
-    value: string,
+    value: string
   ) => void;
   addPastInjury: () => void;
   updatePastInjury: (
     index: number,
     field: keyof FormState["pastInjuries"][0],
-    value: string,
+    value: string
   ) => void;
   currentStep: Accessor<number>;
   nextStep: () => void;
