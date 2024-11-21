@@ -6,7 +6,7 @@ import { emailLogin } from "~/api/auth-server-actions";
 export default function Login() {
   return (
     <main class="w-full h-full p-4 flex justify-center space-y-2 overflow-hidden">
-      <div class="flex flex-col items-center justify-end w-full mb-[142px]">
+      <div class="flex flex-col items-center justify-center w-full h-full mt-[60px] mb-16">
         <MediumLogo class="mt-10 mb-10" />
         <div class="mt-[2px] mb-6 w-full flex items-center justify-center">
           <h1 class="text-h2 normal-case text-gray-600 ">Welcome back!</h1>
@@ -22,7 +22,7 @@ export default function Login() {
               />
             </TextFieldRoot>
           </div>
-          <div class="w-full">
+          <div class="flex flex-col justify-end w-full flex-grow">
             <Button
               class="rounded-full h-12 w-full text-base text-black bg-primary-purple-300"
               variant="default"
@@ -32,11 +32,6 @@ export default function Login() {
             </Button>
           </div>
         </form>
-        {/* <div class="w-full">
-          <a href="/api/auth/reset-password" class="m-0 text-[13px]">
-            Forgot your Password?
-          </a>
-        </div> */}
       </div>
     </main>
   );

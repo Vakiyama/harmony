@@ -25,9 +25,9 @@ export default function UserHealth2() {
       <p class="flex justify-center text-subtitle13 text-stepsGray mt-3">
         5 of 8
       </p>
-      <div class="flex items-center justify-start flex-col h-full mt-4 mx-3">
+      <div class="flex items-center justify-start flex-col h-full mt-4 mx-3 mb-[19px]">
         <p class="self-start text-h2 font-grotesque leading-[120%] font-medium">
-          Tell us about "User's" Health
+          Tell us about "{team.state.recipient.firstName}'s" Health
         </p>
         <p class="self-start text-h3 font-grotesque leading-[120%] font-medium mt-[18px]">
           Health Profile
@@ -156,7 +156,7 @@ export default function UserHealth2() {
           </div>
           <button
             onClick={handleAddSurgery}
-            class="w-full mt-2 border text-addGray rounded-[8px] text-base mb-[39px]"
+            class="w-full mt-2 border text-addGray rounded-[8px] text-base"
           >
             <div class="flex flex-col justify-center items-center gap-0 my-2">
               <span class="justify-self-end">
@@ -189,21 +189,18 @@ export default function UserHealth2() {
             </div>
           </button>
           {/* Next button */}
-          <div class="flex flex-col justify-end w-full flex-grow">
-            <Button
-              type="button"
-              onClick={team.nextStep}
-              class="rounded-full w-full bg-primary-purple-300 text-black text-base h-12"
-            >
-              Next
-            </Button>
-            <a
-              onClick={team.nextStep}
-              class="self-center text-subtitle13 mt-2 mb-[18px]"
-            >
-              Skip for now
-            </a>
-          </div>
+        </div>
+        <div class="flex flex-col justify-end w-full flex-grow">
+          <Button
+            type="button"
+            onClick={team.nextStep}
+            class="rounded-full w-full mt-3 bg-primary-purple-300 text-black text-base h-12"
+          >
+            Next
+          </Button>
+          <a onClick={team.nextStep} class="self-center text-subtitle13 mt-2">
+            Skip for now
+          </a>
         </div>
       </div>
     </>

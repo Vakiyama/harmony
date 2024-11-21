@@ -17,7 +17,7 @@ export default function Landing() {
   };
   return (
     <main class="w-full h-full p-4 flex items-center justify-center space-y-2 overflow-hidden">
-      <div class="mt-8 mb-8 flex flex-col items-center justify-center w-full">
+      <div class="flex flex-col items-center justify-center w-full">
         <WordMark class="mt-8 mb-8" />
         <form
           onSubmit={handleSubmit}
@@ -68,7 +68,7 @@ export default function Landing() {
             </span>
           </div>
         </form>
-        <div class="mt-8 w-full">
+        <div class="mb-8 w-full">
           <a href="/api/auth/login" class="mx-auto">
             <Button
               class="rounded-full h-12 w-full mb-4 text-black text-base bg-primary-purple-300"
@@ -77,11 +77,11 @@ export default function Landing() {
               Login
             </Button>
           </a>
-        </div>
-        <div class="w-full flex justify-center">
-          <a href="/api/auth/sign-up" class="text-subtitle13">
-            Sign Up
-          </a>
+          <div class="w-full flex justify-center">
+            <a href="/api/auth/sign-up" class="text-subtitle13">
+              Sign Up
+            </a>
+          </div>
         </div>
       </div>
     </main>
