@@ -71,7 +71,7 @@ export default function UserInfo2() {
       </p>
       <div class="flex items-center justify-start flex-col h-full mt-4 mb-[46px] mx-3">
         <p class="self-start text-h2 font-grotesque leading-[120%] font-medium">
-          Tell us about "User"
+          Tell us about "{team.state.recipient.firstName}"
         </p>
         <p class="self-start text-h3 font-grotesque leading-[120%] mt-[18px]">
           Other Information

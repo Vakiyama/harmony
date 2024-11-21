@@ -36,7 +36,7 @@ export default function AddMedication() {
         </p>
         <div class="flex items-center justify-start flex-col h-full mt-4 mx-3 mb-[19px]">
           <p class="self-start text-h2 font-grotesque leading-[120%] font-medium">
-            Tell us about "User's" Medication
+            Tell us about "{team.state.recipient.firstName}'s" Medication
           </p>
           <p class="self-start text-h3 font-grotesque leading-[120%] font-medium mt-[18px]">
             Medication Details
