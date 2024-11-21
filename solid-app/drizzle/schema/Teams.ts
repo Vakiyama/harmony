@@ -8,6 +8,7 @@ export const teams = sqliteTable("teams", {
   id: integer("id").primaryKey({ autoIncrement: true }).unique().notNull(),
   teamName: text("team_name").notNull(),
   photo: text("photo").notNull().default(""),
+  inviteCode: text("invite_code").notNull(),
   recipientId: integer("recipient_id")
     .references(() => recipients.id)
     .notNull()

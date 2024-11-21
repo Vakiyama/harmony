@@ -17,7 +17,7 @@ export default function SpecificTeamInfo() {
     console.log(team());
   }
   return (
-    <div class="w-full mt-28">
+    <div class="w-full">
       {/* header */}
       <Show when={teamData()}>
         <div>
@@ -32,6 +32,7 @@ export default function SpecificTeamInfo() {
               photoUrl={teamData()?.data.recipients?.photo || ""}
               firstName={teamData()?.data.recipients?.firstName || ""}
               lastName={teamData()?.data.recipients?.lastName || ""}
+              inviteCode={teamData()?.data.teams.inviteCode}
             />
           </div>
           <div class="mt-4">

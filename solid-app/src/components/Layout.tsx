@@ -34,7 +34,7 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
     const teamData = await getListOfTeams();
     const defaultTeam = teamData.find((team) => team.team.defaultTeam);
     if (defaultTeam && team.state.id === -1) {
-       team.updateTeamId(defaultTeam.team.id);
+      team.updateTeamId(defaultTeam.team.id);
     }
   });
 
@@ -94,7 +94,7 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
             location.pathname.startsWith(`/team/create`) ||
             location.pathname.startsWith(`/api/auth`)
               ? ""
-              : "mb-20"
+              : ""
           }`}
         >
           {props.children}
