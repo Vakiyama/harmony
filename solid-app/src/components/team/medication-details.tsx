@@ -133,11 +133,6 @@ export default function MedicationDetails({
                         ...prev,
                         [field.name]: e.currentTarget.value,
                       }));
-                      // team.updateMedication(
-                      //   currentMedicationIndex,
-                      //   field.name as keyof FormState["medications"][0],
-                      //   e.currentTarget.value
-                      // );
                     }}
                     placeholder={field.placeholder}
                     classRoot={(index() === 0 ? "mt-3" : "mt-6") + " space-y-0"}
