@@ -28,7 +28,7 @@ export default function SignUp() {
   };
   return (
     <main class="w-full h-full p-4 flex items-center justify-center space-y-2 overflow-hidden">
-      <div class="flex flex-col items-center justify-center w-full h-full">
+      <div class="flex flex-col items-center justify-center w-full h-full mb-16">
         <form
           onSubmit={handleSubmit}
           class="appearance-none w-full mt-1"
@@ -90,13 +90,13 @@ export default function SignUp() {
             >
               {isSubmitting() ? "..." : "Next"}
             </Button>
+            <div class="w-full mb-0 flex justify-center">
+              <a href="/api/auth/landing" class="m-0 text-subtitle13">
+                Already have an account? Log In
+              </a>
+            </div>
           </div>
         </form>
-        <div class="w-full mb-0 flex justify-center">
-          <a href="/api/auth/landing" class="m-0 text-subtitle13">
-            Already have an account? Log In
-          </a>
-        </div>
       </div>
     </main>
   );
