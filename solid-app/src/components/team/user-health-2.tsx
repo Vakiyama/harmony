@@ -201,7 +201,7 @@ export default function UserHealth2() {
               onClick={team.nextStep}
               class="self-center text-subtitle13 mt-2 mb-[18px]"
             >
-              skip for now
+              Skip for now
             </a>
           </div>
         </div>

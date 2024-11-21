@@ -9,7 +9,6 @@ export default function UploadPhoto() {
       <p class="flex justify-center text-subtitle13 text-stepsGray mt-3">
         3 of 8
       </p>
-      {/* upload photo part */}
       <div class="flex items-center justify-end flex-col h-full mb-[19px] mx-3">
         <p class="text-h2 font-medium leading-[120%] font-grotesque self-start">
           Upload a photo of "User"
@@ -19,12 +18,18 @@ export default function UploadPhoto() {
           recognizable
         </p>
 
-        {/* Add photo here */}
         <div class="border-[1px] border-photoBoxGray w-full h-[310px] rounded-[8px] mt-6 flex flex-col justify-center ">
           <label
             for="photo-upload"
-            class="flex flex-col items-center justify-center"
+            class="flex flex-col h-full items-center justify-center"
           >
+            <input
+              id="photo-upload"
+              type="file"
+              accept="image/*"
+              name="photo"
+              hidden
+            />
             <svg
               width="16"
               height="14"
@@ -40,13 +45,6 @@ export default function UploadPhoto() {
             </svg>
             <p class="text-subtitle13 text-photoBoxLabel">Tab to add a photo</p>
           </label>
-          <input
-            id="photo-upload"
-            type="file"
-            accept="image/*"
-            class="hidden"
-            name="photo"
-          />
         </div>
         <Button
           type="button"
@@ -56,7 +54,7 @@ export default function UploadPhoto() {
           Next
         </Button>
         <a onClick={team.nextStep} class="text-subtitle13 mt-2">
-          skip for now
+          Skip for now
         </a>
       </div>
     </>

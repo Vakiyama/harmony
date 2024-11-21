@@ -114,16 +114,14 @@ export default function AddMedication() {
               Next
             </Button>
             <a onClick={team.nextStep} class="self-center text-subtitle13 mt-2">
-              skip for now
+              Skip for now
             </a>
           </div>
         </div>
       </Show>
 
       <Show when={showMedicationForm()}>
-        <div class="fixed inset-0">
-          <MedicationDetails onMedicationAdded={handleMedicationAdded} />
-        </div>
+        <MedicationDetails onMedicationAdded={handleMedicationAdded} />
       </Show>
     </>
   );

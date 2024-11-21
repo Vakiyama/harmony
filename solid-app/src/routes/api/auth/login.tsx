@@ -5,8 +5,8 @@ import { emailLogin } from "~/api/auth-server-actions";
 
 export default function Login() {
   return (
-    <main class="w-full h-full mt-[108px] p-4 flex items-center justify-center space-y-2 overflow-hidden">
-      <div class="mt-64 mb-16 flex flex-col items-center justify-center w-full">
+    <main class="w-full h-full p-4 flex justify-center space-y-2 overflow-hidden">
+      <div class="flex flex-col items-center justify-end w-full mb-[142px]">
         <MediumLogo class="mt-10 mb-10" />
         <div class="mt-[2px] mb-6 w-full flex items-center justify-center">
           <h1 class="text-h2 normal-case text-gray-600 ">Welcome back!</h1>

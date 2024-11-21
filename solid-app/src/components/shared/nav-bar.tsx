@@ -73,8 +73,8 @@ export default function NavBar(props: {
           : ""
       )}
     >
-      <div class="max-w-screen-lg mx-auto px-4">
-        <div class="flex justify-between items-center py-2">
+      <div class="max-w-screen-lg mx-auto">
+        <div class="flex justify-between items-center pt-2 pb-5 mx-3">
           <For each={routes()}>
             {(route) => (
               <NavBarItem

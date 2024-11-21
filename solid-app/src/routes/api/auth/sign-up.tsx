@@ -27,7 +27,7 @@ export default function SignUp() {
     }
   };
   return (
-    <main class="w-full h-full mt-20 p-4 flex items-center justify-center space-y-2 overflow-hidden">
+    <main class="w-full h-full p-4 flex items-center justify-center space-y-2 overflow-hidden">
       <div class="flex flex-col items-center justify-center w-full h-full">
         <form
           onSubmit={handleSubmit}
@@ -35,7 +35,7 @@ export default function SignUp() {
           method="post"
         >
           <div class="mb-8 w-full mx-auto">
-            <div class="mt-16 mb-4 text-left self-start justify-self-start h-[84px]">
+            <div class="mb-4 text-left self-start justify-self-start h-[84px]">
               <h1 class="text-h2 normal-case text-black mb-4">Sign Up</h1>
               <p class="text-gray-600 text-subtitle_13 w-full">
                 Please enter your name and email below.
