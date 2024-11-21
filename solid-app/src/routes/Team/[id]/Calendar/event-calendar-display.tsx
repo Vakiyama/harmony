@@ -3,7 +3,10 @@ import type { Event } from "@/schema/Events";
 import EventCard from "~/components/ui/event-card";
 import moment from "moment";
 
-const EventCalendarDisplay = (props: { events: Accessor<Event[]> }) => {
+const EventCalendarDisplay = (props: {
+  events: Accessor<Event[]>;
+  teamId: number;
+}) => {
   const getDayName = (date: string) => {
     return moment.weekdaysShort()[moment(date).day()].toUpperCase();
   };
@@ -39,7 +42,7 @@ const EventCalendarDisplay = (props: { events: Accessor<Event[]> }) => {
             </div>
             <div class="w-full flex-col justify-start items-end gap-1 inline-flex">
               <For each={getGroupedEvents()[date]}>
-                {(event) => <EventCard event={event} />}
+                {(event) => <EventCard event={event} teamId={props.teamId} />}
               </For>
             </div>
           </div>

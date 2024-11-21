@@ -56,13 +56,13 @@ const parseTeamMemberToOption = (
     : [];
 
 export default function EventPage() {
-  // temp get team id
-  const teamId = 1;
   const params = useParams();
+  const teamId = parseInt(params.id);
+  const eventId = params.eventId;
   const navigate = useNavigate();
 
   const [event, { refetch }] = createResource(
-    async () => await getEvent(parseInt(params.id))
+    async () => await getEvent(parseInt(eventId))
   );
 
   const teamMembers = createAsync(
@@ -73,10 +73,7 @@ export default function EventPage() {
   const [participants, setParticipants] = createSignal<Participant[]>([]);
 
   const fetchParticipants = async () => {
-    const participants = await getEventParticipants(
-      parseInt(params.id),
-      teamId
-    );
+    const participants = await getEventParticipants(parseInt(eventId), teamId);
     setParticipants(participants);
   };
 
@@ -135,7 +132,7 @@ export default function EventPage() {
     if (deleteEventError) {
       return console.error(deleteEventError);
     }
-    navigate("/calendar");
+    navigate(`/team/${teamId}/calendar`);
   };
 
   const handleUpdateEvent = async () => {
@@ -151,18 +148,11 @@ export default function EventPage() {
       return console.error(updateEventError);
     }
     const participantIds = participants()?.map((p) => p.participant.id)!;
-    console.log(participantIds);
-    console.log(
-      teamMemberIds(),
-      participantIds,
-      "teammeber id + participant id"
-    );
 
     // deleting the last member doesnt work right now, maybe its a multi select problem
     const deletedMembers = participantIds.filter(
       (id) => !teamMemberIds().includes(id)
     );
-    console.log(deletedMembers, "deleted members");
 
     for await (const deletedMember of deletedMembers) {
       const [deletedMemberError, deletedMemberResult] = await mightFail(
@@ -176,7 +166,6 @@ export default function EventPage() {
     const newMembers = teamMemberIds()?.filter(
       (id) => !participantIds.includes(id)
     );
-    console.log(newMembers, "new memebers");
 
     for await (const newMember of newMembers) {
       const [newMemberError, newMemberResult] = await mightFail(
@@ -218,7 +207,11 @@ export default function EventPage() {
 
   return (
     <Show when={event()}>
-      <EventDetailsTopNav eventType={event()?.type!} setModalOpen={openModal} />
+      <EventDetailsTopNav
+        eventType={event()?.type!}
+        setModalOpen={openModal}
+        teamId={teamId}
+      />
       <div class="h-full flex flex-col p-4 justify-between">
         <div class="flex flex-col gap-3">
           <div class="flex flex-col gap-1 ">

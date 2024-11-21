@@ -16,6 +16,7 @@ const WeekCalendarView = (props: {
   setCurrentYear: Setter<number>;
   events: Accessor<Event[]>;
   isCalendarOpen: Accessor<boolean>;
+  teamId: number;
 }) => {
   const weekdays = moment.weekdaysMin();
 
@@ -134,7 +135,7 @@ const WeekCalendarView = (props: {
         </div>
       </Show>
       <div class="flex justify-center pt-4 px-3 bg-white">
-        <EventCalendarDisplay events={props.events} />
+        <EventCalendarDisplay events={props.events} teamId={props.teamId} />
       </div>
     </>
   );

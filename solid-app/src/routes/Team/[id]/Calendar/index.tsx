@@ -10,6 +10,7 @@ import type { Event } from "@/schema/Events";
 import {
   getAllEvents,
   getCalendarData,
+  getCalendarFromTeamId,
   getTeamMembersFromTeamId,
 } from "~/api/calendar";
 import moment from "moment";
@@ -22,6 +23,8 @@ import { TeamMember } from "@/schema/TeamMembers";
 import DayCalendarView from "./day-calendar-view";
 import { useSearchParams } from "@solidjs/router";
 import { SetSearchParams } from "node_modules/@solidjs/router/dist/types";
+import { useParams } from "@solidjs/router";
+
 moment.locale("en");
 moment.updateLocale("en", { weekdaysMin: "S_M_T_W_T_F_S".split("_") });
 
@@ -40,9 +43,8 @@ export type CalendarFilterType =
   | "uncompleted";
 
 export default function CalendarPage() {
-  // temp get calendar Id
-  const teamId = 1;
-  const calendarId = 1;
+  const param = useParams();
+  const teamId = parseInt(param.id);
   const DEFAULT_FILTERS: CalendarFilterType[] = [
     "events",
     "tasks",
@@ -76,7 +78,8 @@ export default function CalendarPage() {
       : DEFAULT_TEAMMEMBERS.join(","),
   });
   onMount(async () => {
-    await fetchEvents(calendarId);
+    const calendar = await getCalendarFromTeamId(teamId);
+    await fetchEvents(calendar.id);
     await fetchTeamMembers(teamId);
   });
 
@@ -114,7 +117,7 @@ export default function CalendarPage() {
   };
   const fetchTeamMembers = async (teamId: number) => {
     const [eventError, eventResult] = await mightFail(
-      getTeamMembersFromTeamId(calendarId)
+      getTeamMembersFromTeamId(teamId)
     );
     if (eventError) {
       return console.error(eventError);
@@ -138,6 +141,7 @@ export default function CalendarPage() {
         />
       </div>
       <CalendarTopNav
+        teamId={teamId}
         month={currentMonth}
         setIsSideMenuOpen={setIsSideMenuOpen}
         isSideMenuOpen={isSideMenuOpen}
@@ -152,6 +156,7 @@ export default function CalendarPage() {
       />
       <Show when={currentView() === "month"}>
         <MonthCalendarView
+          teamId={teamId}
           selectedYear={selectedYear}
           setSelectedYear={setSelectedYear}
           selectedMonth={selectedMonth}
@@ -164,6 +169,7 @@ export default function CalendarPage() {
       </Show>
       <Show when={currentView() === "week"}>
         <WeekCalendarView
+          teamId={teamId}
           selectedYear={selectedYear}
           setSelectedYear={setSelectedYear}
           selectedMonth={selectedMonth}
@@ -180,6 +186,7 @@ export default function CalendarPage() {
       </Show>
       <Show when={currentView() === "day"}>
         <DayCalendarView
+          teamId={teamId}
           selectedDay={selectedDay}
           selectedMonth={selectedMonth}
           selectedYear={selectedYear}

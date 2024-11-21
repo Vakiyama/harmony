@@ -42,7 +42,11 @@ export default function NavBar(props: {
   const routes = createMemo(() => {
     return [
       { icon: <HomeIcon />, label: "Home", href: "/" },
-      { icon: <CalendarIcon />, label: "Calendar", href: "/calendar" },
+      {
+        icon: <CalendarIcon />,
+        label: "Calendar",
+        href: `/team/${teamId()}/calendar`,
+      },
       {
         icon: <HarmonyIcon />,
         label: "Harmony",

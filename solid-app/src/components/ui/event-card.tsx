@@ -10,12 +10,11 @@ const EventCard = (props: {
   event: Event;
   class?: string;
   style?: JSX.CSSProperties;
+  teamId: number;
 }) => {
-  // temporary
-  const teamId = 1;
   const navigate = useNavigate();
   const [response] = createResource(async () => {
-    const response = await getEventParticipants(props.event.id, teamId);
+    const response = await getEventParticipants(props.event.id, props.teamId);
     return response ?? [];
   });
 
@@ -40,7 +39,7 @@ const EventCard = (props: {
         )}
         style={props.style || {}}
         onClick={() => {
-          navigate(`/calendar/event/${props.event.id}`);
+          navigate(`/team/${props.teamId}/calendar/event/${props.event.id}`);
         }}
       >
         {props.event.type === "event" ? (
