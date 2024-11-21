@@ -54,9 +54,31 @@ export default function MedicationDetails({
   onMedicationAdded: () => void;
 }) {
   const team = useTeam();
+  const [error, setError] = createSignal<{ [key: string]: string } | null>(
+    null
+  );
   const currentMedicationIndex = team.state.medications.length - 1;
   const handleAddMedication = () => {
-    // TODO: handle value added here
+    setError(null);
+    let fieldErrors: { [key: string]: string } = {};
+
+    if (!team.state.medications[currentMedicationIndex].name) {
+      fieldErrors["name"] = "Medication name is required";
+    }
+    if (!team.state.medications[currentMedicationIndex].dosage) {
+      fieldErrors["dosage"] = "Medication dosage is required";
+    }
+    if (!team.state.medications[currentMedicationIndex].frequency) {
+      fieldErrors["frequency"] = "Medication frequency is required";
+    }
+    if (!team.state.medications[currentMedicationIndex].schedule) {
+      fieldErrors["schedule"] = "Medication schedule is required";
+    }
+
+    if (Object.keys(fieldErrors).length) {
+      setError(fieldErrors);
+      return;
+    }
     onMedicationAdded();
   };
 
@@ -70,22 +92,31 @@ export default function MedicationDetails({
         <div class="w-full">
           {/* Render surgery input fields */}
           <For each={formFields}>
-            {(field, index) => (
-              <TextFieldLine
-                name={field.name}
-                label={field.label}
-                onInput={(e) =>
-                  team.updateMedication(
-                    currentMedicationIndex,
-                    field.name,
-                    e.currentTarget.value
-                  )
-                }
-                placeholder={field.placeholder}
-                classRoot={(index() === 0 ? "mt-3" : "mt-6") + " space-y-0"}
-                classLabel="text-h4 font-grotesque leading-[120%] inline-block mb-2"
-              />
-            )}
+            {(field, index) => {
+              return (
+                <>
+                  <TextFieldLine
+                    name={field.name}
+                    label={field.label}
+                    onInput={(e) => {
+                      team.updateMedication(
+                        currentMedicationIndex,
+                        field.name,
+                        e.currentTarget.value
+                      );
+                    }}
+                    placeholder={field.placeholder}
+                    classRoot={(index() === 0 ? "mt-3" : "mt-6") + " space-y-0"}
+                    classLabel="text-h4 font-grotesque leading-[120%] inline-block mb-2"
+                  />
+                  {error()?.[field.name] ? (
+                    <div class="text-red-600 text-sm mt-1">
+                      {error()?.[field.name]}
+                    </div>
+                  ) : null}
+                </>
+              );
+            }}
           </For>
           <p class="text-h4 font-grotesque leading-[120%] mb-2 mt-6">
             Medication Photo
