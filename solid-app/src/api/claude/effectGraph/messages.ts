@@ -29,7 +29,7 @@ export type AssistantMessage = {
 } & BaseMessage;
 
 export function getFirst(message: Message): Message {
-  console.log(message, "getFirst");
+  // console.log(message, "getFirst");
   return Option.match(message.prev, {
     onSome: (prev) => {
       if (!prev) return message;

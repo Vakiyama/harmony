@@ -23,9 +23,11 @@ import { MoodsWithNoteUser } from "@/schema/Moods";
 import { NoteWithUser } from "@/schema/Notes";
 import { MealWithNoteUser } from "@/schema/Meals";
 import { SleepWithNoteUser } from "@/schema/Sleeps";
+import { useTeam } from "~/context/team-context";
 
 const LandingContent = () => {
   const context = useContext(TeamContext);
+  const team = useTeam();
 
   if (!context) {
     return <div>No team data available</div>;
@@ -38,11 +40,12 @@ const LandingContent = () => {
 
   const [getJournals] = createResource(
     () => {
-      const teamId = defaultTeam()?.team.id;
+      const teamId =
+        team.state.id !== -1 ? team.state.id : defaultTeam()?.team.id;
       const refetch = refetchTrigger();
       return teamId ? { teamId, refetch } : undefined;
     },
-    async ({ teamId }) => await getJournalsFromTeamId(teamId)
+    async ({ teamId }) => await getJournalsFromTeamId(teamId),
   );
   const journalsData = createMemo(() => getJournals());
 

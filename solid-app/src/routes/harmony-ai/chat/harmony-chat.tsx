@@ -21,6 +21,7 @@ import { getUser } from "~/api/server";
 import NavBar from "~/components/shared/nav-bar";
 import { User } from "@/schema/Users";
 import TopNav from "~/components/shared/TopNav";
+import { useTeam } from "~/context/team-context";
 
 export function useHarmonyChat(
   user: Accessor<
@@ -35,10 +36,16 @@ export function useHarmonyChat(
   voice?: boolean,
 ) {
   const [messages, setMessages] = createSignal<ArrayMessage[]>([]);
+  const team = useTeam();
 
   async function handleConversation(messages: ArrayMessage[]) {
     if (!user()) return;
-    const response = await harmonyChat(messages, user()!.id, voice);
+    const response = await harmonyChat(
+      messages,
+      user()!.id,
+      team.state.id,
+      voice,
+    );
     if (!response) return;
 
     setMessages(response);
@@ -56,6 +63,7 @@ export function HarmonyChat() {
   const [lastMessage, setLastMessage] = createSignal<HTMLDivElement>();
   const [user, setUser] = createSignal<Awaited<ReturnType<typeof getUser>>>();
 
+  // @ts-ignore
   const { messages, setMessages, handleConversation } = useHarmonyChat(user);
 
   onMount(async () => {

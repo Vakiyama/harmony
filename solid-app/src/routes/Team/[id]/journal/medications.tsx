@@ -27,6 +27,7 @@ import { formatTimeForPicker } from "~/lib/formateDateLocal";
 import MedicationIcon from "~/components/icon/medication-icon";
 import RadioGroupComponent from "~/components/shadcn/RadioGroup";
 import DeleteConfirmation from "~/components/shared/delete-confirmation";
+import { twMerge } from "tailwind-merge";
 
 export default function Medication() {
   const params = useParams();
@@ -36,11 +37,11 @@ export default function Medication() {
     async () => await getTakenMedicationById(parseInt(existingEntry)),
     {
       deferStream: true,
-    }
+    },
   );
   const medications = createAsync(
     async () => await getMedicationsFromTeamId(parseInt(params.id)),
-    { deferStream: true }
+    { deferStream: true },
   );
   const [isEditing, setIsEditing] = createSignal<boolean>(false);
   if (existingEntry) {
@@ -64,10 +65,10 @@ export default function Medication() {
       : [];
   };
   const [med, setMed] = createSignal<SelectOptions<string> | undefined>(
-    undefined
+    undefined,
   );
   const [medType, setMedType] = createSignal<SelectOptions<string> | undefined>(
-    undefined
+    undefined,
   );
   const medicationOptions = createMemo(() => formatOptions(medications()));
   createMemo(() => {
@@ -110,7 +111,7 @@ export default function Medication() {
       setError("");
       formRef()?.reset();
       showNotification(
-        isEditing() ? "Medication Entry Updated" : "Medication Entry Posted"
+        isEditing() ? "Medication Entry Updated" : "Medication Entry Posted",
       );
       navigate(`/team/${params.id}/journal`);
     } else if (result.error) {
@@ -175,8 +176,8 @@ export default function Medication() {
                 <label>Select Medication</label>
                 <SelectInput
                   name="medication"
-                  class="w-full p-1 rounded-lg py-4 ps-4"
-                  placeholder="Selection a medication"
+                  class={twMerge("w-full p-1 rounded-lg py-4 ps-4")}
+                  placeholder="Select a medication"
                   options={medicationOptions()}
                   defaultValue={med()}
                   setSelectedOption={() => {}}

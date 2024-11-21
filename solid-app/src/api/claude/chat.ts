@@ -35,9 +35,15 @@ import { teams } from "../../../drizzle/schema/Teams";
 import { teamMembers } from "../../../drizzle/schema/TeamMembers";
 import { recipients } from "../../../drizzle/schema/Recipients";
 import { journals } from "../../../drizzle/schema/Journals";
+import { getJournalsFromTeamId } from "../journal";
+import { getCalendarData, getCalendarsFromTeamId } from "../calendar";
+import { events } from "../../../drizzle/schema/Events";
 
 const CHAT_SYSTEM_MESSAGE = `
 You are a helpful assitant to a caretaker. Your name is "Harmony".
+
+You are assiting an individual that may be in a team of caretakers. They take care of
+a recipient.
 
 Keep in mind the caretaker is likely not proficient with technology. Therefore,
 you should keep your messages concise and friendly!
@@ -47,8 +53,20 @@ Try to format responses to be non-technical.
 You have access to a journal that contains notes the caretaker may have taken. Use it to assist your user.
 Keep in mind, the caretaker notes are for the recipient.
 
+For example, the caretaker may ask you to create a mood entry. This is an entry to log the mood
+of the recipient.
+
+Make sure all your requests are natural, for example, when asking for a date or time, don't specify
+the format, just ask for more info if you need. This goes for all things. When doing a mood entry
+for example, don't ask for SUPER AWESOME, but ask for super awesome as one of the mood options, since 
+all caps isn't very natural.
+
+When asking for info, try to be conversational as much as possible! Instead of asking for 7 different things at once,
+ask for them one at a time. This will keep the caretaker more engaged and less confused!
+
 The current date is: ${new Date(Date.now()).toLocaleTimeString()}
 `;
+
 const CHAT_SYSTEM_MESSAGE_WITH_VOICE = `
 ${CHAT_SYSTEM_MESSAGE}
 
@@ -127,6 +145,8 @@ const createJournalEntryToolDefinition = Effect.runSync(
     There are 5 categories: ${categories.join(", ")}
 
     Give the correct category and respective values as per the schema. 
+
+    The current time is: ${new Date().toLocaleString()}
     `,
     schema: createJournalEntryToolSchema,
   }),
@@ -139,13 +159,20 @@ class InvalidCategoryForJournalCreationError {
 class InsertDBError {
   readonly _tag = "InsertDBError";
   error: unknown;
-  toolCall: CreateJournalEntryToolUse;
+  toolCall: ToolUse;
 
-  constructor(e: unknown, toolCall: CreateJournalEntryToolUse) {
+  constructor(e: unknown, toolCall: ToolUse) {
     this.error = e;
     this.toolCall = toolCall;
   }
 }
+
+type ToolUse = {
+  name: string;
+  id: string;
+  type: "tool_use";
+  input: any;
+};
 
 type CreateJournalEntryToolUse = {
   name: "createJournalEntry";
@@ -189,6 +216,149 @@ function createJournalTool(params: {
   );
 }
 
+const eventCreationSchema = createInsertSchema(events).omit({
+  id: true,
+  calendarId: true,
+});
+
+const createCalendarEventToolSchema = z.object({
+  event: eventCreationSchema,
+});
+
+const createCalendarEventToolDefinition = Effect.runSync(
+  createTool({
+    name: "createCalendarEvent",
+    schema: createCalendarEventToolSchema,
+    description: `
+    Use this tool to create a calendar event.
+
+    When asking for a time range, make sure to ask for start and end times in a human readable way.
+    If you don't have exactly the data you need, just ask naturally.
+
+    Ignore the schema for timeStart, timeStart is required, not optional, it must be included!
+    `,
+  }),
+);
+
+function createCalendarEventTool(
+  params: z.infer<typeof eventCreationSchema>,
+  teamId: number,
+  toolUse: ToolUse,
+) {
+  console.log(toolUse, params);
+  return pipe(
+    Effect.tryPromise({
+      try: () => getCalendarsFromTeamId(teamId),
+      catch: (e) => {
+        console.error(e);
+        return new QueryDBError(e);
+      },
+    }),
+    Effect.flatMap((calendars) =>
+      Effect.tryPromise({
+        try: () =>
+          db.insert(events).values({
+            ...params,
+            timeStart: new Date(params.timeStart!),
+            timeEnd: params.timeEnd ? new Date(params.timeEnd) : undefined,
+            calendarId: calendars[0].id,
+          }),
+        catch: (e) => {
+          console.error(e);
+          return new InsertDBError(e, toolUse);
+        },
+      }),
+    ),
+  );
+}
+
+const queryCalendarToolSchema = z.object({
+  startDate: z
+    .string()
+    .describe(
+      "A date in A date in MM/DD/YYYY format. Example: 11/01/2024. This is the start of the time range you are querying.",
+    ),
+  endDate: z
+    .string()
+    .describe(
+      "A date in A date in MM/DD/YYYY format. Example: 12/01/2024. This is the end of the time range you are querying.",
+    ),
+});
+
+const queryCalendarToolDefinition = Effect.runSync(
+  createTool({
+    name: "getCalendar",
+    description: `Use this tool to get all calendar entries in a given time range. The entries in this range will include
+    events and tasks, as well as journal entries.
+
+    Journal entries can be one of:
+    Mood, Sleep, Generic Notes, Nutrition and Medication.
+
+    Each contains information taken by a caretaker by a recipient. They will all be organized by time.
+
+    Events are things like doctors appointments. They're things someone may need to be present for.
+    Tasks are things that need to be done. They can be completed.
+
+    The result will be sorted in ascending order (newest items first in the array.)
+    `,
+    schema: queryCalendarToolSchema,
+  }),
+);
+
+function queryCalendarTool(
+  params: z.infer<typeof queryCalendarToolSchema>,
+  teamId: number,
+) {
+  return pipe(
+    Effect.tryPromise({
+      try: () => getJournalsFromTeamId(teamId),
+      catch: (e) => new QueryDBError(e),
+    }),
+    Effect.flatMap((result) => {
+      return pipe(
+        Effect.tryPromise({
+          try: () => getCalendarData({ teamId }),
+          catch: (e) => new QueryDBError(e),
+        }),
+        Effect.flatMap((calendarResult) =>
+          Object.keys(calendarResult).includes("error")
+            ? Effect.fail(
+              new QueryDBError("Permissions error when querying calendar"),
+            )
+            : Effect.succeed(calendarResult),
+        ),
+        Effect.map((calendars) => {
+          const eventsAndJournal = {
+            events: calendars.map((calendar) => ({
+              ...calendar,
+              timeStart: calendar.event.timeStart!,
+            })),
+            journals: result!.map((journal) => ({
+              ...journal,
+              timeStart: journal.createdAt,
+            })),
+          };
+
+          const all = [
+            ...eventsAndJournal.journals,
+            ...eventsAndJournal.events,
+          ];
+          const sorted = all.toSorted(
+            (first, second) =>
+              first.timeStart.getTime() - second.timeStart.getTime(),
+          );
+
+          return sorted.filter(
+            (item) =>
+              item.timeStart.getTime() > new Date(params.startDate).getTime() &&
+              item.timeStart.getTime() < new Date(params.endDate).getTime(),
+          );
+        }),
+      );
+    }),
+  );
+}
+
 const queryJournalToolSchema = z.object({
   category: z.enum(categories),
 });
@@ -216,7 +386,7 @@ class QueryJournalDBError {
 
 function queryJournalTool(
   params: z.infer<typeof queryJournalToolSchema>,
-  userId: number,
+  teamId: number,
 ) {
   const result = Match.value(params).pipe(
     // please don't ever repeat code this much i'm jsut lazy rn ok
@@ -227,7 +397,8 @@ function queryJournalTool(
             .select()
             .from(moods)
             .leftJoin(notes, eq(notes.id, moods.noteId))
-            .where(eq(moods.userId, userId)),
+            .leftJoin(users, eq(users.id, notes.userId))
+            .where(eq(moods.userId, teamId)),
         catch: (error) => new QueryJournalDBError(error),
       }),
     ),
@@ -238,14 +409,15 @@ function queryJournalTool(
             .select()
             .from(sleeps)
             .leftJoin(notes, eq(notes.id, sleeps.noteId))
-            .where(eq(sleeps.userId, userId)),
+            .leftJoin(users, eq(users.id, sleeps.userId))
+            .where(eq(sleeps.userId, teamId)),
 
         catch: (error) => new QueryJournalDBError(error),
       }),
     ),
     Match.when({ category: "note" }, () =>
       Effect.tryPromise({
-        try: () => db.select().from(notes).where(eq(notes.userId, userId)),
+        try: () => db.select().from(notes).where(eq(notes.userId, teamId)),
         catch: (error) => new QueryJournalDBError(error),
       }),
     ),
@@ -256,7 +428,8 @@ function queryJournalTool(
             .select()
             .from(meals)
             .leftJoin(notes, eq(notes.id, meals.noteId))
-            .where(eq(meals.userId, userId)),
+            .leftJoin(users, eq(users.id, meals.userId))
+            .where(eq(meals.userId, teamId)),
         catch: (error) => new QueryJournalDBError(error),
       }),
     ),
@@ -271,11 +444,12 @@ function queryJournalTool(
             })
             .from(takenMedications)
             .leftJoin(notes, eq(takenMedications.noteId, notes.id))
+            .leftJoin(users, eq(users.id, takenMedications.userId))
             .innerJoin(
               medications,
               eq(takenMedications.medicationId, medications.id),
             )
-            .where(eq(takenMedications.userId, userId)),
+            .where(eq(takenMedications.userId, teamId)),
 
         catch: (error) => new QueryJournalDBError(error),
       }),
@@ -297,6 +471,8 @@ class ToolNameNotFound {
 const claudeTools = [
   queryJournalToolDefinition,
   createJournalEntryToolDefinition,
+  queryCalendarToolDefinition,
+  createCalendarEventToolDefinition,
 ] as const;
 
 class QueryDBError {
@@ -308,31 +484,40 @@ class QueryDBError {
   }
 }
 
-async function getUserFromId(userId: number) {
+async function getUserFromIdStringifed(userId: number) {
   const user = await db.select().from(users).where(eq(users.id, userId));
   if (!user[0]) throw new Error("No user.");
   return JSON.stringify(user[0], undefined, 2);
 }
 
-async function getRecipientFromUserId(userId: number) {
+async function getRecipientFromUserId(userId: number, teamId: number) {
   const teamsResults = await db
     .select({ recipient: recipients })
-    .from(teamMembers)
-    .innerJoin(teams, eq(teamMembers.userId, userId))
-    .innerJoin(recipients, eq(teams.recipientId, recipients.id));
+    .from(teams)
+    .innerJoin(recipients, eq(teams.recipientId, recipients.id))
+    .where(eq(teams.id, teamId));
 
+  console.log(teamsResults, teamId);
   const recipient = teamsResults[0];
   if (!recipient) {
     throw new Error("No teams?");
   }
   const formattedInfo = JSON.stringify(recipient.recipient, undefined, 2);
 
-  return { recipient: formattedInfo, user: await getUserFromId(userId) };
+  return {
+    recipient: formattedInfo,
+    user: await getUserFromIdStringifed(userId),
+  };
 }
 
-function makeClaudeToolCall(result: GraphState, id: number, voice?: boolean) {
+function makeClaudeToolCall(
+  result: GraphState,
+  id: number,
+  teamId: number,
+  voice?: boolean,
+) {
   return Effect.tryPromise({
-    try: () => getRecipientFromUserId(id),
+    try: () => getRecipientFromUserId(id, teamId),
     catch: (e) => {
       console.error(e);
       return new QueryDBError(e);
@@ -390,9 +575,39 @@ function handleToolCall(
   toolCall: ToolCallResult<[]>,
   state: GraphState,
   userId: number,
+  teamId: number,
 ) {
   return pipe(toolCall, (toolCall) =>
     Match.value(toolCall.toolCall).pipe(
+      Match.when({ name: "createCalendarEvent" }, (toolCall) => {
+        return pipe(
+          createCalendarEventTool(toolCall.input.event, teamId, toolCall),
+          Effect.map(() => {
+            const toolCallMessage = createMessage<AssistantMessage>({
+              role: "assistant",
+              content: [toolCall],
+            });
+
+            toolCallMessage.next = Option.some(
+              createMessage<UserMessage>({
+                role: "user",
+                content: [
+                  {
+                    type: "tool_result",
+                    tool_use_id: toolCall.id,
+                    content: `Success!`,
+                  },
+                ],
+                prev: Option.some(toolCallMessage),
+              }),
+            );
+
+            getLast(state.messages).next = Option.some(toolCallMessage);
+
+            return { messages: getFirst(state.messages) };
+          }),
+        );
+      }),
       Match.when({ name: "getJournalEntries" }, (toolCall) =>
         pipe(
           queryJournalTool(toolCall.input, userId),
@@ -455,6 +670,34 @@ function handleToolCall(
           }),
         ),
       ),
+      Match.when({ name: "getCalendar" }, (toolCall) =>
+        pipe(
+          queryCalendarTool({ ...toolCall.input }, teamId),
+          Effect.map((callResult) => {
+            const toolCallMessage = createMessage<AssistantMessage>({
+              role: "assistant",
+              content: [toolCall],
+            });
+
+            toolCallMessage.next = Option.some(
+              createMessage<UserMessage>({
+                role: "user",
+                content: [
+                  {
+                    type: "tool_result",
+                    tool_use_id: toolCall.id,
+                    content: JSON.stringify(callResult, undefined, 2),
+                  },
+                ],
+                prev: Option.some(toolCallMessage),
+              }),
+            );
+            getLast(state.messages).next = Option.some(toolCallMessage);
+
+            return { messages: getFirst(state.messages) };
+          }),
+        ),
+      ),
       Match.orElse(() => Effect.fail(new ToolNameNotFound())),
     ),
   );
@@ -464,18 +707,26 @@ function handleClaudeResponse(
   result: ExtractValue<ReturnType<typeof makeClaudeToolCall>>,
   state: GraphState,
   userId: number,
+  teamId: number,
 ) {
   return Either.match(result, {
     onLeft: (res) => handleNoToolCall(res, state),
-    onRight: (toolCall) => handleToolCall(toolCall, state, userId),
+    onRight: (toolCall) => handleToolCall(toolCall, state, userId, teamId),
   });
 }
 
-function chat(state: GraphState, userId: number, voice?: boolean) {
+function chat(
+  state: GraphState,
+  userId: number,
+  teamId: number,
+  voice?: boolean,
+) {
   return pipe(
     state,
-    (state) => makeClaudeToolCall(state, userId, voice),
-    Effect.flatMap((result) => handleClaudeResponse(result, state, userId)),
+    (state) => makeClaudeToolCall(state, userId, teamId, voice),
+    Effect.flatMap((result) =>
+      handleClaudeResponse(result, state, userId, teamId),
+    ),
   );
 }
 
@@ -484,6 +735,7 @@ const chatStates: { messages: Message; id: number }[] = [];
 export const harmonyChat = async (
   message: ArrayMessage[],
   id: number,
+  teamId: number,
   voice?: boolean,
 ): Promise<ArrayMessage[] | void> => {
   const index = chatStates.findIndex((state) => state.id === id);
@@ -502,6 +754,7 @@ export const harmonyChat = async (
       ...(index === -1 ? chatStates.at(-1)! : chatStates[index]!),
     },
     id,
+    teamId,
     voice,
   );
 
@@ -535,10 +788,10 @@ export const harmonyChat = async (
 
           last.next = Option.some(toolCallMessage);
 
-          return chat({ messages: getFirst(last) }, id);
+          return chat({ messages: getFirst(last) }, id, teamId);
         }
       }),
-      // Effect.retry({ times: 5 }),
+      Effect.retry({ times: 3 }),
     ),
   );
 
@@ -560,7 +813,7 @@ export const harmonyChat = async (
           }
 
           if (lastMessage.content[0].type === "tool_result") {
-            return harmonyChat(unwrapped, id);
+            return harmonyChat(unwrapped, id, teamId, voice);
           }
         }
         return unwrapped;
