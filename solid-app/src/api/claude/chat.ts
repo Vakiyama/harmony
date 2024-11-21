@@ -109,19 +109,22 @@ const createJournalEntryToolSchema = z.object({
   entry: z.discriminatedUnion("category", [
     z.object({
       category: z.literal("medication"),
-      values: takenMedicationsSchema.omit(omitValues),
+      values: takenMedicationsSchema.omit({ ...omitValues, noteId: true }),
+      withNote: z.optional(notesSchema.omit(omitValues)),
     }),
     z.object({
       category: z.literal("meal"),
-      values: mealsSchema.omit(omitValues),
+      values: mealsSchema.omit({ ...omitValues, noteId: true }),
+      withNote: z.optional(notesSchema.omit(omitValues)),
     }),
     z.object({
       category: z.literal("sleep"),
-      values: sleepSchema.omit(omitValues),
+      values: sleepSchema.omit({ ...omitValues, noteId: true }),
+      withNote: z.optional(notesSchema.omit(omitValues)),
     }),
     z.object({
       category: z.literal("mood"),
-      values: moodSchema.omit(omitValues),
+      values: moodSchema.omit({ ...omitValues, noteId: true }),
       withNote: z.optional(notesSchema.omit(omitValues)),
     }),
     z.object({
@@ -199,15 +202,29 @@ function createJournalTool(params: {
     Effect.flatMap(() =>
       Effect.tryPromise({
         try: async () => {
+          let noteId: number | undefined;
+          if (params.entry.category !== "note" && params.entry.withNote) {
+            const result = await db
+              .insert(notes)
+              .values(params.entry.withNote)
+              .returning();
+            noteId = result[0].id;
+          }
+
           const result = await db
             .insert(journalTables[value![0] as keyof typeof journalTables])
-            .values(params.entry.values)
+            .values(
+              noteId
+                ? ({ ...params.entry.values, noteId } as any)
+                : params.entry.values,
+            )
             .returning();
 
           await db.insert(journals).values({
             type: params.entry.category,
             entryId: result[0].id,
           });
+
           return result;
         },
         catch: (e) => new InsertDBError(e, params.toolCall),
@@ -245,7 +262,7 @@ function createCalendarEventTool(
   teamId: number,
   toolUse: ToolUse,
 ) {
-  console.log(toolUse, params);
+  // console.log(toolUse, params);
   return pipe(
     Effect.tryPromise({
       try: () => getCalendarsFromTeamId(teamId),
@@ -497,7 +514,7 @@ async function getRecipientFromUserId(userId: number, teamId: number) {
     .innerJoin(recipients, eq(teams.recipientId, recipients.id))
     .where(eq(teams.id, teamId));
 
-  console.log(teamsResults, teamId);
+  //  console.log(teamsResults, teamId);
   const recipient = teamsResults[0];
   if (!recipient) {
     throw new Error("No teams?");

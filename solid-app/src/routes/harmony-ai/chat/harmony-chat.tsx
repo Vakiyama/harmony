@@ -137,8 +137,8 @@ export function HarmonyChat() {
         rightNavigation={<div class=""></div>}
         class="border-b-black/15 border bg-white"
       />
-      <form onSubmit={handleSubmit} class="h-full pt-28">
-        <div class="flex flex-col overflow-scroll h-[calc(100%_-_85px)]">
+      <form onSubmit={handleSubmit} class="h-full">
+        <div class="flex flex-col-reverse overflow-scroll h-[calc(100%_-_85px)]">
           <Show
             when={messages().length > 0}
             fallback={
@@ -160,6 +160,7 @@ export function HarmonyChat() {
             }
           >
             {messages()
+              .toReversed()
               .filter(
                 // remove all "tool_result" messages
                 (message) =>
@@ -201,12 +202,60 @@ export function HarmonyChat() {
   );
 }
 
+function sleep(ms: number) {
+  return new Promise<void>((res) =>
+    setTimeout(() => {
+      res();
+    }, ms),
+  );
+}
+
 function HarmonyChatMessage(props: {
   message: ArrayMessage;
   index: number;
   setLastMessage: Setter<HTMLDivElement | undefined>;
   messages: Accessor<ArrayMessage[]>;
 }) {
+  const filteredLen = props.messages().filter(
+    // remove all "tool_result" messages
+    (message) =>
+      !(message.role === "user" && !(typeof message.content === "string")),
+  ).length;
+
+  const [aiMessage, setAiMessage] = createSignal("");
+
+  async function streamMessage(message: ArrayMessage) {
+    const sleepRange = { low: 10, high: 40 };
+    let messageRangeCutoff = 0;
+    while (true) {
+      const speedFactor = message.role === "assistant" ? 2.5 : 1;
+
+      await sleep(
+        (sleepRange.low + Math.floor(sleepRange.high * Math.random())) /
+          speedFactor,
+      );
+
+      messageRangeCutoff++;
+      const clippedMessage = (message.content as string)
+        .split("")
+        .reverse()
+        .slice(message.content.length - messageRangeCutoff)
+        .reverse()
+        .join("");
+
+      console.log("setting ai message", clippedMessage);
+      setAiMessage(clippedMessage);
+      if (messageRangeCutoff === message.content.length) break;
+    }
+  }
+
+  createEffect(() => {
+    if (props.message.role === "assistant") {
+      console.log("streaming", props.message);
+      streamMessage(props.message);
+    }
+  });
+
   return (
     <div
       class={twMerge(
@@ -228,20 +277,23 @@ function HarmonyChatMessage(props: {
           <div
             class="pb-4"
             ref={
-              props.index === props.messages().length - 1
-                ? props.setLastMessage
-                : undefined
+              props.index === filteredLen - 1 ? props.setLastMessage : undefined
             }
           >
-            <SolidMarkdown class="markdown" children={props.message.content} />
+            <Show when={aiMessage()} keyed>
+              <SolidMarkdown
+                class="markdown"
+                children={
+                  props.index === 0 ? aiMessage() : props.message.content
+                }
+              />
+            </Show>
           </div>
         ) : (
           <div
             class="pb-4"
             ref={
-              props.index === props.messages().length - 1
-                ? props.setLastMessage
-                : undefined
+              props.index === filteredLen - 1 ? props.setLastMessage : undefined
             }
           >
             <div>
