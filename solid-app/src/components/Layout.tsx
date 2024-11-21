@@ -1,15 +1,23 @@
 import { useLocation, useParams } from "@solidjs/router";
-import { Component, createEffect, createSignal, JSXElement } from "solid-js";
+import {
+  Component,
+  createEffect,
+  createSignal,
+  JSXElement,
+  onMount,
+} from "solid-js";
 import TopNav from "~/components/shared/TopNav";
 import { LandingHeader } from "./landing/LandingHeader";
 import { getListOfTeams } from "~/api/team";
 import { TeamWithDefault } from "@/schema/Teams";
 import NavBar from "./shared/nav-bar";
 import { TeamContext, TeamContextType } from "./Layout-Context";
+import { useTeam } from "~/context/team-context";
 
 const Layout: Component<{ children: JSXElement }> = (props) => {
   const location = useLocation();
   const params = useParams();
+  const team = useTeam();
   const [teamListData, setTeamListData] = createSignal<
     { team: TeamWithDefault }[] | undefined
   >(undefined);
@@ -19,7 +27,15 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
     const teamData = await getListOfTeams();
     setTeamListData(teamData);
     setRefetchTrigger((prev) => prev + 1);
-    console.log(teamListData());
+    // console.log(teamListData());
+  });
+
+  onMount(async () => {
+    const teamData = await getListOfTeams();
+    const defaultTeam = teamData.find((team) => team.team.defaultTeam);
+    if (defaultTeam && team.state.id === -1) {
+       team.updateTeamId(defaultTeam.team.id);
+    }
   });
 
   const contextValue: TeamContextType = {

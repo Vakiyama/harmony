@@ -5,8 +5,10 @@ import {
   JSX,
   createSignal,
   Accessor,
+  onMount,
 } from "solid-js";
 import { createStore } from "solid-js/store";
+import { db } from "~/api/db";
 
 export interface FormState {
   id: number;
