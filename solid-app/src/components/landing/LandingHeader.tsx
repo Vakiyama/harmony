@@ -2,9 +2,16 @@ import { createAsync, RouteDefinition, useAction } from "@solidjs/router";
 import { TeamWithDefault } from "../../../drizzle/schema/Teams";
 import { BiSolidBell } from "solid-icons/bi";
 import { FaSolidAngleDown } from "solid-icons/fa";
-import { createEffect, createSignal, Setter, Suspense } from "solid-js";
+import {
+  createEffect,
+  createSignal,
+  onMount,
+  Setter,
+  Suspense,
+} from "solid-js";
 import { updateDefaultTeam } from "~/api/team";
 import { getUser } from "~/api";
+import { useTeam } from "~/context/team-context";
 export const route = {
   preload() {
     getUser();
@@ -24,12 +31,14 @@ export function LandingHeader(props: {
   const updateDefaultAction = useAction(updateDefaultTeam);
   const [teamName, setTeamName] = createSignal<string | undefined>();
   const [dropdownVisible, setDropdownVisible] = createSignal<boolean>(false);
+  const team = useTeam();
 
   createEffect(() => {
     const defaultTeam = props.teamData?.find(
-      (team) => team.team.defaultTeam === true
+      (team) => team.team.defaultTeam === true,
     );
     setTeamName(defaultTeam?.team.name || undefined);
+    team.updateTeamId(defaultTeam?.team.id!);
   });
 
   const toggleDropdown = () => {
@@ -44,6 +53,7 @@ export function LandingHeader(props: {
     props.defaultSetter(updatedOrUndefined);
 
     setTeamName(selectedTeam.name || undefined);
+    team.updateTeamId(selectedTeam.id);
 
     setDropdownVisible(false);
   };
@@ -51,7 +61,7 @@ export function LandingHeader(props: {
   return (
     <div class="flex justify-between items-center p-4 bg-white w-full fixed top-0">
       <div class="flex flex-col">
-        <div class="flex flex-row items-center gap-2">
+        <div class="flex flex-row items-center gap-2" onClick={toggleDropdown}>
           <Suspense fallback={<div>Loading team...</div>}>
             <h1 class="text-h1 font-medium">
               {teamName() !== undefined
@@ -61,7 +71,7 @@ export function LandingHeader(props: {
                   }`.trim() || "Team"}
             </h1>
           </Suspense>
-          <div class="flex-none" onClick={toggleDropdown}>
+          <div class="flex-none">
             <svg
               width="15"
               height="9"

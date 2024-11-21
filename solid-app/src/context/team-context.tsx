@@ -5,10 +5,13 @@ import {
   JSX,
   createSignal,
   Accessor,
+  onMount,
 } from "solid-js";
 import { createStore } from "solid-js/store";
+import { db } from "~/api/db";
 
 export interface FormState {
+  id: number;
   teamName: string;
   recipient: {
     firstName: string;
@@ -52,28 +55,29 @@ type FormSection = keyof FormState;
 interface FormContextValue {
   state: FormState;
   updateField: (section: FormSection, field: string, value: string) => void;
+  updateTeamId: (value: number) => void;
   updateRecipientField: (
     field: keyof FormState["recipient"],
-    value: string
+    value: string,
   ) => void;
   updateTeamName: (value: string) => void;
   addSurgery: () => void;
   updateSurgery: (
     index: number,
     field: keyof FormState["importantSurgeries"][0],
-    value: string
+    value: string,
   ) => void;
   addMedication: () => void;
   updateMedication: (
     index: number,
     field: keyof FormState["medications"][0],
-    value: string
+    value: string,
   ) => void;
   addPastInjury: () => void;
   updatePastInjury: (
     index: number,
     field: keyof FormState["pastInjuries"][0],
-    value: string
+    value: string,
   ) => void;
   currentStep: Accessor<number>;
   nextStep: () => void;
@@ -85,6 +89,7 @@ const TeamContext = createContext<FormContextValue>();
 
 export const TeamProvider: ParentComponent = (props) => {
   const [state, setState] = createStore<FormState>({
+    id: -1,
     teamName: "",
     recipient: {
       firstName: "",
@@ -105,6 +110,9 @@ export const TeamProvider: ParentComponent = (props) => {
 
     updateField: (section, field, value) => {
       setState(section as any, field as any, value);
+    },
+    updateTeamId: (value: number) => {
+      setState("id", value);
     },
     updateTeamName: (value: string) => {
       setState("teamName", value);

@@ -204,14 +204,6 @@ export default function HarmonyVoice() {
           if (playing() || muted()) {
             return;
           }
-          /*
-          const base64AudioChunk = await pipe(
-            event.data.arrayBuffer(),
-            async (arrayBuffer) =>
-              btoa(String.fromCharCode(...new Uint8Array(await arrayBuffer))),
-          );
-          */
-
           console.log("Sending data...");
           socket.emit("write-transcription", {
             dataBlob: event.data,
@@ -223,7 +215,6 @@ export default function HarmonyVoice() {
       },
     );
   }
-
 
   createEffect(async () => {
     console.log(messages(), "messages");

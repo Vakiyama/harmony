@@ -8,7 +8,7 @@ const VOICEMAKER_API_ENDPOINT = "https://developer.voicemaker.in/voice/api";
 
 const voicemakerApiKey = process.env.VOICEMAKER_API_KEY;
 
-export type VoiceId = "proplus-Lily" | "proplus-Aurora";
+type VoiceId = "proplus-Lily" | "proplus-Aurora";
 
 type VoicemakerBody = {
   Engine: "neural";
@@ -48,7 +48,10 @@ export async function POST(params: {
 
       return Effect.try({
         try: () => JSON.stringify(voicemakerBody),
-        catch: (e) => StringifyError(), // should catch with info...
+        catch: (e) => {
+          console.error(e);
+          return StringifyError();
+        }, // should catch with info...
       });
     },
     Effect.flatMap((stringifiedBody) =>

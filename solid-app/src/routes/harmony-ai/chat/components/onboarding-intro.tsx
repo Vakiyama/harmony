@@ -24,7 +24,7 @@ export function OnboardingIntro(props: { user: User; fetchUser: () => void }) {
   const [pageIndex, setPageIndex] = createSignal(0);
   const [selectedVoice, setSelectedVoice] = createSignal<Voice>(voicesMap[0]);
   const [preference, setPreference] = createSignal<"Text" | "Voice" | null>(
-    "Text"
+    "Text",
   );
 
   async function completeOnboarding() {
@@ -76,7 +76,7 @@ function PageThree(props: {
           <Button
             class={twMerge(
               "w-full bg-gray-200 text-black/70 h-[5rem] text-xl",
-              props.pref === type ? "bg-primary-purple-300" : ""
+              props.pref === type ? "bg-primary-purple-300" : "",
             )}
             onClick={() => props.setPreference(type)}
           >
@@ -106,42 +106,51 @@ function PageTwo(props: {
   const [dragging, setDragging] = createSignal(false);
   const [swipeRef, setSwipeRef] = createSignal<HTMLDivElement | null>();
   const [transformX, setTransformX] = createSignal(0);
+  const [currentIndex, setCurrentIndex] = createSignal(0);
+  const buffer = 0.25; // Buffer multiplier (e.g., 25% of the item width)
+  let initialTransformX = 0;
+
   const sharedClass = "w-10 bg-primary-purple-500 rounded-full";
 
   createEffect(() => {
     const ref = swipeRef();
     if (!ref) return;
+
     new DragGesture(ref, (event) => {
       const itemWidth = ref.getBoundingClientRect().width;
+
+      if (event.first) {
+        initialTransformX = transformX();
+      }
+
       if (event.active) {
         setDragging(true);
         setTransformX((prev) => {
           return Math.min(
             Math.max(0, prev - event.delta[0]),
-            ref.getBoundingClientRect().width * (voicesMap.length - 1) + 6
+            itemWidth * (voicesMap.length - 1),
           );
         });
       }
 
       if (event.last) {
         setDragging(false);
-        const breakpoints = voicesMap.map((_, index) => itemWidth * index);
-        let smallestDist = {
-          magnitude: Infinity,
-          breakpoint: 0,
-          voiceIndex: 0,
-        };
-        breakpoints.forEach((breakpoint, index) => {
-          const diff = Math.abs(transformX() - breakpoint);
-          if (diff < smallestDist.magnitude)
-            smallestDist = {
-              magnitude: diff,
-              breakpoint,
-              voiceIndex: index,
-            };
-        });
-        setTransformX(smallestDist.breakpoint);
-        props.setSelectedVoice(voicesMap[smallestDist.voiceIndex]);
+        const deltaX = transformX() - initialTransformX;
+
+        if (
+          deltaX > buffer * itemWidth &&
+          currentIndex() < voicesMap.length - 1
+        ) {
+          // Swiped left enough, move to next item
+          setCurrentIndex(currentIndex() + 1);
+        } else if (deltaX < -buffer * itemWidth && currentIndex() > 0) {
+          // Swiped right enough, move to previous item
+          setCurrentIndex(currentIndex() - 1);
+        }
+        // Update the transformX to snap to the item
+        const newTransformX = itemWidth * currentIndex();
+        setTransformX(newTransformX);
+        props.setSelectedVoice(voicesMap[currentIndex()]);
       }
     });
   }, [swipeRef]);
@@ -153,17 +162,8 @@ function PageTwo(props: {
       if (!ref) return;
       const itemWidth = ref.getBoundingClientRect().width;
       if (!itemWidth) return;
-      const breakpoints = voicesMap.map((_, index) => itemWidth * index);
-      let smallestDist = { magnitude: Infinity, breakpoint: 0 };
-      breakpoints.forEach((breakpoint) => {
-        const diff = Math.abs(transformX() - breakpoint);
-        if (diff < smallestDist.magnitude)
-          smallestDist = {
-            magnitude: diff,
-            breakpoint,
-          };
-      });
-      setTransformX(smallestDist.breakpoint);
+      const newTransformX = itemWidth * currentIndex();
+      setTransformX(newTransformX);
       setDragging(false);
     });
   });
@@ -180,7 +180,7 @@ function PageTwo(props: {
           <div
             class={twMerge(
               "flex flex-col items-center justify-center",
-              dragging() ? "transition-none" : "transition-transform"
+              dragging() ? "transition-none" : "transition-transform",
             )}
             style={{
               transform: `translateX(-${transformX()}px)`,
@@ -194,13 +194,13 @@ function PageTwo(props: {
               <div
                 class={twMerge(
                   sharedClass,
-                  "h-32 animate-sound-wave [animation-delay:_-150ms]"
+                  "h-32 animate-sound-wave [animation-delay:_-150ms]",
                 )}
               />
               <div
                 class={twMerge(
                   sharedClass,
-                  "h-24 animate-sound-wave [animation-delay:_-300ms]"
+                  "h-24 animate-sound-wave [animation-delay:_-300ms]",
                 )}
               />
               <div class={twMerge(sharedClass, "h-12")} />
@@ -213,11 +213,11 @@ function PageTwo(props: {
         ))}
       </div>
       <div class="flex flex-row items-center justify-center gap-2">
-        {voicesMap.map((voice) => (
+        {voicesMap.map((voice, index) => (
           <div
             class={twMerge(
               "h-4 w-4 rounded-full bg-black/15",
-              voice.id === props.currentVoice.id ? "bg-primary-purple-500" : ""
+              index === currentIndex() ? "bg-primary-purple-500" : "",
             )}
           />
         ))}
