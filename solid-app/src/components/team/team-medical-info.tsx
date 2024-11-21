@@ -132,7 +132,7 @@ export default function TeamMedicationInfo() {
                         ? medication.instructions
                         : "empty"
                     }
-                    medicineLink="/profile/medication-detail"
+                    medicineLink=""
                   />
                 );
               }}

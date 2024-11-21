@@ -11,7 +11,6 @@ export default function AddMedication() {
   const [medicationChanged, setMedicationChanged] = createSignal(false);
 
   const handleAddMedication = () => {
-    team.addMedication();
     setShowMedicationForm(true);
   };
 
