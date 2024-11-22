@@ -35,18 +35,24 @@ export default function UserHealth1() {
     healthCondition: null,
     allergies: null,
     dietaryRestrictions: null,
-    employment: null,
   });
   const handleNext = () => {
     const newErrors: { [key: string]: string | null } = {};
     let hasError = false;
 
     formFields.forEach((field) => {
-      if (field.required && !team.state.recipient[field.name]) {
+      const value = team.state.recipient[field.name];
+      if (field.required && !value) {
         newErrors[field.name] = "This field is required";
         hasError = true;
-      } else {
-        newErrors[field.name] = null;
+      } else if (field.name === "healthCondition" && value) {
+        if (value.length < 3) {
+          newErrors[field.name] =
+            "Health condition must be at least 3 characters long";
+          hasError = true;
+        } else {
+          newErrors[field.name] = null;
+        }
       }
     });
     setErrors(newErrors);
@@ -71,26 +77,32 @@ export default function UserHealth1() {
         <div class="w-full">
           <For each={formFields}>
             {(field, index) => (
-              <TextFieldLine
-                name={field.name}
-                label={field.label}
-                placeholder={field.placeholder}
-                classRoot={(index() === 0 ? "mt-3" : "mt-6") + " space-y-0"}
-                classLabel="text-h4 font-grotesque leading-[120%] inline-block mb-2"
-                error={errors()[field.name]} // TODO: error not shown here
-                required={field.required}
-                onInput={(e) =>
-                  team.updateRecipientField(field.name, e.currentTarget.value)
-                }
-                value={team.state.recipient[field.name]}
-              />
+              <>
+                <TextFieldLine
+                  name={field.name}
+                  label={field.label}
+                  placeholder={field.placeholder}
+                  classRoot={(index() === 0 ? "mt-3" : "mt-6") + " space-y-0"}
+                  classLabel="text-h4 font-grotesque leading-[120%] inline-block mb-2"
+                  required={field.required}
+                  onInput={(e) =>
+                    team.updateRecipientField(field.name, e.currentTarget.value)
+                  }
+                  value={team.state.recipient[field.name]}
+                />
+                {errors()?.[field.name] ? (
+                  <div class="text-red-600 text-sm mt-1">
+                    {errors()?.[field.name]}
+                  </div>
+                ) : null}
+              </>
             )}
           </For>
         </div>
         <div class="flex flex-col justify-end w-full flex-grow">
           <Button
             type="button"
-            onClick={team.nextStep}
+            onClick={handleNext}
             class="rounded-full w-full bg-primary-purple-300 text-black text-base h-12"
           >
             Next
