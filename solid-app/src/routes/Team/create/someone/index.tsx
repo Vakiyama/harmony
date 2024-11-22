@@ -41,9 +41,12 @@ import {
 } from "~/types/types";
 
 export default function CreateSomeone() {
+  const navigate = useNavigate();
   const [error, setError] = createSignal<string | null>(null);
   const [isCreating, setIsCreating] = createSignal(false);
   const team = useTeam();
+  const [back, setBack] = createSignal<() => void>(() => {});
+  const [closeAddMed, setCloseAddMed] = createSignal<boolean>(false);
 
   const recipientAction = useAction(createRecipientAction);
 
@@ -60,6 +63,18 @@ export default function CreateSomeone() {
     setError(null);
     team.nextStep();
   };
+
+  const cleanup = () => {
+    team.prevSubStep();
+    setCloseAddMed(true);
+  };
+  createEffect(() => {
+    const currentStep = team.currentStep();
+    if (currentStep === 7.5) {
+      return setBack(() => cleanup);
+    }
+    setBack(() => team.prevStep);
+  });
 
   const handleSubmit = async (event?: MouseEvent) => {
     setIsCreating(true);
@@ -155,15 +170,21 @@ export default function CreateSomeone() {
       setIsCreating(false);
     }
   };
-
   return (
     <>
-      <TeamTopNav
-        leftNavigation={team.prevStep}
-        rightText={team.currentStep() === 10 ? "Create Team" : aiButton()}
-        rightAction={team.currentStep() === 10 ? handleSubmit : undefined}
-        isCreating={isCreating()}
-      />
+      <Show when={back()}>
+        <TeamTopNav
+          leftNavigation={() => {
+            if (team.currentStep() === 1) {
+              return navigate("/team/create");
+            }
+            return back()();
+          }}
+          rightText={team.currentStep() === 10 ? "Create Team" : aiButton()}
+          rightAction={team.currentStep() === 10 ? handleSubmit : undefined}
+          isCreating={isCreating()}
+        />
+      </Show>
       <form onSubmit={(e) => e.preventDefault()} class="h-full flex flex-col">
         {/* step 1: team Name */}
         <Show when={team.currentStep() === 1}>
@@ -228,8 +249,11 @@ export default function CreateSomeone() {
         </Show>
 
         {/* step 7: addMed */}
-        <Show when={team.currentStep() === 7}>
-          <AddMedication />
+        <Show when={team.currentStep() === 7 || team.currentStep() === 7.5}>
+          <AddMedication
+            closeAddMed={closeAddMed}
+            setCloseAddMed={setCloseAddMed}
+          />
         </Show>
 
         {/* step 8: specify the role */}
