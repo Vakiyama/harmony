@@ -76,14 +76,14 @@ export const createNoteAction = action(async (formData: FormData) => {
       .insert(notes)
       .values(notesInput)
       .returning()
-      .then((res) => res[0]),
+      .then((res) => res[0])
   );
   if (noteError) {
     console.error("Database insertion error:", noteError);
     return { error: "Failed to create note." };
   }
   const [journalReferenceError, journalReferenceResult] = await mightFail(
-    db.insert(journals).values({ type: "note", entryId: noteResult.id }),
+    db.insert(journals).values({ type: "note", entryId: noteResult.id })
   );
   if (journalReferenceError) {
     console.error("Error making reference to journal", journalReferenceError);
@@ -104,7 +104,7 @@ export const getNoteById = async (noteId: number) => {
       .select()
       .from(notes)
       .where(and(eq(notes.id, noteId), eq(notes.userId, userId)))
-      .then((res) => res[0]),
+      .then((res) => res[0])
   );
   if (noteError || !noteResult) {
     return undefined;
@@ -135,7 +135,7 @@ export const updateNoteAction = action(async (formData: FormData) => {
       .select()
       .from(notes)
       .where(and(eq(notes.id, noteId), eq(notes.userId, userId)))
-      .then((res) => res[0]),
+      .then((res) => res[0])
   );
   if (originalNoteError || !originalNoteResult) {
     return { error: "Could not find existing note" };
@@ -158,7 +158,7 @@ export const updateNoteAction = action(async (formData: FormData) => {
   const notesInput = { note, updatedAt: new Date(Date.now()) };
 
   const [noteError, noteResult] = await mightFail(
-    db.update(notes).set(notesInput).where(eq(notes.id, noteId)),
+    db.update(notes).set(notesInput).where(eq(notes.id, noteId))
   );
   if (noteError) {
     console.error("Update error:", noteError);
@@ -181,7 +181,7 @@ export const deleteNoteAction = action(async (noteId: number) => {
       .select()
       .from(notes)
       .where(and(eq(notes.id, noteId), eq(notes.userId, userId)))
-      .then((res) => res[0]),
+      .then((res) => res[0])
   );
   if (originalNoteError || !originalNoteResult) {
     return { error: "Could not find existing note" };
@@ -193,13 +193,13 @@ export const deleteNoteAction = action(async (noteId: number) => {
   const [deleteReferenceError, deleteReferenceResult] = await mightFail(
     db
       .delete(journals)
-      .where(and(eq(journals.type, "note"), eq(journals.entryId, noteId))),
+      .where(and(eq(journals.type, "note"), eq(journals.entryId, noteId)))
   );
   if (deleteReferenceError) {
     return { error: "Could not delete reference" };
   }
   const [deleteError, deleteResult] = await mightFail(
-    db.delete(notes).where(eq(notes.id, noteId)),
+    db.delete(notes).where(eq(notes.id, noteId))
   );
   if (deleteError) {
     return { error: "Could not delete note" };
@@ -239,9 +239,9 @@ export const createTakenMedicationAction = action(
         .where(
           and(
             eq(medications.id, parseInt(medication)),
-            eq(medications.teamId, teamId),
-          ),
-        ),
+            eq(medications.teamId, teamId)
+          )
+        )
     );
     if (medicationError || !medicationResult.length) {
       return { error: "Invalid medication selection" };
@@ -278,7 +278,7 @@ export const createTakenMedicationAction = action(
             category: "medication",
             userId,
           })
-          .returning({ noteId: notes.id }),
+          .returning({ noteId: notes.id })
       );
 
       if (noteError) {
@@ -303,7 +303,7 @@ export const createTakenMedicationAction = action(
         .insert(takenMedications)
         .values(medicationInput)
         .returning()
-        .then((res) => res[0]),
+        .then((res) => res[0])
     );
     if (takenMedicationError) {
       console.error("Database insertion error:", takenMedicationError);
@@ -312,7 +312,7 @@ export const createTakenMedicationAction = action(
     const [journalReferenceError, journalReferenceResult] = await mightFail(
       db
         .insert(journals)
-        .values({ type: "medication", entryId: takenMedicationResult.id }),
+        .values({ type: "medication", entryId: takenMedicationResult.id })
     );
     if (journalReferenceError) {
       console.error("Error making reference to journal", journalReferenceError);
@@ -320,7 +320,7 @@ export const createTakenMedicationAction = action(
     }
     return { success: true, message: "Medication successfully created." };
   },
-  "createTakenMedicationAction",
+  "createTakenMedicationAction"
 );
 
 export const getTakenMedicationById = async (takenMedicationId: number) => {
@@ -354,10 +354,10 @@ export const getTakenMedicationById = async (takenMedicationId: number) => {
       .where(
         and(
           eq(takenMedications.id, takenMedicationId),
-          eq(takenMedications.userId, userId),
-        ),
+          eq(takenMedications.userId, userId)
+        )
       )
-      .then((res) => res[0]),
+      .then((res) => res[0])
   );
   if (takenMedicationError || !takenMedicationResult) {
     return undefined;
@@ -391,7 +391,7 @@ export const updateTakenMedicationAction = action(
       return { error: "Please select a medication" };
     }
     const takenMedicationId = parseInt(
-      formData.get("takenMedicationId") as string,
+      formData.get("takenMedicationId") as string
     );
     if (!takenMedicationId) {
       return { error: "Missing Note ID" };
@@ -408,9 +408,9 @@ export const updateTakenMedicationAction = action(
         .where(
           and(
             eq(medications.id, parseInt(medication)),
-            eq(medications.teamId, teamId),
-          ),
-        ),
+            eq(medications.teamId, teamId)
+          )
+        )
     );
     if (medicationError || !medicationResult.length) {
       return { error: "Invalid medication selection" };
@@ -445,10 +445,10 @@ export const updateTakenMedicationAction = action(
         .where(
           and(
             eq(takenMedications.id, takenMedicationId),
-            eq(takenMedications.userId, userId),
-          ),
+            eq(takenMedications.userId, userId)
+          )
         )
-        .then((res) => res[0]),
+        .then((res) => res[0])
     );
     if (oldEntryError || !oldEntryResult) {
       return { error: "Could not find existing journal entry" };
@@ -460,13 +460,13 @@ export const updateTakenMedicationAction = action(
             db
               .update(takenMedications)
               .set({ noteId: null })
-              .where(eq(takenMedications.id, takenMedicationId)),
+              .where(eq(takenMedications.id, takenMedicationId))
           );
           if (removeError) {
             return { error: "failed to detach note" };
           }
           const [delError, delResult] = await mightFail(
-            db.delete(notes).where(eq(notes.id, oldEntryResult.noteId)),
+            db.delete(notes).where(eq(notes.id, oldEntryResult.noteId))
           );
           if (delError) {
             return { error: "Failed to update note." };
@@ -479,7 +479,7 @@ export const updateTakenMedicationAction = action(
                 note: note,
                 updatedAt: new Date(Date.now()),
               })
-              .where(eq(notes.id, oldEntryResult.noteId)),
+              .where(eq(notes.id, oldEntryResult.noteId))
           );
 
           if (updateError) {
@@ -493,7 +493,7 @@ export const updateTakenMedicationAction = action(
               .insert(notes)
               .values({ note, category: "medication", userId, teamId })
               .returning()
-              .then((res) => res[0]),
+              .then((res) => res[0])
           );
 
           if (newError) {
@@ -517,7 +517,7 @@ export const updateTakenMedicationAction = action(
       db
         .update(takenMedications)
         .set(medicationInput)
-        .where(eq(takenMedications.id, takenMedicationId)),
+        .where(eq(takenMedications.id, takenMedicationId))
     );
     if (takenMedicationError) {
       console.error("Database update error:", takenMedicationError);
@@ -525,7 +525,7 @@ export const updateTakenMedicationAction = action(
     }
     return { success: true, message: "Medication successfully updated." };
   },
-  "updateTakenMedicationAction",
+  "updateTakenMedicationAction"
 );
 
 export const deleteTakenMedicationAction = action(
@@ -545,10 +545,10 @@ export const deleteTakenMedicationAction = action(
         .where(
           and(
             eq(takenMedications.id, takenMedicationId),
-            eq(takenMedications.userId, userId),
-          ),
+            eq(takenMedications.userId, userId)
+          )
         )
-        .then((res) => res[0]),
+        .then((res) => res[0])
     );
     if (originalError || !originalResult) {
       return { error: "Could not find existing Taken Medication entry" };
@@ -562,13 +562,13 @@ export const deleteTakenMedicationAction = action(
         db
           .update(takenMedications)
           .set({ noteId: null })
-          .where(eq(takenMedications.id, takenMedicationId)),
+          .where(eq(takenMedications.id, takenMedicationId))
       );
       if (removeError) {
         return { error: "failed to detach note" };
       }
       const [deleteNoteError, deleteNoteResult] = await mightFail(
-        db.delete(notes).where(eq(notes.id, originalResult.noteId)),
+        db.delete(notes).where(eq(notes.id, originalResult.noteId))
       );
       if (deleteNoteError) {
         return { error: "Could not delete note" };
@@ -580,9 +580,9 @@ export const deleteTakenMedicationAction = action(
         .where(
           and(
             eq(journals.type, "medication"),
-            eq(journals.entryId, takenMedicationId),
-          ),
-        ),
+            eq(journals.entryId, takenMedicationId)
+          )
+        )
     );
     if (deleteReferenceError) {
       return { error: "Could not delete reference" };
@@ -590,7 +590,7 @@ export const deleteTakenMedicationAction = action(
     const [deleteMedError, deleteMedResult] = await mightFail(
       db
         .delete(takenMedications)
-        .where(eq(takenMedications.id, takenMedicationId)),
+        .where(eq(takenMedications.id, takenMedicationId))
     );
     if (deleteMedError) {
       return { error: "Could not delete taken medication" };
@@ -598,7 +598,7 @@ export const deleteTakenMedicationAction = action(
 
     return { success: true, message: "Medication successfully deleted" };
   },
-  "deleteTakenMedicationAction",
+  "deleteTakenMedicationAction"
 );
 
 export const createMoodAction = action(async (formData: FormData) => {
@@ -644,7 +644,7 @@ export const createMoodAction = action(async (formData: FormData) => {
       db
         .insert(notes)
         .values({ note: note, teamId, category: "mood", userId })
-        .returning({ noteId: notes.id }),
+        .returning({ noteId: notes.id })
     );
 
     if (noteError) {
@@ -666,14 +666,14 @@ export const createMoodAction = action(async (formData: FormData) => {
       .insert(moods)
       .values(moodInput)
       .returning()
-      .then((res) => res[0]),
+      .then((res) => res[0])
   );
   if (moodError) {
     console.error("Database update error:", moodError);
     return { error: "Failed to update mood entry." };
   }
   const [journalReferenceError, journalReferenceResult] = await mightFail(
-    db.insert(journals).values({ type: "mood", entryId: moodResult.id }),
+    db.insert(journals).values({ type: "mood", entryId: moodResult.id })
   );
   if (journalReferenceError) {
     console.error("Error making reference to journal", journalReferenceError);
@@ -706,7 +706,7 @@ export const getMoodById = async (moodId: number) => {
       .from(moods)
       .leftJoin(notes, eq(moods.noteId, notes.id))
       .where(and(eq(moods.id, moodId), eq(moods.userId, userId)))
-      .then((res) => res[0]),
+      .then((res) => res[0])
   );
   if (moodError || !moodResult) {
     return undefined;
@@ -771,7 +771,7 @@ export const updateMoodAction = action(async (formData: FormData) => {
       .select()
       .from(moods)
       .where(and(eq(moods.id, moodId), eq(moods.userId, userId)))
-      .then((res) => res[0]),
+      .then((res) => res[0])
   );
   if (oldEntryError || !oldEntryResult) {
     return { error: "Could not find existing journal entry" };
@@ -780,13 +780,13 @@ export const updateMoodAction = action(async (formData: FormData) => {
     if (oldEntryResult.noteId) {
       if (note.length === 0) {
         const [removeError, removeResult] = await mightFail(
-          db.update(moods).set({ noteId: null }).where(eq(moods.id, moodId)),
+          db.update(moods).set({ noteId: null }).where(eq(moods.id, moodId))
         );
         if (removeError) {
           return { error: "failed to detach note" };
         }
         const [delError, delResult] = await mightFail(
-          db.delete(notes).where(eq(notes.id, oldEntryResult.noteId)),
+          db.delete(notes).where(eq(notes.id, oldEntryResult.noteId))
         );
         if (delError) {
           return { error: "Failed to update note." };
@@ -799,7 +799,7 @@ export const updateMoodAction = action(async (formData: FormData) => {
               note: note,
               updatedAt: new Date(Date.now()),
             })
-            .where(eq(notes.id, oldEntryResult.noteId)),
+            .where(eq(notes.id, oldEntryResult.noteId))
         );
 
         if (updateError) {
@@ -813,7 +813,7 @@ export const updateMoodAction = action(async (formData: FormData) => {
             .insert(notes)
             .values({ note, category: "mood", userId, teamId })
             .returning()
-            .then((res) => res[0]),
+            .then((res) => res[0])
         );
 
         if (newError) {
@@ -831,7 +831,7 @@ export const updateMoodAction = action(async (formData: FormData) => {
     date,
   };
   const [moodError, moodResult] = await mightFail(
-    db.update(moods).set(moodInput).where(eq(moods.id, moodId)),
+    db.update(moods).set(moodInput).where(eq(moods.id, moodId))
   );
   if (moodError) {
     console.error("Database insertion error:", moodError);
@@ -854,7 +854,7 @@ export const deleteMoodAction = action(async (moodId: number) => {
       .select()
       .from(moods)
       .where(and(eq(moods.id, moodId), eq(moods.userId, userId)))
-      .then((res) => res[0]),
+      .then((res) => res[0])
   );
   if (originalError || !originalResult) {
     return { error: "Could not find existing Mood entry" };
@@ -865,13 +865,13 @@ export const deleteMoodAction = action(async (moodId: number) => {
   }
   if (originalResult.noteId) {
     const [removeError, removeResult] = await mightFail(
-      db.update(moods).set({ noteId: null }).where(eq(moods.id, moodId)),
+      db.update(moods).set({ noteId: null }).where(eq(moods.id, moodId))
     );
     if (removeError) {
       return { error: "failed to detach note" };
     }
     const [deleteNoteError, deleteNoteResult] = await mightFail(
-      db.delete(notes).where(eq(notes.id, originalResult.noteId)),
+      db.delete(notes).where(eq(notes.id, originalResult.noteId))
     );
     if (deleteNoteError) {
       return { error: "Could not delete note" };
@@ -880,13 +880,13 @@ export const deleteMoodAction = action(async (moodId: number) => {
   const [deleteReferenceError, deleteReferenceResult] = await mightFail(
     db
       .delete(journals)
-      .where(and(eq(journals.type, "mood"), eq(journals.entryId, moodId))),
+      .where(and(eq(journals.type, "mood"), eq(journals.entryId, moodId)))
   );
   if (deleteReferenceError) {
     return { error: "Could not delete reference" };
   }
   const [deleteMoodError, deleteMoodResult] = await mightFail(
-    db.delete(moods).where(eq(moods.id, moodId)),
+    db.delete(moods).where(eq(moods.id, moodId))
   );
   if (deleteMoodError) {
     return { error: "Could not delete Mood" };
@@ -947,7 +947,7 @@ export const createMealAction = action(async (formData: FormData) => {
       db
         .insert(notes)
         .values({ note: note, teamId, category: "meal", userId })
-        .returning({ noteId: notes.id }),
+        .returning({ noteId: notes.id })
     );
     if (noteError) {
       return { error: "Failed to create note." };
@@ -972,14 +972,14 @@ export const createMealAction = action(async (formData: FormData) => {
       .insert(meals)
       .values(mealInput)
       .returning()
-      .then((res) => res[0]),
+      .then((res) => res[0])
   );
   if (mealError) {
     console.error("Database insertion error:", mealError);
     return { error: "Failed to insert meal entry" };
   }
   const [journalReferenceError, journalReferenceResult] = await mightFail(
-    db.insert(journals).values({ type: "meal", entryId: mealResult.id }),
+    db.insert(journals).values({ type: "meal", entryId: mealResult.id })
   );
   if (journalReferenceError) {
     console.error("Error making reference to journal", journalReferenceError);
@@ -1015,7 +1015,7 @@ export const getMealById = async (mealId: number) => {
       .from(meals)
       .leftJoin(notes, eq(meals.noteId, notes.id))
       .where(and(eq(meals.id, mealId), eq(meals.userId, userId)))
-      .then((res) => res[0]),
+      .then((res) => res[0])
   );
   if (mealError || !mealResult) {
     return undefined;
@@ -1086,7 +1086,7 @@ export const updateMealAction = action(async (formData: FormData) => {
       .select()
       .from(meals)
       .where(and(eq(meals.id, mealId), eq(meals.userId, userId)))
-      .then((res) => res[0]),
+      .then((res) => res[0])
   );
   if (oldEntryError || !oldEntryResult) {
     return { error: "Could not find existing journal entry" };
@@ -1095,13 +1095,13 @@ export const updateMealAction = action(async (formData: FormData) => {
     if (oldEntryResult.noteId) {
       if (note.length === 0) {
         const [removeError, removeResult] = await mightFail(
-          db.update(meals).set({ noteId: null }).where(eq(meals.id, mealId)),
+          db.update(meals).set({ noteId: null }).where(eq(meals.id, mealId))
         );
         if (removeError) {
           return { error: "failed to detach note" };
         }
         const [delError, delResult] = await mightFail(
-          db.delete(notes).where(eq(notes.id, oldEntryResult.noteId)),
+          db.delete(notes).where(eq(notes.id, oldEntryResult.noteId))
         );
         if (delError) {
           return { error: "Failed to update note." };
@@ -1114,7 +1114,7 @@ export const updateMealAction = action(async (formData: FormData) => {
               note: note,
               updatedAt: new Date(Date.now()),
             })
-            .where(eq(notes.id, oldEntryResult.noteId)),
+            .where(eq(notes.id, oldEntryResult.noteId))
         );
 
         if (updateError) {
@@ -1128,7 +1128,7 @@ export const updateMealAction = action(async (formData: FormData) => {
             .insert(notes)
             .values({ note, category: "meal", userId, teamId })
             .returning()
-            .then((res) => res[0]),
+            .then((res) => res[0])
         );
 
         if (newError) {
@@ -1148,7 +1148,7 @@ export const updateMealAction = action(async (formData: FormData) => {
     date,
   };
   const [mealError, mealResult] = await mightFail(
-    db.update(meals).set(mealInput).where(eq(meals.id, mealId)),
+    db.update(meals).set(mealInput).where(eq(meals.id, mealId))
   );
   if (mealError) {
     console.error("Database insertion error:", mealError);
@@ -1171,7 +1171,7 @@ export const deleteMealAction = action(async (mealId: number) => {
       .select()
       .from(meals)
       .where(and(eq(meals.id, mealId), eq(meals.userId, userId)))
-      .then((res) => res[0]),
+      .then((res) => res[0])
   );
   if (originalError || !originalResult) {
     return { error: "Could not find existing Meal entry" };
@@ -1182,13 +1182,13 @@ export const deleteMealAction = action(async (mealId: number) => {
   }
   if (originalResult.noteId) {
     const [removeError, removeResult] = await mightFail(
-      db.update(meals).set({ noteId: null }).where(eq(meals.id, mealId)),
+      db.update(meals).set({ noteId: null }).where(eq(meals.id, mealId))
     );
     if (removeError) {
       return { error: "failed to detach note" };
     }
     const [deleteNoteError, deleteNoteResult] = await mightFail(
-      db.delete(notes).where(eq(notes.id, originalResult.noteId)),
+      db.delete(notes).where(eq(notes.id, originalResult.noteId))
     );
     if (deleteNoteError) {
       return { error: "Could not delete note" };
@@ -1197,13 +1197,13 @@ export const deleteMealAction = action(async (mealId: number) => {
   const [deleteReferenceError, deleteReferenceResult] = await mightFail(
     db
       .delete(journals)
-      .where(and(eq(journals.type, "meal"), eq(journals.entryId, mealId))),
+      .where(and(eq(journals.type, "meal"), eq(journals.entryId, mealId)))
   );
   if (deleteReferenceError) {
     return { error: "Could not delete reference" };
   }
   const [deleteMealError, deleteMealResult] = await mightFail(
-    db.delete(meals).where(eq(meals.id, mealId)),
+    db.delete(meals).where(eq(meals.id, mealId))
   );
   if (deleteMealError) {
     return { error: "Could not delete Meal" };
@@ -1293,14 +1293,14 @@ export const createSleepAction = action(async (formData: FormData) => {
       .insert(sleeps)
       .values(sleepInput)
       .returning()
-      .then((res) => res[0]),
+      .then((res) => res[0])
   );
   if (sleepError) {
     console.error("Database insertion error:", sleepError);
     return { error: "Failed to create sleep entry." }; // Return error if insertion fails
   }
   const [journalReferenceError, journalReferenceResult] = await mightFail(
-    db.insert(journals).values({ type: "sleep", entryId: sleepResult.id }),
+    db.insert(journals).values({ type: "sleep", entryId: sleepResult.id })
   );
   if (journalReferenceError) {
     console.error("Error making reference to journal", journalReferenceError);
@@ -1335,7 +1335,7 @@ export const getSleepById = async (sleepId: number) => {
       .from(sleeps)
       .leftJoin(notes, eq(sleeps.noteId, notes.id))
       .where(and(eq(sleeps.id, sleepId), eq(sleeps.userId, userId)))
-      .then((res) => res[0]),
+      .then((res) => res[0])
   );
   if (sleepError || !sleepResult) {
     return undefined;
@@ -1410,7 +1410,7 @@ export const updateSleepAction = action(async (formData: FormData) => {
       .select()
       .from(sleeps)
       .where(and(eq(sleeps.id, sleepId), eq(sleeps.userId, userId)))
-      .then((res) => res[0]),
+      .then((res) => res[0])
   );
   if (oldEntryError || !oldEntryResult) {
     return { error: "Could not find existing journal entry" };
@@ -1419,13 +1419,13 @@ export const updateSleepAction = action(async (formData: FormData) => {
     if (oldEntryResult.noteId) {
       if (note.length === 0) {
         const [removeError, removeResult] = await mightFail(
-          db.update(sleeps).set({ noteId: null }).where(eq(sleeps.id, sleepId)),
+          db.update(sleeps).set({ noteId: null }).where(eq(sleeps.id, sleepId))
         );
         if (removeError) {
           return { error: "failed to detach note" };
         }
         const [delError, delResult] = await mightFail(
-          db.delete(notes).where(eq(notes.id, oldEntryResult.noteId)),
+          db.delete(notes).where(eq(notes.id, oldEntryResult.noteId))
         );
         if (delError) {
           return { error: "Failed to update note." };
@@ -1438,7 +1438,7 @@ export const updateSleepAction = action(async (formData: FormData) => {
               note: note,
               updatedAt: new Date(Date.now()),
             })
-            .where(eq(notes.id, oldEntryResult.noteId)),
+            .where(eq(notes.id, oldEntryResult.noteId))
         );
 
         if (updateError) {
@@ -1452,7 +1452,7 @@ export const updateSleepAction = action(async (formData: FormData) => {
             .insert(notes)
             .values({ note, category: "sleep", userId, teamId })
             .returning()
-            .then((res) => res[0]),
+            .then((res) => res[0])
         );
 
         if (newError) {
@@ -1474,7 +1474,7 @@ export const updateSleepAction = action(async (formData: FormData) => {
   };
 
   const [sleepError, sleepResult] = await mightFail(
-    db.update(sleeps).set(sleepInput).where(eq(sleeps.id, sleepId)),
+    db.update(sleeps).set(sleepInput).where(eq(sleeps.id, sleepId))
   );
   if (sleepError) {
     console.error("Database update error:", sleepError);
@@ -1497,7 +1497,7 @@ export const deleteSleepAction = action(async (sleepId: number) => {
       .select()
       .from(sleeps)
       .where(and(eq(sleeps.id, sleepId), eq(sleeps.userId, userId)))
-      .then((res) => res[0]),
+      .then((res) => res[0])
   );
   if (originalError || !originalResult) {
     return { error: "Could not find existing sleep entry" };
@@ -1508,13 +1508,13 @@ export const deleteSleepAction = action(async (sleepId: number) => {
   }
   if (originalResult.noteId) {
     const [removeError, removeResult] = await mightFail(
-      db.update(sleeps).set({ noteId: null }).where(eq(sleeps.id, sleepId)),
+      db.update(sleeps).set({ noteId: null }).where(eq(sleeps.id, sleepId))
     );
     if (removeError) {
       return { error: "failed to detach note" };
     }
     const [deleteNoteError, deleteNoteResult] = await mightFail(
-      db.delete(notes).where(eq(notes.id, originalResult.noteId)),
+      db.delete(notes).where(eq(notes.id, originalResult.noteId))
     );
     if (deleteNoteError) {
       return { error: "Could not delete note" };
@@ -1523,13 +1523,13 @@ export const deleteSleepAction = action(async (sleepId: number) => {
   const [deleteReferenceError, deleteReferenceResult] = await mightFail(
     db
       .delete(journals)
-      .where(and(eq(journals.type, "sleep"), eq(journals.entryId, sleepId))),
+      .where(and(eq(journals.type, "sleep"), eq(journals.entryId, sleepId)))
   );
   if (deleteReferenceError) {
     return { error: "Could not delete reference" };
   }
   const [deleteSleepError, deleteSleepResult] = await mightFail(
-    db.delete(sleeps).where(eq(sleeps.id, sleepId)),
+    db.delete(sleeps).where(eq(sleeps.id, sleepId))
   );
   if (deleteSleepError) {
     return { error: "Could not delete Sleep" };
@@ -1549,7 +1549,7 @@ export const getMedicationsFromTeamId = async (teamId: number) => {
     return [];
   }
   const [medicationsError, medicationsResult] = await mightFail(
-    db.select().from(medications).where(eq(medications.teamId, teamId)),
+    db.select().from(medications).where(eq(medications.teamId, teamId))
   );
   if (medicationsError) {
     return [];
@@ -1588,8 +1588,8 @@ export const getJournalsFromTeamId = async (teamId: number) => {
         and(
           eq(journals.entryId, takenMedications.id),
           eq(journals.type, "medication"),
-          eq(takenMedications.teamId, teamId),
-        ),
+          eq(takenMedications.teamId, teamId)
+        )
       )
       .leftJoin(userMedication, eq(takenMedications.userId, userMedication.id))
       .leftJoin(medications, eq(takenMedications.medicationId, medications.id))
@@ -1599,8 +1599,8 @@ export const getJournalsFromTeamId = async (teamId: number) => {
         and(
           eq(journals.entryId, meals.id),
           eq(journals.type, "meal"),
-          eq(meals.teamId, teamId),
-        ),
+          eq(meals.teamId, teamId)
+        )
       )
       .leftJoin(userMeal, eq(meals.userId, userMeal.id))
       .leftJoin(mealNote, eq(meals.noteId, mealNote.id))
@@ -1611,8 +1611,8 @@ export const getJournalsFromTeamId = async (teamId: number) => {
         and(
           eq(journals.entryId, sleeps.id),
           eq(journals.type, "sleep"),
-          eq(sleeps.teamId, teamId),
-        ),
+          eq(sleeps.teamId, teamId)
+        )
       )
       .leftJoin(userSleep, eq(sleeps.userId, userSleep.id))
       .leftJoin(sleepNote, eq(sleeps.noteId, sleepNote.id))
@@ -1623,8 +1623,8 @@ export const getJournalsFromTeamId = async (teamId: number) => {
         and(
           eq(journals.entryId, moods.id),
           eq(journals.type, "mood"),
-          eq(moods.teamId, teamId),
-        ),
+          eq(moods.teamId, teamId)
+        )
       )
       .leftJoin(userMood, eq(moods.userId, userMood.id))
       .leftJoin(moodNote, eq(moods.noteId, moodNote.id))
@@ -1634,8 +1634,8 @@ export const getJournalsFromTeamId = async (teamId: number) => {
           eq(journals.entryId, notes.id),
           eq(journals.type, "note"),
           eq(notes.teamId, teamId),
-          eq(notes.category, "general"),
-        ),
+          eq(notes.category, "general")
+        )
       )
       .leftJoin(userNote, eq(notes.userId, userNote.id))
       .where(
@@ -1644,10 +1644,10 @@ export const getJournalsFromTeamId = async (teamId: number) => {
           eq(meals.teamId, teamId),
           eq(sleeps.teamId, teamId),
           eq(moods.teamId, teamId),
-          eq(notes.teamId, teamId),
-        ),
+          eq(notes.teamId, teamId)
+        )
       )
-      .orderBy(desc(journals.createdAt)),
+      .orderBy(desc(journals.createdAt))
   );
   console.log(res, "res");
   if (err) {
@@ -1692,7 +1692,7 @@ export const getJournalsFromTeamId = async (teamId: number) => {
         data = entry.sleeps || {};
         user = getUserDataTEHelper(entry, "userSleep");
         note.note = getNoteDataTEHelper(entry, "sleepNote");
-        recipient.firstName = entry.mealRecipient?.firstName || "";
+        recipient.firstName = entry.sleepRecipient?.firstName || "";
         data.recipient = recipient;
         break;
       case "mood":
