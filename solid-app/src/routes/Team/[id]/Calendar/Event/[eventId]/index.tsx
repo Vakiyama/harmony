@@ -14,9 +14,12 @@ import {
   deleteEvent,
   deleteEventParticipant,
   getEvent,
+  getEventParticipant,
   getEventParticipants,
   getTeamMembersFromTeamId,
   updateEvent,
+  updateEventParticipant,
+  updateTaskComplete,
 } from "~/api/calendar";
 import { FaSolidAngleDown } from "solid-icons/fa";
 import { formatDateToLongForm } from "~/lib/formateDateLocal";
@@ -59,32 +62,20 @@ const parseTeamMemberToOption = (
 export default function EventPage() {
   const params = useParams();
   const teamId = parseInt(params.id);
-  const eventId = params.eventId;
+  const eventId = parseInt(params.eventId);
   let currentUserId: number;
   const navigate = useNavigate();
 
   const [event, { refetch }] = createResource(
-    async () => await getEvent(parseInt(eventId))
+    async () => await getEvent(eventId)
   );
-
-  const teamMembers = createAsync(
-    async () => await getTeamMembersFromTeamId(teamId),
-    { deferStream: true }
-  );
-
+  const [teamMembers, setTeamMembers] = createSignal<
+    {
+      users: User;
+      teammembers: TeamMember;
+    }[]
+  >();
   const [participants, setParticipants] = createSignal<Participant[]>([]);
-
-  const fetchParticipants = async () => {
-    const participants = await getEventParticipants(parseInt(eventId), teamId);
-    setParticipants(participants);
-  };
-
-  onMount(async () => {
-    await fetchParticipants();
-    const user = (await getUser()) as User;
-    currentUserId = user.id;
-  });
-
   const [isTeamMembersOpen, setIsTeamMembersOpen] = createSignal(false);
   const [isModalOpen, setIsModalOpen] = createSignal(false);
   const [title, setTitle] = createSignal(event()?.title ?? "");
@@ -96,11 +87,38 @@ export default function EventPage() {
     participants()?.map((p) => p.participant.id) ?? []
   );
   const [notes, setNotes] = createSignal(event()?.notes ?? "");
-
   const [isDeleteOpen, setIsDeleteOpen] = createSignal(false);
   const teamMemberOptions = createMemo(() =>
     parseTeamMemberToOption(teamMembers())
   );
+  const [currentStatus, setCurrentStatus] = createSignal<
+    "yes" | "no" | "maybe" | undefined | null
+  >();
+  const complete = createMemo(
+    (v) => (v = event()?.complete),
+    event()?.complete
+  );
+  onMount(async () => {
+    const user = (await getUser()) as User;
+    currentUserId = user.id;
+    await fetchParticipants();
+    await fetchTeamMembers();
+    await fetchCurrentStatus();
+  });
+
+  const fetchParticipants = async () => {
+    const participants = await getEventParticipants(eventId, teamId);
+    setParticipants(participants);
+  };
+  const fetchTeamMembers = async () => {
+    const teamMemebers = await getTeamMembersFromTeamId(teamId);
+    setTeamMembers(teamMemebers);
+  };
+  const fetchCurrentStatus = async () => {
+    const status = (await getEventParticipant(eventId, currentUserId)).status;
+    console.log(status);
+    setCurrentStatus(status);
+  };
 
   const openModal = () => {
     setIsModalOpen((prev) => !prev);
@@ -124,14 +142,14 @@ export default function EventPage() {
     for (const participant of participants()) {
       const [deleteEventParticipantsError, deleteEventParticipantsResult] =
         await mightFail(
-          deleteEventParticipant(participant.participant.id, event()?.id!)
+          deleteEventParticipant(participant.participant.id, eventId)
         );
       if (deleteEventParticipantsError) {
         return console.error(deleteEventParticipantsError);
       }
     }
     const [deleteEventError, deleteEventResult] = await mightFail(
-      deleteEvent(event()?.id!)
+      deleteEvent(eventId)
     );
     if (deleteEventError) {
       return console.error(deleteEventError);
@@ -160,7 +178,7 @@ export default function EventPage() {
 
     for await (const deletedMember of deletedMembers) {
       const [deletedMemberError, deletedMemberResult] = await mightFail(
-        deleteEventParticipant(deletedMember, event()?.id!)
+        deleteEventParticipant(deletedMember, eventId)
       );
       if (deletedMemberError) {
         return console.error(deletedMemberError);
@@ -173,7 +191,7 @@ export default function EventPage() {
 
     for await (const newMember of newMembers) {
       const [newMemberError, newMemberResult] = await mightFail(
-        createEventParticipant(event()?.id!, newMember)
+        createEventParticipant(eventId, newMember)
       );
       if (newMemberError) {
         return console.error(newMemberError);
@@ -190,7 +208,28 @@ export default function EventPage() {
   const handleUpdateStatus = async (
     status: "yes" | "no" | "maybe" | undefined | null
   ) => {
-    console.log(currentUserId, status, event()?.id);
+    const [updateStatusError, updateStatusResult] = await mightFail(
+      currentStatus() === status
+        ? updateEventParticipant(currentUserId, eventId, null)
+        : updateEventParticipant(currentUserId, eventId, status)
+    );
+    if (updateStatusError) {
+      return console.error(updateStatusError);
+    }
+    await refetch();
+    await fetchParticipants();
+  };
+
+  const handleUpdateComplete = async (complete: boolean) => {
+    const [updateCompleteError, updateCompleteResult] = await mightFail(
+      updateTaskComplete(complete, eventId)
+    );
+    if (updateCompleteError) {
+      return console.error(updateCompleteError);
+    }
+    await refetch();
+    console.log(event()?.complete);
+    await fetchParticipants();
   };
 
   const statusCount = {
@@ -312,7 +351,7 @@ export default function EventPage() {
                             src={participant.participant.photo!}
                             alt="temp alt"
                           />
-                          <div class="absolute right-0 bottom-0 z-20">
+                          <div class="absolute right-0 bottom-0">
                             <Switch>
                               <Match when={participant.status === "yes"}>
                                 <IoCheckmarkCircle />
@@ -352,25 +391,15 @@ export default function EventPage() {
                 {event()?.notes}
               </div>
             </div>
-            <div class="flex justify-end space-x-4 bg-[#fcfcfc] border-t border-[#1e1e1e]/20 p-3 mt-5">
-              {["Yes", "No", "Maybe"].map((response) => (
-                <button
-                  class="bg-[#1e1e1e]/20 rounded-full px-4 py-2 text-[#1e1e1e] text-lg font-medium"
-                  onclick={() => handleUpdateStatus(response.toLowerCase())}
-                >
-                  {response}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
         {isModalOpen() && (
           <div
-            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]" //temp z-60 to override navbar
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]"
             onClick={handleBackdropModalClick}
           >
             <UpdateEventModal onClose={closeModal} update={handleUpdateEvent}>
-              <div class="w-full flex flex-col gap-2">
+              <div class="w-full flex flex-col gap-2 ">
                 <TextInput
                   label="Title"
                   placeholder="Title"
@@ -446,6 +475,45 @@ export default function EventPage() {
               onClose={() => setIsDeleteOpen(false)}
               title="Event"
             />
+          </div>
+        )}
+      </div>
+      <div class="sticky flex justify-end items-center bottom-0 h-[70px] w-full bg-[#fcfcfc] border-t border-[#1e1e1e]/20">
+        {event()?.type === "event" ? (
+          <div class="flex justify-end space-x-4 items-center h-[30px] mt-[8px] mb-[20px] pr-[12px]">
+            {["Yes", "No", "Maybe"].map((response) => (
+              <button
+                class={`${
+                  currentStatus() === "yes" && response === "Yes"
+                    ? "bg-[#6fc94f] text-[#fcfcfc]"
+                    : currentStatus() === "no" && response === "No"
+                    ? "bg-[#FE7258] text-[#fcfcfc]"
+                    : currentStatus() === "maybe" && response === "Maybe"
+                    ? "bg-[#F7D844] text-[#fcfcfc]"
+                    : "bg-[#1e1e1e]/20 text-[#1e1e1e]"
+                } rounded-full px-[15px] h-[30px] text-lg font-medium font-grotesque`}
+                onclick={() =>
+                  handleUpdateStatus(
+                    response.toLowerCase() as "yes" | "no" | "maybe"
+                  )
+                }
+              >
+                {response}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div class="justify-end items-center flex h-[30px] mt-[8px] mb-[20px] pr-[12px]">
+            <button
+              class="rounded-[999px] h-[30px] px-[15px] border border-[#1e1e1e]/25 flex-col justify-center items-center flex"
+              onclick={() => {
+                handleUpdateComplete(!complete());
+              }}
+            >
+              <p class="self-stretch text-center text-[#1e1e1e] text-[19px] font-medium font-grotesque ">
+                {!complete() ? "Mark As Incomplete" : "Mark as Complete"}
+              </p>
+            </button>
           </div>
         )}
       </div>

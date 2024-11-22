@@ -25,16 +25,17 @@ const EventCard = (props: {
     return "bg-[#f1eefc]";
   };
 
-  const concatTitle = (title: string) => {
-    return title.length > 23 ? title.slice(0, 23).concat("...") : title;
+  const concatString = (title: string, length: number) => {
+    return title.length > length ? title.slice(0, length).concat("...") : title;
   };
+
   return (
     <>
       <div
         class={twMerge(
           `relative self-stretch h-12 pl-1 pr-2 py-1 ${getEventBackground(
             props.event
-          )} rounded-md justify-start items-start gap-1.5 inline-flex`,
+          )} rounded-md justify-start items-center gap-1.5 inline-flex`,
           props?.class
         )}
         style={props.style || {}}
@@ -50,21 +51,27 @@ const EventCard = (props: {
         <div class="grow shrink basis-0 h-7 justify-between items-center flex">
           <div class="grow shrink relative basis-0 h-8 flex-col justify-between items-start inline-flex">
             <div class="self-stretch h-[16px] text-[#1e1e1e]/75 text-base font-sf-pro leading-tight">
-              {concatTitle(props.event.title)}
+              {concatString(props.event.title, 23)}
             </div>
             <div class="flex space-x-1 justify-self-center">
-              <For each={response()}>
-                {(data, i) => (
-                  <Show when={data.status !== "yes"}>
-                    <div class="self-stretch h-[13px] text-[#1e1e1e]/50 text-[13px] font-normal font-sf-pro leading-none">
-                      {data.participant.firstName} {data.participant.lastName}
-                      <Show when={response()!.length > 1}>
-                        {i() === response.length ? "," : ""}
-                      </Show>
-                    </div>
-                  </Show>
-                )}
-              </For>
+              {props.event.type === "event" ? (
+                <For each={response()}>
+                  {(data, i) => (
+                    <Show when={data.status === "yes"}>
+                      <div class="self-stretch h-[13px] text-[#1e1e1e]/50 text-[13px] font-normal font-sf-pro leading-none">
+                        {data.participant.firstName} {data.participant.lastName}
+                        <Show when={response()!.length > 1}>
+                          {i() === response.length ? "," : ""}
+                        </Show>
+                      </div>
+                    </Show>
+                  )}
+                </For>
+              ) : (
+                <div class="self-stretch h-[13px] text-[#1e1e1e]/50 text-[13px] font-normal font-sf-pro leading-none">
+                  {concatString(props.event.notes, 30)}
+                </div>
+              )}
             </div>
           </div>
           <div class="w-[123px] h-7 flex-col justify-between absolute right-2 items-end inline-flex">

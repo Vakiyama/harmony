@@ -261,7 +261,6 @@ export const createEventParticipant = async (
     .insert(eventParticipants)
     .values({ eventId, userId })
     .returning();
-  console.log(newEventParticipant);
   return newEventParticipant;
 };
 
@@ -314,6 +313,32 @@ export const updateEventParticipant = async (
         eq(eventParticipants.eventId, eventId)
       )
     )
-    .execute();
+    .returning();
   return result;
+};
+export const updateTaskComplete = async (
+  complete: boolean,
+  eventId: number
+) => {
+  "use server";
+  const result = await db
+    .update(events)
+    .set({ complete })
+    .where(eq(events.id, eventId))
+    .returning();
+  return result;
+};
+
+export const getEventParticipant = async (eventId: number, userId: number) => {
+  "use server";
+  const result = await db
+    .select()
+    .from(eventParticipants)
+    .where(
+      and(
+        eq(eventParticipants.eventId, eventId),
+        eq(eventParticipants.userId, userId)
+      )
+    );
+  return result[0];
 };
