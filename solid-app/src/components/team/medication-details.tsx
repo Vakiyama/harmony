@@ -1,4 +1,4 @@
-import { createSignal, For } from "solid-js";
+import { createSignal, For, onMount, Setter } from "solid-js";
 import TextFieldLine from "~/components/shared/text-field-line";
 import AddPhoto from "~/components/team/tab-upload-photo";
 import { Button } from "~/components/ui/button";
@@ -59,7 +59,6 @@ const formFields: Array<{
     required: false,
   },
 ];
-
 export default function MedicationDetails({
   onMedicationAdded,
 }: {
