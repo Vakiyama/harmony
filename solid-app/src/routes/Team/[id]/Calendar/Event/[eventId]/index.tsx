@@ -187,6 +187,12 @@ export default function EventPage() {
     // temp need to invalidate
   };
 
+  const handleUpdateStatus = async (
+    status: "yes" | "no" | "maybe" | undefined | null
+  ) => {
+    console.log(currentUserId, status, event()?.id);
+  };
+
   const statusCount = {
     yes: 0,
     maybe: 0,
@@ -350,7 +356,7 @@ export default function EventPage() {
               {["Yes", "No", "Maybe"].map((response) => (
                 <button
                   class="bg-[#1e1e1e]/20 rounded-full px-4 py-2 text-[#1e1e1e] text-lg font-medium"
-                  onclick={() => console.log("help me")}
+                  onclick={() => handleUpdateStatus(response.toLowerCase())}
                 >
                   {response}
                 </button>

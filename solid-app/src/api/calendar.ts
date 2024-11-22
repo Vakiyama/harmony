@@ -29,7 +29,7 @@ export const createAlarm = async (alarmInput: AlarmInput) => {
 
 export const updateAlarm = async (
   alarmId: number,
-  alarmInput: Partial<AlarmInput>,
+  alarmInput: Partial<AlarmInput>
 ) => {
   "use server";
   const [updatedAlarm] = await db
@@ -72,7 +72,7 @@ export const createCalendar = async (calendarInput: CalendarInput) => {
 
 export const updateCalendar = async (
   calendarId: number,
-  calendarInput: Partial<CalendarInput>,
+  calendarInput: Partial<CalendarInput>
 ) => {
   "use server";
   const [updatedCalendar] = await db
@@ -188,7 +188,7 @@ export const getEvent = cache(async (eventId: number) => {
 
 export const createEvent = async (
   eventInput: EventInput,
-  userIds: number[],
+  userIds: number[]
 ) => {
   "use server";
   const [newEvent] = await db.insert(events).values(eventInput).returning();
@@ -202,7 +202,7 @@ export const createEvent = async (
 
 export const updateEvent = async (
   eventId: number,
-  eventInput: Partial<EventInput>,
+  eventInput: Partial<EventInput>
 ) => {
   "use server";
   const [updatedEvent] = await db
@@ -226,9 +226,9 @@ export const getTeamMembersFromTeamId = async (teamId: number) => {
     .from(teamMembers)
     .where(eq(teamMembers.teamId, teamId))
     .leftJoin(users, eq(teamMembers.userId, users.id))) as {
-      users: User;
-      teammembers: TeamMember;
-    }[];
+    users: User;
+    teammembers: TeamMember;
+  }[];
 };
 
 export const getEventParticipants = async (eventId: number, teamId: number) => {
@@ -244,8 +244,8 @@ export const getEventParticipants = async (eventId: number, teamId: number) => {
     .where(
       and(
         eq(eventParticipants.eventId, eventId),
-        eq(teamMembers.teamId, teamId),
-      ),
+        eq(teamMembers.teamId, teamId)
+      )
     )
     .innerJoin(users, eq(eventParticipants.userId, users.id))
     .innerJoin(teamMembers, eq(eventParticipants.userId, teamMembers.userId));
@@ -254,7 +254,7 @@ export const getEventParticipants = async (eventId: number, teamId: number) => {
 
 export const createEventParticipant = async (
   eventId: number,
-  userId: number,
+  userId: number
 ) => {
   "use server";
   const newEventParticipant = await db
@@ -267,7 +267,7 @@ export const createEventParticipant = async (
 
 export const deleteEventParticipant = async (
   userId: number,
-  eventId: number,
+  eventId: number
 ) => {
   "use server";
   await db
@@ -275,15 +275,15 @@ export const deleteEventParticipant = async (
     .where(
       and(
         eq(eventParticipants.userId, userId),
-        eq(eventParticipants.eventId, eventId),
-      ),
+        eq(eventParticipants.eventId, eventId)
+      )
     )
     .execute();
 };
 
 export const getEventsWithUserId = async (
   userId: number,
-  calendarId: number,
+  calendarId: number
 ) => {
   "use server";
   const result = await db
@@ -293,8 +293,27 @@ export const getEventsWithUserId = async (
     .where(
       and(
         eq(eventParticipants.userId, userId),
-        eq(events.calendarId, calendarId),
-      ),
+        eq(events.calendarId, calendarId)
+      )
     );
+  return result;
+};
+
+export const updateEventParticipant = async (
+  userId: number,
+  eventId: number,
+  status: "yes" | "no" | "maybe" | undefined | null
+) => {
+  "use server";
+  const result = await db
+    .update(eventParticipants)
+    .set({ status })
+    .where(
+      and(
+        eq(eventParticipants.userId, userId),
+        eq(eventParticipants.eventId, eventId)
+      )
+    )
+    .execute();
   return result;
 };
