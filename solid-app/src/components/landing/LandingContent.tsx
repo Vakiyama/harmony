@@ -4,7 +4,15 @@ import {
   TabsList,
   TabsTrigger,
 } from "~/components/ui/landing/landing-tabs";
-import { createMemo, createResource, For, Show, useContext } from "solid-js";
+import {
+  createMemo,
+  createResource,
+  createSignal,
+  For,
+  onMount,
+  Show,
+  useContext,
+} from "solid-js";
 import { getJournalsFromTeamId } from "~/api/journal";
 import MedicationIcon from "../icon/medication-icon";
 import MoodIcon from "../icon/mood-icon";
@@ -24,20 +32,25 @@ import { MealWithNoteUser } from "@/schema/Meals";
 import { SleepWithNoteUser } from "@/schema/Sleeps";
 import { useTeam } from "~/context/team-context";
 import BookIconSVG from "./IoBook.svg";
+import { TeamWithDefault } from "@/schema/Teams";
 
 const LandingContent = () => {
   const context = useContext(TeamContext);
   const team = useTeam();
-
+  const [defaultTeam, setDefaultTeam] = createSignal<
+    { team: TeamWithDefault } | undefined
+  >();
   if (!context) {
     return <div>No team data available</div>;
   }
 
   const { teamListData, refetchTrigger } = context;
 
-  const defaultTeam = () =>
-    teamListData()?.find((team) => team.team.defaultTeam === true);
-
+  onMount(async () => {
+    setDefaultTeam(
+      teamListData()?.find((team) => team.team.defaultTeam === true)
+    );
+  });
   const [getJournals] = createResource(
     () => {
       const teamId =
@@ -45,7 +58,7 @@ const LandingContent = () => {
       const refetch = refetchTrigger();
       return teamId ? { teamId, refetch } : undefined;
     },
-    async ({ teamId }) => await getJournalsFromTeamId(teamId),
+    async ({ teamId }) => await getJournalsFromTeamId(teamId)
   );
   const journalsData = createMemo(() => getJournals());
 
@@ -122,7 +135,7 @@ const LandingContent = () => {
         </TabsList>
 
         <div class="p-2 flex-grow h-full">
-          <Show when={journalsData()}>
+          <Show when={journalsData() && defaultTeam()?.team.id}>
             <For each={journalsData()}>
               {(entry) => {
                 switch (entry.type) {
