@@ -31,7 +31,7 @@ export default function Profile() {
     <>
       <ProfileHeaderHome />
       <section class="flex flex-col w-full justify-between items-center gap-2 p-2">
-        <div class="fixed right-0 left-0 p-2 w-full flex flex-col justify-between h-[140px] bg-white">
+        <div class="fixed right-0 left-0 p-2 w-full flex flex-col justify-between h-[140px] bg-white gap-2">
           <Show when={user()}>
             <ProfileUserName
               photoUrl={user()?.photo}
