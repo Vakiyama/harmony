@@ -3,7 +3,7 @@ import { AlarmInput, alarms } from "../../drizzle/schema/Alarms";
 import { CalendarInput, calendars } from "../../drizzle/schema/Calendars";
 import { EventInput, events } from "../../drizzle/schema/Events";
 import { db } from "./db";
-import { and, eq, or } from "drizzle-orm";
+import { and, eq, or, SQLWrapper } from "drizzle-orm";
 import { TeamMember, teamMembers } from "../../drizzle/schema/TeamMembers";
 import { User, users } from "../../drizzle/schema/Users";
 import { eventParticipants } from "../../drizzle/schema/EventParticipants";
@@ -107,6 +107,7 @@ export const getAllEvents = async (calendarId: number, limit?: number) => {
 
 export const getCalendarData = async (props: {
   teamId: number;
+  selectedUsers: string[];
   page?: number;
   pageSize?: number;
   filters?: {
@@ -125,8 +126,8 @@ export const getCalendarData = async (props: {
   if (!isMember) {
     throw new Error("Insufficient Permissions"); // return { error: "Insufficient Permissions" };
   }
-  console.log(props.filters);
-  // Set default values
+  // console.log(props.selectedUsers);
+  // console.log(props.filters);
   props.page = props.page ? props.page : 1;
   props.pageSize = props.pageSize ? props.pageSize : 10;
   props.filters = props.filters
@@ -137,9 +138,17 @@ export const getCalendarData = async (props: {
   const conditions: any[] = [];
   // Start with the base query and make it dynamic
   let query = db
-    .select({
-      event: events,
-      users: users,
+    .selectDistinct({
+      id: events.id,
+      calendarId: events.calendarId,
+      title: events.title,
+      complete: events.complete,
+      notes: events.notes,
+      timeStart: events.timeStart,
+      timeEnd: events.timeEnd,
+      location: events.location,
+      repeat: events.repeat,
+      type: events.type,
     })
     .from(events)
     .leftJoin(eventParticipants, eq(eventParticipants.eventId, events.id))
@@ -167,13 +176,27 @@ export const getCalendarData = async (props: {
     conditions.push(eq(events.complete, false));
   }
 
+  if (props.selectedUsers.length > 0) {
+    const eqArr = [];
+    for (let i = 0; i < props.selectedUsers.length; i++) {
+      eqArr.push(eq(users.id, parseInt(props.selectedUsers[i])));
+    }
+    let orCondition: any;
+    if (eqArr.length > 0) {
+      orCondition = or(...eqArr);
+    }
+    if (orCondition) {
+      conditions.push(orCondition);
+    }
+  }
+
   // Apply pagination
   query = query.limit(props.pageSize).offset(offset);
 
   // Execute the query
   try {
     const result = await query.where(and(...conditions));
-    console.log("this", result);
+    // console.log("this", result);
     return result;
   } catch (error) {
     console.error(error);
