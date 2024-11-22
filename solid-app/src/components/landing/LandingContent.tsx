@@ -1,6 +1,5 @@
 import {
   Tabs,
-  TabsContent,
   TabsIndicator,
   TabsList,
   TabsTrigger,
@@ -24,6 +23,7 @@ import { NoteWithUser } from "@/schema/Notes";
 import { MealWithNoteUser } from "@/schema/Meals";
 import { SleepWithNoteUser } from "@/schema/Sleeps";
 import { useTeam } from "~/context/team-context";
+import BookIconSVG from "./IoBook.svg";
 
 const LandingContent = () => {
   const context = useContext(TeamContext);
@@ -147,6 +147,14 @@ const LandingContent = () => {
                 }
               }}
             </For>
+          </Show>
+          <Show when={!journalsData() || journalsData()?.length === 0}>
+            <div class="border rounded-xl flex flex-col p-4 items-center justify-center gap-3 flex-grow min-h-[100px] h-[calc(100dvh_-_410px)]">
+              <img src={BookIconSVG} class="h-6" />
+              <p class="text-xs text-[#1E1E1E]/75  text-center">
+                Recent care team activity will <br /> show here.
+              </p>
+            </div>
           </Show>
         </div>
       </Tabs>

@@ -13,6 +13,7 @@ import { getMedicationsFromTeamId } from "./journal";
 import { teamMembers } from "../../drizzle/schema/TeamMembers";
 import { pastInjuries } from "../../drizzle/schema/PastInjuries";
 import { importantSurgeries } from "../../drizzle/schema/ImportantSurgeries";
+import { calendars } from "../../drizzle/schema/Calendars";
 
 export const createMedicationAction = action(
   async ({
@@ -401,6 +402,18 @@ export const createTeamAction = action(
     if (teamError) {
       console.error("Team insertion error:", teamError);
       return { error: "Failed to insert team." };
+    }
+
+    const [calendarCreationError] = await mightFail(
+      db.insert(calendars).values({
+        name: "calendar",
+        teamId: teamResult[0].teamId,
+        source: null,
+      }),
+    );
+    if (calendarCreationError) {
+      console.error("create calendar error", calendarCreationError);
+      return { error: "Failed to create team calendar" };
     }
     const [teamsError, teamsResult] = await mightFail(
       db.select().from(teamMembers).where(eq(teamMembers.userId, userId)),

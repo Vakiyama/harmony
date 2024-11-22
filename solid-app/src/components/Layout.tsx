@@ -85,8 +85,12 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
 
   return (
     <TeamContext.Provider value={contextValue}>
-      <div class="flex flex-col h-screen w-screen overflow-hidden">
-        <div class="flex-none h-[104px]">{renderTopNav()}</div>
+      <div class="flex flex-col h-[100dvh] w-screen overflow-hidden">
+        <div
+          class={`flex-none ${location.pathname.startsWith("/harmony-ai/voice") || location.pathname.includes("/calendar/create") || location.pathname.includes("/calendar/event/") ? "" : location.pathname.startsWith("/profile") ? "h-[40px]" : "h-[104px]"}`}
+        >
+          {renderTopNav()}
+        </div>
         <div
           class={`flex-grow overflow-y-auto ${
             location.pathname.startsWith(`/team/${params.id}/journal/`) ||

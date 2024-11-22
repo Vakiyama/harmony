@@ -10,11 +10,13 @@ import { createAsync, useNavigate, useParams } from "@solidjs/router";
 import type { TeamMember } from "@/schema/TeamMembers";
 import { User } from "@/schema/Users";
 import { mightFail } from "might-fail";
-import { isValidEnumValue } from "~/api/dbHelper";
 import SelectMultipleInput from "~/components/shadcn/MultiSelect";
 import ShowError from "~/routes/Team/[id]/journal/show-error";
 import EventCreateTopNav from "~/components/calendar/calendar-create-top-nav";
 import { getTeamFromTeamId } from "~/api/team";
+import { formatTimeForPicker } from "~/lib/formateDateLocal";
+
+const getFormattedDate = (): string => new Date().toISOString().split("T")[0];
 
 const CalendarCreateEvent = () => {
   const navigate = useNavigate();
@@ -22,7 +24,11 @@ const CalendarCreateEvent = () => {
   const teamId = parseInt(params.id);
   const teamMembers = createAsync(
     async () => await getTeamMembersFromTeamId(teamId),
-    { deferStream: true }
+    { deferStream: true },
+  );
+  const placeholderTime = formatTimeForPicker(new Date(Date.now()));
+  const placeholderTimeOneHour = formatTimeForPicker(
+    new Date(Date.now() + 1000 * 60 * 60),
   );
   const team = createAsync(async () => await getTeamFromTeamId(teamId));
   const [eventType, setEventType] = createSignal<"event" | "task">("event");
@@ -30,10 +36,12 @@ const CalendarCreateEvent = () => {
   const [notes, setNotes] = createSignal("");
   const [location, setLocation] = createSignal("");
   const [teamMemberIds, setTeamMemberIds] = createSignal<number[]>([]);
-  const [timeStartDate, setTimeStartDate] = createSignal<string | undefined>();
-  const [timeStartTime, setTimeStartTime] = createSignal("");
-  const [timeEndDate, setTimeEndDate] = createSignal<string | undefined>();
-  const [timeEndTime, setTimeEndTime] = createSignal("");
+  const [timeStartDate, setTimeStartDate] =
+    createSignal<string>(getFormattedDate());
+  const [timeStartTime, setTimeStartTime] = createSignal(placeholderTime);
+  const [timeEndDate, setTimeEndDate] =
+    createSignal<string>(getFormattedDate());
+  const [timeEndTime, setTimeEndTime] = createSignal(placeholderTimeOneHour);
   const timeEnd = () => new Date(`${timeEndDate()}T${timeEndTime()}`);
   const timeStart = () => new Date(`${timeStartDate()}T${timeStartTime()}`);
   const [repeat, setRepeat] = createSignal<
@@ -41,7 +49,7 @@ const CalendarCreateEvent = () => {
   >("never");
   const [error, setError] = createSignal("");
   const parseTeamMemberToOption = (
-    data: { teammembers: TeamMember; users: User }[] | undefined
+    data: { teammembers: TeamMember; users: User }[] | undefined,
   ) =>
     data
       ? data.map((data) => {
@@ -53,7 +61,7 @@ const CalendarCreateEvent = () => {
       : [];
 
   const teamMemberOptions = createMemo(() =>
-    parseTeamMemberToOption(teamMembers())
+    parseTeamMemberToOption(teamMembers()),
   );
 
   async function createEventHandler(e: Event) {
@@ -62,6 +70,7 @@ const CalendarCreateEvent = () => {
       return setError("Title is required.");
     }
     if (!timeStartTime() || !timeStartDate) {
+      console.log(timeStartTime(), timeStartDate(), "??");
       return setError("Start time is required.");
     }
     if (!timeEndTime() || !timeEndDate) {
@@ -89,8 +98,8 @@ const CalendarCreateEvent = () => {
           timeEnd: timeEnd(),
           timeStart: timeStart(),
         },
-        teamMemberIds()
-      )
+        teamMemberIds(),
+      ),
     );
     if (createEventError) {
       return console.error(createEventError);
@@ -113,7 +122,7 @@ const CalendarCreateEvent = () => {
                 "w-[177px] h-[40px]",
                 eventType() === "event"
                   ? "bg-purple-200 hover:bg-purple-300"
-                  : ""
+                  : "",
               )}
               variant="outline"
               onClick={() => setEventType("event")}
@@ -125,7 +134,7 @@ const CalendarCreateEvent = () => {
                 "px-20",
                 eventType() === "task"
                   ? "bg-purple-200 hover:bg-purple-300"
-                  : ""
+                  : "",
               )}
               variant="outline"
               onClick={() => setEventType("task")}

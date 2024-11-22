@@ -14,7 +14,16 @@ import {
   toArray,
   toLinkedList,
 } from "./effectGraph/messages";
-import { Cause, Effect, Either, Exit, Match, Option, pipe } from "effect";
+import {
+  Cause,
+  Effect,
+  Either,
+  Exit,
+  Match,
+  Option,
+  Schedule,
+  pipe,
+} from "effect";
 import {
   AssistantResponse,
   TextResponse,
@@ -28,11 +37,10 @@ import { sleeps } from "../../../drizzle/schema/Sleeps";
 import { notes } from "../../../drizzle/schema/Notes";
 import { meals } from "../../../drizzle/schema/Meals";
 import { medications } from "../../../drizzle/schema/Medications";
-import { InferInsertModel, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { takenMedications } from "../../../drizzle/schema/TakenMedications";
 import { users } from "../../../drizzle/schema/Users";
 import { teams } from "../../../drizzle/schema/Teams";
-import { teamMembers } from "../../../drizzle/schema/TeamMembers";
 import { recipients } from "../../../drizzle/schema/Recipients";
 import { journals } from "../../../drizzle/schema/Journals";
 import { getJournalsFromTeamId, getMedicationsFromTeamId } from "../journal";
@@ -262,6 +270,8 @@ const createCalendarEventToolDefinition = Effect.runSync(
     If you don't have exactly the data you need, just ask naturally.
 
     Ignore the schema for timeStart, timeStart is required, not optional, it must be included!
+
+    timeStart and timeEnd should be parsable by the javascript new Date() constructor and will be fed directly to it.
     `,
   }),
 );
@@ -271,7 +281,7 @@ function createCalendarEventTool(
   teamId: number,
   toolUse: ToolUse,
 ) {
-  // console.log(toolUse, params);
+  console.log(toolUse, params);
   return pipe(
     Effect.tryPromise({
       try: () => getCalendarFromTeamId(teamId),
@@ -837,7 +847,9 @@ export const harmonyChat = async (
           return chat({ messages: getFirst(last) }, id, teamId);
         }
       }),
-      Effect.retry({ times: 3 }),
+      Effect.retry(
+        Schedule.exponential(1000).pipe(Schedule.compose(Schedule.recurs(5))),
+      ),
     ),
   );
 
