@@ -36,7 +36,6 @@ export default function AddMedication(props: {
 
   createEffect(() => {
     if (props.closeAddMed()) {
-      console.log("gg");
       setShowMedicationForm(false);
       props.setCloseAddMed(false);
     }
