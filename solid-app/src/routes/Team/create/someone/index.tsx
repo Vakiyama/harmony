@@ -74,7 +74,7 @@ export default function CreateSomeone() {
       })) as CreateRecipientActionResponse;
 
       if (!recipientResult.success || !recipientResult.recipientId) {
-        setTeamError("Failed to create recipient");
+        setTeamError(recipientResult.error || "Failed to create recipient");
         throw new Error(recipientResult.error || "Failed to create recipient");
       }
       showNotification("Recipient created successfully");
@@ -88,7 +88,7 @@ export default function CreateSomeone() {
       })) as CreateTeamActionResponse;
 
       if (!teamResult.success || !teamResult.teamId) {
-        setTeamError("Failed to create team");
+        setTeamError(teamResult.error || "Failed to create team");
         throw new Error(teamResult.error || "Failed to create team");
       }
       showNotification("Team created successfully");
@@ -109,7 +109,7 @@ export default function CreateSomeone() {
 
         if (!surgeryResult.success) {
           console.log(surgeryResult.error || "Failed to create surgeries");
-          // setTeamError("Failed to create surgeries");
+          // setTeamError(surgeryResult.error || "Failed to create surgeries");
         }
         showNotification("Surgeries added successfully");
       }
@@ -129,7 +129,7 @@ export default function CreateSomeone() {
 
         if (!injuryResult.success) {
           console.log(injuryResult.error || "Failed to create injuries");
-          // setTeamError("Failed to create injuries");
+          // setTeamError(injuryResult.error || "Failed to create injuries");
         }
         showNotification("Past injuries added successfully");
       }
@@ -145,7 +145,7 @@ export default function CreateSomeone() {
 
         if (!medicationResult.success) {
           console.log(medicationResult.error || "Failed to create medications");
-          // setTeamError("Failed to create medication");
+          // setTeamError(medicationResult.error ||"Failed to create medication");
         }
         showNotification("Medications added successfully");
       }
