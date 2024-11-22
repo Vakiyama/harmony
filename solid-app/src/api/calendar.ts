@@ -3,7 +3,7 @@ import { AlarmInput, alarms } from "../../drizzle/schema/Alarms";
 import { CalendarInput, calendars } from "../../drizzle/schema/Calendars";
 import { EventInput, events } from "../../drizzle/schema/Events";
 import { db } from "./db";
-import { and, eq, or } from "drizzle-orm";
+import { and, eq, or, SQLWrapper } from "drizzle-orm";
 import { TeamMember, teamMembers } from "../../drizzle/schema/TeamMembers";
 import { User, users } from "../../drizzle/schema/Users";
 import { eventParticipants } from "../../drizzle/schema/EventParticipants";
@@ -29,7 +29,7 @@ export const createAlarm = async (alarmInput: AlarmInput) => {
 
 export const updateAlarm = async (
   alarmId: number,
-  alarmInput: Partial<AlarmInput>,
+  alarmInput: Partial<AlarmInput>
 ) => {
   "use server";
   const [updatedAlarm] = await db
@@ -72,7 +72,7 @@ export const createCalendar = async (calendarInput: CalendarInput) => {
 
 export const updateCalendar = async (
   calendarId: number,
-  calendarInput: Partial<CalendarInput>,
+  calendarInput: Partial<CalendarInput>
 ) => {
   "use server";
   const [updatedCalendar] = await db
@@ -107,6 +107,7 @@ export const getAllEvents = async (calendarId: number, limit?: number) => {
 
 export const getCalendarData = async (props: {
   teamId: number;
+  selectedUsers: string[];
   page?: number;
   pageSize?: number;
   filters?: {
@@ -125,8 +126,8 @@ export const getCalendarData = async (props: {
   if (!isMember) {
     throw new Error("Insufficient Permissions"); // return { error: "Insufficient Permissions" };
   }
-  console.log(props.filters);
-  // Set default values
+  // console.log(props.selectedUsers);
+  // console.log(props.filters);
   props.page = props.page ? props.page : 1;
   props.pageSize = props.pageSize ? props.pageSize : 10;
   props.filters = props.filters
@@ -137,9 +138,17 @@ export const getCalendarData = async (props: {
   const conditions: any[] = [];
   // Start with the base query and make it dynamic
   let query = db
-    .select({
-      event: events,
-      users: users,
+    .selectDistinct({
+      id: events.id,
+      calendarId: events.calendarId,
+      title: events.title,
+      complete: events.complete,
+      notes: events.notes,
+      timeStart: events.timeStart,
+      timeEnd: events.timeEnd,
+      location: events.location,
+      repeat: events.repeat,
+      type: events.type,
     })
     .from(events)
     .leftJoin(eventParticipants, eq(eventParticipants.eventId, events.id))
@@ -167,13 +176,27 @@ export const getCalendarData = async (props: {
     conditions.push(eq(events.complete, false));
   }
 
+  if (props.selectedUsers.length > 0) {
+    const eqArr = [];
+    for (let i = 0; i < props.selectedUsers.length; i++) {
+      eqArr.push(eq(users.id, parseInt(props.selectedUsers[i])));
+    }
+    let orCondition: any;
+    if (eqArr.length > 0) {
+      orCondition = or(...eqArr);
+    }
+    if (orCondition) {
+      conditions.push(orCondition);
+    }
+  }
+
   // Apply pagination
   query = query.limit(props.pageSize).offset(offset);
 
   // Execute the query
   try {
     const result = await query.where(and(...conditions));
-    console.log("this", result);
+    // console.log("this", result);
     return result;
   } catch (error) {
     console.error(error);
@@ -188,7 +211,7 @@ export const getEvent = cache(async (eventId: number) => {
 
 export const createEvent = async (
   eventInput: EventInput,
-  userIds: number[],
+  userIds: number[]
 ) => {
   "use server";
   const [newEvent] = await db.insert(events).values(eventInput).returning();
@@ -202,7 +225,7 @@ export const createEvent = async (
 
 export const updateEvent = async (
   eventId: number,
-  eventInput: Partial<EventInput>,
+  eventInput: Partial<EventInput>
 ) => {
   "use server";
   const [updatedEvent] = await db
@@ -226,9 +249,9 @@ export const getTeamMembersFromTeamId = async (teamId: number) => {
     .from(teamMembers)
     .where(eq(teamMembers.teamId, teamId))
     .leftJoin(users, eq(teamMembers.userId, users.id))) as {
-      users: User;
-      teammembers: TeamMember;
-    }[];
+    users: User;
+    teammembers: TeamMember;
+  }[];
 };
 
 export const getEventParticipants = async (eventId: number, teamId: number) => {
@@ -244,8 +267,8 @@ export const getEventParticipants = async (eventId: number, teamId: number) => {
     .where(
       and(
         eq(eventParticipants.eventId, eventId),
-        eq(teamMembers.teamId, teamId),
-      ),
+        eq(teamMembers.teamId, teamId)
+      )
     )
     .innerJoin(users, eq(eventParticipants.userId, users.id))
     .innerJoin(teamMembers, eq(eventParticipants.userId, teamMembers.userId));
@@ -254,7 +277,7 @@ export const getEventParticipants = async (eventId: number, teamId: number) => {
 
 export const createEventParticipant = async (
   eventId: number,
-  userId: number,
+  userId: number
 ) => {
   "use server";
   const newEventParticipant = await db
@@ -267,7 +290,7 @@ export const createEventParticipant = async (
 
 export const deleteEventParticipant = async (
   userId: number,
-  eventId: number,
+  eventId: number
 ) => {
   "use server";
   await db
@@ -275,15 +298,15 @@ export const deleteEventParticipant = async (
     .where(
       and(
         eq(eventParticipants.userId, userId),
-        eq(eventParticipants.eventId, eventId),
-      ),
+        eq(eventParticipants.eventId, eventId)
+      )
     )
     .execute();
 };
 
 export const getEventsWithUserId = async (
   userId: number,
-  calendarId: number,
+  calendarId: number
 ) => {
   "use server";
   const result = await db
@@ -293,8 +316,8 @@ export const getEventsWithUserId = async (
     .where(
       and(
         eq(eventParticipants.userId, userId),
-        eq(events.calendarId, calendarId),
-      ),
+        eq(events.calendarId, calendarId)
+      )
     );
   return result;
 };
