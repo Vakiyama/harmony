@@ -34,7 +34,7 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
     const teamData = await getListOfTeams();
     const defaultTeam = teamData.find((team) => team.team.defaultTeam);
     if (defaultTeam && team.state.id === -1) {
-       team.updateTeamId(defaultTeam.team.id);
+      team.updateTeamId(defaultTeam.team.id);
     }
   });
 
@@ -85,8 +85,20 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
 
   return (
     <TeamContext.Provider value={contextValue}>
-      <div class="flex flex-col h-screen w-screen overflow-hidden">
-        <div class="flex-none h-[104px]">{renderTopNav()}</div>
+      <div class="flex flex-col h-[100dvh] w-screen overflow-hidden">
+        <div
+          class={`flex-none ${
+            location.pathname.startsWith("/harmony-ai/voice") ||
+            location.pathname.includes("/calendar/create") ||
+            location.pathname.includes("/calendar/event/")
+              ? ""
+              : location.pathname.startsWith("/profile")
+              ? "h-[40px]"
+              : "h-[104px]"
+          } ${renderTopNav() ? "" : "hidden"}`}
+        >
+          {renderTopNav()}
+        </div>
         <div
           class={`flex-grow overflow-y-auto ${
             location.pathname.startsWith(`/team/${params.id}/journal/`) ||
@@ -94,7 +106,7 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
             location.pathname.startsWith(`/team/create`) ||
             location.pathname.startsWith(`/api/auth`)
               ? ""
-              : "mb-20"
+              : ""
           }`}
         >
           {props.children}
@@ -103,7 +115,10 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
         <div class="flex-none max-h-[77px] bg-transparent">
           {location.pathname.startsWith("/api") ||
           location.pathname.startsWith("/harmony-ai") ||
-          location.pathname.startsWith("/team/create") ? null : (
+          location.pathname.startsWith("/team/create") ||
+          location.pathname.startsWith(
+            `/team/${params.id}/calendar/${params.eventId}`
+          ) ? null : (
             <NavBar teamData={teamListData()} />
           )}
         </div>

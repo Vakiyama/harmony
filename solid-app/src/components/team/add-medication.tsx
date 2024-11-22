@@ -1,9 +1,20 @@
-import { createEffect, createSignal, For, Show } from "solid-js";
+import {
+  Accessor,
+  createEffect,
+  createSignal,
+  For,
+  onMount,
+  Setter,
+  Show,
+} from "solid-js";
 import { Button } from "~/components/ui/button";
 import { useTeam } from "~/context/team-context";
 import MedicationDetails from "~/components/team/medication-details";
 
-export default function AddMedication() {
+export default function AddMedication(props: {
+  setCloseAddMed: Setter<boolean>;
+  closeAddMed: Accessor<boolean>;
+}) {
   const team = useTeam();
   let medications = team.state.medications;
 
@@ -11,6 +22,7 @@ export default function AddMedication() {
   const [medicationChanged, setMedicationChanged] = createSignal(false);
 
   const handleAddMedication = () => {
+    team.nextSubStep();
     setShowMedicationForm(true);
   };
 
@@ -18,9 +30,16 @@ export default function AddMedication() {
     console.log("Medication added");
     setMedicationChanged(true);
     setShowMedicationForm(false);
+    props.setCloseAddMed(true);
+    team.prevSubStep();
   };
 
   createEffect(() => {
+    if (props.closeAddMed()) {
+      setShowMedicationForm(false);
+      props.setCloseAddMed(false);
+    }
+
     if (medicationChanged()) {
       medications = team.state.medications;
       setMedicationChanged(false);
@@ -35,7 +54,7 @@ export default function AddMedication() {
         </p>
         <div class="flex items-center justify-start flex-col h-full mt-4 mx-3 mb-[19px]">
           <p class="self-start text-h2 font-grotesque leading-[120%] font-medium">
-            Tell us about "{team.state.recipient.firstName}'s" Medication
+            Tell us about {team.state.recipient.firstName}'s Medication
           </p>
           <p class="self-start text-h3 font-grotesque leading-[120%] font-medium mt-[18px]">
             Medication Details

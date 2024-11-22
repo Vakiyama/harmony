@@ -31,13 +31,26 @@ export default function UserInfo1() {
   });
 
   const handleNext = () => {
-    const newErrors: { [key: string]: string | null } = {};
+    let newErrors: { [key: string]: string | null } = {};
     let hasError = false;
 
     formFields.forEach((field) => {
-      if (field.required && !team.state.recipient[field.name]) {
+      const value = team.state.recipient[field.name];
+      if (field.required && !value) {
         newErrors[field.name] = "This field is required";
         hasError = true;
+      } else if (field.name === "phoneNumber" && value) {
+        const phoneRegex = /^[0-9]+$/;
+        if (!phoneRegex.test(value)) {
+          newErrors[field.name] = "Phone number must contain only numbers";
+          hasError = true;
+        } else if (value!.length < 10 || value!.length > 15) {
+          newErrors[field.name] =
+            "Phone number must be between 10 and 15 digits";
+          hasError = true;
+        } else {
+          newErrors[field.name] = null;
+        }
       } else {
         newErrors[field.name] = null;
       }
@@ -55,7 +68,7 @@ export default function UserInfo1() {
       </p>
       <div class="flex items-center justify-start flex-col h-full mt-4 mb-[46px] mx-3">
         <p class="self-start text-h2 font-grotesque leading-[120%] font-medium">
-          Tell us about "{team.state.recipient.firstName}"
+          Tell us about {team.state.recipient.firstName}
         </p>
         <p class="self-start text-h3 font-grotesque leading-[120%] mt-[18px]">
           Contact Information
@@ -63,19 +76,25 @@ export default function UserInfo1() {
         <div class="w-full">
           <For each={formFields}>
             {(field, index) => (
-              <TextFieldLine
-                name={field.name}
-                label={field.label}
-                classRoot={(index() === 0 ? "mt-3" : "mt-6") + " space-y-0"}
-                classLabel="text-h4 font-grotesque leading-[120%] inline-block mb-1"
-                placeholder={field.placeholder}
-                error={errors()[field.name]} // TODO: error has not shown yet
-                onInput={(e) =>
-                  team.updateRecipientField(field.name, e.currentTarget.value)
-                }
-                required={field.required}
-                value={team.state.recipient[field.name]}
-              />
+              <>
+                <TextFieldLine
+                  name={field.name}
+                  label={field.label}
+                  classRoot={(index() === 0 ? "mt-3" : "mt-6") + " space-y-0"}
+                  classLabel="text-h4 font-grotesque leading-[120%] inline-block mb-1"
+                  placeholder={field.placeholder}
+                  onInput={(e) =>
+                    team.updateRecipientField(field.name, e.currentTarget.value)
+                  }
+                  required={field.required}
+                  value={team.state.recipient[field.name]}
+                />
+                {errors()?.[field.name] ? (
+                  <div class="text-red-600 text-sm mt-1">
+                    {errors()?.[field.name]}
+                  </div>
+                ) : null}
+              </>
             )}
           </For>
         </div>

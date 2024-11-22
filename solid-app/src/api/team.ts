@@ -13,6 +13,7 @@ import { getMedicationsFromTeamId } from "./journal";
 import { teamMembers } from "../../drizzle/schema/TeamMembers";
 import { pastInjuries } from "../../drizzle/schema/PastInjuries";
 import { importantSurgeries } from "../../drizzle/schema/ImportantSurgeries";
+import { calendars } from "../../drizzle/schema/Calendars";
 
 export const createMedicationAction = action(
   async ({
@@ -111,7 +112,7 @@ export const getRecipientName = async (teamId: number) => {
 export const getListOfTeams = async () => {
   "use server";
   const manager = await sessionManager();
-  const session = await manager.getSession();
+  const session = manager.getSession();
   const userId: number = session.data.userId;
   if (!userId) {
     return [];
@@ -125,6 +126,7 @@ export const getListOfTeams = async () => {
           name: teams.teamName,
           photo: teams.photo,
           defaultTeam: teamMembers.defaultTeam,
+          inviteCode: teams.inviteCode,
         },
       })
       .from(teamMembers)
@@ -356,6 +358,16 @@ export const createRecipientAction = action(
   "createRecipientAction",
 );
 
+function generateRandomCode() {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    const randomIndex = Math.floor(Math.random() * chars.length);
+    code += chars[randomIndex];
+  }
+  return code;
+}
+
 export const createTeamAction = action(
   async ({
     teamInput,
@@ -367,7 +379,7 @@ export const createTeamAction = action(
   }) => {
     "use server";
     const manager = await sessionManager();
-    const session = await manager.getSession();
+    const session = manager.getSession();
     const userId: number = session.data.userId;
 
     if (!userId) {
@@ -382,11 +394,26 @@ export const createTeamAction = action(
       return { error: "Don't have recipient id" };
     }
     const [teamError, teamResult] = await mightFail(
-      db.insert(teams).values(teamInput).returning({ teamId: teams.id }),
+      db
+        .insert(teams)
+        .values({ ...teamInput, inviteCode: generateRandomCode() })
+        .returning({ teamId: teams.id }),
     );
     if (teamError) {
       console.error("Team insertion error:", teamError);
       return { error: "Failed to insert team." };
+    }
+
+    const [calendarCreationError] = await mightFail(
+      db.insert(calendars).values({
+        name: "calendar",
+        teamId: teamResult[0].teamId,
+        source: null,
+      }),
+    );
+    if (calendarCreationError) {
+      console.error("create calendar error", calendarCreationError);
+      return { error: "Failed to create team calendar" };
     }
     const [teamsError, teamsResult] = await mightFail(
       db.select().from(teamMembers).where(eq(teamMembers.userId, userId)),

@@ -1,9 +1,10 @@
+import { Show } from "solid-js";
 import { Image, ImageFallback, ImageRoot } from "../ui/image";
-import { RiSystemSettings4Fill } from "solid-icons/ri";
 export default function ProfileUserName(props: {
-  photoUrl: string | null | undefined;
-  firstName: string | undefined;
-  lastName: string | undefined;
+  photoUrl?: string | null;
+  firstName?: string;
+  lastName?: string;
+  inviteCode?: string | null;
 }) {
   return (
     <div class="w-full flex flex-row items-center gap-3">
@@ -22,8 +23,11 @@ export default function ProfileUserName(props: {
       </div>
 
       {/* Username and description */}
-      <div class="flex">
+      <div class="flex flex-row justify-between w-full items-center">
         <div class="text-h2 font-medium">{`${props?.firstName} ${props?.lastName}`}</div>
+        <Show when={props.inviteCode}>
+          <p class="text-h4 font-medium">Invite Code - {props.inviteCode}</p>
+        </Show>
       </div>
     </div>
   );

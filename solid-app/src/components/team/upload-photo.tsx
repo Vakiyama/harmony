@@ -11,7 +11,7 @@ export default function UploadPhoto() {
       </p>
       <div class="flex items-center justify-end flex-col h-full mb-[19px] mx-3">
         <p class="text-h2 font-medium leading-[120%] font-grotesque self-start">
-          Upload a photo of "{team.state.recipient.firstName}"
+          Upload a photo of {team.state.recipient.firstName}
         </p>
         <p class="self-start text-subtitle13 text-black50 leading-[120%] mt-1">
           Choose your team's cover photo to identify your team and make it

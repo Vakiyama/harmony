@@ -1,18 +1,3 @@
-import {
-  Menubar,
-  MenubarCheckboxItem,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarRadioGroup,
-  MenubarRadioItem,
-  MenubarSeparator,
-  MenubarShortcut,
-  MenubarSub,
-  MenubarSubContent,
-  MenubarSubTrigger,
-  MenubarTrigger,
-} from "~/components/ui/teams/team-menubar";
 import TeamPreview from "./team-preview";
 import { createSignal } from "solid-js";
 import { A } from "@solidjs/router";

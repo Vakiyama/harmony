@@ -24,7 +24,7 @@ export default function TeamUserRole() {
       </p>
       <div class="flex items-center justify-start flex-col h-full mt-4 mb-[19px] mx-3">
         <h2 class="self-start text-h2 font-grotesque leading-[120%]">
-          Invite Members to "{team.state.recipient.firstName}'s" care team
+          Invite Members to {team.state.recipient.firstName}'s care team
         </h2>
         <p class="self-start text-subtitle13 leading-[120%] text-[#787878] mb-[13px] mt-1 font-normal">
           Adding members to this care team will give them the ability to add

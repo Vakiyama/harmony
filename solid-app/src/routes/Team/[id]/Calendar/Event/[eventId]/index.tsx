@@ -216,7 +216,10 @@ export default function EventPage() {
         setModalOpen={openModal}
         teamId={teamId}
       />
-      <div class="h-full flex flex-col p-4 justify-between">
+      <div
+        class="flex flex-col p-4 justify-between"
+        style={{ height: "calc(100% - 104px)" }}
+      >
         <div class="flex flex-col gap-3">
           <div class="flex flex-col gap-1 ">
             <h1 class="text-[#1e1e1e] text-[28px] font-grotesque font-medium leading-tight">
@@ -439,8 +442,6 @@ export default function EventPage() {
             />
           </div>
         )}
-        {/* temp */}
-        <div class="h-[60px]"></div>
       </div>
     </Show>
   );

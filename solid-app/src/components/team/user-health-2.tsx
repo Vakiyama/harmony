@@ -27,7 +27,7 @@ export default function UserHealth2() {
       </p>
       <div class="flex items-center justify-start flex-col h-full mt-4 mx-3 mb-[19px]">
         <p class="self-start text-h2 font-grotesque leading-[120%] font-medium">
-          Tell us about "{team.state.recipient.firstName}'s" Health
+          Tell us about {team.state.recipient.firstName}'s Health
         </p>
         <p class="self-start text-h3 font-grotesque leading-[120%] font-medium mt-[18px]">
           Health Profile
@@ -57,7 +57,7 @@ export default function UserHealth2() {
                     team.updatePastInjury(
                       index(),
                       "name",
-                      e.currentTarget.value
+                      e.currentTarget.value,
                     )
                   }
                   class="p-2 border rounded-[8px] w-full text-base mt-2"
@@ -118,7 +118,7 @@ export default function UserHealth2() {
                         team.updateSurgery(
                           index(),
                           "name",
-                          e.currentTarget.value
+                          e.currentTarget.value,
                         )
                       }
                       class="p-2 border rounded-lg w-full text-base"
@@ -131,7 +131,7 @@ export default function UserHealth2() {
                         team.updateSurgery(
                           index(),
                           "year",
-                          e.currentTarget.value
+                          e.currentTarget.value,
                         )
                       }
                       class="p-2 border rounded-lg w-7/12 text-base text-center"
@@ -144,7 +144,7 @@ export default function UserHealth2() {
                       team.updateSurgery(
                         index(),
                         "extraNotes",
-                        e.currentTarget.value
+                        e.currentTarget.value,
                       )
                     }
                     class="p-2 border rounded-lg w-full text-base"

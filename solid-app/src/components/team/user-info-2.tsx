@@ -50,13 +50,35 @@ export default function UserInfo2() {
     let hasError = false;
 
     formFields.forEach((field) => {
-      if (field.required && !team.state.recipient[field.name]) {
+      const value = team.state.recipient[field.name];
+      if (field.required && !value) {
         newErrors[field.name] = "This field is required";
         hasError = true;
+      } else if (field.name === "age" && value) {
+        const ageRegex = /^[0-9]+$/;
+        const age = parseInt(value, 10);
+
+        if (!ageRegex.test(value)) {
+          newErrors[field.name] = "Age must be a number";
+          hasError = true;
+        } else if (age < 1 || age > 150) {
+          newErrors[field.name] = "Age must be between 1 and 150";
+          hasError = true;
+        } else {
+          newErrors[field.name] = null;
+        }
       } else {
         newErrors[field.name] = null;
       }
     });
+
+    const gender = team.state.recipient.gender;
+    if (!gender) {
+      newErrors["gender"] = "Gender is required";
+      hasError = true;
+    } else {
+      newErrors["gender"] = null;
+    }
     setErrors(newErrors);
     console.log(errors());
     if (!hasError) {
@@ -71,7 +93,7 @@ export default function UserInfo2() {
       </p>
       <div class="flex items-center justify-start flex-col h-full mt-4 mb-[46px] mx-3">
         <p class="self-start text-h2 font-grotesque leading-[120%] font-medium">
-          Tell us about "{team.state.recipient.firstName}"
+          Tell us about {team.state.recipient.firstName}
         </p>
         <p class="self-start text-h3 font-grotesque leading-[120%] mt-[18px]">
           Other Information
@@ -113,6 +135,11 @@ export default function UserInfo2() {
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent />
+                    {errors()?.[field.name] ? (
+                      <div class="text-red-600 text-sm mt-1">
+                        {errors()?.[field.name]}
+                      </div>
+                    ) : null}
                   </Select>
                   <TextFieldLine
                     name={field.name}
@@ -120,7 +147,29 @@ export default function UserInfo2() {
                     placeholder={field.placeholder}
                     classRoot="mt-6 space-y-0"
                     classLabel="text-h4 font-grotesque leading-[120%] inline-block mb-2"
-                    error={errors()[field.name]} // TODO: error not shown here
+                    onInput={(e) =>
+                      team.updateRecipientField(
+                        field.name,
+                        e.currentTarget.value,
+                      )
+                    }
+                    required={field.required}
+                    value={team.state.recipient[field.name]}
+                  />
+                  {errors()?.[field.name] ? (
+                    <div class="text-red-600 text-sm mt-1">
+                      {errors()?.[field.name]}
+                    </div>
+                  ) : null}
+                </>
+              ) : (
+                <>
+                  <TextFieldLine
+                    name={field.name}
+                    label={field.label}
+                    placeholder={field.placeholder}
+                    classRoot={(index() === 0 ? "mt-3" : "mt-6") + " space-y-0"}
+                    classLabel="text-h4 font-grotesque leading-[120%] inline-block mb-2"
                     onInput={(e) =>
                       team.updateRecipientField(
                         field.name,
@@ -130,21 +179,12 @@ export default function UserInfo2() {
                     required={field.required}
                     value={team.state.recipient[field.name]}
                   />
+                  {errors()?.[field.name] ? (
+                    <div class="text-red-600 text-sm mt-1">
+                      {errors()?.[field.name]}
+                    </div>
+                  ) : null}
                 </>
-              ) : (
-                <TextFieldLine
-                  name={field.name}
-                  label={field.label}
-                  placeholder={field.placeholder}
-                  classRoot={(index() === 0 ? "mt-3" : "mt-6") + " space-y-0"}
-                  classLabel="text-h4 font-grotesque leading-[120%] inline-block mb-2"
-                  error={errors()[field.name]} // TODO: error not shown here
-                  onInput={(e) =>
-                    team.updateRecipientField(field.name, e.currentTarget.value)
-                  }
-                  required={field.required}
-                  value={team.state.recipient[field.name]}
-                />
               );
             }}
           </For>

@@ -6,7 +6,7 @@ export default function EventCreateTopNav(props: {
   teamId: number;
 }) {
   return (
-    <div class="sticky top-0 w-full flex flex-row h-[95px] bg-[#fcfcfc] shadow-md border-b border-[#1e1e1e]/20">
+    <div class="sticky top-0 w-full flex flex-row h-[104px] bg-[#fcfcfc] shadow-md border-b border-[#1e1e1e]/20">
       <div class="w-full flex flex-row justify-between items-end px-4 mb-4">
         <A
           class="text-[#1e1e1e] text-base font-normal font-sf-pro leading-tight"
@@ -20,8 +20,8 @@ export default function EventCreateTopNav(props: {
           </div>
         </div>
         <button
-          class="text-[#1e1e1e] text-base font-normal font-sf-pro leading-tight"
-          onclick={props.handleCreate}
+          class="text-[#1e1e1e] text-base font-normal font-sf-pro leading-tight px-4"
+          onClick={props.handleCreate}
         >
           Create
         </button>
