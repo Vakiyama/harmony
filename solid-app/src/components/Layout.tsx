@@ -115,7 +115,10 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
         <div class="flex-none max-h-[77px] bg-transparent">
           {location.pathname.startsWith("/api") ||
           location.pathname.startsWith("/harmony-ai") ||
-          location.pathname.startsWith("/team/create") ? null : (
+          location.pathname.startsWith("/team/create") ||
+          location.pathname.startsWith(
+            `/team/${params.id}/calendar/${params.eventId}`
+          ) ? null : (
             <NavBar teamData={teamListData()} />
           )}
         </div>
