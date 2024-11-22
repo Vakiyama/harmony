@@ -82,6 +82,8 @@ interface FormContextValue {
   currentStep: Accessor<number>;
   nextStep: () => void;
   prevStep: () => void;
+  nextSubStep: () => void;
+  prevSubStep: () => void;
   resetForm: () => void;
 }
 
@@ -163,6 +165,12 @@ export const TeamProvider: ParentComponent = (props) => {
       setCurrentStep((prev) => prev + 1);
     },
     prevStep: () => setCurrentStep((prev) => prev - 1),
+    nextSubStep: () => {
+      setCurrentStep((prev) => prev + 0.5);
+    },
+    prevSubStep: () => {
+      setCurrentStep((prev) => prev - 0.5);
+    },
     resetForm: () => {
       setState({
         teamName: "",
