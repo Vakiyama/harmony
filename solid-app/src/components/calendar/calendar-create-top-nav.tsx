@@ -20,8 +20,8 @@ export default function EventCreateTopNav(props: {
           </div>
         </div>
         <button
-          class="text-[#1e1e1e] text-base font-normal font-sf-pro leading-tight"
-          onclick={props.handleCreate}
+          class="text-[#1e1e1e] text-base font-normal font-sf-pro leading-tight px-4"
+          onClick={props.handleCreate}
         >
           Create
         </button>

@@ -5,7 +5,7 @@ import TextArea from "./TextAreaInput";
 import { twMerge } from "tailwind-merge";
 import TimeDateCalendar from "./TimeDateCalendar";
 import SelectInput from "~/components/shadcn/Select";
-import { createEvent, getTeamMembersFromTeamId } from "~/api/calendar";
+import { createEvent, getCalendarFromTeamId, getTeamMembersFromTeamId } from "~/api/calendar";
 import { createAsync, useNavigate, useParams } from "@solidjs/router";
 import type { TeamMember } from "@/schema/TeamMembers";
 import { User } from "@/schema/Users";
@@ -86,10 +86,12 @@ const CalendarCreateEvent = () => {
       return setError("End time must be after start time.");
     }
 
+    const calendar = await getCalendarFromTeamId(teamId);
+
     const [createEventError, createEventResult] = await mightFail(
       createEvent(
         {
-          calendarId: 1,
+          calendarId: calendar.id,
           location: location(),
           title: title(),
           notes: notes(),
