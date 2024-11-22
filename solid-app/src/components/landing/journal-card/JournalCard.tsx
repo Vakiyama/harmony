@@ -1,5 +1,5 @@
 import { FaSolidPen } from "solid-icons/fa";
-import { For, JSXElement } from "solid-js";
+import { createSignal, For, JSXElement, onMount, useContext } from "solid-js";
 import {
   Card,
   CardContent,
@@ -12,6 +12,9 @@ import Member from "../Member";
 import { Section } from "./Section";
 import { AttachedUser } from "@/schema/Users";
 import { A, useParams } from "@solidjs/router";
+import { TeamWithDefault } from "@/schema/Teams";
+import { useTeam } from "~/context/team-context";
+import { TeamContext } from "~/components/Layout-Context";
 
 export function JournalCard(props: {
   icon: JSXElement;
@@ -23,6 +26,21 @@ export function JournalCard(props: {
   member: AttachedUser | null;
   entryId: number;
 }) {
+  const context = useContext(TeamContext);
+  const [defaultTeam, setDefaultTeam] = createSignal<
+    { team: TeamWithDefault } | undefined
+  >();
+  if (!context) {
+    return <div>No team data available</div>;
+  }
+
+  const { teamListData } = context;
+
+  onMount(async () => {
+    setDefaultTeam(
+      teamListData()?.find((team) => team.team.defaultTeam === true)
+    );
+  });
   const backgroundColor = `bg-${props.value
     .split(" ")
     .map((c, i) => {
@@ -66,7 +84,7 @@ export function JournalCard(props: {
                   {props.dateTime}
                 </CardDescription>
                 <A
-                  href={`/team/${teamId}/journal/${
+                  href={`/team/${defaultTeam()?.team.id}/journal/${
                     props.value === "medication taken"
                       ? "medications"
                       : props.value
