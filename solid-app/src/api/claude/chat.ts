@@ -14,7 +14,16 @@ import {
   toArray,
   toLinkedList,
 } from "./effectGraph/messages";
-import { Cause, Effect, Either, Exit, Match, Option, pipe } from "effect";
+import {
+  Cause,
+  Effect,
+  Either,
+  Exit,
+  Match,
+  Option,
+  Schedule,
+  pipe,
+} from "effect";
 import {
   AssistantResponse,
   TextResponse,
@@ -28,15 +37,14 @@ import { sleeps } from "../../../drizzle/schema/Sleeps";
 import { notes } from "../../../drizzle/schema/Notes";
 import { meals } from "../../../drizzle/schema/Meals";
 import { medications } from "../../../drizzle/schema/Medications";
-import { InferInsertModel, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { takenMedications } from "../../../drizzle/schema/TakenMedications";
 import { users } from "../../../drizzle/schema/Users";
 import { teams } from "../../../drizzle/schema/Teams";
-import { teamMembers } from "../../../drizzle/schema/TeamMembers";
 import { recipients } from "../../../drizzle/schema/Recipients";
 import { journals } from "../../../drizzle/schema/Journals";
-import { getJournalsFromTeamId } from "../journal";
-import { getCalendarData, getCalendarsFromTeamId } from "../calendar";
+import { getJournalsFromTeamId, getMedicationsFromTeamId } from "../journal";
+import { getCalendarData, getCalendarFromTeamId } from "../calendar";
 import { events } from "../../../drizzle/schema/Events";
 
 const CHAT_SYSTEM_MESSAGE = `
@@ -90,7 +98,7 @@ Your responses need to be at most 2 to 3 sentences long, with shorter, spoken se
 const categories = ["medication", "meal", "sleep", "mood", "note"] as const;
 
 const journalTables = {
-  medication: medications,
+  medication: takenMedications,
   meal: meals,
   sleep: sleeps,
   mood: moods,
@@ -98,6 +106,7 @@ const journalTables = {
 };
 
 const takenMedicationsSchema = createInsertSchema(takenMedications);
+console.log(takenMedicationsSchema.shape);
 const mealsSchema = createInsertSchema(meals);
 const sleepSchema = createInsertSchema(sleeps);
 const moodSchema = createInsertSchema(moods);
@@ -110,6 +119,7 @@ const createJournalEntryToolSchema = z.object({
     z.object({
       category: z.literal("medication"),
       values: takenMedicationsSchema.omit({ ...omitValues, noteId: true }),
+      medicationName: z.string(),
       withNote: z.optional(notesSchema.omit(omitValues)),
     }),
     z.object({
@@ -211,6 +221,13 @@ function createJournalTool(params: {
             noteId = result[0].id;
           }
 
+          if (
+            params.entry.category === "medication" &&
+            params.entry.values.date
+          ) {
+            params.entry.values.date = new Date(params.entry.values.date);
+          }
+
           const result = await db
             .insert(journalTables[value![0] as keyof typeof journalTables])
             .values(
@@ -253,6 +270,8 @@ const createCalendarEventToolDefinition = Effect.runSync(
     If you don't have exactly the data you need, just ask naturally.
 
     Ignore the schema for timeStart, timeStart is required, not optional, it must be included!
+
+    timeStart and timeEnd should be parsable by the javascript new Date() constructor and will be fed directly to it.
     `,
   }),
 );
@@ -262,10 +281,10 @@ function createCalendarEventTool(
   teamId: number,
   toolUse: ToolUse,
 ) {
-  // console.log(toolUse, params);
+  console.log(toolUse, params);
   return pipe(
     Effect.tryPromise({
-      try: () => getCalendarsFromTeamId(teamId),
+      try: () => getCalendarFromTeamId(teamId),
       catch: (e) => {
         console.error(e);
         return new QueryDBError(e);
@@ -278,7 +297,7 @@ function createCalendarEventTool(
             ...params,
             timeStart: new Date(params.timeStart!),
             timeEnd: params.timeEnd ? new Date(params.timeEnd) : undefined,
-            calendarId: calendars[0].id,
+            calendarId: calendars.id,
           }),
         catch: (e) => {
           console.error(e);
@@ -544,29 +563,49 @@ function makeClaudeToolCall(
     Effect.flatMap((info) => {
       const extra = info.pipe(
         Either.match({
-          onRight: (info) => `
+          onRight: (info) =>
+            pipe(
+              Effect.tryPromise({
+                try: () => getMedicationsFromTeamId(teamId),
+                catch: (e) => new QueryDBError(e),
+              }),
+              Effect.map(
+                (medicationInfo) => `
         ## Recipient Information:
 
           ${info.recipient}
+
+        ### Medications:
+
+          ${JSON.stringify(medicationInfo, undefined, 2)}
 
         ## User information:
 
           ${info.user}
 `,
-          onLeft: () => "",
+              ),
+            ),
+          onLeft: () =>
+            Effect.succeed("") as Effect.Effect<string, QueryDBError>,
         }),
       );
-      return callClaudeWithTools({
-        claudeSettings: defaultClaudeSettings,
-        system: `${voice ? CHAT_SYSTEM_MESSAGE_WITH_VOICE : CHAT_SYSTEM_MESSAGE}
-        ${extra} 
+      return pipe(
+        extra.pipe(
+          Effect.flatMap((extraInfo) =>
+            callClaudeWithTools({
+              claudeSettings: defaultClaudeSettings,
+              system: `${voice ? CHAT_SYSTEM_MESSAGE_WITH_VOICE : CHAT_SYSTEM_MESSAGE}
+              ${extraInfo} 
         `,
-        retryCount: 5,
-        messages: getFirst(result.messages),
-        type: "tools",
-        toolChoice: { type: "auto" },
-        tools: [...claudeTools],
-      });
+              retryCount: 5,
+              messages: getFirst(result.messages),
+              type: "tools",
+              toolChoice: { type: "auto" },
+              tools: [...claudeTools],
+            }),
+          ),
+        ),
+      );
     }),
   );
 }
@@ -808,7 +847,9 @@ export const harmonyChat = async (
           return chat({ messages: getFirst(last) }, id, teamId);
         }
       }),
-      Effect.retry({ times: 3 }),
+      Effect.retry(
+        Schedule.exponential(1000).pipe(Schedule.compose(Schedule.recurs(5))),
+      ),
     ),
   );
 

@@ -69,7 +69,7 @@ export default function UserHealth1() {
       {/* upload photo part */}
       <div class="flex items-center justify-start flex-col h-full mt-4 mb-[46px] mx-3">
         <p class="self-start text-h2 font-grotesque leading-[120%] font-medium">
-          Tell us about "{team.state.recipient.firstName}'s" Health
+          Tell us about {team.state.recipient.firstName}'s Health
         </p>
         <p class="self-start text-h3 font-grotesque leading-[120%] font-medium mt-[18px]">
           Health Profile

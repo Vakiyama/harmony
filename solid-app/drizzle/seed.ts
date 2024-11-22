@@ -13,6 +13,16 @@ import moment from "moment";
 import { InferSelectModel } from "drizzle-orm";
 import { v4 } from "uuid";
 
+function generateRandomCode(): string {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    const randomIndex = Math.floor(Math.random() * chars.length);
+    code += chars[randomIndex];
+  }
+  return code;
+}
+
 export const seedData = async (user?: InferSelectModel<typeof users>) => {
   console.log("Seeding...");
   const usersData = user ? [user] : await db.select().from(users);
@@ -99,17 +109,23 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
     {
       teamName: "Team Alpha",
       recipientId: recipientsList[0].id, // Adjust based on the recipient ID
+      inviteCode: generateRandomCode(),
       photo:
         "https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg",
     },
     {
       teamName: "Team Beta",
       recipientId: recipientsList[1].id,
+      inviteCode: generateRandomCode(),
       photo:
         "https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg",
     },
   ];
-  await db.insert(teams).values(teamsData).onConflictDoNothing();
+
+  await db
+    .insert(teams)
+    .values({ ...teamsData })
+    .onConflictDoNothing();
 
   const teamsList = await db.select().from(teams);
   console.log(teams);

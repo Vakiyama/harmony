@@ -1,3 +1,5 @@
+import { setTime } from "effect/TestClock";
+import { createEffect } from "solid-js";
 import { twMerge } from "tailwind-merge";
 import { formatTimeForPicker } from "~/lib/formateDateLocal";
 
@@ -11,11 +13,17 @@ interface TimeProps {
 export default function TimePicker(props: TimeProps) {
   const placeholderTime = formatTimeForPicker(new Date(Date.now()));
 
+  createEffect(() => {
+    if (!props.time) {
+      props.setTime(placeholderTime!);
+    }
+  });
+
   return (
     <input
       name={props.name}
       class={twMerge(
-        `border border-lofiGray text-base px-4 h-9 rounded-md !select-none items-center ${
+        `border border-lofiGray text-base px-4 !p-[13px] rounded-md !select-none items-center ${
           props.time() ? "text-black" : "text-black"
         }`,
         props.class,

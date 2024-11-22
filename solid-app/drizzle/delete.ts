@@ -1,0 +1,20 @@
+import { db } from "~/api/db";
+import { eventParticipants } from "./schema/EventParticipants";
+import { events } from "./schema/Events";
+import { calendars } from "./schema/Calendars";
+import { teamMembers } from "./schema/TeamMembers";
+import { teams } from "./schema/Teams";
+import { recipients } from "./schema/Recipients";
+import { journals } from "./schema/Journals";
+import { meals } from "./schema/Meals";
+import { medications } from "./schema/Medications";
+
+await db.delete(eventParticipants);
+await db.delete(events);
+await db.delete(calendars);
+await db.delete(teams);
+await db.delete(recipients);
+await db.delete(journals);
+await db.delete(meals);
+await db.delete(medications);
+await db.delete(teamMembers);
