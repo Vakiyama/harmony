@@ -117,7 +117,7 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
           location.pathname.startsWith("/harmony-ai") ||
           location.pathname.startsWith("/team/create") ||
           location.pathname.startsWith(
-            `/team/${params.id}/calendar/${params.eventId}`
+            `/team/${params.id}/calendar/`
           ) ? null : (
             <NavBar teamData={teamListData()} />
           )}
