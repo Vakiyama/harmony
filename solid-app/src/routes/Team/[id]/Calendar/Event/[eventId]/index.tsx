@@ -35,6 +35,7 @@ import SelectMultipleInput from "~/components/shadcn/MultiSelect";
 import TextArea from "../../Create/TextAreaInput";
 import { mightFail } from "might-fail";
 import DeleteConfirmation from "~/components/shared/delete-confirmation";
+import { getUser } from "~/api/server";
 
 type Participant = {
   participant: User;
@@ -59,6 +60,7 @@ export default function EventPage() {
   const params = useParams();
   const teamId = parseInt(params.id);
   const eventId = params.eventId;
+  let currentUserId: number;
   const navigate = useNavigate();
 
   const [event, { refetch }] = createResource(
@@ -79,6 +81,8 @@ export default function EventPage() {
 
   onMount(async () => {
     await fetchParticipants();
+    const user = (await getUser()) as User;
+    currentUserId = user.id;
   });
 
   const [isTeamMembersOpen, setIsTeamMembersOpen] = createSignal(false);
@@ -341,7 +345,10 @@ export default function EventPage() {
             </div>
             <div class="flex justify-end space-x-4 bg-[#fcfcfc] border-t border-[#1e1e1e]/20 p-3 mt-5">
               {["Yes", "No", "Maybe"].map((response) => (
-                <button class="bg-[#1e1e1e]/20 rounded-full px-4 py-2 text-[#1e1e1e] text-lg font-medium">
+                <button
+                  class="bg-[#1e1e1e]/20 rounded-full px-4 py-2 text-[#1e1e1e] text-lg font-medium"
+                  onclick={() => console.log("help me")}
+                >
                   {response}
                 </button>
               ))}
