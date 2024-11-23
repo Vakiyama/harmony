@@ -29,8 +29,6 @@ export default function UserInfo1() {
     phoneNumber: null,
     email: null,
   });
-  const [formattedPhoneNumber, setFormattedPhoneNumber] = createSignal("");
-
   const formatPhoneNumber = (value: string) => {
     const digits = value.replace(/\D/g, "");
     if (digits.length <= 3) {
