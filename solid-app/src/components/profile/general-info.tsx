@@ -2,7 +2,7 @@ import { InfoCard } from "./info-card";
 
 export default function GeneralInfo() {
   return (
-    <div class="h-full w-full">
+    <div class="h-full w-full flex flex-col gap-3">
       <InfoCard
         title="Contact Information"
         value={"general information"}

@@ -11,7 +11,6 @@ export const teamMembers = sqliteTable("teammembers", {
     .references(() => users.id)
     .notNull(),
   role: text("role").notNull(), // 'admin' or 'member'
-  // type: text("type").notNull().default("member"), // 'admin' or 'member'
   defaultTeam: integer("default_team", { mode: "boolean" })
     .notNull()
     .default(false),

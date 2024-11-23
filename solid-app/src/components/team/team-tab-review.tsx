@@ -77,28 +77,7 @@ const TeamTab = () => {
             <TeamMedicationInfo />
           </div>
         )}
-        {activeTab() === "teams" && (
-          <div class="flex flex-col gap-2">
-            {/* <TeamPreview
-                memberName="Your Name"
-                imageUrl=""
-                description="Primary Caretaker"
-                userRole="Admin"
-              />
-              <TeamPreview
-                memberName="Team Member"
-                imageUrl=""
-                description="Secondary Caretaker"
-                userRole="Member"
-              />
-              <TeamPreview
-                memberName="Another Member"
-                imageUrl=""
-                description="Family Member"
-                userRole="Member"
-              /> */}
-          </div>
-        )}
+        {activeTab() === "teams" && <div class="flex flex-col gap-2"></div>}
       </div>
     </div>
   );

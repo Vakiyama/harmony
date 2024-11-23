@@ -50,7 +50,7 @@ export default function MedicationInfo() {
       />
 
       {/* Medication Details */}
-      <div class="flex flex-col">
+      <div class="flex flex-col gap-3">
         <div class="w-full flex flex-row justify-between items-center gap-2 rounded-md bg-primary-purple-100 h-full">
           <div class="flex justify-center items-center p-2 gap-2">
             <div class="flex items-center justify-center aspect-square rounded-full px-2 bg-[#7859EA]">
@@ -72,18 +72,20 @@ export default function MedicationInfo() {
             </div>
           </div>
         </div>
-        <MedicalDetail
-          medicineName="Advil"
-          medicineDose="200mg"
-          medicineInstructions="take after a meal"
-          medicineLink="/profile/medication-detail"
-        />
-        <MedicalDetail
-          medicineName="Vyvanse"
-          medicineDose="10mg"
-          medicineInstructions="taken with water"
-          medicineLink="/profile/medication-detail"
-        />
+        <div class="flex flex-col gap-2">
+          <MedicalDetail
+            medicineName="Advil"
+            medicineDose="200mg"
+            medicineInstructions="take after a meal"
+            medicineLink="/profile/medication-detail"
+          />
+          <MedicalDetail
+            medicineName="Vyvanse"
+            medicineDose="10mg"
+            medicineInstructions="taken with water"
+            medicineLink="/profile/medication-detail"
+          />
+        </div>
       </div>
     </div>
   );

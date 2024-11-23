@@ -14,7 +14,7 @@ export default function ProfileTeamContent(props: {
 }) {
   return (
     <div class="h-full w-full flex items-center justify-center">
-      <Tabs defaultValue="general info" class="w-full flex flex-col gap-3">
+      <Tabs defaultValue="general info" class="w-full h-full flex flex-col">
         <TabsList class="flex w-full text-black overflow-scroll text-subtitle flex items-center rounded-none">
           {["General Information", "Medication Information", "Team Member"].map(
             (tabName) => (
@@ -27,7 +27,7 @@ export default function ProfileTeamContent(props: {
         </TabsList>
 
         <div class="flex flex-row gap-1 justify-end">
-          <p class="text-xs text-gray-500">Edit</p>
+          <p class="text-subtitle text-gray-500">Edit</p>
           <svg
             width="12"
             height="12"

@@ -14,10 +14,10 @@ export default function SpecificTeamInfo() {
 
   const teamData = createMemo(() => team());
   if (team()) {
-    console.log(team());
+    console.log("hello", team());
   }
   return (
-    <div class="m-2 h-full">
+    <div class="px-2">
       {/* header */}
       <Show when={teamData()}>
         <div>
@@ -26,7 +26,7 @@ export default function SpecificTeamInfo() {
             name={teamData()?.data.teams.teamName}
           />
         </div>
-        <div class="flex flex-col gap-3">
+        <div class="h-full flex flex-col gap-3">
           <div class="flex">
             <ProfileUserName
               photoUrl={teamData()?.data.recipients?.photo || ""}
