@@ -14,7 +14,7 @@ export default function TeamMedicationInfo() {
 
   return (
     <>
-      <div class="p-2 pb-6">
+      <div class="m-2 pb-6">
         <TeamInfoCard
           title="Health Profile"
           value={"medical"}

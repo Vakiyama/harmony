@@ -14,7 +14,7 @@ export default function TeamGeneralInfo() {
     employment,
   } = team.state.recipient;
   return (
-    <div class="p-2">
+    <div class="h-full m-2">
       <TeamInfoCard
         title="Contact Information"
         value={"general"}

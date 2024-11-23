@@ -17,7 +17,7 @@ export default function SpecificTeamInfo() {
     console.log(team());
   }
   return (
-    <div class="w-full">
+    <div class="m-2 h-full">
       {/* header */}
       <Show when={teamData()}>
         <div>
@@ -26,8 +26,8 @@ export default function SpecificTeamInfo() {
             name={teamData()?.data.teams.teamName}
           />
         </div>
-        <div class="">
-          <div class="mt-4 mx-4">
+        <div class="flex flex-col gap-3">
+          <div class="flex">
             <ProfileUserName
               photoUrl={teamData()?.data.recipients?.photo || ""}
               firstName={teamData()?.data.recipients?.firstName || ""}
@@ -35,7 +35,7 @@ export default function SpecificTeamInfo() {
               inviteCode={teamData()?.data.teams.inviteCode}
             />
           </div>
-          <div class="mt-4">
+          <div class="flex">
             <ProfileTeamContent data={teamData()} />
           </div>
         </div>

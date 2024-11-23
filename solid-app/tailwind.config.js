@@ -88,6 +88,7 @@ module.exports = {
         "primary-purple-400": "#937AEE",
         "primary-purple-300": "#AE9BF2",
         "primary-purple-150": "#D6CDF9",
+        "primary-purple-100": "#E4DEFB",
         notesIconBackground: "#4E412B",
         notesBackground: "#FCEFB4",
         sleepIconBackground: "#091E54",
