@@ -237,7 +237,6 @@ function createJournalTool(params: {
             params.entry.values.date = new Date(params.entry.values.date);
           }
 
-          console.error("in what fuckign universer are you erroring here");
           const result = await db
             .insert(journalTables[value![0] as keyof typeof journalTables])
             .values(
@@ -291,7 +290,6 @@ function createCalendarEventTool(
   teamId: number,
   toolUse: ToolUse,
 ) {
-  console.log(toolUse, params);
   return pipe(
     Effect.tryPromise({
       try: () => getCalendarFromTeamId(teamId),
@@ -299,18 +297,6 @@ function createCalendarEventTool(
         console.error(e);
         return new QueryDBError(e);
       },
-    }),
-    Effect.tap((calendars) => {
-      console.log(
-        {
-          ...params,
-          timeStart: new Date(params.timeStart!),
-          timeEnd: params.timeEnd ? new Date(params.timeEnd) : undefined,
-          // calendarId: calendars.id,
-        },
-        calendars,
-        "???????????iuwhertuipwheri",
-      );
     }),
     Effect.flatMap((calendars) =>
       Effect.tryPromise({
@@ -556,7 +542,6 @@ async function getRecipientFromUserId(userId: number, teamId: number) {
     .innerJoin(recipients, eq(teams.recipientId, recipients.id))
     .where(eq(teams.id, teamId));
 
-  //  console.log(teamsResults, teamId);
   const recipient = teamsResults[0];
   if (!recipient) {
     throw new Error("No teams?");
