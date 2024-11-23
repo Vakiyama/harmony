@@ -78,7 +78,6 @@ const CalendarView = (props: {
     }
     props.setCurrentMonth(props.selectedMonth());
     props.setCurrentYear(props.selectedYear());
-    console.log(props.selectedMonth());
   };
 
   return (

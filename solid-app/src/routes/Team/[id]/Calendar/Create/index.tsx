@@ -80,18 +80,11 @@ const CalendarCreateEvent = () => {
       return setError("Title is required.");
     }
     if (!timeStartTime() || !timeStartDate) {
-      console.log(timeStartTime(), timeStartDate(), "??");
       return setError("Start time is required.");
     }
     if (!timeEndTime() || !timeEndDate) {
       return setError("End time is required.");
     }
-    // if (isValidEnumValue(repeat(), eventsFrequencyEnum)) {
-    //   return alert("Valid repeat frequency is required.";
-    // }
-    // if (isValidEnumValue(eventType(), eventsTypeEnum)) {
-    //   return alert("Valid event type is required.";
-    // }
     if (timeEnd() <= timeStart()) {
       return setError("End time must be after start time.");
     }

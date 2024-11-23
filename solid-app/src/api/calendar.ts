@@ -126,8 +126,6 @@ export const getCalendarData = async (props: {
   if (!isMember) {
     throw new Error("Insufficient Permissions"); // return { error: "Insufficient Permissions" };
   }
-  // console.log(props.selectedUsers);
-  // console.log(props.filters);
   props.page = props.page ? props.page : 1;
   props.pageSize = props.pageSize ? props.pageSize : 10;
   props.filters = props.filters
@@ -196,7 +194,6 @@ export const getCalendarData = async (props: {
   // Execute the query
   try {
     const result = await query.where(and(...conditions));
-    // console.log("this", result);
     return result;
   } catch (error) {
     console.error(error);
