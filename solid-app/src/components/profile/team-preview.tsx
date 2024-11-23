@@ -9,8 +9,8 @@ type TeamPreviewProps = {
 export default function TeamPreview(props: TeamPreviewProps) {
   const { memberName, imageUrl, description, userRole } = props;
   return (
-    <>
-      <div class="relative flex flex-row items-center w-full border rounded-lg">
+    <div class="p-2 pb-[200px]">
+      <div class="flex flex-row items-center w-full border rounded-lg">
         {/* Avatar */}
         <div class="flex items-start">
           <ImageRoot class="flex items-center justify-center h-16 w-16 bg-gray-300 rounded-full overflow-hidden my-3 ml-3">
@@ -36,6 +36,6 @@ export default function TeamPreview(props: TeamPreviewProps) {
           <div class="text-xs">{userRole}</div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

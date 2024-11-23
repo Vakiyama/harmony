@@ -6,7 +6,6 @@ import ProfileHeaderHome from "~/components/profile/profile-header-home";
 import ProfileUserName from "~/components/profile/profile-user-name";
 import TeamCard from "~/components/profile/team-card";
 import TeamModal from "~/components/profile/team-modal";
-import { useTeam } from "~/context/team-context";
 export default function Profile() {
   const [isModalOpen, setIsModalOpen] = createSignal(false);
   const user = createAsync(async () => await getUser(), { deferStream: true });
