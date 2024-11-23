@@ -5,7 +5,11 @@ import TextArea from "./TextAreaInput";
 import { twMerge } from "tailwind-merge";
 import TimeDateCalendar from "./TimeDateCalendar";
 import SelectInput from "~/components/shadcn/Select";
-import { createEvent, getCalendarFromTeamId, getTeamMembersFromTeamId } from "~/api/calendar";
+import {
+  createEvent,
+  getCalendarFromTeamId,
+  getTeamMembersFromTeamId,
+} from "~/api/calendar";
 import { createAsync, useNavigate, useParams } from "@solidjs/router";
 import type { TeamMember } from "@/schema/TeamMembers";
 import { User } from "@/schema/Users";
@@ -24,11 +28,11 @@ const CalendarCreateEvent = () => {
   const teamId = parseInt(params.id);
   const teamMembers = createAsync(
     async () => await getTeamMembersFromTeamId(teamId),
-    { deferStream: true },
+    { deferStream: true }
   );
   const placeholderTime = formatTimeForPicker(new Date(Date.now()));
   const placeholderTimeOneHour = formatTimeForPicker(
-    new Date(Date.now() + 1000 * 60 * 60),
+    new Date(Date.now() + 1000 * 60 * 60)
   );
   const team = createAsync(async () => await getTeamFromTeamId(teamId));
   const [eventType, setEventType] = createSignal<"event" | "task">("event");
@@ -36,12 +40,18 @@ const CalendarCreateEvent = () => {
   const [notes, setNotes] = createSignal("");
   const [location, setLocation] = createSignal("");
   const [teamMemberIds, setTeamMemberIds] = createSignal<number[]>([]);
-  const [timeStartDate, setTimeStartDate] =
-    createSignal<string>(getFormattedDate());
-  const [timeStartTime, setTimeStartTime] = createSignal(placeholderTime);
-  const [timeEndDate, setTimeEndDate] =
-    createSignal<string>(getFormattedDate());
-  const [timeEndTime, setTimeEndTime] = createSignal(placeholderTimeOneHour);
+  const [timeStartDate, setTimeStartDate] = createSignal<string | undefined>(
+    getFormattedDate()
+  );
+  const [timeStartTime, setTimeStartTime] = createSignal<string>(
+    placeholderTime as string
+  );
+  const [timeEndDate, setTimeEndDate] = createSignal<string | undefined>(
+    getFormattedDate()
+  );
+  const [timeEndTime, setTimeEndTime] = createSignal<string>(
+    placeholderTimeOneHour as string
+  );
   const timeEnd = () => new Date(`${timeEndDate()}T${timeEndTime()}`);
   const timeStart = () => new Date(`${timeStartDate()}T${timeStartTime()}`);
   const [repeat, setRepeat] = createSignal<
@@ -49,7 +59,7 @@ const CalendarCreateEvent = () => {
   >("never");
   const [error, setError] = createSignal("");
   const parseTeamMemberToOption = (
-    data: { teammembers: TeamMember; users: User }[] | undefined,
+    data: { teammembers: TeamMember; users: User }[] | undefined
   ) =>
     data
       ? data.map((data) => {
@@ -61,7 +71,7 @@ const CalendarCreateEvent = () => {
       : [];
 
   const teamMemberOptions = createMemo(() =>
-    parseTeamMemberToOption(teamMembers()),
+    parseTeamMemberToOption(teamMembers())
   );
 
   async function createEventHandler(e: Event) {
@@ -100,8 +110,8 @@ const CalendarCreateEvent = () => {
           timeEnd: timeEnd(),
           timeStart: timeStart(),
         },
-        teamMemberIds(),
-      ),
+        teamMemberIds()
+      )
     );
     if (createEventError) {
       return console.error(createEventError);
@@ -124,7 +134,7 @@ const CalendarCreateEvent = () => {
                 "w-[177px] h-[40px]",
                 eventType() === "event"
                   ? "bg-purple-200 hover:bg-purple-300"
-                  : "",
+                  : ""
               )}
               variant="outline"
               onClick={() => setEventType("event")}
@@ -136,7 +146,7 @@ const CalendarCreateEvent = () => {
                 "px-20",
                 eventType() === "task"
                   ? "bg-purple-200 hover:bg-purple-300"
-                  : "",
+                  : ""
               )}
               variant="outline"
               onClick={() => setEventType("task")}
