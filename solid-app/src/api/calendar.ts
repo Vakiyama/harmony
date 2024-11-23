@@ -360,5 +360,6 @@ export const getEventParticipant = async (eventId: number, userId: number) => {
         eq(eventParticipants.userId, userId)
       )
     );
+  console.log(result, "help");
   return result[0];
 };

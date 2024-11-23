@@ -19,6 +19,7 @@ import ShowError from "~/routes/Team/[id]/journal/show-error";
 import EventCreateTopNav from "~/components/calendar/calendar-create-top-nav";
 import { getTeamFromTeamId } from "~/api/team";
 import { formatTimeForPicker } from "~/lib/formateDateLocal";
+import { showNotification } from "~/routes/api/notificationStore";
 
 const getFormattedDate = (): string => new Date().toISOString().split("T")[0];
 
@@ -109,6 +110,7 @@ const CalendarCreateEvent = () => {
     if (createEventError) {
       return console.error(createEventError);
     }
+    showNotification(`${eventType() === "event" ? "Event" : "Task"} Created`);
     navigate(`/team/${teamId}/calendar`);
   }
   return (

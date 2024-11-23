@@ -15,12 +15,12 @@ export default function EventCreateTopNav(props: {
           Back
         </A>
         <div class="relative">
-          <div class="text-[#1e1e1e] text-[19px] font-medium font-grotesque leading-[22.80px]">
+          <div class="text-[#1e1e1e] text-[19px] font-medium font-grotesque">
             {props.name ? `${props.name}'s Care Team` : ""}
           </div>
         </div>
         <button
-          class="text-[#1e1e1e] text-base font-normal font-sf-pro leading-tight px-4"
+          class="text-[#1e1e1e] text-base font-normal font-sf-pro leading-tight"
           onClick={props.handleCreate}
         >
           Create

@@ -39,6 +39,7 @@ import TextArea from "../../Create/TextAreaInput";
 import { mightFail } from "might-fail";
 import DeleteConfirmation from "~/components/shared/delete-confirmation";
 import { getUser } from "~/api/server";
+import { showNotification } from "~/routes/api/notificationStore";
 
 type Participant = {
   participant: User;
@@ -123,8 +124,11 @@ export default function EventPage() {
     setTeamMembers(teamMemebers);
   };
   const fetchCurrentStatus = async () => {
-    const status = (await getEventParticipant(eventId, currentUserId)).status;
-    setCurrentStatus(status);
+    const eventParticipant = await getEventParticipant(eventId, currentUserId);
+    if (!eventParticipant) {
+      return setCurrentStatus(undefined);
+    }
+    setCurrentStatus(eventParticipant.status);
   };
   const setStatus = () => {
     for (const participant of participants()!) {
@@ -175,6 +179,7 @@ export default function EventPage() {
     if (deleteEventError) {
       return console.error(deleteEventError);
     }
+    showNotification(`${event()?.type === "event" ? "Event" : "Task"} Deleted`);
     navigate(`/team/${teamId}/calendar`);
   };
 
@@ -473,8 +478,12 @@ export default function EventPage() {
           </div>
         )}
       </div>
-      <div class="absolute bottom-0 w-full h-[100px]">
-        <div class="sticky flex justify-end items-center bottom-0 h-[100px] w-full bg-[#fcfcfc] border-t border-[#1e1e1e]/20">
+      <div
+        class={`absolute bottom-0 w-full flex items-end ${
+          currentStatus() === undefined ? "hidden" : ""
+        }`}
+      >
+        <div class="sticky flex justify-end items-center bottom-0 h-[70px] w-full bg-[#fcfcfc] border-t border-[#1e1e1e]/20">
           {event()?.type === "event" ? (
             <div class="flex justify-end space-x-4 items-center h-[30px] mt-[8px] mb-[20px] pr-[12px]">
               {["Yes", "No", "Maybe"].map((response) => (

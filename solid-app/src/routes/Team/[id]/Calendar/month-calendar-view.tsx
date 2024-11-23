@@ -87,7 +87,6 @@ const CalendarView = (props: {
       const date = moment(
         `${day} ${props.currentMonth()} ${props.currentYear()}`
       );
-      console.log(date, eventDate);
       return eventDate.isSame(date, "day");
     });
   };
