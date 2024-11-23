@@ -1,6 +1,5 @@
 import { useNavigate } from "@solidjs/router";
 import { For } from "solid-js";
-import TeamTopNav from "~/components/team/team-top-nav";
 import UserRole from "~/components/team/temp-user-role";
 
 const healthcareRoles = [
@@ -19,7 +18,6 @@ export default function HealthCareRole() {
   const navigate = useNavigate();
   return (
     <>
-      {/* <TeamTopNav backNavigation="/" cancelNavigation="/" /> */}
       <div class="relative flex flex-col min-h-screen mx-4">
         <div class="flex items-center justify-center mt-2">
           <p class="text-xs text-gray-400">7 of 8</p>

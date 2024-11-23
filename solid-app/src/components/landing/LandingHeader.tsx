@@ -35,7 +35,7 @@ export function LandingHeader(props: {
 
   createEffect(() => {
     const defaultTeam = props.teamData?.find(
-      (team) => team.team.defaultTeam === true,
+      (team) => team.team.defaultTeam === true
     );
     setTeamName(defaultTeam?.team.name || undefined);
     team.updateTeamId(defaultTeam?.team.id!);
