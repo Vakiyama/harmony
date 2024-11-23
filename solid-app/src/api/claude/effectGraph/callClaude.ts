@@ -58,6 +58,8 @@ import {
 import { pipe, Option, Match, Effect, Either, Context } from "effect";
 import { type Tool } from "./toolUse";
 
+console.log(process.env.ANTHROPIC_API_KEY, "API KEY");
+
 export function makeClaudeAPICall(body: ReturnType<typeof getRequestBody>) {
   return pipe(
     body,

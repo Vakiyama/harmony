@@ -44,8 +44,13 @@ import { teams } from "../../../drizzle/schema/Teams";
 import { recipients } from "../../../drizzle/schema/Recipients";
 import { journals } from "../../../drizzle/schema/Journals";
 import { getJournalsFromTeamId, getMedicationsFromTeamId } from "../journal";
-import { getCalendarData, getCalendarFromTeamId } from "../calendar";
+import {
+  getCalendar,
+  getCalendarFromTeamId,
+  getCalendarFromTeamIdWithEvents,
+} from "../calendar";
 import { events } from "../../../drizzle/schema/Events";
+import { getTeamFromTeamId } from "../team";
 
 const CHAT_SYSTEM_MESSAGE = `
 You are a helpful assitant to a caretaker. Your name is "Harmony".
@@ -111,7 +116,6 @@ const journalTables = {
 };
 
 const takenMedicationsSchema = createInsertSchema(takenMedications);
-console.log(takenMedicationsSchema.shape);
 const mealsSchema = createInsertSchema(meals);
 const sleepSchema = createInsertSchema(sleeps);
 const moodSchema = createInsertSchema(moods);
@@ -233,6 +237,7 @@ function createJournalTool(params: {
             params.entry.values.date = new Date(params.entry.values.date);
           }
 
+          console.error("in what fuckign universer are you erroring here");
           const result = await db
             .insert(journalTables[value![0] as keyof typeof journalTables])
             .values(
@@ -295,6 +300,18 @@ function createCalendarEventTool(
         return new QueryDBError(e);
       },
     }),
+    Effect.tap((calendars) => {
+      console.log(
+        {
+          ...params,
+          timeStart: new Date(params.timeStart!),
+          timeEnd: params.timeEnd ? new Date(params.timeEnd) : undefined,
+          // calendarId: calendars.id,
+        },
+        calendars,
+        "???????????iuwhertuipwheri",
+      );
+    }),
     Effect.flatMap((calendars) =>
       Effect.tryPromise({
         try: () =>
@@ -346,6 +363,7 @@ const queryCalendarToolDefinition = Effect.runSync(
   }),
 );
 
+getCalendarFromTeamId;
 function queryCalendarTool(
   params: z.infer<typeof queryCalendarToolSchema>,
   teamId: number,
@@ -358,7 +376,7 @@ function queryCalendarTool(
     Effect.flatMap((result) => {
       return pipe(
         Effect.tryPromise({
-          try: () => getCalendarData({ teamId }),
+          try: () => getCalendarFromTeamIdWithEvents(teamId),
           catch: (e) => new QueryDBError(e),
         }),
         Effect.flatMap((calendarResult) =>
@@ -372,7 +390,7 @@ function queryCalendarTool(
           const eventsAndJournal = {
             events: calendars.map((calendar) => ({
               ...calendar,
-              timeStart: calendar.event.timeStart!,
+              timeStart: calendar.events.timeStart!,
             })),
             journals: result!.map((journal) => ({
               ...journal,
@@ -853,7 +871,7 @@ export const harmonyChat = async (
         }
       }),
       Effect.retry(
-        Schedule.exponential(1000).pipe(Schedule.compose(Schedule.recurs(5))),
+        Schedule.exponential(1000).pipe(Schedule.compose(Schedule.recurs(3))),
       ),
     ),
   );
