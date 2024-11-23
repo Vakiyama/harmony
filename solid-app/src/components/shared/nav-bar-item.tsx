@@ -13,11 +13,8 @@ const NavBarItem: Component<NavBarItemProps> = (props) => {
     <A
       href={props.href}
       classList={{
-        "flex flex-col items-center justify-center py-2 px-3 text-sm text-black50 font-medium cursor-pointer transition":
+        "flex flex-col items-center justify-center h-[50px] w-full text-sm text-black50 font-medium cursor-pointer transition":
           true,
-        // "text-black50": props.active,
-        // "text-gray-600": !props.active,
-        // "hover:text-purple-600": true,
       }}
     >
       <div
