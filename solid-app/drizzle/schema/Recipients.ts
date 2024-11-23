@@ -5,8 +5,8 @@ export const recipients = sqliteTable("recipients", {
   id: integer("id").primaryKey({ autoIncrement: true }).notNull().unique(),
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull().default(""),
-  email: text("email").unique(), // email of a recipient's family member
-  phoneNumber: text("phone_number").unique(), // emergency contact
+  email: text("email"),
+  phoneNumber: text("phone_number"),
   recipientType: text("recipient_type").notNull().default("non_user"), // 'user' or 'non_user'
   photo: text("photo").default(""),
   age: text("age").notNull(),
@@ -14,7 +14,6 @@ export const recipients = sqliteTable("recipients", {
   preferredLanguage: text("preferred_language").notNull(),
   healthCondition: text("health_condition").notNull(),
   livesWith: text("lives_with"),
-  // hometown: text("hometown"),
   employment: text("employment"),
   allergies: text("allergies"),
   dietaryRestrictions: text("dietary_restrictions"),
