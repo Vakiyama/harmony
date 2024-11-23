@@ -39,7 +39,7 @@ const TeamTab = () => {
 
       {/* Edit section */}
       <div class="flex items-center justify-end mt-3">
-        <A href="/" class="text-sm font-semi mr-1.5">
+        <A href="/" class="text-subtitle font-semi mr-1.5">
           Edit
         </A>
         <svg

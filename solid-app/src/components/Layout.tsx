@@ -27,7 +27,6 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
     const teamData = await getListOfTeams();
     setTeamListData(teamData);
     setRefetchTrigger((prev) => prev + 1);
-    // console.log(teamListData());
   });
 
   onMount(async () => {
@@ -92,8 +91,6 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
             location.pathname.includes("/calendar/create") ||
             location.pathname.includes("/calendar/event/")
               ? ""
-              : location.pathname.startsWith("/profile")
-              ? "h-[40px]"
               : "h-[104px]"
           }`}
         >

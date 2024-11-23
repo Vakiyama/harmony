@@ -10,25 +10,39 @@ export default function MedicalDetail(props: MedicalDetailProps) {
   const { medicineName, medicineDose, medicineInstructions, medicineLink } =
     props;
   return (
-    <div class="relative items-center">
-      <div class="flex flex-col border-[1px] rounded-md mt-3 items-start">
-        <p class="ml-3 mt-3 font-semi text-md">{medicineName}</p>
-        <p class="ml-3 mt-1 mb-2 font-semi text-gray-500 text-sm">
-          {medicineDose}, {medicineInstructions}
-        </p>
+    <div class="flex flex-col w-full items-center">
+      <div class="w-full flex flex-row border rounded-md items-center justify-center p-2">
+        <div class="w-full flex flex-col">
+          <p class="font-medium text-h4">{medicineName}</p>
+          <p class="text-gray-500 text-subtitle">
+            {medicineDose}, {medicineInstructions}
+          </p>
+        </div>
         <A href={medicineLink}>
           <svg
-            width="26"
-            height="23"
-            viewBox="0 0 26 23"
+            width="12"
+            height="20"
+            viewBox="0 0 12 20"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            class="absolute right-3 transform top-6"
           >
-            <path
-              d="M24.8426 12.6593C25.5506 11.9513 25.5506 10.8015 24.8426 10.0935L15.7801 1.03101C15.0721 0.322998 13.9223 0.322998 13.2143 1.03101C12.5063 1.73901 12.5063 2.88882 13.2143 3.59683L19.1898 9.56675H1.8125C0.809961 9.56675 0 10.3767 0 11.3792C0 12.3818 0.809961 13.1917 1.8125 13.1917H19.1842L13.2199 19.1617C12.5119 19.8697 12.5119 21.0195 13.2199 21.7275C13.9279 22.4355 15.0777 22.4355 15.7857 21.7275L24.8482 12.665L24.8426 12.6593Z"
-              fill="#A9A9A9"
-            />
+            <g clip-path="url(#clip0_5494_3366)">
+              <path
+                d="M11.291 8.89673C11.9014 9.50708 11.9014 10.4983 11.291 11.1086L3.47852 18.9211C2.86816 19.5315 1.87695 19.5315 1.2666 18.9211C0.65625 18.3108 0.65625 17.3196 1.2666 16.7092L7.97559 10.0002L1.27148 3.29126C0.661133 2.68091 0.661133 1.6897 1.27148 1.07935C1.88184 0.468994 2.87305 0.468994 3.4834 1.07935L11.2959 8.89184L11.291 8.89673Z"
+                fill="#1E1E1E"
+                fill-opacity="0.5"
+              />
+            </g>
+            <defs>
+              <clipPath id="clip0_5494_3366">
+                <rect
+                  width="12"
+                  height="19"
+                  fill="white"
+                  transform="translate(0 0.5)"
+                />
+              </clipPath>
+            </defs>
           </svg>
         </A>
       </div>
