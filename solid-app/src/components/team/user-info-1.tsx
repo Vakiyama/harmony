@@ -29,6 +29,28 @@ export default function UserInfo1() {
     phoneNumber: null,
     email: null,
   });
+  const [formattedPhoneNumber, setFormattedPhoneNumber] = createSignal("");
+
+  const formatPhoneNumber = (value: string) => {
+    const digits = value.replace(/\D/g, "");
+    if (digits.length <= 3) {
+      return digits;
+    } else if (digits.length <= 6) {
+      return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    } else {
+      return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(
+        6,
+        10
+      )}`;
+    }
+  };
+
+  const handlePhoneInput = (e: Event) => {
+    const input = e.currentTarget as HTMLInputElement;
+    const formattedValue = formatPhoneNumber(input.value);
+    input.value = formattedValue;
+    team.updateRecipientField("phoneNumber", formattedValue.replace(/\D/g, ""));
+  };
 
   const handleNext = () => {
     let newErrors: { [key: string]: string | null } = {};
@@ -44,9 +66,8 @@ export default function UserInfo1() {
         if (!phoneRegex.test(value)) {
           newErrors[field.name] = "Phone number must contain only numbers";
           hasError = true;
-        } else if (value!.length < 10 || value!.length > 15) {
-          newErrors[field.name] =
-            "Phone number must be between 10 and 15 digits";
+        } else if (value!.length !== 10) {
+          newErrors[field.name] = "Phone number must be 10 digits";
           hasError = true;
         } else {
           newErrors[field.name] = null;
@@ -55,7 +76,9 @@ export default function UserInfo1() {
         newErrors[field.name] = null;
       }
     });
-    setErrors(newErrors);
+    if (JSON.stringify(errors()) !== JSON.stringify(newErrors)) {
+      setErrors(newErrors);
+    }
     if (!hasError) {
       team.nextStep();
     }
@@ -83,8 +106,14 @@ export default function UserInfo1() {
                   classRoot={(index() === 0 ? "mt-3" : "mt-6") + " space-y-0"}
                   classLabel="text-h4 font-grotesque leading-[120%] inline-block mb-1"
                   placeholder={field.placeholder}
-                  onInput={(e) =>
-                    team.updateRecipientField(field.name, e.currentTarget.value)
+                  onInput={
+                    field.name === "phoneNumber"
+                      ? handlePhoneInput
+                      : (e) =>
+                          team.updateRecipientField(
+                            field.name,
+                            e.currentTarget.value
+                          )
                   }
                   required={field.required}
                   value={team.state.recipient[field.name]}
