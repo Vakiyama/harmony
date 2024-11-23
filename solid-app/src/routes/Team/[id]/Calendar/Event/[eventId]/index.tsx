@@ -116,7 +116,6 @@ export default function EventPage() {
   };
   const fetchCurrentStatus = async () => {
     const status = (await getEventParticipant(eventId, currentUserId)).status;
-    console.log(status);
     setCurrentStatus(status);
   };
 
@@ -228,7 +227,6 @@ export default function EventPage() {
       return console.error(updateCompleteError);
     }
     await refetch();
-    console.log(event()?.complete);
     await fetchParticipants();
   };
 

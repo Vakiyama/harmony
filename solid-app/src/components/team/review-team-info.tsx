@@ -15,7 +15,7 @@ export default function ReviewTeamInfo() {
   const team = useTeam();
   return (
     <>
-      <div class="flex items-center justify-end flex-col h-full mx-3">
+      <div class="flex items-center justify-end flex-col mx-3">
         <div class="flex flex-col justify-end w-full">
           <p class="text-2xl mt-3">Review Your Information</p>
           <div class="flex justify-end items-center mt-1">
@@ -69,20 +69,6 @@ export default function ReviewTeamInfo() {
                 userRole=""
               />
             </div>
-            {/* <div class="flex flex-col gap-2 p-4">
-              {props.data?.members.map((member) => {
-                return (
-                  <TeamPreview
-                    memberName={`${member.firstName || ""} ${
-                      member.lastName || ""
-                    }`}
-                    imageUrl={member.photo || ""}
-                    description=""
-                    userRole={member.role || ""}
-                  />
-                );
-              })}
-            </div> */}
           </TabsContent>
         </Tabs>
       </div>

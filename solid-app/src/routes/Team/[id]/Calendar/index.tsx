@@ -134,7 +134,6 @@ export default function CalendarPage() {
       return console.error(eventError);
     }
     setTeamMembers(eventResult);
-    console.log(teamMembers());
   };
 
   return (
@@ -168,6 +167,8 @@ export default function CalendarPage() {
       <Show when={currentView() === "month"}>
         <MonthCalendarView
           teamId={teamId}
+          currentMonth={currentMonth}
+          setCurrentMonth={setCurrentMonth}
           selectedYear={selectedYear}
           setSelectedYear={setSelectedYear}
           selectedMonth={selectedMonth}
@@ -175,6 +176,8 @@ export default function CalendarPage() {
           selectedDay={selectedDay}
           setSelectedDay={setSelectedDay}
           events={events}
+          currentYear={currentYear}
+          setCurrentYear={setCurrentYear}
           isCalendarOpen={isCalendarOpen}
         />
       </Show>

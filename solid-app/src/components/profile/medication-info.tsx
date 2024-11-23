@@ -53,7 +53,7 @@ import MedicalDetail from "./medical-detail";
 
 export default function MedicationInfo() {
   return (
-    <div class="p-2 overflow-y-scroll pb-[200px] h-[calc(100vh_-_130px)]">
+    <div class="p-2 pb-[200px]">
       <InfoCard
         title="Health Profile"
         value={"medication information"}

@@ -12,13 +12,14 @@ const CalendarView = (props: {
   setSelectedYear: Setter<number>;
   events: Accessor<Event[]>;
   isCalendarOpen: Accessor<boolean>;
+  currentMonth: Accessor<string>;
+  setCurrentMonth: Setter<string>;
+  setCurrentYear: Setter<number>;
+  currentYear: Accessor<number>;
   teamId: number;
 }) => {
   const weekdays = moment.weekdaysMin();
   const months = moment.months();
-
-  const [currentMonth, setCurrentMonth] = createSignal(props.selectedMonth());
-  const [currentYear, setCurrentYear] = createSignal(props.selectedYear());
 
   const fullYear = Object.fromEntries(
     months.map((monthName, monthIndex) => {
@@ -50,8 +51,8 @@ const CalendarView = (props: {
 
   const handleSelectDay = (day: string) => {
     props.setSelectedDay(parseInt(day));
-    setCurrentMonth(props.selectedMonth());
-    setCurrentYear(props.selectedYear());
+    props.setCurrentMonth(props.selectedMonth());
+    props.setCurrentYear(props.selectedYear());
   };
 
   let startX: number;
@@ -75,6 +76,8 @@ const CalendarView = (props: {
       }
       handleSelectMonth(props.selectedMonth(), -1);
     }
+    props.setCurrentMonth(props.selectedMonth());
+    props.setCurrentYear(props.selectedYear());
   };
 
   return (
@@ -104,8 +107,8 @@ const CalendarView = (props: {
                             onClick={() => handleSelectDay(day)}
                             class={`flex items-center justify-center w-10 h-10 mx-auto cursor-pointer ${
                               parseInt(day) === props.selectedDay() &&
-                              currentMonth() === props.selectedMonth() &&
-                              currentYear() === props.selectedYear()
+                              props.currentMonth() === props.selectedMonth() &&
+                              props.currentYear() === props.selectedYear()
                                 ? "bg-[#7859ea] text-white"
                                 : "text-[#5d5d5d]"
                             } rounded-full`}

@@ -6,7 +6,6 @@ import ProfileHeaderHome from "~/components/profile/profile-header-home";
 import ProfileUserName from "~/components/profile/profile-user-name";
 import TeamCard from "~/components/profile/team-card";
 import TeamModal from "~/components/profile/team-modal";
-import { useTeam } from "~/context/team-context";
 export default function Profile() {
   const [isModalOpen, setIsModalOpen] = createSignal(false);
   const user = createAsync(async () => await getUser(), { deferStream: true });
@@ -31,7 +30,7 @@ export default function Profile() {
     <>
       <ProfileHeaderHome />
       <section class="flex flex-col w-full justify-between items-center gap-2 p-2">
-        <div class="fixed right-0 left-0 p-2 w-full flex flex-col justify-between h-[140px] bg-white">
+        <div class="fixed right-0 left-0 p-2 w-full flex flex-col justify-between h-[140px] bg-white gap-2">
           <Show when={user()}>
             <ProfileUserName
               photoUrl={user()?.photo}

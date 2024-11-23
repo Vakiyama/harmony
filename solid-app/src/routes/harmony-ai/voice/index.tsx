@@ -81,12 +81,20 @@ export default function HarmonyVoice() {
     }
   }, [playing, audioState, audioState.currentTime]);
 
+  let currentStreamingToken: any = null;
+
   async function streamMessage(message: string) {
-    if (messages().length === 0) return;
+    // Cancel previous streaming if any
+    if (currentStreamingToken) {
+      currentStreamingToken.cancelled = true;
+    }
+    const streamingToken = { cancelled: false };
+    currentStreamingToken = streamingToken;
+
     const sleepRange = { low: 10, high: 40 };
     let messageRangeCutoff = 0;
-    while (true) {
-      const speedFactor = messages().at(-1)!.role === "assistant" ? 2.5 : 1;
+    while (!streamingToken.cancelled) {
+      const speedFactor = messages().at(-1)?.role === "assistant" ? 2.5 : 1;
 
       await sleep(
         (sleepRange.low + Math.floor(sleepRange.high * Math.random())) /
@@ -94,15 +102,10 @@ export default function HarmonyVoice() {
       );
 
       messageRangeCutoff++;
-      const clippedMessage = message
-        .split("")
-        .reverse()
-        .slice(message.length - messageRangeCutoff)
-        .reverse()
-        .join("");
+      const clippedMessage = message.slice(0, messageRangeCutoff);
       setStreamedMessage(clippedMessage);
       setCurrentStreamedRole("assitant");
-      if (messageRangeCutoff === message.length) break;
+      if (messageRangeCutoff >= message.length) break;
     }
   }
 
@@ -111,7 +114,7 @@ export default function HarmonyVoice() {
     const messageContent = messages().at(-1)!.content;
     if (typeof messageContent !== "string") return;
     streamMessage(messageContent);
-  }, [messages]);
+  });
 
   class NoAudioStream {
     readonly _tag = "NoAudioStream";
@@ -185,23 +188,34 @@ export default function HarmonyVoice() {
           }
         });
 
+        let isHandlingConversation = false;
+
         socket.on("end-utterance", () => {
-          if (playing()) return;
+          if (playing() || isHandlingConversation || 
+            (currentStreamedRole() === "assitant" && messages.length !== 0)
+            ) return;
+          isHandlingConversation = true;
           setPlaying(true);
           setLastTranscribedMessage(transcribedMessage());
-          console.log("Handling conv after utterance end event");
           socket.emit("end-transcription");
           handleConversation([
             ...messages(),
-            { role: "user", content: transcribedMessage() } as ArrayMessage,
-          ]);
+            { role: "user", content: transcribedMessage() },
+          ]).finally(() => {
+            isHandlingConversation = false;
+          });
         });
 
         mediaRecorder.onstop = () => {
           mediaStreamTrack.stop();
         };
         mediaRecorder.ondataavailable = async (event) => {
-          if (playing() || muted()) {
+          if (
+            playing() ||
+            muted() ||
+            isHandlingConversation ||
+            (currentStreamedRole() === "assitant" && messages.length !== 0)
+          ) {
             return;
           }
           console.log("Sending data...");
