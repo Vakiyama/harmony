@@ -12,13 +12,14 @@ const CalendarView = (props: {
   setSelectedYear: Setter<number>;
   events: Accessor<Event[]>;
   isCalendarOpen: Accessor<boolean>;
+  currentMonth: Accessor<string>;
+  setCurrentMonth: Setter<string>;
+  setCurrentYear: Setter<number>;
+  currentYear: Accessor<number>;
   teamId: number;
 }) => {
   const weekdays = moment.weekdaysMin();
   const months = moment.months();
-
-  const [currentMonth, setCurrentMonth] = createSignal(props.selectedMonth());
-  const [currentYear, setCurrentYear] = createSignal(props.selectedYear());
 
   const fullYear = Object.fromEntries(
     months.map((monthName, monthIndex) => {
@@ -50,8 +51,8 @@ const CalendarView = (props: {
 
   const handleSelectDay = (day: string) => {
     props.setSelectedDay(parseInt(day));
-    setCurrentMonth(props.selectedMonth());
-    setCurrentYear(props.selectedYear());
+    props.setCurrentMonth(props.selectedMonth());
+    props.setCurrentYear(props.selectedYear());
   };
 
   let startX: number;
@@ -75,8 +76,20 @@ const CalendarView = (props: {
       }
       handleSelectMonth(props.selectedMonth(), -1);
     }
+    props.setCurrentMonth(props.selectedMonth());
+    props.setCurrentYear(props.selectedYear());
   };
 
+  const hasEventsOnDay = (day: string) => {
+    return props.events().some((event) => {
+      if (!event.timeStart) return false;
+      const eventDate = moment(event.timeStart);
+      const date = moment(
+        `${day} ${props.currentMonth()} ${props.currentYear()}`
+      );
+      return eventDate.isSame(date, "day");
+    });
+  };
   return (
     <>
       <Show when={props.isCalendarOpen()}>
@@ -85,7 +98,7 @@ const CalendarView = (props: {
           ontouchstart={handleTouchStart}
           ontouchend={handleTouchEnd}
         >
-          <div class="mb-6">
+          <div>
             <div class="grid grid-cols-7 text-center text-lg font-medium text-[#00000080]  mb-1">
               <For each={weekdays}>
                 {(weekDayName) => <div class="py-2">{weekDayName}</div>}
@@ -99,18 +112,24 @@ const CalendarView = (props: {
                     <For each={days}>
                       {(day) => {
                         return (
-                          <div
-                            role="button"
-                            onClick={() => handleSelectDay(day)}
-                            class={`flex items-center justify-center w-10 h-10 mx-auto cursor-pointer ${
-                              parseInt(day) === props.selectedDay() &&
-                              currentMonth() === props.selectedMonth() &&
-                              currentYear() === props.selectedYear()
-                                ? "bg-[#7859ea] text-white"
-                                : "text-[#5d5d5d]"
-                            } rounded-full`}
-                          >
-                            {day}
+                          <div class="relative pb-4">
+                            <div
+                              role="button"
+                              onClick={() => handleSelectDay(day)}
+                              class={`flex items-center justify-center w-7 h-7 mx-auto cursor-pointer ${
+                                parseInt(day) === props.selectedDay() &&
+                                props.currentMonth() ===
+                                  props.selectedMonth() &&
+                                props.currentYear() === props.selectedYear()
+                                  ? "bg-[#7859ea] text-white"
+                                  : "text-[#5d5d5d]"
+                              } rounded-full`}
+                            >
+                              {day}
+                            </div>
+                            <Show when={hasEventsOnDay(day)}>
+                              <div class="absolute bottom-1 left-1/2 -translate-x-1/2 rounded-full aspect-square h-2 bg-[#9b82f3]" />
+                            </Show>
                           </div>
                         );
                       }}

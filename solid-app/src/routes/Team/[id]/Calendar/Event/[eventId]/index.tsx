@@ -14,9 +14,12 @@ import {
   deleteEvent,
   deleteEventParticipant,
   getEvent,
+  getEventParticipant,
   getEventParticipants,
   getTeamMembersFromTeamId,
   updateEvent,
+  updateEventParticipant,
+  updateTaskComplete,
 } from "~/api/calendar";
 import { FaSolidAngleDown } from "solid-icons/fa";
 import { formatDateToLongForm } from "~/lib/formateDateLocal";
@@ -35,6 +38,8 @@ import SelectMultipleInput from "~/components/shadcn/MultiSelect";
 import TextArea from "../../Create/TextAreaInput";
 import { mightFail } from "might-fail";
 import DeleteConfirmation from "~/components/shared/delete-confirmation";
+import { getUser } from "~/api/server";
+import { showNotification } from "~/routes/api/notificationStore";
 
 type Participant = {
   participant: User;
@@ -58,29 +63,20 @@ const parseTeamMemberToOption = (
 export default function EventPage() {
   const params = useParams();
   const teamId = parseInt(params.id);
-  const eventId = params.eventId;
+  const eventId = parseInt(params.eventId);
+  let currentUserId: number;
   const navigate = useNavigate();
 
   const [event, { refetch }] = createResource(
-    async () => await getEvent(parseInt(eventId))
+    async () => await getEvent(eventId)
   );
-
-  const teamMembers = createAsync(
-    async () => await getTeamMembersFromTeamId(teamId),
-    { deferStream: true }
-  );
-
+  const [teamMembers, setTeamMembers] = createSignal<
+    {
+      users: User;
+      teammembers: TeamMember;
+    }[]
+  >();
   const [participants, setParticipants] = createSignal<Participant[]>([]);
-
-  const fetchParticipants = async () => {
-    const participants = await getEventParticipants(parseInt(eventId), teamId);
-    setParticipants(participants);
-  };
-
-  onMount(async () => {
-    await fetchParticipants();
-  });
-
   const [isTeamMembersOpen, setIsTeamMembersOpen] = createSignal(false);
   const [isModalOpen, setIsModalOpen] = createSignal(false);
   const [title, setTitle] = createSignal(event()?.title ?? "");
@@ -92,11 +88,62 @@ export default function EventPage() {
     participants()?.map((p) => p.participant.id) ?? []
   );
   const [notes, setNotes] = createSignal(event()?.notes ?? "");
-
   const [isDeleteOpen, setIsDeleteOpen] = createSignal(false);
   const teamMemberOptions = createMemo(() =>
     parseTeamMemberToOption(teamMembers())
   );
+  const [currentStatus, setCurrentStatus] = createSignal<
+    "yes" | "no" | "maybe" | undefined | null
+  >();
+  const complete = createMemo(
+    (v) => (v = event()?.complete),
+    event()?.complete
+  );
+  const [statusCount, setStatusCount] = createSignal({
+    yes: 0,
+    maybe: 0,
+    no: 0,
+    null: 0,
+  });
+
+  onMount(async () => {
+    const user = (await getUser()) as User;
+    currentUserId = user.id;
+    await fetchParticipants();
+    await fetchTeamMembers();
+    await fetchCurrentStatus();
+    setStatus();
+  });
+
+  const fetchParticipants = async () => {
+    const participants = await getEventParticipants(eventId, teamId);
+    setParticipants(participants);
+  };
+  const fetchTeamMembers = async () => {
+    const teamMemebers = await getTeamMembersFromTeamId(teamId);
+    setTeamMembers(teamMemebers);
+  };
+  const fetchCurrentStatus = async () => {
+    const eventParticipant = await getEventParticipant(eventId, currentUserId);
+    if (!eventParticipant) {
+      return setCurrentStatus(undefined);
+    }
+    setCurrentStatus(eventParticipant.status);
+  };
+  const setStatus = () => {
+    for (const participant of participants()!) {
+      const status = participant.status;
+      if (status === "yes") {
+        setStatusCount({ ...statusCount(), yes: statusCount().yes + 1 });
+      } else if (status === "maybe") {
+        setStatusCount({ ...statusCount(), maybe: statusCount().maybe + 1 });
+      } else if (status === "no") {
+        setStatusCount({ ...statusCount(), no: statusCount().no + 1 });
+      } else {
+        setStatusCount({ ...statusCount(), null: statusCount().null + 1 });
+      }
+    }
+  };
 
   const openModal = () => {
     setIsModalOpen((prev) => !prev);
@@ -120,18 +167,19 @@ export default function EventPage() {
     for (const participant of participants()) {
       const [deleteEventParticipantsError, deleteEventParticipantsResult] =
         await mightFail(
-          deleteEventParticipant(participant.participant.id, event()?.id!)
+          deleteEventParticipant(participant.participant.id, eventId)
         );
       if (deleteEventParticipantsError) {
         return console.error(deleteEventParticipantsError);
       }
     }
     const [deleteEventError, deleteEventResult] = await mightFail(
-      deleteEvent(event()?.id!)
+      deleteEvent(eventId)
     );
     if (deleteEventError) {
       return console.error(deleteEventError);
     }
+    showNotification(`${event()?.type === "event" ? "Event" : "Task"} Deleted`);
     navigate(`/team/${teamId}/calendar`);
   };
 
@@ -156,7 +204,7 @@ export default function EventPage() {
 
     for await (const deletedMember of deletedMembers) {
       const [deletedMemberError, deletedMemberResult] = await mightFail(
-        deleteEventParticipant(deletedMember, event()?.id!)
+        deleteEventParticipant(deletedMember, eventId)
       );
       if (deletedMemberError) {
         return console.error(deletedMemberError);
@@ -169,7 +217,7 @@ export default function EventPage() {
 
     for await (const newMember of newMembers) {
       const [newMemberError, newMemberResult] = await mightFail(
-        createEventParticipant(event()?.id!, newMember)
+        createEventParticipant(eventId, newMember)
       );
       if (newMemberError) {
         return console.error(newMemberError);
@@ -183,27 +231,31 @@ export default function EventPage() {
     // temp need to invalidate
   };
 
-  const statusCount = {
-    yes: 0,
-    maybe: 0,
-    no: 0,
-    null: 0,
+  const handleUpdateStatus = async (
+    status: "yes" | "no" | "maybe" | undefined | null
+  ) => {
+    const [updateStatusError, updateStatusResult] = await mightFail(
+      currentStatus() === status
+        ? updateEventParticipant(currentUserId, eventId, null)
+        : updateEventParticipant(currentUserId, eventId, status)
+    );
+    if (updateStatusError) {
+      return console.error(updateStatusError);
+    }
+    await refetch();
+    await fetchParticipants();
   };
 
-  if (participants()) {
-    for (const participant of participants()!) {
-      const status = participant.status;
-      if (status === "yes") {
-        statusCount.yes++;
-      } else if (status === "maybe") {
-        statusCount.maybe++;
-      } else if (status === "no") {
-        statusCount.no++;
-      } else {
-        statusCount.null++;
-      }
+  const handleUpdateComplete = async (complete: boolean) => {
+    const [updateCompleteError, updateCompleteResult] = await mightFail(
+      updateTaskComplete(complete, eventId)
+    );
+    if (updateCompleteError) {
+      return console.error(updateCompleteError);
     }
-  }
+    await refetch();
+    await fetchParticipants();
+  };
 
   return (
     <Show when={event()}>
@@ -212,8 +264,8 @@ export default function EventPage() {
         setModalOpen={openModal}
         teamId={teamId}
       />
-      <div class="h-full flex flex-col p-4 justify-between">
-        <div class="flex flex-col gap-3">
+      <div class="flex flex-col p-4 justify-between">
+        <div class="flex flex-col gap-3 mb-32">
           <div class="flex flex-col gap-1 ">
             <h1 class="text-[#1e1e1e] text-[28px] font-grotesque font-medium leading-tight">
               {event()?.title}
@@ -255,7 +307,7 @@ export default function EventPage() {
               </div>
             </div>
             {/* temp */}
-            <div class="flex items-center justify-center">
+            <div class="flex items-center justify-center ">
               <img
                 class="max-h-96 max-w-96 rounded-lg border border-[#1e1e1e]/20"
                 src={placeholder}
@@ -276,8 +328,8 @@ export default function EventPage() {
                   {participants()?.length === 1 ? "Person" : "People"}
                 </div>
                 <p class="text-[#1e1e1e]/50 text-sm leading-none font-sf-pro">
-                  {statusCount.yes} yes, {statusCount.null} awaiting,{" "}
-                  {statusCount.no} no, {statusCount.maybe} maybe
+                  {statusCount().yes} yes, {statusCount().null} awaiting,{" "}
+                  {statusCount().no} no, {statusCount().maybe} maybe
                 </p>
               </div>
               <FaSolidAngleDown />
@@ -299,7 +351,7 @@ export default function EventPage() {
                             src={participant.participant.photo!}
                             alt="temp alt"
                           />
-                          <div class="absolute right-0 bottom-0 z-20">
+                          <div class="absolute right-0 bottom-0">
                             <Switch>
                               <Match when={participant.status === "yes"}>
                                 <IoCheckmarkCircle />
@@ -335,26 +387,19 @@ export default function EventPage() {
               <h2 class="text-[#1e1e1e] text-lg font-medium font-grotesque">
                 Notes
               </h2>
-              <div class=" text-[#1e1e1e]/50 text-base leading-tight font-sf-pro">
+              <p class=" text-[#1e1e1e]/50 text-base leading-tight font-sf-pro break-words">
                 {event()?.notes}
-              </div>
-            </div>
-            <div class="flex justify-end space-x-4 bg-[#fcfcfc] border-t border-[#1e1e1e]/20 p-3 mt-5">
-              {["Yes", "No", "Maybe"].map((response) => (
-                <button class="bg-[#1e1e1e]/20 rounded-full px-4 py-2 text-[#1e1e1e] text-lg font-medium">
-                  {response}
-                </button>
-              ))}
+              </p>
             </div>
           </div>
         </div>
         {isModalOpen() && (
           <div
-            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]" //temp z-60 to override navbar
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]"
             onClick={handleBackdropModalClick}
           >
             <UpdateEventModal onClose={closeModal} update={handleUpdateEvent}>
-              <div class="w-full flex flex-col gap-2">
+              <div class="w-full flex flex-col gap-2 ">
                 <TextInput
                   label="Title"
                   placeholder="Title"
@@ -432,8 +477,51 @@ export default function EventPage() {
             />
           </div>
         )}
-        {/* temp */}
-        <div class="h-[60px]"></div>
+      </div>
+      <div
+        class={`absolute bottom-0 w-full flex items-end ${
+          currentStatus() === undefined ? "hidden" : ""
+        }`}
+      >
+        <div class="sticky flex justify-end items-center bottom-0 h-[70px] w-full bg-[#fcfcfc] border-t border-[#1e1e1e]/20">
+          {event()?.type === "event" ? (
+            <div class="flex justify-end space-x-4 items-center h-[30px] mt-[8px] mb-[20px] pr-[12px]">
+              {["Yes", "No", "Maybe"].map((response) => (
+                <button
+                  class={`${
+                    currentStatus() === "yes" && response === "Yes"
+                      ? "bg-[#6fc94f] text-[#fcfcfc]"
+                      : currentStatus() === "no" && response === "No"
+                      ? "bg-[#FE7258] text-[#fcfcfc]"
+                      : currentStatus() === "maybe" && response === "Maybe"
+                      ? "bg-[#F7D844] text-[#fcfcfc]"
+                      : "bg-[#1e1e1e]/20 text-[#1e1e1e]"
+                  } rounded-full px-[15px] h-[30px] text-lg font-medium font-grotesque`}
+                  onclick={() =>
+                    handleUpdateStatus(
+                      response.toLowerCase() as "yes" | "no" | "maybe"
+                    )
+                  }
+                >
+                  {response}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div class="justify-end items-center flex h-[30px] mt-[8px] mb-[20px] pr-[12px]">
+              <button
+                class="rounded-[999px] h-[30px] px-[15px] border border-[#1e1e1e]/25 flex-col justify-center items-center flex"
+                onclick={() => {
+                  handleUpdateComplete(!complete());
+                }}
+              >
+                <p class="self-stretch text-center text-[#1e1e1e] text-[19px] font-medium font-grotesque ">
+                  {!complete() ? "Mark As Incomplete" : "Mark as Complete"}
+                </p>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </Show>
   );

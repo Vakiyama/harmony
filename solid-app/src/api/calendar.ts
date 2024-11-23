@@ -126,8 +126,6 @@ export const getCalendarData = async (props: {
   if (!isMember) {
     throw new Error("Insufficient Permissions"); // return { error: "Insufficient Permissions" };
   }
-  // console.log(props.selectedUsers);
-  // console.log(props.filters);
   props.page = props.page ? props.page : 1;
   props.pageSize = props.pageSize ? props.pageSize : 10;
   props.filters = props.filters
@@ -196,7 +194,6 @@ export const getCalendarData = async (props: {
   // Execute the query
   try {
     const result = await query.where(and(...conditions));
-    // console.log("this", result);
     return result;
   } catch (error) {
     console.error(error);
@@ -284,7 +281,6 @@ export const createEventParticipant = async (
     .insert(eventParticipants)
     .values({ eventId, userId })
     .returning();
-  console.log(newEventParticipant);
   return newEventParticipant;
 };
 
@@ -320,4 +316,50 @@ export const getEventsWithUserId = async (
       )
     );
   return result;
+};
+
+export const updateEventParticipant = async (
+  userId: number,
+  eventId: number,
+  status: "yes" | "no" | "maybe" | undefined | null
+) => {
+  "use server";
+  const result = await db
+    .update(eventParticipants)
+    .set({ status })
+    .where(
+      and(
+        eq(eventParticipants.userId, userId),
+        eq(eventParticipants.eventId, eventId)
+      )
+    )
+    .returning();
+  return result;
+};
+export const updateTaskComplete = async (
+  complete: boolean,
+  eventId: number
+) => {
+  "use server";
+  const result = await db
+    .update(events)
+    .set({ complete })
+    .where(eq(events.id, eventId))
+    .returning();
+  return result;
+};
+
+export const getEventParticipant = async (eventId: number, userId: number) => {
+  "use server";
+  const result = await db
+    .select()
+    .from(eventParticipants)
+    .where(
+      and(
+        eq(eventParticipants.eventId, eventId),
+        eq(eventParticipants.userId, userId)
+      )
+    );
+  console.log(result, "help");
+  return result[0];
 };
