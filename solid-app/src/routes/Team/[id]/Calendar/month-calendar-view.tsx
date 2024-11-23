@@ -80,6 +80,17 @@ const CalendarView = (props: {
     props.setCurrentYear(props.selectedYear());
   };
 
+  const hasEventsOnDay = (day: string) => {
+    return props.events().some((event) => {
+      if (!event.timeStart) return false;
+      const eventDate = moment(event.timeStart).date();
+      return (
+        eventDate === parseInt(day) &&
+        props.currentMonth() === props.selectedMonth() &&
+        props.currentYear() === props.selectedYear()
+      );
+    });
+  };
   return (
     <>
       <Show when={props.isCalendarOpen()}>
@@ -102,18 +113,24 @@ const CalendarView = (props: {
                     <For each={days}>
                       {(day) => {
                         return (
-                          <div
-                            role="button"
-                            onClick={() => handleSelectDay(day)}
-                            class={`flex items-center justify-center w-10 h-10 mx-auto cursor-pointer ${
-                              parseInt(day) === props.selectedDay() &&
-                              props.currentMonth() === props.selectedMonth() &&
-                              props.currentYear() === props.selectedYear()
-                                ? "bg-[#7859ea] text-white"
-                                : "text-[#5d5d5d]"
-                            } rounded-full`}
-                          >
-                            {day}
+                          <div class="relative pb-1">
+                            <div
+                              role="button"
+                              onClick={() => handleSelectDay(day)}
+                              class={`flex items-center justify-center w-10 h-10 mx-auto cursor-pointer ${
+                                parseInt(day) === props.selectedDay() &&
+                                props.currentMonth() ===
+                                  props.selectedMonth() &&
+                                props.currentYear() === props.selectedYear()
+                                  ? "bg-[#7859ea] text-white"
+                                  : "text-[#5d5d5d]"
+                              } rounded-full`}
+                            >
+                              {day}
+                            </div>
+                            <Show when={hasEventsOnDay(day)}>
+                              <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 rounded-full aspect-square h-2 bg-[#9b82f3]" />
+                            </Show>
                           </div>
                         );
                       }}
