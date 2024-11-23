@@ -4,6 +4,7 @@ import {
   createSignal,
   onMount,
   Show,
+  useContext,
 } from "solid-js";
 import { mightFail } from "might-fail";
 import type { Event } from "@/schema/Events";
@@ -30,6 +31,8 @@ import {
   notificationMessage,
 } from "~/routes/api/notificationStore";
 import Notification from "~/components/shared/notification";
+import { getJournalsFromTeamId } from "~/api/journal";
+import { TeamContext } from "~/components/Layout-Context";
 
 moment.locale("en");
 moment.updateLocale("en", { weekdaysMin: "S_M_T_W_T_F_S".split("_") });
@@ -50,7 +53,21 @@ export type CalendarFilterType =
 
 export default function CalendarPage() {
   const param = useParams();
-  const teamId = parseInt(param.id);
+  const context = useContext(TeamContext);
+
+  if (!context) {
+    return <div>No team data available</div>;
+  }
+
+  const { teamListData, refetchTrigger } = context;
+
+  const defaultTeam = () =>
+    teamListData()?.find((team) => team.team.defaultTeam === true);
+
+  const teamId = defaultTeam()?.team.id;
+  if (!teamId) {
+    return <div>No team data available</div>;
+  }
   const DEFAULT_FILTERS: CalendarFilterType[] = [
     "events",
     "tasks",
@@ -126,6 +143,8 @@ export default function CalendarPage() {
   const [isSideMenuOpen, setIsSideMenuOpen] = createSignal(false);
   const [isCalendarOpen, setIsCalendarOpen] = createSignal(true);
   const fetchEvents = async (calendarId: number) => {
+    console.log(teamId);
+    console.log(await getJournalsFromTeamId(teamId));
     const [eventError, eventResult] = await mightFail(getAllEvents(calendarId));
     if (eventError) {
       return console.error(eventError);
