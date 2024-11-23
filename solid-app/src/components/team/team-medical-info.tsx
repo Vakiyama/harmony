@@ -14,7 +14,7 @@ export default function TeamMedicationInfo() {
 
   return (
     <>
-      <div class="p-2 overflow-y-scroll pb-[200px] h-[calc(100vh_-_130px)]">
+      <div class="p-2 pb-6">
         <TeamInfoCard
           title="Health Profile"
           value={"medical"}
