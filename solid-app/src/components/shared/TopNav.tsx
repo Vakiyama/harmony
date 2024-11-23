@@ -1,4 +1,4 @@
-import { JSX, Show } from "solid-js";
+import { JSX } from "solid-js";
 import { A, useLocation, useParams } from "@solidjs/router";
 import { twMerge } from "tailwind-merge";
 
@@ -20,13 +20,12 @@ export default function TopNav(props: {
   if (location.pathname.includes("/harmony-ai/chat")) {
     backLocation = "/";
   }
-  console.log(backLocation);
 
   if (location.pathname.includes("/harmony-ai/voice")) {
     backLocation = "/harmony-ai/chat";
   }
 
-  if (location.pathname.includes("/profile/settings")) {
+  if (location.pathname.includes("/profile/")) {
     backLocation = "/profile";
   }
 
@@ -48,7 +47,7 @@ export default function TopNav(props: {
         </div>
 
         {/* Center column */}
-        <div class="flex-1 flex justify-center items-center">
+        <div class="flex-grow flex justify-center items-center">
           {props.name ? (
             <h4 class="text-h4 font-medium">{props.name}</h4>
           ) : null}

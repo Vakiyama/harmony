@@ -14,8 +14,8 @@ export default function ProfileTeamContent(props: {
 }) {
   return (
     <div class="h-full w-full flex items-center justify-center">
-      <Tabs defaultValue="team member" class="w-full">
-        <TabsList class="w-full text-black overflow-scroll rounded-none pb-2 text-[11px] flex items-center justify-center">
+      <Tabs defaultValue="general info" class="w-full h-full flex flex-col">
+        <TabsList class="flex w-full text-black overflow-scroll text-subtitle flex items-center rounded-none">
           {["General Information", "Medication Information", "Team Member"].map(
             (tabName) => (
               <TabsTrigger value={tabName.toLowerCase()} class="text-md">
@@ -26,8 +26,8 @@ export default function ProfileTeamContent(props: {
           <TabsIndicator />
         </TabsList>
 
-        <div class="flex flex-row space-x-1 justify-end mx-4 mt-2">
-          <p class="text-xs text-gray-500">Edit</p>
+        <div class="flex flex-row gap-1 justify-end">
+          <p class="text-subtitle text-gray-500">Edit</p>
           <svg
             width="12"
             height="12"
@@ -50,7 +50,7 @@ export default function ProfileTeamContent(props: {
           <MedicationInfo />
         </TabsContent>
         <TabsContent value="team member">
-          <div class="flex flex-col gap-2 p-4">
+          <div class="flex flex-col gap-2">
             {props.data?.members.map((member) => {
               return (
                 <TeamPreview

@@ -1,59 +1,9 @@
-// import {
-//   TextField,
-//   TextFieldLabel,
-//   TextFieldRoot,
-// } from "~/components/ui/textfield";
-// import MedicalDetail from "./medical-detail";
-// import TextFieldLine from "../shared/TextFieldLine";
-
-// export default function MedicalInfo() {
-//   const fields = [
-//     { label: "Heath Conditions", value: "Dementia" },
-//     { label: "PastInjuries", value: "Hip Fractures" },
-//     { label: "Important Surgeries", value: "Hip Surgery, 2021" },
-//     { label: "Mobility Needs", value: "Requires walking cane" },
-//     {
-//       label: "Dietary Restrictions/Preference",
-//       value: "Must have 85g protein each meal",
-//     },
-//   ];
-
-//   return (
-//     <>
-//       <div>
-//         {/* Medical Info */}
-//         <div>
-//           <p class="font-semibold text-md">Health Profile</p>
-//           {fields.map(({ label, value }, index) => (
-//             <TextFieldLine key={index} label={label} value={value} />
-//           ))}
-//         </div>
-//         <div class="mt-16">
-//           <p class="font-semibold text-md">Medication Details</p>
-
-//           <MedicalDetail
-//             medicineName="Advil"
-//             medicineDose="200mg"
-//             medicineInstructions="take after a meal"
-//             medicineLink="/profile/med-detail"
-//           />
-//           <MedicalDetail
-//             medicineName="Vyvanse"
-//             medicineDose="10mg"
-//             medicineInstructions="taken with water"
-//             medicineLink="/profile/med-detail"
-//           />
-//         </div>
-//       </div>
-//     </>
-//   );
-// }
 import { InfoCard } from "./info-card";
 import MedicalDetail from "./medical-detail";
 
 export default function MedicationInfo() {
   return (
-    <div class="p-2 pb-[200px]">
+    <div class="h-full flex flex-col gap-3">
       <InfoCard
         title="Health Profile"
         value={"medication information"}
@@ -100,9 +50,9 @@ export default function MedicationInfo() {
       />
 
       {/* Medication Details */}
-      <div class="mt-4 ">
-        <div class="w-full mt-2 flex flex-row justify-between items-center gap-x-2 rounded-md bg-[#D6CDF9] h-[48px]">
-          <div class="flex justify-center items-center p-2">
+      <div class="flex flex-col gap-3">
+        <div class="w-full flex flex-row justify-between items-center gap-2 rounded-md bg-primary-purple-100 h-full">
+          <div class="flex justify-center items-center p-2 gap-2">
             <div class="flex items-center justify-center aspect-square rounded-full px-2 bg-[#7859EA]">
               <svg
                 width="14"
@@ -117,26 +67,25 @@ export default function MedicationInfo() {
                 />
               </svg>
             </div>
-            <div class="ml-2 font-semibold tracking-tight text-sm">
+            <div class="font-semibold tracking-tight text-sm">
               Medication Details
             </div>
           </div>
         </div>
-      </div>
-
-      <div class="mt-4">
-        <MedicalDetail
-          medicineName="Advil"
-          medicineDose="200mg"
-          medicineInstructions="take after a meal"
-          medicineLink="/profile/medication-detail"
-        />
-        <MedicalDetail
-          medicineName="Vyvanse"
-          medicineDose="10mg"
-          medicineInstructions="taken with water"
-          medicineLink="/profile/medication-detail"
-        />
+        <div class="flex flex-col gap-2">
+          <MedicalDetail
+            medicineName="Advil"
+            medicineDose="200mg"
+            medicineInstructions="take after a meal"
+            medicineLink="/profile/medication-detail"
+          />
+          <MedicalDetail
+            medicineName="Vyvanse"
+            medicineDose="10mg"
+            medicineInstructions="taken with water"
+            medicineLink="/profile/medication-detail"
+          />
+        </div>
       </div>
     </div>
   );
