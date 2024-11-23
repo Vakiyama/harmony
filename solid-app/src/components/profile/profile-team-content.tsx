@@ -50,7 +50,7 @@ export default function ProfileTeamContent(props: {
           <MedicationInfo />
         </TabsContent>
         <TabsContent value="team member">
-          <div class="flex flex-col gap-2 p-4">
+          <div class="flex flex-col gap-2">
             {props.data?.members.map((member) => {
               return (
                 <TeamPreview

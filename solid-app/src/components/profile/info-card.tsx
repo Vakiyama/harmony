@@ -20,9 +20,9 @@ export function InfoCard(props: {
       <TabsContent value={props.value}>
         <Card>
           <CardHeader>
-            <div class="w-full flex flex-row justify-between items-center gap-x-2 rounded-md bg-[#D6CDF9]">
+            <div class="w-full flex flex-row justify-between items-center gap-2 rounded-md bg-primary-purple-100">
               <div class="flex justify-center items-center p-2">
-                <div class="flex items-center justify-center aspect-square rounded-full px-2 bg-[#7859EA]">
+                <div class="flex items-center justify-center aspect-square rounded-full px-2 bg-primary-purple-500">
                   {props.icon}
                 </div>
                 <CardTitle class="ml-2">{props.title}</CardTitle>
