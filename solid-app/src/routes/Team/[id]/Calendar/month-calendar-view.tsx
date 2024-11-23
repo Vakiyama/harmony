@@ -83,12 +83,12 @@ const CalendarView = (props: {
   const hasEventsOnDay = (day: string) => {
     return props.events().some((event) => {
       if (!event.timeStart) return false;
-      const eventDate = moment(event.timeStart).date();
-      return (
-        eventDate === parseInt(day) &&
-        props.currentMonth() === props.selectedMonth() &&
-        props.currentYear() === props.selectedYear()
+      const eventDate = moment(event.timeStart);
+      const date = moment(
+        `${day} ${props.currentMonth()} ${props.currentYear()}`
       );
+      console.log(date, eventDate);
+      return eventDate.isSame(date, "day");
     });
   };
   return (
@@ -99,7 +99,7 @@ const CalendarView = (props: {
           ontouchstart={handleTouchStart}
           ontouchend={handleTouchEnd}
         >
-          <div class="mb-6">
+          <div>
             <div class="grid grid-cols-7 text-center text-lg font-medium text-[#00000080]  mb-1">
               <For each={weekdays}>
                 {(weekDayName) => <div class="py-2">{weekDayName}</div>}
@@ -113,11 +113,11 @@ const CalendarView = (props: {
                     <For each={days}>
                       {(day) => {
                         return (
-                          <div class="relative pb-1">
+                          <div class="relative pb-4">
                             <div
                               role="button"
                               onClick={() => handleSelectDay(day)}
-                              class={`flex items-center justify-center w-10 h-10 mx-auto cursor-pointer ${
+                              class={`flex items-center justify-center w-7 h-7 mx-auto cursor-pointer ${
                                 parseInt(day) === props.selectedDay() &&
                                 props.currentMonth() ===
                                   props.selectedMonth() &&
@@ -129,7 +129,7 @@ const CalendarView = (props: {
                               {day}
                             </div>
                             <Show when={hasEventsOnDay(day)}>
-                              <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 rounded-full aspect-square h-2 bg-[#9b82f3]" />
+                              <div class="absolute bottom-1 left-1/2 -translate-x-1/2 rounded-full aspect-square h-2 bg-[#9b82f3]" />
                             </Show>
                           </div>
                         );
