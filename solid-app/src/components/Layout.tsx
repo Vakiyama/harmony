@@ -95,7 +95,7 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
               : location.pathname.startsWith("/profile")
               ? "h-[40px]"
               : "h-[104px]"
-          } ${renderTopNav() ? "" : "hidden"}`}
+          }`}
         >
           {renderTopNav()}
         </div>
