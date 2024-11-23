@@ -39,11 +39,14 @@ import {
   CreateInjuryActionResponse,
   CreateMedicationActionResponse,
 } from "~/types/types";
+import ShowError from "../../[id]/journal/show-error";
 
 export default function CreateSomeone() {
   const navigate = useNavigate();
   const [error, setError] = createSignal<string | null>(null);
   const [isCreating, setIsCreating] = createSignal(false);
+  const [teamError, setTeamError] = createSignal("");
+
   const team = useTeam();
   const [back, setBack] = createSignal<() => void>(() => {});
   const [closeAddMed, setCloseAddMed] = createSignal<boolean>(false);
@@ -78,6 +81,7 @@ export default function CreateSomeone() {
 
   const handleSubmit = async (event?: MouseEvent) => {
     setIsCreating(true);
+    setTeamError("");
     try {
       // create recipient
       const recipientResult = (await recipientAction({
@@ -85,7 +89,7 @@ export default function CreateSomeone() {
       })) as CreateRecipientActionResponse;
 
       if (!recipientResult.success || !recipientResult.recipientId) {
-        showNotification("Failed to create recipient");
+        setTeamError(recipientResult.error || "Failed to create recipient");
         throw new Error(recipientResult.error || "Failed to create recipient");
       }
       showNotification("Recipient created successfully");
@@ -99,7 +103,7 @@ export default function CreateSomeone() {
       })) as CreateTeamActionResponse;
 
       if (!teamResult.success || !teamResult.teamId) {
-        showNotification("Failed to create team");
+        setTeamError(teamResult.error || "Failed to create team");
         throw new Error(teamResult.error || "Failed to create team");
       }
       showNotification("Team created successfully");
@@ -120,6 +124,7 @@ export default function CreateSomeone() {
 
         if (!surgeryResult.success) {
           console.log(surgeryResult.error || "Failed to create surgeries");
+          // setTeamError(surgeryResult.error || "Failed to create surgeries");
         }
         showNotification("Surgeries added successfully");
       }
@@ -139,6 +144,7 @@ export default function CreateSomeone() {
 
         if (!injuryResult.success) {
           console.log(injuryResult.error || "Failed to create injuries");
+          // setTeamError(injuryResult.error || "Failed to create injuries");
         }
         showNotification("Past injuries added successfully");
       }
@@ -154,6 +160,7 @@ export default function CreateSomeone() {
 
         if (!medicationResult.success) {
           console.log(medicationResult.error || "Failed to create medications");
+          // setTeamError(medicationResult.error ||"Failed to create medication");
         }
         showNotification("Medications added successfully");
       }
@@ -163,8 +170,7 @@ export default function CreateSomeone() {
       window.location.href = "/";
     } catch (error) {
       console.error("Error creating team or recipient:", error);
-      showNotification("Failed to create team or recipient");
-      setError("Failed to create team or recipient");
+      setTeamError("Failed to create team");
       setIsCreating(false);
     } finally {
       setIsCreating(false);
@@ -186,6 +192,9 @@ export default function CreateSomeone() {
         />
       </Show>
       <form onSubmit={(e) => e.preventDefault()} class="h-full flex flex-col">
+        <div class="flex items-center justify-center">
+          <ShowError error={teamError()}></ShowError>
+        </div>
         {/* step 1: team Name */}
         <Show when={team.currentStep() === 1}>
           <p class="flex justify-center text-subtitle13 text-stepsGray mt-3">

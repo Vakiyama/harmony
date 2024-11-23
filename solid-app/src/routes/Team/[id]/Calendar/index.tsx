@@ -83,28 +83,39 @@ export default function CalendarPage() {
     await fetchTeamMembers(teamId);
   });
 
-  const [resource, { mutate, refetch }] = createResource(params(), async () => {
-    const params = searchParams.filters
-      ? searchParams.filters.toString().split(",")
-      : "";
-    return await getCalendarData({
-      teamId,
-      filters: {
-        uncomplete: params.includes("uncompleted"),
-        event: params.includes("events"),
-        task: params.includes("tasks"),
-        complete: params.includes("complete"),
-      },
-    });
+  const [resource, { mutate, refetch }] = createResource(
+    params,
+    async (params) => {
+      const paramsArray = params.filters
+        ? params.filters.toString().split(",")
+        : [];
+      const selectedUsers = params.selected
+        ? params.selected.toString().split(",")
+        : [];
+      return await getCalendarData({
+        teamId,
+        selectedUsers,
+        filters: {
+          uncomplete: paramsArray.includes("uncompleted"),
+          event: paramsArray.includes("events"),
+          task: paramsArray.includes("tasks"),
+          complete: paramsArray.includes("complete"),
+        },
+      });
+    }
+  );
+
+  createEffect(() => {
+    const currentResource = resource();
+
+    // Check if resource is defined and is an array before setting events
+    if (currentResource && Array.isArray(currentResource)) {
+      setEvents(currentResource); // Set the events when the resource is loaded and is an array
+    }
   });
   const handleRefetch = async () => {
-    await refetch(); // This will re-fetch the data based on the current `params()`
+    await refetch();
   };
-
-  // for testing, whenever resources is reloaded (which is refetched based on the params)
-  createEffect(async () => {
-    console.log(resource(), "hello?");
-  }, [resource()]);
 
   const [isSideMenuOpen, setIsSideMenuOpen] = createSignal(false);
   const [isCalendarOpen, setIsCalendarOpen] = createSignal(true);

@@ -10,7 +10,7 @@ export default function TeamCard(props: {
   return (
     <A
       href={props.href}
-      class="flex flex-col items-center border-2 border-gray-300 rounded-md min-w-[177px] min-h-[196px] w-full h-full"
+      class="flex flex-col items-center border border-gray-300 rounded-md min-w-[177px] min-h-[196px] w-full h-full"
     >
       <div class="flex flex-grow">
         <TeamImage teamName={props.teamName} imageUrl={props.imageUrl} />

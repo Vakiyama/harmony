@@ -3,7 +3,10 @@ import { TeamInfoCard } from "./team-info-card";
 
 export default function TeamGeneralInfo() {
   const team = useTeam();
-
+  const formatPhoneNumber = (value: string) => {
+    const rawValue = value.replace(/\D/g, "");
+    return rawValue.replace(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3").slice(0, 12);
+  };
   const {
     phoneNumber,
     email,
@@ -35,7 +38,11 @@ export default function TeamGeneralInfo() {
         sections={[
           {
             title: "Phone Number",
-            content: <p class="text-xs">{phoneNumber}</p>,
+            content: (
+              <p class="text-xs">
+                {phoneNumber ? formatPhoneNumber(phoneNumber) : phoneNumber}
+              </p>
+            ),
           },
           {
             title: "Email",
