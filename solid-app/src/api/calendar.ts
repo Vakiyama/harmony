@@ -117,6 +117,25 @@ export const getAllEvents = async (calendarId: number, limit?: number) => {
   return await query.execute();
 };
 
+export const getAllEventsAndJournals = async (
+  calendarId: number,
+  teamId: number,
+  limit?: number
+) => {
+  "use server";
+  const query = db
+    .select()
+    .from(events)
+    .where(eq(events.calendarId, calendarId))
+    .orderBy(events.timeStart)
+    .$dynamic();
+
+  if (limit) {
+    query.limit(limit);
+  }
+  return await query.execute();
+};
+
 export const getCalendarData = async (props: {
   teamId: number;
   selectedUsers: string[];
