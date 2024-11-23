@@ -6,7 +6,6 @@ import "./app.css";
 import "./input.css";
 import Layout from "./components/Layout";
 import { MetaProvider } from "@solidjs/meta";
-import RootWrapper from "./components/shared/root-wrapper";
 import { TeamProvider } from "./context/team-context";
 
 export default function App() {
@@ -14,13 +13,11 @@ export default function App() {
     <TeamProvider>
       <Router
         root={(props) => (
-          <RootWrapper>
-            <MetaProvider>
-              <Suspense>
-                <Layout>{props.children}</Layout>
-              </Suspense>
-            </MetaProvider>
-          </RootWrapper>
+          <MetaProvider>
+            <Suspense>
+              <Layout>{props.children}</Layout>
+            </Suspense>
+          </MetaProvider>
         )}
       >
         <FileRoutes />
