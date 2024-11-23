@@ -98,12 +98,20 @@ export default function EventPage() {
     (v) => (v = event()?.complete),
     event()?.complete
   );
+  const [statusCount, setStatusCount] = createSignal({
+    yes: 0,
+    maybe: 0,
+    no: 0,
+    null: 0,
+  });
+
   onMount(async () => {
     const user = (await getUser()) as User;
     currentUserId = user.id;
     await fetchParticipants();
     await fetchTeamMembers();
     await fetchCurrentStatus();
+    setStatus();
   });
 
   const fetchParticipants = async () => {
@@ -117,6 +125,20 @@ export default function EventPage() {
   const fetchCurrentStatus = async () => {
     const status = (await getEventParticipant(eventId, currentUserId)).status;
     setCurrentStatus(status);
+  };
+  const setStatus = () => {
+    for (const participant of participants()!) {
+      const status = participant.status;
+      if (status === "yes") {
+        setStatusCount({ ...statusCount(), yes: statusCount().yes + 1 });
+      } else if (status === "maybe") {
+        setStatusCount({ ...statusCount(), maybe: statusCount().maybe + 1 });
+      } else if (status === "no") {
+        setStatusCount({ ...statusCount(), no: statusCount().no + 1 });
+      } else {
+        setStatusCount({ ...statusCount(), null: statusCount().null + 1 });
+      }
+    }
   };
 
   const openModal = () => {
@@ -230,28 +252,6 @@ export default function EventPage() {
     await fetchParticipants();
   };
 
-  const statusCount = {
-    yes: 0,
-    maybe: 0,
-    no: 0,
-    null: 0,
-  };
-
-  if (participants()) {
-    for (const participant of participants()!) {
-      const status = participant.status;
-      if (status === "yes") {
-        statusCount.yes++;
-      } else if (status === "maybe") {
-        statusCount.maybe++;
-      } else if (status === "no") {
-        statusCount.no++;
-      } else {
-        statusCount.null++;
-      }
-    }
-  }
-
   return (
     <Show when={event()}>
       <EventDetailsTopNav
@@ -259,11 +259,8 @@ export default function EventPage() {
         setModalOpen={openModal}
         teamId={teamId}
       />
-      <div
-        class="flex flex-col p-4 justify-between"
-        style={{ height: "calc(100% - 104px)" }}
-      >
-        <div class="flex flex-col gap-3">
+      <div class="flex flex-col p-4 justify-between">
+        <div class="flex flex-col gap-3 mb-32">
           <div class="flex flex-col gap-1 ">
             <h1 class="text-[#1e1e1e] text-[28px] font-grotesque font-medium leading-tight">
               {event()?.title}
@@ -305,7 +302,7 @@ export default function EventPage() {
               </div>
             </div>
             {/* temp */}
-            <div class="flex items-center justify-center">
+            <div class="flex items-center justify-center ">
               <img
                 class="max-h-96 max-w-96 rounded-lg border border-[#1e1e1e]/20"
                 src={placeholder}
@@ -326,8 +323,8 @@ export default function EventPage() {
                   {participants()?.length === 1 ? "Person" : "People"}
                 </div>
                 <p class="text-[#1e1e1e]/50 text-sm leading-none font-sf-pro">
-                  {statusCount.yes} yes, {statusCount.null} awaiting,{" "}
-                  {statusCount.no} no, {statusCount.maybe} maybe
+                  {statusCount().yes} yes, {statusCount().null} awaiting,{" "}
+                  {statusCount().no} no, {statusCount().maybe} maybe
                 </p>
               </div>
               <FaSolidAngleDown />
@@ -385,9 +382,9 @@ export default function EventPage() {
               <h2 class="text-[#1e1e1e] text-lg font-medium font-grotesque">
                 Notes
               </h2>
-              <div class=" text-[#1e1e1e]/50 text-base leading-tight font-sf-pro">
+              <p class=" text-[#1e1e1e]/50 text-base leading-tight font-sf-pro break-words">
                 {event()?.notes}
-              </div>
+              </p>
             </div>
           </div>
         </div>
@@ -476,44 +473,46 @@ export default function EventPage() {
           </div>
         )}
       </div>
-      <div class="sticky flex justify-end items-center bottom-0 h-[70px] w-full bg-[#fcfcfc] border-t border-[#1e1e1e]/20">
-        {event()?.type === "event" ? (
-          <div class="flex justify-end space-x-4 items-center h-[30px] mt-[8px] mb-[20px] pr-[12px]">
-            {["Yes", "No", "Maybe"].map((response) => (
+      <div class="absolute bottom-0 w-full h-[100px]">
+        <div class="sticky flex justify-end items-center bottom-0 h-[100px] w-full bg-[#fcfcfc] border-t border-[#1e1e1e]/20">
+          {event()?.type === "event" ? (
+            <div class="flex justify-end space-x-4 items-center h-[30px] mt-[8px] mb-[20px] pr-[12px]">
+              {["Yes", "No", "Maybe"].map((response) => (
+                <button
+                  class={`${
+                    currentStatus() === "yes" && response === "Yes"
+                      ? "bg-[#6fc94f] text-[#fcfcfc]"
+                      : currentStatus() === "no" && response === "No"
+                      ? "bg-[#FE7258] text-[#fcfcfc]"
+                      : currentStatus() === "maybe" && response === "Maybe"
+                      ? "bg-[#F7D844] text-[#fcfcfc]"
+                      : "bg-[#1e1e1e]/20 text-[#1e1e1e]"
+                  } rounded-full px-[15px] h-[30px] text-lg font-medium font-grotesque`}
+                  onclick={() =>
+                    handleUpdateStatus(
+                      response.toLowerCase() as "yes" | "no" | "maybe"
+                    )
+                  }
+                >
+                  {response}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div class="justify-end items-center flex h-[30px] mt-[8px] mb-[20px] pr-[12px]">
               <button
-                class={`${
-                  currentStatus() === "yes" && response === "Yes"
-                    ? "bg-[#6fc94f] text-[#fcfcfc]"
-                    : currentStatus() === "no" && response === "No"
-                    ? "bg-[#FE7258] text-[#fcfcfc]"
-                    : currentStatus() === "maybe" && response === "Maybe"
-                    ? "bg-[#F7D844] text-[#fcfcfc]"
-                    : "bg-[#1e1e1e]/20 text-[#1e1e1e]"
-                } rounded-full px-[15px] h-[30px] text-lg font-medium font-grotesque`}
-                onclick={() =>
-                  handleUpdateStatus(
-                    response.toLowerCase() as "yes" | "no" | "maybe"
-                  )
-                }
+                class="rounded-[999px] h-[30px] px-[15px] border border-[#1e1e1e]/25 flex-col justify-center items-center flex"
+                onclick={() => {
+                  handleUpdateComplete(!complete());
+                }}
               >
-                {response}
+                <p class="self-stretch text-center text-[#1e1e1e] text-[19px] font-medium font-grotesque ">
+                  {!complete() ? "Mark As Incomplete" : "Mark as Complete"}
+                </p>
               </button>
-            ))}
-          </div>
-        ) : (
-          <div class="justify-end items-center flex h-[30px] mt-[8px] mb-[20px] pr-[12px]">
-            <button
-              class="rounded-[999px] h-[30px] px-[15px] border border-[#1e1e1e]/25 flex-col justify-center items-center flex"
-              onclick={() => {
-                handleUpdateComplete(!complete());
-              }}
-            >
-              <p class="self-stretch text-center text-[#1e1e1e] text-[19px] font-medium font-grotesque ">
-                {!complete() ? "Mark As Incomplete" : "Mark as Complete"}
-              </p>
-            </button>
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </div>
     </Show>
   );
