@@ -194,10 +194,41 @@ export const getTeamFromTeamId = async (teamId: number) => {
     return undefined;
   }
   const medications = await getMedicationsFromTeamId(teamId);
+
+  if (!teamResult.recipients || teamResult.recipients.id === undefined) {
+    console.error("Recipient info is missing or invalid");
+    return undefined;
+  }
+  const recipientId = teamResult.recipients.id;
+  const [pastInjuriesError, pastInjuriesResult] = await mightFail(
+    db
+      .select()
+      .from(pastInjuries)
+      .where(eq(pastInjuries.recipientId, recipientId))
+  );
+
+  if (pastInjuriesError || !pastInjuriesResult.length) {
+    pastInjuriesError ? console.error(pastInjuriesError) : "";
+    return undefined;
+  }
+
+  const [importantSurgeriesError, importantSurgeriesResult] = await mightFail(
+    db
+      .select()
+      .from(importantSurgeries)
+      .where(eq(importantSurgeries.recipientId, recipientId))
+  );
+
+  if (importantSurgeriesError || !importantSurgeriesResult.length) {
+    importantSurgeriesError ? console.error(importantSurgeriesError) : "";
+    return undefined;
+  }
   const data: TeamFromTeamId = {
     data: teamResult,
     members: teamMembersResult,
     medications,
+    pastInjuries: pastInjuriesResult,
+    importanSurgeries: importantSurgeriesResult,
   };
 
   return data;

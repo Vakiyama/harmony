@@ -50,12 +50,21 @@ export default function MedicationInfo(props: {
                   <p class="text-xs ">{pastInjury.name}</p>
                 ))
               ) : (
-                <p>empty</p>
+                <p class="text-xs">empty</p>
               ),
           },
           {
             title: "Important Surgeries",
-            content: <p class="text-xs ">Hip Surgery, 2021</p>,
+            content:
+              importantSurgeries && importantSurgeries.length > 0 ? (
+                importantSurgeries.map((surgery, index) => (
+                  <p class="text-xs ">
+                    {surgery.name}, {surgery.year}
+                  </p>
+                ))
+              ) : (
+                <p class="text-xs">empty</p>
+              ),
           },
           {
             title: "Mobility Needs",
