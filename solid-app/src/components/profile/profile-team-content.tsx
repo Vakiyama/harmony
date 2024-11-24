@@ -15,7 +15,7 @@ export default function ProfileTeamContent(props: {
   return (
     <div class="h-full w-full flex items-center justify-center">
       <Tabs defaultValue="general info" class="w-full h-full flex flex-col">
-        <TabsList class="flex w-full text-black overflow-scroll text-subtitle flex items-center rounded-none">
+        <TabsList class="w-full text-black overflow-scroll text-subtitle flex items-center rounded-none">
           {["General Information", "Medication Information", "Team Member"].map(
             (tabName) => (
               <TabsTrigger value={tabName.toLowerCase()} class="text-md">
@@ -44,7 +44,7 @@ export default function ProfileTeamContent(props: {
         </div>
 
         <TabsContent value="general information">
-          <GeneralInfo />
+          <GeneralInfo data={props.data} />
         </TabsContent>
         <TabsContent value="medication information">
           <MedicationInfo />
