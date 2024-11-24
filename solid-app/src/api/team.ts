@@ -182,7 +182,7 @@ export const getTeamFromTeamId = async (teamId: number) => {
         photo: users.photo,
         firstName: users.firstName,
         lastName: users.lastName,
-        // add description to schema
+        relation: teamMembers.relationship,
         role: teamMembers.role,
       })
       .from(teamMembers)

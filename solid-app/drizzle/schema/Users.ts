@@ -35,4 +35,5 @@ export type AttachedUser = {
 
 export interface AttachedUserWithTeamRole extends AttachedUser {
   role: string | null;
+  relation: string;
 }
