@@ -1649,7 +1649,6 @@ export const getJournalsFromTeamId = async (teamId: number) => {
       )
       .orderBy(desc(journals.createdAt))
   );
-  console.log(res, "res");
   if (err) {
     console.error(err);
     return undefined;

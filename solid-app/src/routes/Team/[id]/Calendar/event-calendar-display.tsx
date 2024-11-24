@@ -2,9 +2,10 @@ import { Accessor, For } from "solid-js";
 import type { Event } from "@/schema/Events";
 import EventCard from "~/components/ui/event-card";
 import moment from "moment";
+import { CalendarJournalType } from ".";
 
 const EventCalendarDisplay = (props: {
-  events: Accessor<Event[]>;
+  events: Accessor<(Event | CalendarJournalType)[]>;
   teamId: number;
 }) => {
   const getDayName = (date: string) => {
@@ -21,7 +22,7 @@ const EventCalendarDisplay = (props: {
       }
       acc[date].push(event);
       return acc;
-    }, {} as Record<string, Event[]>);
+    }, {} as Record<string, (Event | CalendarJournalType)[]>);
   };
   const getDates = () => {
     return Object.keys(getGroupedEvents()).sort();

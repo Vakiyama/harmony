@@ -2,6 +2,7 @@ import { Accessor, createSignal, For, Setter, Show } from "solid-js";
 import moment from "moment";
 import { Event } from "@/schema/Events";
 import EventCalendarDisplay from "./event-calendar-display";
+import { CalendarJournalType } from ".";
 
 const WeekCalendarView = (props: {
   selectedDay: Accessor<number>;
@@ -14,7 +15,7 @@ const WeekCalendarView = (props: {
   setCurrentMonth: Setter<string>;
   currentYear: Accessor<number>;
   setCurrentYear: Setter<number>;
-  events: Accessor<Event[]>;
+  events: Accessor<(Event | CalendarJournalType)[]>;
   isCalendarOpen: Accessor<boolean>;
   teamId: number;
 }) => {

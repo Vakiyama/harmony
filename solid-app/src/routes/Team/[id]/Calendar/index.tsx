@@ -31,7 +31,7 @@ import {
   notificationMessage,
 } from "~/routes/api/notificationStore";
 import Notification from "~/components/shared/notification";
-import { getJournalsFromTeamId } from "~/api/journal";
+import { getJournalsFromTeamId, getNoteById } from "~/api/journal";
 import { TeamContext } from "~/components/Layout-Context";
 
 moment.locale("en");
@@ -51,6 +51,23 @@ export type CalendarFilterType =
   | "complete"
   | "uncompleted";
 
+export type CalendarJournalType = {
+  timeStart: Date;
+  timeEnd?: Date;
+  type: "medication" | "note" | "mood" | "sleep" | "meal";
+  data: any;
+  id: number;
+  title: string;
+  notes: string;
+};
+
+export type JournalReturnType = {
+  id: number;
+  type: "note" | "mood" | "medication" | "sleep" | "meal";
+  entryId: number;
+  data: any;
+  createdAt: Date;
+};
 export default function CalendarPage() {
   const param = useParams();
   const context = useContext(TeamContext);
@@ -64,7 +81,7 @@ export default function CalendarPage() {
   const defaultTeam = () =>
     teamListData()?.find((team) => team.team.defaultTeam === true);
 
-  const teamId = defaultTeam()?.team.id;
+  const teamId = defaultTeam()?.team.id ?? parseInt(param.id);
   if (!teamId) {
     return <div>No team data available</div>;
   }
@@ -75,7 +92,7 @@ export default function CalendarPage() {
     "complete",
     "uncompleted",
   ];
-  const [events, setEvents] = createSignal<Event[]>([]);
+  const [events, setEvents] = createSignal<(Event | CalendarJournalType)[]>([]);
   const [currentView, setCurrentView] = createSignal<"day" | "week" | "month">(
     "week"
   );
@@ -128,12 +145,20 @@ export default function CalendarPage() {
     }
   );
 
-  createEffect(() => {
+  createEffect(async () => {
     const currentResource = resource();
-
+    const [journalEntriesError, journalEntrisResult] = await mightFail(
+      getJournalsFromTeamId(teamId)
+    );
+    if (journalEntriesError) {
+      return console.error(journalEntriesError);
+    }
+    const formatedJournalEntries = await formatJournalEntries(
+      journalEntrisResult ?? []
+    );
     // Check if resource is defined and is an array before setting events
     if (currentResource && Array.isArray(currentResource)) {
-      setEvents(currentResource); // Set the events when the resource is loaded and is an array
+      setEvents([...currentResource, ...formatedJournalEntries]); // Set the events when the resource is loaded and is an array
     }
   });
   const handleRefetch = async () => {
@@ -142,14 +167,27 @@ export default function CalendarPage() {
 
   const [isSideMenuOpen, setIsSideMenuOpen] = createSignal(false);
   const [isCalendarOpen, setIsCalendarOpen] = createSignal(true);
+
   const fetchEvents = async (calendarId: number) => {
-    console.log(teamId);
-    console.log(await getJournalsFromTeamId(teamId));
+    const [journalEntriesError, journalEntrisResult] = await mightFail(
+      getJournalsFromTeamId(teamId)
+    );
+    if (journalEntriesError) {
+      return console.error(journalEntriesError);
+    }
     const [eventError, eventResult] = await mightFail(getAllEvents(calendarId));
     if (eventError) {
       return console.error(eventError);
     }
-    setEvents(eventResult);
+
+    const formatedJournalEntries = await formatJournalEntries(
+      journalEntrisResult ?? []
+    );
+    const sortedItems = sortCalendarItems([
+      ...eventResult,
+      ...formatedJournalEntries,
+    ]);
+    setEvents(sortedItems);
   };
   const fetchTeamMembers = async (teamId: number) => {
     const [eventError, eventResult] = await mightFail(
@@ -161,6 +199,55 @@ export default function CalendarPage() {
     setTeamMembers(eventResult);
   };
 
+  const formatJournalEntries = async (
+    journalEntries: JournalReturnType[]
+  ): Promise<CalendarJournalType[]> => {
+    return Promise.all(
+      journalEntries.map(async (entry) => {
+        let title, notes;
+        switch (entry.type) {
+          case "meal":
+            title = entry.data.category;
+            notes = entry.data.consumption;
+            break;
+          case "medication":
+            title = entry.data.medications.name;
+            const note = await getNoteById(entry.data.noteId);
+            notes = note?.note;
+            break;
+          case "mood":
+            title = "Mood";
+            notes = entry.data.wellBeing.toLowerCase();
+            break;
+          case "note":
+            title = "Notes";
+            notes = entry.data.note;
+            break;
+          case "sleep":
+            title = "Sleep";
+            notes = entry.data.quality.toLowerCase();
+            break;
+        }
+        if (entry.type === "medication") {
+          console.log(entry);
+        }
+        return {
+          timeStart: entry.createdAt,
+          type: entry.type,
+          data: entry.data,
+          id: entry.id,
+          notes,
+          title,
+        };
+      })
+    );
+  };
+
+  const sortCalendarItems = (items: (Event | CalendarJournalType)[]) => {
+    return items.toSorted(
+      (a, b) => a.timeStart?.getTime()! - b.timeStart?.getTime()!
+    );
+  };
   return (
     <>
       <div class="h-full fixed w-full overflow-y-auto">
