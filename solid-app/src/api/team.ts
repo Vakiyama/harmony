@@ -182,7 +182,7 @@ export const getTeamFromTeamId = async (teamId: number) => {
         photo: users.photo,
         firstName: users.firstName,
         lastName: users.lastName,
-        relation: teamMembers.relationship,
+        relationship: teamMembers.relationship,
         role: teamMembers.role,
       })
       .from(teamMembers)

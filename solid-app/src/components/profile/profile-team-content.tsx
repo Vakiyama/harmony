@@ -59,7 +59,7 @@ export default function ProfileTeamContent(props: {
                     member.lastName || ""
                   }`}
                   imageUrl={member.photo || ""}
-                  description={member.relation || ""}
+                  description={member.relationship || ""}
                   userRole={member.role || ""}
                 />
               );
