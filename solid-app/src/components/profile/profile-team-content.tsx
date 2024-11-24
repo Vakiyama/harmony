@@ -47,7 +47,7 @@ export default function ProfileTeamContent(props: {
           <GeneralInfo data={props.data} />
         </TabsContent>
         <TabsContent value="medication information">
-          <MedicationInfo />
+          <MedicationInfo data={props.data} />
         </TabsContent>
         <TabsContent value="team member">
           <div class="flex flex-col gap-2">
