@@ -48,7 +48,7 @@ const CalendarSideMenu = (props: {
   ) => void;
   searchParams: Partial<SearchParams>;
 
-  setCurrentView: Setter<"day" | "week" | "month">;
+  setCurrentView: Setter<"day" | "week" | "month" | undefined>;
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isPeopleOpen, setIsPeopleOpen] = createSignal(false);

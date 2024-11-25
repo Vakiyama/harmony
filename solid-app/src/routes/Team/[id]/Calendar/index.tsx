@@ -80,7 +80,6 @@ export default function CalendarPage() {
 
   const defaultTeam = () =>
     teamListData()?.find((team) => team.team.defaultTeam === true);
-
   const teamId = defaultTeam()?.team.id ?? parseInt(param.id);
   if (!teamId) {
     return <div>No team data available</div>;
@@ -93,9 +92,9 @@ export default function CalendarPage() {
     "uncompleted",
   ];
   const [events, setEvents] = createSignal<(Event | CalendarJournalType)[]>([]);
-  const [currentView, setCurrentView] = createSignal<"day" | "week" | "month">(
-    "week"
-  );
+  const [currentView, setCurrentView] = createSignal<
+    "day" | "week" | "month" | undefined
+  >(undefined);
   const [teamMembers, setTeamMembers] = createSignal<
     { users: User; teammembers: TeamMember }[]
   >([]);
@@ -117,10 +116,20 @@ export default function CalendarPage() {
       ? searchParams.select.toString()
       : DEFAULT_TEAMMEMBERS.join(","),
   });
+
   onMount(async () => {
+    setCurrentView(
+      localStorage.getItem("calendarViewMode")
+        ? (localStorage.getItem("calendarViewMode") as "week" | "day" | "month")
+        : "week"
+    );
     const calendar = await getCalendarFromTeamId(teamId);
     await fetchEvents(calendar.id);
     await fetchTeamMembers(teamId);
+  });
+
+  createEffect(() => {
+    localStorage.setItem("calendarViewMode", currentView() ?? "week");
   });
 
   const [resource, { mutate, refetch }] = createResource(
