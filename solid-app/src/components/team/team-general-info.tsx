@@ -46,7 +46,9 @@ export default function TeamGeneralInfo() {
           },
           {
             title: "Email",
-            content: <p class="text-xs ">{email ? email : "empty"}</p>,
+            content: (
+              <p class="text-xs ">{email ? email : "No email provided"}</p>
+            ),
           },
         ]}
       />
@@ -79,12 +81,18 @@ export default function TeamGeneralInfo() {
           },
           {
             title: "Lives With",
-            content: <p class="text-xs ">{livesWith ? livesWith : "empty"}</p>,
+            content: (
+              <p class="text-xs ">
+                {livesWith ? livesWith : "No living arrangements provided"}
+              </p>
+            ),
           },
           {
             title: "Employment",
             content: (
-              <p class="text-xs ">{employment ? employment : "empty"}</p>
+              <p class="text-xs ">
+                {employment ? employment : "No employment status provided"}
+              </p>
             ),
           },
         ]}
