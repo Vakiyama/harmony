@@ -182,7 +182,7 @@ export const getTeamFromTeamId = async (teamId: number) => {
         photo: users.photo,
         firstName: users.firstName,
         lastName: users.lastName,
-        // add description to schema
+        relationship: teamMembers.relationship,
         role: teamMembers.role,
       })
       .from(teamMembers)
@@ -356,19 +356,6 @@ export const createRecipientAction = action(
       return { error: errors.join(",") };
     }
 
-    // const lastName = recipientInput.lastName as string | undefined;
-    // const email = recipientInput.email as string | undefined;
-    // const phoneNumber = recipientInput.phoneNumber as string | undefined;
-    // const photo = recipientInput.photo as string | undefined;
-    // const livesWith = recipientInput.livesWith as string | undefined;
-    // const employment = recipientInput.employment as string | undefined;
-    // const allergies = recipientInput.allergies as string | undefined;
-    // const dietaryRestrictions = recipientInput.dietaryRestrictions as
-    //   | string
-    //   | undefined;
-    // const pastInjuries = recipientInput.pastInjuries as string | undefined;
-    // const mobilityNeed = recipientInput.mobilityNeed as string | undefined;
-
     const [recipientError, recipientResult] = await mightFail(
       db.insert(recipients).values(recipientInput).returning({
         recipientId: recipients.id,
@@ -404,6 +391,7 @@ export const createTeamAction = action(
     teamInput: {
       teamName: string;
       recipientId: number;
+      memberRelationship: string;
     };
   }) => {
     "use server";
@@ -415,7 +403,7 @@ export const createTeamAction = action(
       return { error: "User is not Authenticated" };
     }
 
-    const { teamName, recipientId } = teamInput;
+    const { teamName, recipientId, memberRelationship } = teamInput;
     if (!teamName) {
       return { error: "Don't have team name" };
     }
@@ -457,6 +445,7 @@ export const createTeamAction = action(
     const [teamMemberError, teamMemberResult] = await mightFail(
       db.insert(teamMembers).values({
         teamId: teamResult[0].teamId,
+        relationship: memberRelationship,
         userId,
         role: "Admin",
         defaultTeam,
