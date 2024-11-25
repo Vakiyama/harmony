@@ -1255,6 +1255,10 @@ export const createSleepAction = action(async (formData: FormData) => {
   if (!qualityInput || qualityInput < 1 || qualityInput > 5) {
     return { error: "Please select a valid quality state." };
   }
+  const durationAsFloat = parseFloat(duration);
+  if (!durationAsFloat) {
+    return { error: "Duration must be a number." };
+  }
 
   if (note) {
     const noteResult = await db
@@ -1281,7 +1285,7 @@ export const createSleepAction = action(async (formData: FormData) => {
     quality,
     timeFrame,
     troubleSleeping,
-    duration,
+    duration: durationAsFloat,
     date,
     noteId,
     teamId,
@@ -1396,7 +1400,10 @@ export const updateSleepAction = action(async (formData: FormData) => {
   if (!qualityInput || qualityInput < 1 || qualityInput > 5) {
     return { error: "Please select a valid quality state." };
   }
-
+  const durationAsFloat = parseFloat(duration);
+  if (!durationAsFloat) {
+    return { error: "Duration must be a number." };
+  }
   const quality = mapQuality(qualityInput);
 
   if (!isValidEnumValue(timeFrame, timeFrameEnumSleeps)) {
@@ -1467,7 +1474,7 @@ export const updateSleepAction = action(async (formData: FormData) => {
     quality,
     timeFrame,
     troubleSleeping,
-    duration,
+    duration: durationAsFloat,
     date,
     ...(noteId ? { noteId } : {}),
     updatedAt: new Date(Date.now()),
@@ -1562,6 +1569,10 @@ export const getJournalsFromTeamId = async (teamId: number) => {
   "use server";
   const userId = await getUserIdFromSession();
   if (userId === undefined) {
+    return undefined;
+  }
+  const isMember = await isMemberOfTeam(userId, teamId);
+  if (!isMember) {
     return undefined;
   }
   const userMedication = aliasedTable(users, "userMedication");
