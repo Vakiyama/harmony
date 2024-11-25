@@ -25,6 +25,7 @@ import { MoodsWithNoteUser } from "@/schema/Moods";
 import { qualityEnum } from "../../../../../drizzle/schema/Sleeps";
 import { getRecipientName } from "~/api/team";
 import DeleteConfirmation from "~/components/shared/delete-confirmation";
+import TimePicker from "~/components/ui/time-picker";
 
 export default function MoodTracker() {
   const params = useParams();
@@ -37,6 +38,7 @@ export default function MoodTracker() {
   const [wellBeing, setWellBeing] = createSignal<number | undefined>();
   const [showDeleteConfirmation, setShowDeleteConfirmation] =
     createSignal(false);
+  const [time, setTime] = createSignal("");
 
   if (existingEntry) {
     setIsEditing(true);
@@ -141,24 +143,25 @@ export default function MoodTracker() {
               </Show>
             </div>
             <Show when={(isEditing() && entry()) || !isEditing()}>
-              <div>
-                <label class="text-h4">Time of Day</label>
-                <RadioGroupComponent
-                  id="timeFrame"
-                  name="timeFrame"
-                  options={["Morning", "Afternoon", "Night"]}
-                  defaultValue={entry()?.timeFrame}
-                />
-              </div>
               <div class="flex flex-col gap-2">
-                <label class="text-h4">Date</label>
-                <DatePickerComponent
-                  value={entry()?.date.toLocaleDateString("en-us", {
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                />
+                <label class="text-h4">Date & Time</label>
+                <div class="flex flex-row gap-2 items-center">
+                  <div class="flex-1">
+                    <DatePickerComponent
+                      value={entry()?.date.toLocaleDateString("en-us", {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    />
+                  </div>
+                  <TimePicker
+                    time={time}
+                    setTime={setTime}
+                    name="time"
+                    class="flex-1"
+                  />
+                </div>
               </div>
               <AddNote
                 title="What have you noticed?"
