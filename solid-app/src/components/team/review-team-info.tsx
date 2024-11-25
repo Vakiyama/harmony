@@ -17,7 +17,7 @@ export default function ReviewTeamInfo() {
     <>
       <div class="flex items-center justify-end flex-col mx-3">
         <div class="flex flex-col justify-end w-full">
-          <p class="text-2xl mt-3">Review Your Information</p>
+          <p class="text-[33px] mt-3">Review Your Information</p>
           <div class="flex justify-end items-center mt-1">
             <p class="text-subtitle13 text-[#1E1E1E] mr-[6px]">Edit</p>
             <svg
