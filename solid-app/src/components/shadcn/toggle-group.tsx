@@ -3,7 +3,6 @@ import {
   ToggleGroup as ToggleGroupUI,
   ToggleGroupItem,
 } from "../ui/toggle-group";
-import { cn } from "~/libs/cn";
 import MedicationIcon from "../icon/medication-icon";
 import NutritionIcon from "../icon/nutrition-icon";
 import SleepIcon from "../icon/sleep-icon";
@@ -69,7 +68,6 @@ const JournalsToggleGroup = (props: ToggleGroupProps) => {
         );
     }
   };
-  createEffect(() => console.log(props.getOuter(), props.getInner()));
   const handleInnerChange = (value: string | string[]) => {
     if (value.includes("All")) {
       if (props.getOuter() !== "All") {
@@ -83,6 +81,14 @@ const JournalsToggleGroup = (props: ToggleGroupProps) => {
 
     if (props.getOuter() === "All") {
       props.setOuter(null);
+    }
+
+    const selectedItems = Array.isArray(value) ? value : [value];
+    if (selectedItems.length === props.items.length) {
+      props.setOuter("All");
+      setTimeout(() => {
+        props.setInner([]);
+      }, 0);
     }
 
     if (Array.isArray(value)) {
