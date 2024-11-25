@@ -10,15 +10,16 @@ export default function MedicalDetail(props: MedicalDetailProps) {
   const { medicineName, medicineDose, medicineInstructions, medicineLink } =
     props;
   return (
-    <div class="flex flex-col w-full items-center">
-      <div class="w-full flex flex-row border rounded-md items-center justify-center p-2">
-        <div class="w-full flex flex-col">
-          <p class="font-medium text-h4">{medicineName}</p>
-          <p class="text-gray-500 text-subtitle">
-            {medicineDose}, {medicineInstructions}
-          </p>
-        </div>
-        <A href={medicineLink}>
+    <A href={medicineLink}>
+      <div class="flex flex-col w-full items-center">
+        <div class="w-full flex flex-row border rounded-md items-center justify-center p-2">
+          <div class="w-full flex flex-col">
+            <p class="font-medium text-h4">{medicineName}</p>
+            <p class="text-gray-500 text-subtitle">
+              {medicineDose}, {medicineInstructions}
+            </p>
+          </div>
+
           <svg
             width="12"
             height="20"
@@ -44,8 +45,8 @@ export default function MedicalDetail(props: MedicalDetailProps) {
               </clipPath>
             </defs>
           </svg>
-        </A>
+        </div>
       </div>
-    </div>
+    </A>
   );
 }
