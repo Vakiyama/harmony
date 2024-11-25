@@ -163,14 +163,26 @@ export default function MoodTracker() {
                 />
               </div>
               <div class="flex flex-col gap-2">
-                <label class="text-h4 mb-2 font-grotesque leading-[120%] font-medium text-[#1E1E1E]">Date</label>
-                <DatePickerComponent
-                  value={entry()?.date.toLocaleDateString("en-us", {
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                />
+                <label class="text-h4 mb-2 font-grotesque leading-[120%] font-medium text-[#1E1E1E]">
+                  Date
+                </label>
+                <div class="flex flex-row gap-2 items-center">
+                  <div class="flex-1">
+                    <DatePickerComponent
+                      value={entry()?.date.toLocaleDateString("en-us", {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    />
+                  </div>
+                  <TimePicker
+                    time={time}
+                    setTime={setTime}
+                    name="time"
+                    class="flex-1"
+                  />
+                </div>
               </div>
               <AddNote
                 title="What have you noticed?"
