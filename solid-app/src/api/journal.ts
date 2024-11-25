@@ -631,6 +631,7 @@ export const createMoodAction = action(async (formData: FormData) => {
   const time = formData.get("time") as string;
   const note = formData.get("note") as string;
   let noteId: number | null = null;
+  let timeFrame = formData.get("timeFrame") as string;
 
   if (!wellBeingInput || wellBeingInput < 1 || wellBeingInput > 5) {
     return { error: "Please enter a valid well-being state." };
@@ -646,7 +647,7 @@ export const createMoodAction = action(async (formData: FormData) => {
 
   date = new Date(`${date} ${time}`);
 
-  const timeFrame = getMoodTimeFrame(date) as string;
+  timeFrame = timeFrame ?? (getMoodTimeFrame(date) as string);
 
   if (!timeFrame) {
     return { error: "Please enter a time frame" };
@@ -756,6 +757,7 @@ export const updateMoodAction = action(async (formData: FormData) => {
   }
   const wellBeingInput = parseInt(formData.get("wellBeing") as string);
   let date: string | Date = formData.get("date") as string;
+  let timeFrame = formData.get("timeFrame") as string;
   const time = formData.get("time") as string;
   const note = formData.get("note") as string;
   let noteId: number | null = null;
@@ -773,7 +775,7 @@ export const updateMoodAction = action(async (formData: FormData) => {
   }
   date = new Date(`${date} ${time}`);
 
-  const timeFrame = getMoodTimeFrame(date) as string;
+  timeFrame = timeFrame ?? (getMoodTimeFrame(date) as string);
 
   if (!timeFrame) {
     return { error: "Please enter a time frame" };
@@ -1265,6 +1267,7 @@ export const createSleepAction = action(async (formData: FormData) => {
   const time = formData.get("time") as string;
   const troubleSleepingResponse = formData.get("troubleSleeping") as string;
   const note = formData.get("note") as string;
+  let timeFrame = formData.get("timeFrame") as string;
   const qualityInput = parseInt(formData.get("quality") as string);
   let noteId: number | null = null;
 
@@ -1287,7 +1290,7 @@ export const createSleepAction = action(async (formData: FormData) => {
 
   date = new Date(`${date} ${time}`);
 
-  const timeFrame = getTimeOfDaySleep(date) as string;
+  timeFrame = timeFrame ?? (getTimeOfDaySleep(date) as string);
 
   if (!timeFrame) {
     return { error: "Please enter a time frame." };
@@ -1415,6 +1418,7 @@ export const updateSleepAction = action(async (formData: FormData) => {
   let date: string | Date = formData.get("date") as string;
   const note = formData.get("note") as string;
   const time = formData.get("time") as string;
+  let timeFrame = formData.get("timeFrame") as string;
   const qualityInput = parseInt(formData.get("quality") as string);
   let noteId: number | null = null;
 
@@ -1437,7 +1441,7 @@ export const updateSleepAction = action(async (formData: FormData) => {
 
   date = new Date(`${date} ${time}`);
 
-  const timeFrame = getTimeOfDaySleep(date) as string;
+  timeFrame = timeFrame ?? (getTimeOfDaySleep(date) as string);
 
   if (!timeFrame) {
     return { error: "Please enter a time frame." };
