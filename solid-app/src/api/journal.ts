@@ -601,7 +601,16 @@ export const deleteTakenMedicationAction = action(
   },
   "deleteTakenMedicationAction"
 );
-
+function getMoodTimeFrame(date: Date) {
+  const hours = date.getHours();
+  if (hours >= 6 && hours < 12) {
+    return "Morning";
+  } else if (hours >= 12 && hours < 18) {
+    return "Afternoon";
+  } else {
+    return "Night";
+  }
+}
 export const createMoodAction = action(async (formData: FormData) => {
   "use server";
   const teamId = parseInt(formData.get("teamId") as string);
@@ -637,17 +646,7 @@ export const createMoodAction = action(async (formData: FormData) => {
 
   date = new Date(`${date} ${time}`);
 
-  function getTimeFrame(date: Date) {
-    const hours = date.getHours();
-    if (hours >= 6 && hours < 12) {
-      return "Morning";
-    } else if (hours >= 12 && hours < 18) {
-      return "Afternoon";
-    } else {
-      return "Night";
-    }
-  }
-  const timeFrame = getTimeFrame(date) as string;
+  const timeFrame = getMoodTimeFrame(date) as string;
 
   if (!timeFrame) {
     return { error: "Please enter a time frame" };
@@ -756,8 +755,8 @@ export const updateMoodAction = action(async (formData: FormData) => {
     return { error: "Missing Mood ID" };
   }
   const wellBeingInput = parseInt(formData.get("wellBeing") as string);
-  const timeFrame = formData.get("timeFrame") as string;
   let date: string | Date = formData.get("date") as string;
+  const time = formData.get("time") as string;
   const note = formData.get("note") as string;
   let noteId: number | null = null;
 
@@ -765,6 +764,17 @@ export const updateMoodAction = action(async (formData: FormData) => {
     return { error: "Please enter a valid well-being state." };
   }
   const wellBeing = mapQuality(wellBeingInput);
+
+  if (!date) {
+    return { error: "Please select a date" };
+  }
+  if (!time) {
+    return { error: "Please select a time" };
+  }
+  date = new Date(`${date} ${time}`);
+
+  const timeFrame = getMoodTimeFrame(date) as string;
+
   if (!timeFrame) {
     return { error: "Please enter a time frame" };
   }
@@ -772,13 +782,6 @@ export const updateMoodAction = action(async (formData: FormData) => {
   if (!isValidEnumValue(timeFrame, timeFrameEnumMoods)) {
     return { error: "Please enter a valid time frame." };
   }
-
-  if (!date) {
-    return { error: "Please select a date" };
-  }
-
-  date = new Date(date);
-
   if (!date) {
     return { error: "Please select a date" };
   }
@@ -930,6 +933,7 @@ export const createMealAction = action(async (formData: FormData) => {
   const drinkName = formData.get("drinkName") as string;
   const consumption = formData.get("consumption") as string;
   let date: string | Date = formData.get("date") as string;
+  const time = formData.get("time") as string;
   const note = formData.get("note") as string;
   let noteId: number | null = null;
 
@@ -957,7 +961,10 @@ export const createMealAction = action(async (formData: FormData) => {
     return { error: "Please select a date." };
   }
 
-  date = new Date(date);
+  if (!time) {
+    return { error: "Please select a time" };
+  }
+  date = new Date(`${date} ${time}`);
 
   if (note) {
     const [noteError, noteResult] = await mightFail(
@@ -1069,6 +1076,7 @@ export const updateMealAction = action(async (formData: FormData) => {
   const drinkName = formData.get("drinkName") as string;
   const consumption = formData.get("consumption") as string;
   let date: string | Date = formData.get("date") as string;
+  const time = formData.get("time") as string;
   const note = formData.get("note") as string;
   let noteId: number | null = null;
 
@@ -1095,8 +1103,10 @@ export const updateMealAction = action(async (formData: FormData) => {
   if (!date) {
     return { error: "Please select a date." };
   }
-
-  date = new Date(date);
+  if (!time) {
+    return { error: "Please select a time" };
+  }
+  date = new Date(`${date} ${time}`);
 
   const [oldEntryError, oldEntryResult] = await mightFail(
     db

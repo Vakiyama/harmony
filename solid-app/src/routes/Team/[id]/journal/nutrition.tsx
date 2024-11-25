@@ -25,6 +25,7 @@ import { MealWithNoteUser } from "@/schema/Meals";
 import { getRecipientName } from "~/api/team";
 import DeleteConfirmation from "~/components/shared/delete-confirmation";
 import AddPhotoModal from "~/components/shared/add-photo-modal";
+import TimePicker from "~/components/ui/time-picker";
 
 export default function NutritionTracker() {
   const params = useParams();
@@ -39,7 +40,7 @@ export default function NutritionTracker() {
       deferStream: true,
     }
   );
-
+  const [time, setTime] = createSignal("");
   const [showAddPhoto, setShowAddPhoto] = createSignal(false);
 
   const [showDeleteConfirmation, setShowDeleteConfirmation] =
@@ -185,15 +186,26 @@ export default function NutritionTracker() {
             </div>
             <Show when={(isEditing() && entry()) || !isEditing()}>
               <div class="flex flex-col gap-2">
-                <label class="text-h4">Date</label>
-                <DatePickerComponent
-                  value={entry()?.date.toLocaleDateString("en-us", {
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                />
+                <label class="text-h4">Date & Time Taken</label>
+                <div class="flex flex-row gap-2 items-center">
+                  <div class="flex-1">
+                    <DatePickerComponent
+                      value={entry()?.date.toLocaleDateString("en-us", {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    />
+                  </div>
+                  <TimePicker
+                    time={time}
+                    setTime={setTime}
+                    name="time"
+                    class="flex-1"
+                  />
+                </div>
               </div>
+
               <div class="flex flex-col" onClick={() => setShowAddPhoto(true)}>
                 <label class="text-h4">Photo</label>
                 <Upload type="photo" description="Tap to add a photo" />
