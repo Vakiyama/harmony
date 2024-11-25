@@ -1238,7 +1238,14 @@ export const deleteMealAction = action(async (mealId: number) => {
 
   return { success: true, message: "Nutrition entry deleted successfully" };
 }, "deleteMealAction");
-
+function getTimeOfDaySleep(date: Date) {
+  const hours = date.getHours();
+  if (hours >= 6 && hours < 18) {
+    return "Day";
+  } else {
+    return "Night";
+  }
+}
 export const createSleepAction = action(async (formData: FormData) => {
   "use server";
   const teamId = parseInt(formData.get("teamId") as string);
@@ -1255,9 +1262,9 @@ export const createSleepAction = action(async (formData: FormData) => {
   }
   const duration = formData.get("duration") as string;
   let date: string | Date = formData.get("date") as string;
+  const time = formData.get("time") as string;
   const troubleSleepingResponse = formData.get("troubleSleeping") as string;
   const note = formData.get("note") as string;
-  const timeFrame = formData.get("timeFrame") as string;
   const qualityInput = parseInt(formData.get("quality") as string);
   let noteId: number | null = null;
 
@@ -1274,6 +1281,13 @@ export const createSleepAction = action(async (formData: FormData) => {
   if (!date) {
     return { error: "Please select a date." };
   }
+  if (!time) {
+    return { error: "Please select a time" };
+  }
+
+  date = new Date(`${date} ${time}`);
+
+  const timeFrame = getTimeOfDaySleep(date) as string;
 
   if (!timeFrame) {
     return { error: "Please enter a time frame." };
@@ -1301,8 +1315,6 @@ export const createSleepAction = action(async (formData: FormData) => {
   if (!isValidEnumValue(timeFrame, timeFrameEnumSleeps)) {
     return { error: "Invalid time frame." };
   }
-
-  date = new Date(date);
 
   const sleepInput = {
     quality,
@@ -1398,7 +1410,7 @@ export const updateSleepAction = action(async (formData: FormData) => {
   const troubleSleepingResponse = formData.get("troubleSleeping") as string;
   let date: string | Date = formData.get("date") as string;
   const note = formData.get("note") as string;
-  const timeFrame = formData.get("timeFrame") as string;
+  const time = formData.get("time") as string;
   const qualityInput = parseInt(formData.get("quality") as string);
   let noteId: number | null = null;
 
@@ -1415,6 +1427,13 @@ export const updateSleepAction = action(async (formData: FormData) => {
   if (!date) {
     return { error: "Please select a date." };
   }
+  if (!time) {
+    return { error: "Please select a time" };
+  }
+
+  date = new Date(`${date} ${time}`);
+
+  const timeFrame = getTimeOfDaySleep(date) as string;
 
   if (!timeFrame) {
     return { error: "Please enter a time frame." };
@@ -1429,8 +1448,6 @@ export const updateSleepAction = action(async (formData: FormData) => {
   if (!isValidEnumValue(timeFrame, timeFrameEnumSleeps)) {
     return { error: "Invalid time frame." };
   }
-
-  date = new Date(date);
 
   const [oldEntryError, oldEntryResult] = await mightFail(
     db

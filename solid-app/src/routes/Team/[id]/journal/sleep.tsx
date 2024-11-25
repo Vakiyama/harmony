@@ -27,6 +27,7 @@ import {
   SleepWithNoteUser,
 } from "../../../../../drizzle/schema/Sleeps";
 import DeleteConfirmation from "~/components/shared/delete-confirmation";
+import TimePicker from "~/components/ui/time-picker";
 
 export default function SleepTracker() {
   const params = useParams();
@@ -34,6 +35,7 @@ export default function SleepTracker() {
   const existingEntry = location.search.split("?edit=")[1];
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
   const [error, setError] = createSignal("");
+  const [time, setTime] = createSignal("");
   const navigate = useNavigate();
   const [showDeleteConfirmation, setShowDeleteConfirmation] =
     createSignal(false);
@@ -130,13 +132,6 @@ export default function SleepTracker() {
                   maxValue={5}
                   defaultValue={wellBeing() || 3}
                 />
-                <label class="text-h4">Night or Day</label>
-                <RadioGroupComponent
-                  id="timeFrame"
-                  name="timeFrame"
-                  options={["Night", "Day"]}
-                  defaultValue={entry()?.timeFrame}
-                />
                 <label class="text-h4">Hours Slept</label>
                 <input
                   name="duration"
@@ -145,14 +140,24 @@ export default function SleepTracker() {
                   placeholder="00:00"
                   value={entry()?.duration}
                 />
-                <label class="text-h4">Date</label>
-                <DatePickerComponent
-                  value={entry()?.date.toLocaleDateString("en-us", {
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                />
+                <label class="text-h4">Date & Time Taken</label>
+                <div class="flex flex-row gap-2 items-center">
+                  <div class="flex-1">
+                    <DatePickerComponent
+                      value={entry()?.date.toLocaleDateString("en-us", {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    />
+                  </div>
+                  <TimePicker
+                    time={time}
+                    setTime={setTime}
+                    name="time"
+                    class="flex-1"
+                  />
+                </div>
                 <label>Trouble going to sleep or staying up?</label>
                 <RadioGroupComponent
                   id="troubleSleeping"
