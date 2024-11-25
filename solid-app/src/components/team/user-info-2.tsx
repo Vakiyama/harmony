@@ -16,11 +16,11 @@ const formFields: {
   placeholder: string;
   required: boolean;
 }[] = [
-  { name: "age", label: "Age", placeholder: "Age", required: true },
+  { name: "age", label: "Age", placeholder: "e.g. 25", required: true },
   {
     name: "preferredLanguage",
     label: "Preferred Language",
-    placeholder: "Example: Tagalog",
+    placeholder: "e.g. Tagalog",
     required: true,
   },
   {
@@ -117,6 +117,7 @@ export default function UserInfo2() {
                       "Other",
                     ]}
                     placeholder="Select"
+                    value={team.state.recipient.gender}
                     class="text-base"
                     onChange={(value) =>
                       team.updateRecipientField("gender", value ?? "")
@@ -150,7 +151,7 @@ export default function UserInfo2() {
                     onInput={(e) =>
                       team.updateRecipientField(
                         field.name,
-                        e.currentTarget.value,
+                        e.currentTarget.value
                       )
                     }
                     required={field.required}

@@ -13,6 +13,7 @@ import { TeamWithDefault } from "@/schema/Teams";
 import NavBar from "./shared/nav-bar";
 import { TeamContext, TeamContextType } from "./Layout-Context";
 import { useTeam } from "~/context/team-context";
+import ChevronLeft from "./icon/chevron-left";
 
 const Layout: Component<{ children: JSXElement }> = (props) => {
   const location = useLocation();
@@ -47,7 +48,7 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
       return (
         <TopNav
           name=""
-          leftNavigation={"Back"}
+          leftNavigation="Journal"
           /*
           rightNavigation={
             <div class="flex items-center justify-center aspect-square bg-black rounded-full w-[30px] h-[30px]">

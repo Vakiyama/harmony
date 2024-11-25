@@ -31,6 +31,10 @@ const SleepCard = ({ sleep }: { sleep: SleepWithNoteUser }) => (
         content: <p class="text-subtitle ">{sleep.timeFrame}</p>,
       },
       {
+        title: "Hours Slept",
+        content: <p class="text-subtitle ">{sleep.duration} hours</p>,
+      },
+      {
         title: "Trouble Going to Sleep?",
         content: (
           <p class="text-subtitle ">{sleep.troubleSleeping ? "Yes" : "No"}</p>
