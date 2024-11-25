@@ -25,8 +25,10 @@ import { MoodsWithNoteUser } from "@/schema/Moods";
 import { qualityEnum } from "../../../../../drizzle/schema/Sleeps";
 import { getRecipientName } from "~/api/team";
 import DeleteConfirmation from "~/components/shared/delete-confirmation";
+import moment from "moment";
 
 export default function MoodTracker() {
+  const currentHour = moment().hour();
   const params = useParams();
   const location = useLocation();
   const existingEntry = location.search.split("?edit=")[1];
@@ -118,16 +120,16 @@ export default function MoodTracker() {
             ref={setFormRef}
             onSubmit={handleSubmit}
             method="post"
-            class="flex flex-col mt-2 gap-5"
+            class="flex flex-col mt-2 gap-6"
           >
-            <div class="flex flex-col gap-2 items-center justify-center">
+            <div class="flex flex-col gap-2 items-center justify-center  mx-9">
               <Show
                 when={
                   (isEditing() && entry() && recipientData()) ||
                   (!isEditing() && recipientData())
                 }
               >
-                <label class="text-h4">{`How is ${
+                <label class="text-h4 mb-4 font-grotesque leading-[120%] font-medium text-[#1E1E1E]">{`How is ${
                   recipientData()?.recipient?.firstName ||
                   recipientData()?.recipient?.lastName
                 } doing?`}</label>
@@ -142,16 +144,26 @@ export default function MoodTracker() {
             </div>
             <Show when={(isEditing() && entry()) || !isEditing()}>
               <div>
-                <label class="text-h4">Time of Day</label>
+                <label class="text-h4 mb-2 font-grotesque leading-[120%] font-medium text-[#1E1E1E]">
+                  Time of Day
+                </label>
                 <RadioGroupComponent
                   id="timeFrame"
                   name="timeFrame"
                   options={["Morning", "Afternoon", "Night"]}
-                  defaultValue={entry()?.timeFrame}
+                  defaultValue={
+                    entry()?.timeFrame || (currentHour >= 6 && currentHour < 12)
+                      ? "Morning"
+                      : currentHour >= 12 && currentHour < 18
+                      ? "Afternoon"
+                      : "Night"
+                  }
                 />
               </div>
               <div class="flex flex-col gap-2">
-                <label class="text-h4">Date</label>
+                <label class="text-h4 mb-2 font-grotesque leading-[120%] font-medium text-[#1E1E1E]">
+                  Date
+                </label>
                 <DatePickerComponent
                   value={entry()?.date.toLocaleDateString("en-us", {
                     month: "long",
