@@ -23,7 +23,6 @@ const EventCard = (props: {
     const response = await getEventParticipants(props.event.id, props.teamId);
     return response ?? [];
   });
-
   const getEventBackground = (event: Event | CalendarJournalType) => {
     switch (event.type) {
       case "task":
@@ -53,7 +52,10 @@ const EventCard = (props: {
         return <CgPillIcon class="text-lg ml-0.5 self-center" />;
       case "event":
         return (
-          <div class="w-0.5 h-4/5 bg-[#7859ea] rounded-[20px] absolute left-1.5" />
+          <div
+            class="w-0.5  bg-[#7859ea] rounded-[20px] absolute left-1.5"
+            style={{ height: "calc(100% - 20px)" }}
+          />
         );
       case "mood":
         return <CgSmileIcon class="text-lg ml-0.5 self-center" />;
@@ -91,15 +93,13 @@ const EventCard = (props: {
       >
         {getEventIcon(props.event)}
         <div
-          class={`grow shrink basis-0 h-7 justify-between items-center flex ${
-            props.event.type === "event" ? "pl-[26px]" : ""
-          }`}
+          class={`grow shrink basis-0 h-7 justify-between items-center flex `}
         >
           <div class="grow shrink relative basis-0 h-8 flex-col justify-between items-start inline-flex">
             <div class="self-stretch h-[16px] text-[#1e1e1e]/75 text-base font-sf-pro leading-tight">
               {concatString(props.event.title, 23)}
             </div>
-            <div class="flex space-x-1 justify-self-center">  
+            <div class="flex space-x-1 justify-self-center">
               <Switch
                 fallback={
                   <div class="self-stretch h-[13px] text-[#1e1e1e]/50 text-[13px] font-normal font-sf-pro leading-none">

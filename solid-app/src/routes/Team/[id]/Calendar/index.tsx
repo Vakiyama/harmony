@@ -213,18 +213,22 @@ export default function CalendarPage() {
   ): Promise<CalendarJournalType[]> => {
     return Promise.all(
       journalEntries.map(async (entry) => {
-        let title, notes;
+        let title, notes, timeStart;
+        console.log(entry);
         switch (entry.type) {
           case "meal":
+            timeStart = new Date(entry.data.date.toLocaleString());
             title = entry.data.category;
             notes = entry.data.consumption;
             break;
           case "medication":
+            timeStart = new Date(entry.data.date.toLocaleString());
             title = entry.data.medications.name;
             const note = await getNoteById(entry.data.noteId);
             notes = note?.note;
             break;
           case "mood":
+            timeStart = new Date(entry.data.date.toLocaleString());
             title = "Mood";
             notes = entry.data.wellBeing.toLowerCase();
             break;
@@ -233,15 +237,14 @@ export default function CalendarPage() {
             notes = entry.data.note;
             break;
           case "sleep":
+            timeStart = new Date(entry.data.date.toLocaleString());
             title = "Sleep";
             notes = entry.data.quality.toLowerCase();
             break;
         }
-        if (entry.type === "medication") {
-          console.log(entry);
-        }
+
         return {
-          timeStart: entry.createdAt,
+          timeStart: timeStart ?? entry.createdAt,
           type: entry.type,
           data: entry.data,
           id: entry.id,

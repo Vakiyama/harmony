@@ -47,7 +47,6 @@ const DayCalendarView = (props: {
     filteredEvents.sort((a, b) =>
       moment(a.timeStart).isBefore(moment(b.timeStart)) ? -1 : 1
     );
-
     const nestedEventsSet = new Set<number>();
 
     const findNestedEvents = (
@@ -99,10 +98,10 @@ const DayCalendarView = (props: {
         };
       }
     );
-
     const finalEvents = mappedEvents.filter(
       (event) => !nestedEventsSet.has(event.id)
     );
+    console.log(mappedEvents);
     return finalEvents;
   };
 
@@ -151,11 +150,7 @@ const DayCalendarView = (props: {
     let journalEndTime = event.timeStart?.setMinutes(
       event.timeStart.getMinutes() + 30
     );
-    if (event.type !== "task") {
-      if (event.type !== "event") {
-        console.log(event.timeStart, journalEndTime, "WAHHHHHHH");
-      }
-    }
+
     const end = moment(event.timeEnd ?? event.timeStart);
     const startMinutes =
       start.hours() * 60 + start.minutes() - parentStartMinutes;
@@ -249,7 +244,6 @@ const DayCalendarView = (props: {
                   getEventsForSelectedDay(),
                   event
                 );
-                console.log(getEventsForSelectedDay());
                 return (
                   <div
                     class="absolute flex-col inline-flex justify-between items-start w-[calc(100%-0.5rem)]"
@@ -264,7 +258,9 @@ const DayCalendarView = (props: {
                     <EventCard
                       teamId={props.teamId}
                       event={event}
-                      class="ml-[66px] h-full rounded-lg px-4 py-2"
+                      class={`ml-[66px] h-full rounded-lg px-4 py-2 ${
+                        event.type === "event" ? "items-start" : ""
+                      }`}
                     />
                     {event.nestedEvents && event.nestedEvents.length > 0 && (
                       <For each={event.nestedEvents}>
@@ -293,7 +289,9 @@ const DayCalendarView = (props: {
                               <EventCard
                                 teamId={props.teamId}
                                 event={nestedEvent}
-                                class={`w-[calc(100%-2rem)] rounded-lg px-4 py-2 relative z-[1] border-2 border-white h-full`}
+                                class={`w-[calc(100%-2rem)] rounded-lg px-4 py-2 relative z-[1] border-2 border-white h-full ${
+                                  event.type === "event" ? "items-start" : ""
+                                } `}
                               />
                             </div>
                           );
