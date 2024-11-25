@@ -45,44 +45,48 @@ export default function MedicationInfo(props: {
           {
             title: "Past Injuries",
             content:
-              pastInjuries && pastInjuries.length > 0 ? (
-                pastInjuries.map((pastInjury, index) => (
-                  <p class="text-xs ">{pastInjury.name}</p>
-                ))
-              ) : (
-                <p class="text-xs">empty</p>
-              ),
+              pastInjuries && pastInjuries.length > 0
+                ? pastInjuries.map((pastInjury, index) => (
+                    <p class="text-xs ">{pastInjury.name}</p>
+                  ))
+                : "No past injuries provided",
           },
           {
             title: "Important Surgeries",
             content:
-              importantSurgeries && importantSurgeries.length > 0 ? (
-                importantSurgeries.map((surgery, index) => (
-                  <p class="text-xs ">
-                    {surgery.name}, {surgery.year}
-                  </p>
-                ))
-              ) : (
-                <p class="text-xs">empty</p>
-              ),
+              importantSurgeries && importantSurgeries.length > 0
+                ? importantSurgeries.map((surgery, index) => (
+                    <p class="text-xs">
+                      {surgery.name}, {surgery.year}
+                    </p>
+                  ))
+                : "No important surgeries provided",
           },
           {
             title: "Mobility Needs",
             content: (
-              <p class="text-xs ">{mobilityNeeds ? mobilityNeeds : "empty"}</p>
+              <p class="text-xs ">
+                {mobilityNeeds ? mobilityNeeds : "No mobility needs provided"}
+              </p>
             ),
           },
           {
             title: "Dietary Restrictions/Preference",
             content: (
-              <p class="text-xs ">
-                {dietaryRestrictions ? dietaryRestrictions : "empty"}
+              <p class="text-xs">
+                {dietaryRestrictions
+                  ? dietaryRestrictions
+                  : "No dietary restrictions/preferences provided"}
               </p>
             ),
           },
           {
             title: "Allergies",
-            content: <p class="text-xs ">{allergies ? allergies : "empty"}</p>,
+            content: (
+              <p class="text-xs ">
+                {allergies ? allergies : "No allergies provided"}
+              </p>
+            ),
           },
         ]}
       />
@@ -111,18 +115,26 @@ export default function MedicationInfo(props: {
           </div>
         </div>
         <div class="flex flex-col gap-2">
-          {medications
-            ? medications.map((medication) => (
-                <MedicalDetail
-                  medicineName={medication.name}
-                  medicineDose={medication.dosage}
-                  medicineInstructions={
-                    medication.instructions ? medication.instructions : "empty"
-                  }
-                  medicineLink={`/profile/medication-detail/${medication.id}`}
-                />
-              ))
-            : "empty"}
+          {medications.length ? (
+            medications.map((medication) => (
+              <MedicalDetail
+                medicineName={medication.name}
+                medicineDose={medication.dosage}
+                medicineInstructions={
+                  medication.instructions
+                    ? medication.instructions
+                    : "No medication instructions provided"
+                }
+                medicineLink={`/profile/medication-detail/${medication.id}`}
+              />
+            ))
+          ) : (
+            <div class="items-center">
+              <div class="flex flex-col border-1 rounded-md p-2 items-start">
+                <p>No medications provided</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

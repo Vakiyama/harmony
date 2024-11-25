@@ -44,13 +44,17 @@ export default function GeneralInfo(props: {
             title: "Phone Number",
             content: (
               <p class="text-xs">
-                {phoneNumber ? formatPhoneNumber(phoneNumber) : "empty"}
+                {phoneNumber
+                  ? formatPhoneNumber(phoneNumber)
+                  : "No phone number provided"}
               </p>
             ),
           },
           {
             title: "Email",
-            content: <p class="text-xs ">{email ? email : "empty"}</p>,
+            content: (
+              <p class="text-xs ">{email ? email : "No email provided"}</p>
+            ),
           },
         ]}
       />
@@ -83,12 +87,18 @@ export default function GeneralInfo(props: {
           },
           {
             title: "Lives With",
-            content: <p class="text-xs ">{livesWith ? livesWith : "empty"}</p>,
+            content: (
+              <p class="text-xs ">
+                {livesWith ? livesWith : "No living arrangements provided"}
+              </p>
+            ),
           },
           {
             title: "Employment",
             content: (
-              <p class="text-xs ">{employment ? employment : "empty"}</p>
+              <p class="text-xs ">
+                {employment ? employment : "No employment status provided"}
+              </p>
             ),
           },
         ]}
