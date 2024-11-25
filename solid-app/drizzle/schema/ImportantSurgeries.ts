@@ -11,4 +11,4 @@ export const importantSurgeries = sqliteTable("importantsurgeries", {
 });
 
 export type ImportantSurgery = typeof importantSurgeries.$inferSelect;
-export type ImportanSurgeryInput = typeof importantSurgeries.$inferInsert;
+export type ImportantSurgeryInput = typeof importantSurgeries.$inferInsert;

@@ -25,7 +25,7 @@ export type TeamFromTeamId = {
   members: AttachedUserWithTeamRole[];
   medications: Medications[];
   pastInjuries: PastInjuries[];
-  importanSurgeries: ImportantSurgery[];
+  importantSurgeries: ImportantSurgery[];
 };
 
 export type TeamWithDefault = {
