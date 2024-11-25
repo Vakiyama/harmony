@@ -12,19 +12,19 @@ const formFields: {
   {
     name: "healthCondition",
     label: "Health Condition",
-    placeholder: "Example: Dementia",
+    placeholder: "e.g. Dementia",
     required: true,
   },
   {
     name: "allergies",
     label: "Allergies",
-    placeholder: "Example: Peanuts",
+    placeholder: "e.g. Peanuts",
     required: false,
   },
   {
     name: "dietaryRestrictions",
     label: "Dietary Restrictions/Preference",
-    placeholder: "Example: Must have 85g each meal",
+    placeholder: "e.g. Must have 85g each meal",
     required: false,
   },
 ];
