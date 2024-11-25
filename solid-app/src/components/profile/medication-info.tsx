@@ -115,7 +115,7 @@ export default function MedicationInfo(props: {
           </div>
         </div>
         <div class="flex flex-col gap-2">
-          {medications ? (
+          {medications.length ? (
             medications.map((medication) => (
               <MedicalDetail
                 medicineName={medication.name}

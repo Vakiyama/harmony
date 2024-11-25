@@ -142,7 +142,7 @@ export default function TeamMedicationInfo() {
               </For>
             ) : (
               <div class="items-center">
-                <div class="flex flex-col border-1 rounded-md p-2 items-start">
+                <div class="flex flex-col border rounded-md p-2 items-start">
                   <p>No medications provided</p>
                 </div>
               </div>
