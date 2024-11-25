@@ -1,6 +1,25 @@
+import { TeamFromTeamId } from "@/schema/Teams";
 import { InfoCard } from "./info-card";
 
-export default function GeneralInfo() {
+export default function GeneralInfo(props: {
+  data: TeamFromTeamId | undefined;
+}) {
+  const teamData = props.data;
+
+  if (!teamData) {
+    return null;
+  }
+  const phoneNumber = teamData.data.recipients?.phoneNumber;
+  const email = teamData.data.recipients?.email;
+  const gender = teamData.data.recipients?.gender;
+  const preferredLanguage = teamData.data.recipients?.preferredLanguage;
+  const livesWith = teamData.data.recipients?.livesWith;
+  const employment = teamData.data.recipients?.employment;
+
+  const formatPhoneNumber = (value: string) => {
+    const rawValue = value.replace(/\D/g, "");
+    return rawValue.replace(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3").slice(0, 12);
+  };
   return (
     <div class="h-full w-full flex flex-col gap-3">
       <InfoCard
@@ -23,11 +42,15 @@ export default function GeneralInfo() {
         sections={[
           {
             title: "Phone Number",
-            content: <p class="text-xs">778-123-4567</p>,
+            content: (
+              <p class="text-xs">
+                {phoneNumber ? formatPhoneNumber(phoneNumber) : "empty"}
+              </p>
+            ),
           },
           {
             title: "Email",
-            content: <p class="text-xs ">email@here.com</p>,
+            content: <p class="text-xs ">{email ? email : "empty"}</p>,
           },
         ]}
       />
@@ -52,19 +75,21 @@ export default function GeneralInfo() {
         sections={[
           {
             title: "Gender",
-            content: <p class="text-xs">Female</p>,
+            content: <p class="text-xs">{gender}</p>,
           },
           {
             title: "Preferred Language",
-            content: <p class="text-xs ">Tagalog</p>,
+            content: <p class="text-xs ">{preferredLanguage}</p>,
           },
           {
             title: "Lives With",
-            content: <p class="text-xs ">Daughter</p>,
+            content: <p class="text-xs ">{livesWith ? livesWith : "empty"}</p>,
           },
           {
             title: "Employment",
-            content: <p class="text-xs ">Retired</p>,
+            content: (
+              <p class="text-xs ">{employment ? employment : "empty"}</p>
+            ),
           },
         ]}
       />

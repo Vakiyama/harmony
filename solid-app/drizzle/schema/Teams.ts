@@ -3,6 +3,8 @@ import { Recipient, recipients } from "./Recipients";
 import { AttachedUserWithTeamRole } from "./Users";
 import { Medications } from "./Medications";
 import { TeamMember } from "./TeamMembers";
+import { PastInjuries } from "./PastInjuries";
+import { ImportantSurgery } from "./ImportantSurgeries";
 
 export const teams = sqliteTable("teams", {
   id: integer("id").primaryKey({ autoIncrement: true }).unique().notNull(),
@@ -22,6 +24,8 @@ export type TeamFromTeamId = {
   data: { teams: Team; recipients: Recipient | null };
   members: AttachedUserWithTeamRole[];
   medications: Medications[];
+  pastInjuries: PastInjuries[];
+  importanSurgeries: ImportantSurgery[];
 };
 
 export type TeamWithDefault = {
