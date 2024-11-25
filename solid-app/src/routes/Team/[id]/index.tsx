@@ -1,5 +1,5 @@
 import { createAsync, useParams } from "@solidjs/router";
-import { createEffect, createMemo, Show } from "solid-js";
+import { createMemo, Show } from "solid-js";
 import { getTeamFromTeamId } from "~/api/team";
 import ProfileTeamContent from "~/components/profile/profile-team-content";
 import ProfileUserName from "~/components/profile/profile-user-name";
@@ -7,15 +7,12 @@ import TopNav from "~/components/shared/TopNav";
 
 export default function SpecificTeamInfo() {
   const params = useParams();
-  createEffect(() => console.log(params.id));
   const teamId = parseInt(params.id);
   const team = createAsync(async () => await getTeamFromTeamId(teamId), {
     deferStream: true,
   });
 
   const teamData = createMemo(() => team());
-  createEffect(() => console.log(teamData()));
-  createEffect(() => console.log(team()));
   if (team()) {
     console.log("hello", team());
   }
