@@ -47,7 +47,7 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
       return (
         <TopNav
           name=""
-          leftNavigation={"Back"}
+          leftNavigation={"Back to Journal"}
           /*
           rightNavigation={
             <div class="flex items-center justify-center aspect-square bg-black rounded-full w-[30px] h-[30px]">
