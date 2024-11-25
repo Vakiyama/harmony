@@ -33,6 +33,7 @@ import { teams } from "../../drizzle/schema/Teams";
 import { Recipient, recipients } from "../../drizzle/schema/Recipients";
 import { getUserIdFromSession } from "./server";
 import { journals } from "../../drizzle/schema/Journals";
+import { teamMembers } from "../../drizzle/schema/TeamMembers";
 
 const mapQuality = (value: number) => {
   return qualityEnum[value - 1];
@@ -1255,6 +1256,10 @@ export const createSleepAction = action(async (formData: FormData) => {
   if (!qualityInput || qualityInput < 1 || qualityInput > 5) {
     return { error: "Please select a valid quality state." };
   }
+  const durationAsFloat = parseFloat(duration);
+  if (!durationAsFloat) {
+    return { error: "Duration must be a number." };
+  }
 
   if (note) {
     const noteResult = await db
@@ -1281,7 +1286,7 @@ export const createSleepAction = action(async (formData: FormData) => {
     quality,
     timeFrame,
     troubleSleeping,
-    duration,
+    duration: durationAsFloat,
     date,
     noteId,
     teamId,
@@ -1396,7 +1401,10 @@ export const updateSleepAction = action(async (formData: FormData) => {
   if (!qualityInput || qualityInput < 1 || qualityInput > 5) {
     return { error: "Please select a valid quality state." };
   }
-
+  const durationAsFloat = parseFloat(duration);
+  if (!durationAsFloat) {
+    return { error: "Duration must be a number." };
+  }
   const quality = mapQuality(qualityInput);
 
   if (!isValidEnumValue(timeFrame, timeFrameEnumSleeps)) {
@@ -1467,7 +1475,7 @@ export const updateSleepAction = action(async (formData: FormData) => {
     quality,
     timeFrame,
     troubleSleeping,
-    duration,
+    duration: durationAsFloat,
     date,
     ...(noteId ? { noteId } : {}),
     updatedAt: new Date(Date.now()),
@@ -1564,6 +1572,10 @@ export const getJournalsFromTeamId = async (teamId: number) => {
   if (userId === undefined) {
     return undefined;
   }
+  const isMember = await isMemberOfTeam(userId, teamId);
+  if (!isMember) {
+    return undefined;
+  }
   const userMedication = aliasedTable(users, "userMedication");
   const userMeal = aliasedTable(users, "userMeal");
   const userSleep = aliasedTable(users, "userSleep");
@@ -1579,6 +1591,12 @@ export const getJournalsFromTeamId = async (teamId: number) => {
   const mealRecipient = aliasedTable(recipients, "mealRecipient");
   const sleepTeam = aliasedTable(teams, "sleepTeam");
   const sleepRecipient = aliasedTable(recipients, "sleepRecipient");
+
+  const mealTeamMembers = aliasedTable(teamMembers, "mealTeamMembers");
+  const sleepTeamMembers = aliasedTable(teamMembers, "sleepTeamMembers");
+  const moodTeamMembers = aliasedTable(teamMembers, "moodTeamMembers");
+  const noteTeamMembers = aliasedTable(teamMembers, "noteTeamMembers");
+
   const [err, res] = await mightFail(
     db
       .select()
@@ -1594,6 +1612,7 @@ export const getJournalsFromTeamId = async (teamId: number) => {
       .leftJoin(userMedication, eq(takenMedications.userId, userMedication.id))
       .leftJoin(medications, eq(takenMedications.medicationId, medications.id))
       .leftJoin(medNote, eq(takenMedications.noteId, medNote.id))
+      .leftJoin(teamMembers, eq(takenMedications.userId, teamMembers.userId))
       .leftJoin(
         meals,
         and(
@@ -1606,6 +1625,7 @@ export const getJournalsFromTeamId = async (teamId: number) => {
       .leftJoin(mealNote, eq(meals.noteId, mealNote.id))
       .leftJoin(mealTeam, eq(meals.teamId, mealTeam.id))
       .leftJoin(mealRecipient, eq(mealTeam.recipientId, mealRecipient.id))
+      .leftJoin(mealTeamMembers, eq(meals.userId, mealTeamMembers.userId))
       .leftJoin(
         sleeps,
         and(
@@ -1618,6 +1638,7 @@ export const getJournalsFromTeamId = async (teamId: number) => {
       .leftJoin(sleepNote, eq(sleeps.noteId, sleepNote.id))
       .leftJoin(sleepTeam, eq(sleeps.teamId, sleepTeam.id))
       .leftJoin(sleepRecipient, eq(sleepTeam.recipientId, sleepRecipient.id))
+      .leftJoin(sleepTeamMembers, eq(sleeps.userId, sleepTeamMembers.userId))
       .leftJoin(
         moods,
         and(
@@ -1628,6 +1649,7 @@ export const getJournalsFromTeamId = async (teamId: number) => {
       )
       .leftJoin(userMood, eq(moods.userId, userMood.id))
       .leftJoin(moodNote, eq(moods.noteId, moodNote.id))
+      .leftJoin(moodTeamMembers, eq(moods.userId, moodTeamMembers.userId))
       .leftJoin(
         notes,
         and(
@@ -1638,6 +1660,7 @@ export const getJournalsFromTeamId = async (teamId: number) => {
         )
       )
       .leftJoin(userNote, eq(notes.userId, userNote.id))
+      .leftJoin(noteTeamMembers, eq(notes.userId, noteTeamMembers.userId))
       .where(
         or(
           eq(takenMedications.teamId, teamId),
@@ -1649,7 +1672,7 @@ export const getJournalsFromTeamId = async (teamId: number) => {
       )
       .orderBy(desc(journals.createdAt))
   );
-  console.log(res, "res");
+  // console.log(res, "res");
   if (err) {
     console.error(err);
     return undefined;
@@ -1663,6 +1686,7 @@ export const getJournalsFromTeamId = async (teamId: number) => {
       firstName: "",
       lastName: "",
       photo: "",
+      relationship: "",
     };
     let note: AttachedNote = {
       note: "",
@@ -1752,11 +1776,33 @@ interface TransformedJournalEntry {
 
 const getUserDataTEHelper = (entry: any, userKey: string) => {
   const user = entry[userKey];
+  let relationship;
+  switch (userKey) {
+    case "userMedication":
+      relationship = entry.teammembers?.relationship ?? "";
+      break;
+    case "userMeal":
+      relationship = entry.mealTeamMembers?.relationship ?? "";
+      break;
+    case "userMood":
+      relationship = entry.moodTeamMembers?.relationship ?? "";
+      break;
+    case "userSleep":
+      relationship = entry.sleepTeamMembers?.relationship ?? "";
+      break;
+    case "userNote":
+      relationship = entry.noteTeamMembers?.relationship ?? "";
+      break;
+    default:
+      relationship = "";
+      break;
+  }
   return {
     id: user?.id ?? -1,
     firstName: user?.firstName ?? "",
     lastName: user?.lastName ?? "",
     photo: user?.photo ?? "",
+    relationship,
   };
 };
 

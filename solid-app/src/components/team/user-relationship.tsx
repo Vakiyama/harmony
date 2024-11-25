@@ -32,7 +32,7 @@ export default function UserRelationship() {
           <TextFieldLine
             name="recipient name"
             label=""
-            placeholder="Example: Daughter, Cousin, Nurse, etc."
+            placeholder="e.g. Daughter, Cousin, Nurse, etc."
             classRoot="mt-1"
             value={team.state.memberRelationship}
             onInput={(e) => team.updateRelationship(e.currentTarget.value)}

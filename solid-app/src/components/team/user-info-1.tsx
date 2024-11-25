@@ -13,13 +13,13 @@ const formFields: {
   {
     name: "phoneNumber",
     label: "Phone Number",
-    placeholder: "778-123-4567",
+    placeholder: "e.g. 778-123-4567",
     required: true,
   },
   {
     name: "email",
     label: "Email",
-    placeholder: "email@here.com",
+    placeholder: "e.g. email@here.com",
     required: false,
   },
 ];

@@ -5,6 +5,7 @@ import {
   TabsTrigger,
 } from "~/components/ui/landing/landing-tabs";
 import {
+  createEffect,
   createMemo,
   createResource,
   createSignal,
@@ -39,7 +40,7 @@ const LandingContent = () => {
   const team = useTeam();
   const [defaultTeam, setDefaultTeam] = createSignal<
     { team: TeamWithDefault } | undefined
-  >();
+  >(undefined);
   if (!context) {
     return <div>No team data available</div>;
   }
@@ -117,7 +118,7 @@ const LandingContent = () => {
   return (
     <div class="">
       <Tabs defaultValue="all" class="w-full">
-        <TabsList class="w-full bg-white text-black px-2 overflow-x-scroll">
+        <TabsList class="w-full bg-white text-black px-2 flex flex-wrap gap-y-2">
           {[
             "All",
             "Medication Taken",
@@ -135,7 +136,7 @@ const LandingContent = () => {
         </TabsList>
 
         <div class="p-2 flex-grow h-full">
-          <Show when={journalsData() && defaultTeam()?.team.id}>
+          <Show when={journalsData()}>
             <For each={journalsData()}>
               {(entry) => {
                 switch (entry.type) {
