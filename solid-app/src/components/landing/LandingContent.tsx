@@ -117,7 +117,7 @@ const LandingContent = () => {
   return (
     <div class="">
       <Tabs defaultValue="all" class="w-full">
-        <TabsList class="w-full bg-white text-black px-2 overflow-x-scroll">
+        <TabsList class="w-full bg-white text-black px-2 flex flex-wrap gap-y-2">
           {[
             "All",
             "Medication Taken",

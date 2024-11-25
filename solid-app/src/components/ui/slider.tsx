@@ -35,7 +35,17 @@ export function Slider(props: SliderProps) {
         return null;
     }
   };
+  const ticks = () => {
+    const step = props.step || 1;
+    const min = props.minValue || 0;
+    const max = props.maxValue || 100;
+    const numTicks = Math.floor((max - min) / step);
 
+    return Array.from(
+      { length: numTicks + 1 },
+      (_, index) => min + index * step
+    );
+  };
   return (
     <SliderKobalte
       value={[value()]}
@@ -56,8 +66,23 @@ export function Slider(props: SliderProps) {
         {getSliderOption()}
       </div>
       <SliderKobalte.Track class="relative bg-[hsl(240,6%,90%)] rounded-full h-[8px] w-full">
-        <SliderKobalte.Fill class="absolute bg-lofiGray rounded-full h-full" />{" "}
-        <SliderKobalte.Thumb class="block w-[16px] h-[16px] bg-black rounded-full -top-[4px] hover:shadow-[0_0_0_5px_#2a91fe98] focus:outline-none focus:shadow-[0_0_0_5px_#2a91fe98]">
+        <SliderKobalte.Fill class="absolute bg-primary-purple-150 rounded-full h-full" />{" "}
+        {ticks().map((tickValue) => {
+          const position =
+            ((tickValue - (props.minValue || 0)) /
+              ((props.maxValue || 100) - (props.minValue || 0))) *
+            100;
+
+          return (
+            <div
+              class={`absolute bottom-0 left-0 w-[10px] h-[10px] rounded-full bg-primary-purple-300 translate-x-[-50%] translate-y-[1px]`}
+              style={{
+                left: `${position}%`,
+              }}
+            ></div>
+          );
+        })}
+        <SliderKobalte.Thumb class="block w-[16px] h-[16px] bg-primary-purple-500 rounded-full -top-[4px] hover:shadow-[0_0_0_5px_#937AEE98] focus:outline-black focus:outline-offset-4 focus:shadow-[0_0_0_5px_#937AEE98]">
           <SliderKobalte.Input />
         </SliderKobalte.Thumb>
       </SliderKobalte.Track>
