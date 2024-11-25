@@ -29,6 +29,7 @@ import {
 import DeleteConfirmation from "~/components/shared/delete-confirmation";
 import moment from "moment";
 import TimePicker from "~/components/ui/time-picker";
+import { formatTimeForPicker } from "~/lib/formateDateLocal";
 
 export default function SleepTracker() {
   const currentHour = moment().hour();
@@ -37,7 +38,7 @@ export default function SleepTracker() {
   const existingEntry = location.search.split("?edit=")[1];
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
   const [error, setError] = createSignal("");
-  const [time, setTime] = createSignal("");
+  const [time, setTime] = createSignal<string | null>("");
   const navigate = useNavigate();
   const [showDeleteConfirmation, setShowDeleteConfirmation] =
     createSignal(false);
@@ -58,6 +59,7 @@ export default function SleepTracker() {
   const recipientData = createMemo(() => recipient());
   createMemo(() => {
     setEntry(sleepData());
+    setTime(formatTimeForPicker(sleepData()?.date) || null);
     const index = qualityEnum.findIndex((str) => {
       return str === sleepData()?.quality;
     });

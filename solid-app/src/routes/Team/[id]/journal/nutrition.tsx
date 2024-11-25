@@ -26,6 +26,7 @@ import { getRecipientName } from "~/api/team";
 import DeleteConfirmation from "~/components/shared/delete-confirmation";
 import AddPhotoModal from "~/components/shared/add-photo-modal";
 import TimePicker from "~/components/ui/time-picker";
+import { formatTimeForPicker } from "~/lib/formateDateLocal";
 
 export default function NutritionTracker() {
   const params = useParams();
@@ -40,7 +41,7 @@ export default function NutritionTracker() {
       deferStream: true,
     }
   );
-  const [time, setTime] = createSignal("");
+  const [time, setTime] = createSignal<string | null>("");
   const [showAddPhoto, setShowAddPhoto] = createSignal(false);
 
   const [showDeleteConfirmation, setShowDeleteConfirmation] =
@@ -59,6 +60,7 @@ export default function NutritionTracker() {
   const recipientData = createMemo(() => recipient());
   createMemo(() => {
     setEntry(mealData());
+    setTime(formatTimeForPicker(mealData()?.date) || null);
   });
   const createAction = useAction(createMealAction);
   const updateAction = useAction(updateMealAction);

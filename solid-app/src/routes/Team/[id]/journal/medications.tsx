@@ -55,7 +55,7 @@ export default function Medication() {
   >(undefined);
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
   const [error, setError] = createSignal("");
-  const [time, setTime] = createSignal("");
+  const [time, setTime] = createSignal<string | null>("");
   const navigate = useNavigate();
   const formatOptions = (data: Medications[] | undefined) => {
     return data
@@ -73,6 +73,7 @@ export default function Medication() {
   const medicationOptions = createMemo(() => formatOptions(medications()));
   createMemo(() => {
     setEntry(medicationData());
+    setTime(formatTimeForPicker(medicationData()?.date) || null);
     if (entry()) {
       const time = formatTimeForPicker(entry()?.date);
       if (time) {

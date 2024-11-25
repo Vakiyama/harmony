@@ -27,6 +27,7 @@ import { getRecipientName } from "~/api/team";
 import DeleteConfirmation from "~/components/shared/delete-confirmation";
 import moment from "moment";
 import TimePicker from "~/components/ui/time-picker";
+import { formatTimeForPicker } from "~/lib/formateDateLocal";
 
 export default function MoodTracker() {
   const currentHour = moment().hour();
@@ -40,7 +41,7 @@ export default function MoodTracker() {
   const [wellBeing, setWellBeing] = createSignal<number | undefined>();
   const [showDeleteConfirmation, setShowDeleteConfirmation] =
     createSignal(false);
-  const [time, setTime] = createSignal("");
+  const [time, setTime] = createSignal<string | null>(null);
 
   if (existingEntry) {
     setIsEditing(true);
@@ -56,6 +57,7 @@ export default function MoodTracker() {
   );
   createMemo(() => {
     setEntry(moodData());
+    setTime(formatTimeForPicker(moodData()?.date) || null);
     const index = qualityEnum.findIndex((str) => {
       return str === moodData()?.wellBeing;
     });
@@ -70,6 +72,7 @@ export default function MoodTracker() {
     error?: string;
     message?: string;
   };
+
   const handleSubmit = async (event: SubmitEvent) => {
     event.preventDefault();
 
