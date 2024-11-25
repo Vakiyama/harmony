@@ -23,7 +23,7 @@ export default function UserRelationship() {
       </p>
       <div class="flex items-center justify-start flex-col h-full mt-4 mx-3 mb-[46px]">
         <p class="self-start text-h2 font-grotesque leading-[120%] font-medium">
-          What is your realtion to the care recipient?{" "}
+          What is your relation to the care recipient?{" "}
         </p>
         <div class="w-full">
           <p class="self-start text-h3 font-grotesque leading-[120%] font-medium mt-[18px]">
