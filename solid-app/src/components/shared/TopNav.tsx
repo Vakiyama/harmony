@@ -1,6 +1,7 @@
 import { JSX } from "solid-js";
 import { A, useLocation, useParams } from "@solidjs/router";
 import { twMerge } from "tailwind-merge";
+import ChevronLeft from "../icon/chevron-left";
 
 export default function TopNav(props: {
   name?: JSX.Element;
@@ -32,6 +33,10 @@ export default function TopNav(props: {
     backLocation = "/profile";
   }
 
+  if (location.pathname.startsWith(`/team/${params.id}/calendar/create`)) {
+    backLocation = `/team/${params.id}/calendar`;
+  }
+
   return (
     <div
       class={twMerge(
@@ -44,7 +49,10 @@ export default function TopNav(props: {
         <div class="flex-1 flex items-center">
           {backLocation && props.leftNavigation ? (
             <A href={backLocation} class="flex items-center">
-              {props.leftNavigation}
+              <div class="flex justify-center items-center gap-1">
+                <ChevronLeft />
+                <p class="text-h4">{props.leftNavigation}</p>
+              </div>
             </A>
           ) : null}
         </div>

@@ -22,7 +22,7 @@ export default function SpecificTeamInfo() {
       <Show when={teamData()}>
         <div>
           <TopNav
-            leftNavigation="Back to Profile"
+            leftNavigation="Profile"
             name={teamData()?.data.teams.teamName}
           />
         </div>
