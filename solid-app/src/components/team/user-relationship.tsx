@@ -23,7 +23,7 @@ export default function UserRelationship() {
       </p>
       <div class="flex items-center justify-start flex-col h-full mt-4 mx-3 mb-[46px]">
         <p class="self-start text-h2 font-grotesque leading-[120%] font-medium">
-          What is your realtion to the care recipient?{" "}
+          What is your realtion to the care recipient?
         </p>
         <div class="w-full">
           <p class="self-start text-h3 font-grotesque leading-[120%] font-medium mt-[18px]">
@@ -32,7 +32,7 @@ export default function UserRelationship() {
           <TextFieldLine
             name="recipient name"
             label=""
-            placeholder="Example: Daughter, Cousin, Nurse, etc."
+            placeholder="e.g. Daughter, Cousin, Nurse, etc."
             classRoot="mt-1"
             value={team.state.memberRelationship}
             onInput={(e) => team.updateRelationship(e.currentTarget.value)}

@@ -13,7 +13,7 @@ const formFields: Array<{
   {
     name: "schedule",
     label: "Medication Schedule",
-    placeholder: "Example: Morning and Night",
+    placeholder: "e.g. Morning and Night",
     required: true,
   },
   {
@@ -31,19 +31,19 @@ const formFields: Array<{
   {
     name: "dosage",
     label: "Dosage",
-    placeholder: "Example: 100mg",
+    placeholder: "e.g. 100mg",
     required: true,
   },
   {
     name: "frequency",
     label: "Frequency",
-    placeholder: "Example: Twice a Day",
+    placeholder: "e.g. Twice a Day",
     required: true,
   },
   {
     name: "typeOfMedication",
     label: "Type of Medication",
-    placeholder: "Example: Oral Pill",
+    placeholder: "e.g. Oral Pill",
     required: false,
   },
   {
