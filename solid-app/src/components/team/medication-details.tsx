@@ -11,18 +11,6 @@ const formFields: Array<{
   required: boolean;
 }> = [
   {
-    name: "schedule",
-    label: "Medication Schedule",
-    placeholder: "e.g. Morning and Night",
-    required: true,
-  },
-  {
-    name: "instructions",
-    label: "Instructions",
-    placeholder: "Instructions for Medication",
-    required: false,
-  },
-  {
     name: "name",
     label: "Medication Name",
     placeholder: "Medication Name",
@@ -47,9 +35,15 @@ const formFields: Array<{
     required: true,
   },
   {
-    name: "typeOfMedication",
-    label: "Type of Medication",
-    placeholder: "e.g. Oral Pill",
+    name: "schedule",
+    label: "Medication Schedule",
+    placeholder: "e.g. Morning and Night",
+    required: true,
+  },
+  {
+    name: "instructions",
+    label: "Instructions",
+    placeholder: "Instructions for Medication",
     required: false,
   },
   {
