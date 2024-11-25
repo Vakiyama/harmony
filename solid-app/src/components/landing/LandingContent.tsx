@@ -5,6 +5,7 @@ import {
   TabsTrigger,
 } from "~/components/ui/landing/landing-tabs";
 import {
+  createEffect,
   createMemo,
   createResource,
   createSignal,
@@ -39,7 +40,7 @@ const LandingContent = () => {
   const team = useTeam();
   const [defaultTeam, setDefaultTeam] = createSignal<
     { team: TeamWithDefault } | undefined
-  >();
+  >(undefined);
   if (!context) {
     return <div>No team data available</div>;
   }
@@ -61,6 +62,8 @@ const LandingContent = () => {
     async ({ teamId }) => await getJournalsFromTeamId(teamId)
   );
   const journalsData = createMemo(() => getJournals());
+
+  createEffect(() => console.log(defaultTeam()));
 
   const getTabIcon = (tabName: string) => {
     switch (tabName) {
@@ -135,7 +138,7 @@ const LandingContent = () => {
         </TabsList>
 
         <div class="p-2 flex-grow h-full">
-          <Show when={journalsData() && defaultTeam()?.team.id}>
+          <Show when={journalsData()}>
             <For each={journalsData()}>
               {(entry) => {
                 switch (entry.type) {

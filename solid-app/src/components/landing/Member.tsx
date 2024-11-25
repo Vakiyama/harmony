@@ -2,6 +2,7 @@ import { AttachedUser } from "@/schema/Users";
 import { Image, ImageFallback, ImageRoot } from "~/components/ui/image";
 
 export default function Member(props: { member: AttachedUser | null }) {
+  // console.log(props.member);
   if (!props.member) {
     return (
       <div class="flex flex-row gap-x-2 items-center mb-4">
@@ -45,7 +46,7 @@ export default function Member(props: { member: AttachedUser | null }) {
         <p class="text-subtitle13 font-semibold">
           {props.member.firstName} {props.member.lastName}
         </p>
-        <p class="text-subtitle text-black50">Granddaughter</p>
+        <p class="text-subtitle text-black50">{props.member.relationship}</p>
       </div>
     </div>
   );
