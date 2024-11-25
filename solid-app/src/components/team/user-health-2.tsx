@@ -42,6 +42,7 @@ export default function UserHealth2() {
             onInput={(e) =>
               team.updateRecipientField("mobilityNeed", e.currentTarget.value)
             }
+            value={team.state.recipient.mobilityNeed}
           />
           {/* Render past injuries input fields */}
           <div class="mt-6">
@@ -123,6 +124,7 @@ export default function UserHealth2() {
                       }
                       class="p-2 border rounded-lg w-full text-base"
                       placeholder="e.g. Hip Surgery"
+                      value={surgery.name}
                     />
                     <input
                       type="text"
@@ -136,6 +138,7 @@ export default function UserHealth2() {
                       }
                       class="p-2 border rounded-lg w-7/12 text-base text-center"
                       placeholder="e.g. 2019"
+                      value={surgery.year}
                     />
                   </div>
                   <textarea
@@ -149,6 +152,7 @@ export default function UserHealth2() {
                     }
                     class="p-2 border rounded-lg w-full text-base"
                     placeholder="Extra notes"
+                    value={surgery.extraNotes}
                   />
                 </div>
               )}
