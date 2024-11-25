@@ -1,5 +1,6 @@
 import { integer, text, sqliteTable } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
+import { TeamMember } from "./TeamMembers";
 
 const voicesEnum = ["proplus-Lily", "proplus-Aurora", "proplus-Lucas"] as const;
 
@@ -31,6 +32,7 @@ export type AttachedUser = {
   firstName: User["firstName"] | null;
   lastName: User["lastName"] | null;
   photo: User["photo"] | null;
+  relationship: TeamMember["relationship"] | null;
 };
 
 export interface AttachedUserWithTeamRole extends AttachedUser {

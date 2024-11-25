@@ -15,7 +15,7 @@ export default function MedicationInfo(props: {
   const allergies = teamData.data.recipients?.allergies;
 
   const medications = teamData.medications;
-  const importantSurgeries = teamData.importanSurgeries;
+  const importantSurgeries = teamData.importantSurgeries;
   const pastInjuries = teamData.pastInjuries;
 
   return (

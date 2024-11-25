@@ -148,7 +148,6 @@ export const getTeamFromTeamId = async (teamId: number) => {
   if (!userId) {
     return undefined;
   }
-
   //validate user is a member of the team
   const [memberError, memberResult] = await mightFail(
     db
@@ -207,7 +206,7 @@ export const getTeamFromTeamId = async (teamId: number) => {
       .where(eq(pastInjuries.recipientId, recipientId))
   );
 
-  if (pastInjuriesError || !pastInjuriesResult.length) {
+  if (pastInjuriesError || !pastInjuriesResult) {
     pastInjuriesError ? console.error(pastInjuriesError) : "";
     return undefined;
   }
@@ -219,7 +218,7 @@ export const getTeamFromTeamId = async (teamId: number) => {
       .where(eq(importantSurgeries.recipientId, recipientId))
   );
 
-  if (importantSurgeriesError || !importantSurgeriesResult.length) {
+  if (importantSurgeriesError || !importantSurgeriesResult) {
     importantSurgeriesError ? console.error(importantSurgeriesError) : "";
     return undefined;
   }
@@ -228,9 +227,8 @@ export const getTeamFromTeamId = async (teamId: number) => {
     members: teamMembersResult,
     medications,
     pastInjuries: pastInjuriesResult,
-    importanSurgeries: importantSurgeriesResult,
+    importantSurgeries: importantSurgeriesResult,
   };
-
   return data;
 };
 
