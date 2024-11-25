@@ -5,7 +5,7 @@ export default function Settings() {
   return (
     <main class="flex flex-col">
       <section class="h-full">
-        <TopNav leftNavigation="Back" name="Settings" />
+        <TopNav leftNavigation="Profile" name="Settings" />
         <div class="flex flex-col text-start h-full mx-2">
           <div class="w-full flex flex-col gap-2">
             <div class="flex flex-col justify-between gap-6">

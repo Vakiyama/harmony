@@ -13,7 +13,7 @@ import {
   useNavigate,
   useParams,
 } from "@solidjs/router";
-import { createMemo, createSignal, Show } from "solid-js";
+import { createEffect, createMemo, createSignal, Show } from "solid-js";
 import ShowError from "~/routes/Team/[id]/journal/show-error";
 import { Button } from "~/components/ui/button";
 import AddNote from "~/routes/Team/[id]/journal/add-notes";
@@ -27,9 +27,11 @@ import {
   SleepWithNoteUser,
 } from "../../../../../drizzle/schema/Sleeps";
 import DeleteConfirmation from "~/components/shared/delete-confirmation";
+import moment from "moment";
 import TimePicker from "~/components/ui/time-picker";
 
 export default function SleepTracker() {
+  const currentHour = moment().hour();
   const params = useParams();
   const location = useLocation();
   const existingEntry = location.search.split("?edit=")[1];
@@ -61,6 +63,7 @@ export default function SleepTracker() {
     });
     setWellBeing(index + 1);
   });
+  createEffect(() => console.log(recipientData(), sleepData()));
   const createAction = useAction(createSleepAction);
   const updateAction = useAction(updateSleepAction);
   const deleteAction = useAction(deleteSleepAction);
@@ -122,81 +125,122 @@ export default function SleepTracker() {
             class="flex flex-col mt-2 gap-2"
             method="post"
           >
-            <div class="flex flex-col gap-2 justify-center">
-              <Show when={(isEditing() && entry()) || !isEditing()}>
-                <label class="text-h4">Sleep Quality</label>
-                <Slider
-                  id="quality"
-                  name="quality"
-                  minValue={1}
-                  maxValue={5}
-                  defaultValue={wellBeing() || 3}
-                />
-                <label class="text-h4">Hours Slept</label>
-                <input
-                  name="duration"
-                  type="text"
-                  class="border border-lofiGray rounded-md text-center p-2"
-                  placeholder="00:00"
-                  value={entry()?.duration}
-                />
-                <label class="text-h4">Date & Time Taken</label>
-                <div class="flex flex-row gap-2 items-center">
-                  <div class="flex-1">
-                    <DatePickerComponent
-                      value={entry()?.date.toLocaleDateString("en-us", {
-                        month: "long",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                    />
-                  </div>
-                  <TimePicker
-                    time={time}
-                    setTime={setTime}
-                    name="time"
-                    class="flex-1"
+            <div class="flex flex-col gap-6 justify-center">
+              <Show
+                when={
+                  (isEditing() && entry() && recipientData()) ||
+                  (!isEditing() && recipientData())
+                }
+              >
+                <div class="mx-9 flex flex-col justify-center items-center">
+                  <label class="text-h4 mb-4 font-grotesque leading-[120%] font-medium text-[#1E1E1E]">
+                    {`How was ${
+                      recipientData()?.recipient
+                        ? recipientData()?.recipient?.firstName ||
+                          recipientData()?.recipient?.lastName
+                        : ""
+                    }'s sleep?`}
+                  </label>
+                  <Slider
+                    id="quality"
+                    name="quality"
+                    minValue={1}
+                    maxValue={5}
+                    defaultValue={wellBeing() || 3}
                   />
                 </div>
-                <label>Trouble going to sleep or staying up?</label>
-                <RadioGroupComponent
-                  id="troubleSleeping"
-                  name="troubleSleeping"
-                  options={["Yes", "No"]}
-                  defaultValue={
-                    entry()
-                      ? entry()?.troubleSleeping
-                        ? "Yes"
-                        : "No"
-                      : undefined
-                  }
+                <div>
+                  <label class="text-h4 mb-4 font-grotesque leading-[120%] font-medium text-[#1E1E1E]">
+                    Night or Day
+                  </label>
+                  <RadioGroupComponent
+                    id="timeFrame"
+                    name="timeFrame"
+                    options={["Night", "Day"]}
+                    defaultValue={
+                      entry()
+                        ? entry()?.timeFrame
+                        : currentHour >= 6 && currentHour < 18
+                        ? "Day"
+                        : "Night"
+                    }
+                  />
+                </div>
+                <div class="flex flex-col">
+                  <label class="text-h4 mb-4 font-grotesque leading-[120%] font-medium text-[#1E1E1E]">
+                    Hours Slept
+                  </label>
+                  <input
+                    name="duration"
+                    type="number"
+                    step="0.01"
+                    min={0}
+                    class="border border-lofiGray rounded-md text-middle p-2"
+                    placeholder="Duration in hours (e.g. 5)"
+                    value={entry()?.duration}
+                  />
+                </div>
+                <div>
+                  <label class="text-h4 mb-4 font-grotesque leading-[120%] font-medium text-[#1E1E1E]">
+                    Date and Time
+                  </label>
+                  <div class="flex flex-row gap-2 items-center">
+                    <div class="flex-1">
+                      <DatePickerComponent
+                        value={entry()?.date.toLocaleDateString("en-us", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      />
+                    </div>
+                    <TimePicker
+                      time={time}
+                      setTime={setTime}
+                      name="time"
+                      class="flex-1"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label class="text-h4 mb-4 font-grotesque leading-[120%] font-medium text-[#1E1E1E]">
+                    Trouble going to sleep or staying up?
+                  </label>
+                  <RadioGroupComponent
+                    id="troubleSleeping"
+                    name="troubleSleeping"
+                    options={["Yes", "No"]}
+                    defaultValue={
+                      entry() ? (entry()?.troubleSleeping ? "Yes" : "No") : "No"
+                    }
+                  />
+                </div>
+              </Show>
+              <Show when={(isEditing() && entry()) || !isEditing()}>
+                <AddNote
+                  title="Additional Notes"
+                  placeholder="What else would you like to note about their sleep?"
+                  content={entry()?.note?.note || ""}
                 />
+                <div class="flex justify-center">
+                  <Button
+                    class="rounded-[100px] h-12 w-full bg-primary-purple-300 text-black"
+                    variant="default"
+                    type="submit"
+                  >
+                    Finish Entry
+                  </Button>
+                </div>
+                {isEditing() && (
+                  <Button
+                    onClick={() => setShowDeleteConfirmation(true)}
+                    class="bg-transparent shadow-none font-sf-pro font-medium text-base hover:bg-transparent"
+                  >
+                    Delete Entry
+                  </Button>
+                )}
               </Show>
             </div>
-            <Show when={(isEditing() && entry()) || !isEditing()}>
-              <AddNote
-                title="Add Notes"
-                placeholder="What else would you like to note about their sleep?"
-                content={entry()?.note?.note || ""}
-              />
-              <div class="flex justify-center">
-                <Button
-                  class="rounded-[100px] h-12 w-full bg-primary-purple-300 text-black"
-                  variant="default"
-                  type="submit"
-                >
-                  Finish Entry
-                </Button>
-              </div>
-              {isEditing() && (
-                <Button
-                  onClick={() => setShowDeleteConfirmation(true)}
-                  class="bg-transparent shadow-none font-sf-pro font-medium text-base text-error hover:bg-transparent"
-                >
-                  Delete Entry
-                </Button>
-              )}
-            </Show>
           </form>
         </div>
         <Show when={showDeleteConfirmation()}>

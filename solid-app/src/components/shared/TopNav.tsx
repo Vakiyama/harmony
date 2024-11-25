@@ -1,6 +1,7 @@
 import { JSX } from "solid-js";
 import { A, useLocation, useParams } from "@solidjs/router";
 import { twMerge } from "tailwind-merge";
+import ChevronLeft from "../icon/chevron-left";
 
 export default function TopNav(props: {
   name?: JSX.Element;
@@ -25,8 +26,15 @@ export default function TopNav(props: {
     backLocation = "/harmony-ai/chat";
   }
 
-  if (location.pathname.includes("/profile/")) {
+  if (
+    location.pathname.includes("/profile/") ||
+    location.pathname.endsWith(`/team/${params.id}`)
+  ) {
     backLocation = "/profile";
+  }
+
+  if (location.pathname.startsWith(`/team/${params.id}/calendar/create`)) {
+    backLocation = `/team/${params.id}/calendar`;
   }
 
   return (
@@ -36,25 +44,28 @@ export default function TopNav(props: {
         props.class ? props.class : ""
       )}
     >
-      <div class="w-full flex flex-row px-4 h-full items-center">
+      <div class="w-full flex flex-row px-2 h-full items-center">
         {/* Left column */}
-        <div class="flex-1">
+        <div class="flex-1 flex items-center">
           {backLocation && props.leftNavigation ? (
             <A href={backLocation} class="flex items-center">
-              {props.leftNavigation}
+              <div class="flex justify-center items-center gap-1">
+                <ChevronLeft />
+                <p class="text-h4">{props.leftNavigation}</p>
+              </div>
             </A>
           ) : null}
         </div>
 
         {/* Center column */}
-        <div class="flex-grow flex justify-center items-center">
+        <div class="flex-1 flex justify-center items-center">
           {props.name ? (
             <h4 class="text-h4 font-medium">{props.name}</h4>
           ) : null}
         </div>
 
         {/* Right column */}
-        <div class="flex-1 flex justify-end">
+        <div class="flex-1 flex justify-end items-center">
           {props.rightNavigation ? (
             <A href="/" class="text-md">
               {props.rightNavigation}
