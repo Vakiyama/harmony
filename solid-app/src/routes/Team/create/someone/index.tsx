@@ -10,9 +10,9 @@ import UserInfo1 from "../../../../components/team/user-info-1";
 import UserInfo2 from "../../../../components/team/user-info-2";
 import UserHealth1 from "../../../../components/team/user-health-1";
 import UserHealth2 from "../../../../components/team/user-health-2";
+import UserRelationship from "../../../../components/team/user-relationship";
 import AddMedication from "../../../../components/team/add-medication";
 import { TextField, TextFieldRoot } from "~/components/ui/textfield";
-import UserRole from "../../../../components/team/user-role";
 import TeamUserRole from "../../../../components/team/team-user-role";
 import ReviewTeamInfo from "~/components/team/review-team-info";
 import Notification from "~/components/shared/notification";
@@ -99,6 +99,7 @@ export default function CreateSomeone() {
         teamInput: {
           teamName: team.state.teamName,
           recipientId: recipientResult.recipientId,
+          memberRelationship: team.state.memberRelationship,
         },
       })) as CreateTeamActionResponse;
 
@@ -267,7 +268,7 @@ export default function CreateSomeone() {
 
         {/* step 8: specify the role */}
         <Show when={team.currentStep() === 8}>
-          <UserRole />
+          <UserRelationship />
         </Show>
 
         {/* step 9: team Name */}
