@@ -117,6 +117,7 @@ export default function UserInfo2() {
                       "Other",
                     ]}
                     placeholder="Select"
+                    value={team.state.recipient.gender}
                     class="text-base"
                     onChange={(value) =>
                       team.updateRecipientField("gender", value ?? "")
