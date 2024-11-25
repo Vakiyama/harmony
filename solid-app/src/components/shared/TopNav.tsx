@@ -25,7 +25,10 @@ export default function TopNav(props: {
     backLocation = "/harmony-ai/chat";
   }
 
-  if (location.pathname.includes("/profile/")) {
+  if (
+    location.pathname.includes("/profile/") ||
+    location.pathname.endsWith(`/team/${params.id}`)
+  ) {
     backLocation = "/profile";
   }
 
@@ -36,9 +39,9 @@ export default function TopNav(props: {
         props.class ? props.class : ""
       )}
     >
-      <div class="w-full flex flex-row px-4 h-full items-center">
+      <div class="w-full flex flex-row px-2 h-full items-center">
         {/* Left column */}
-        <div class="flex-1">
+        <div class="flex-1 flex items-center">
           {backLocation && props.leftNavigation ? (
             <A href={backLocation} class="flex items-center">
               {props.leftNavigation}
@@ -47,14 +50,14 @@ export default function TopNav(props: {
         </div>
 
         {/* Center column */}
-        <div class="flex-grow flex justify-center items-center">
+        <div class="flex-1 flex justify-center items-center">
           {props.name ? (
             <h4 class="text-h4 font-medium">{props.name}</h4>
           ) : null}
         </div>
 
         {/* Right column */}
-        <div class="flex-1 flex justify-end">
+        <div class="flex-1 flex justify-end items-center">
           {props.rightNavigation ? (
             <A href="/" class="text-md">
               {props.rightNavigation}
