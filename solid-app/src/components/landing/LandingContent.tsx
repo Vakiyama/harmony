@@ -34,8 +34,11 @@ import { SleepWithNoteUser } from "@/schema/Sleeps";
 import { useTeam } from "~/context/team-context";
 import BookIconSVG from "./IoBook.svg";
 import { TeamWithDefault } from "@/schema/Teams";
+import JournalsToggleGroup from "../shadcn/toggle-group";
 
 const LandingContent = () => {
+  const [selectedOuter, setSelectedOuter] = createSignal<string | null>("All");
+  const [selectedInner, setSelectedInner] = createSignal<string[]>([]);
   const context = useContext(TeamContext);
   const team = useTeam();
   const [defaultTeam, setDefaultTeam] = createSignal<
@@ -117,6 +120,15 @@ const LandingContent = () => {
 
   return (
     <div class="">
+      <div class="w-full flex flex-wrap">
+        <JournalsToggleGroup
+          items={["Medication Taken", "Nutrition", "Sleep", "Mood", "Notes"]}
+          getOuter={selectedOuter}
+          getInner={selectedInner}
+          setInner={setSelectedInner}
+          setOuter={setSelectedOuter}
+        />
+      </div>
       <Tabs defaultValue="all" class="w-full">
         <TabsList class="w-full bg-white text-black px-2 flex flex-wrap gap-y-2">
           {[
