@@ -24,11 +24,10 @@ export default function UserRelationship() {
       <div class="flex items-center justify-start flex-col h-full mt-4 mx-3 mb-[46px]">
         <p class="self-start text-h2 font-grotesque leading-[120%] font-medium">
           What is your realtion to the care recipient?{" "}
-          <span class="text-red-500">*</span>
         </p>
         <div class="w-full">
           <p class="self-start text-h3 font-grotesque leading-[120%] font-medium mt-[18px]">
-            Please Specify
+            Please Specify <span class="text-red-500">*</span>
           </p>
           <TextFieldLine
             name="recipient name"
