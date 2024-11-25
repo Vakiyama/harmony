@@ -28,6 +28,8 @@ import {
 } from "../../../../../drizzle/schema/Sleeps";
 import DeleteConfirmation from "~/components/shared/delete-confirmation";
 import moment from "moment";
+import TimePicker from "~/components/ui/time-picker";
+import { formatTimeForPicker } from "~/lib/formateDateLocal";
 
 export default function SleepTracker() {
   const currentHour = moment().hour();
@@ -36,6 +38,7 @@ export default function SleepTracker() {
   const existingEntry = location.search.split("?edit=")[1];
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
   const [error, setError] = createSignal("");
+  const [time, setTime] = createSignal<string | null>("");
   const navigate = useNavigate();
   const [showDeleteConfirmation, setShowDeleteConfirmation] =
     createSignal(false);
@@ -56,6 +59,7 @@ export default function SleepTracker() {
   const recipientData = createMemo(() => recipient());
   createMemo(() => {
     setEntry(sleepData());
+    setTime(formatTimeForPicker(sleepData()?.date) || null);
     const index = qualityEnum.findIndex((str) => {
       return str === sleepData()?.quality;
     });
@@ -180,15 +184,25 @@ export default function SleepTracker() {
                 </div>
                 <div>
                   <label class="text-h4 mb-4 font-grotesque leading-[120%] font-medium text-[#1E1E1E]">
-                    Date
+                    Date and Time
                   </label>
-                  <DatePickerComponent
-                    value={entry()?.date.toLocaleDateString("en-us", {
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  />
+                  <div class="flex flex-row gap-2 items-center">
+                    <div class="flex-1">
+                      <DatePickerComponent
+                        value={entry()?.date.toLocaleDateString("en-us", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      />
+                    </div>
+                    <TimePicker
+                      time={time}
+                      setTime={setTime}
+                      name="time"
+                      class="flex-1"
+                    />
+                  </div>
                 </div>
                 <div>
                   <label class="text-h4 mb-4 font-grotesque leading-[120%] font-medium text-[#1E1E1E]">

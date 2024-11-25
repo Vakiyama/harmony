@@ -37,11 +37,11 @@ export default function Medication() {
     async () => await getTakenMedicationById(parseInt(existingEntry)),
     {
       deferStream: true,
-    },
+    }
   );
   const medications = createAsync(
     async () => await getMedicationsFromTeamId(parseInt(params.id)),
-    { deferStream: true },
+    { deferStream: true }
   );
   const [isEditing, setIsEditing] = createSignal<boolean>(false);
   if (existingEntry) {
@@ -55,7 +55,7 @@ export default function Medication() {
   >(undefined);
   const [formRef, setFormRef] = createSignal<HTMLFormElement | undefined>();
   const [error, setError] = createSignal("");
-  const [time, setTime] = createSignal("");
+  const [time, setTime] = createSignal<string | null>("");
   const navigate = useNavigate();
   const formatOptions = (data: Medications[] | undefined) => {
     return data
@@ -65,14 +65,15 @@ export default function Medication() {
       : [];
   };
   const [med, setMed] = createSignal<SelectOptions<string> | undefined>(
-    undefined,
+    undefined
   );
   const [medType, setMedType] = createSignal<SelectOptions<string> | undefined>(
-    undefined,
+    undefined
   );
   const medicationOptions = createMemo(() => formatOptions(medications()));
   createMemo(() => {
     setEntry(medicationData());
+    setTime(formatTimeForPicker(medicationData()?.date) || null);
     if (entry()) {
       const time = formatTimeForPicker(entry()?.date);
       if (time) {
@@ -111,7 +112,7 @@ export default function Medication() {
       setError("");
       formRef()?.reset();
       showNotification(
-        isEditing() ? "Medication Entry Updated" : "Medication Entry Posted",
+        isEditing() ? "Medication Entry Updated" : "Medication Entry Posted"
       );
       navigate(`/team/${params.id}/journal`);
     } else if (result.error) {

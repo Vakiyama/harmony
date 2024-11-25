@@ -26,6 +26,8 @@ import { qualityEnum } from "../../../../../drizzle/schema/Sleeps";
 import { getRecipientName } from "~/api/team";
 import DeleteConfirmation from "~/components/shared/delete-confirmation";
 import moment from "moment";
+import TimePicker from "~/components/ui/time-picker";
+import { formatTimeForPicker } from "~/lib/formateDateLocal";
 
 export default function MoodTracker() {
   const currentHour = moment().hour();
@@ -39,6 +41,7 @@ export default function MoodTracker() {
   const [wellBeing, setWellBeing] = createSignal<number | undefined>();
   const [showDeleteConfirmation, setShowDeleteConfirmation] =
     createSignal(false);
+  const [time, setTime] = createSignal<string | null>(null);
 
   if (existingEntry) {
     setIsEditing(true);
@@ -54,6 +57,7 @@ export default function MoodTracker() {
   );
   createMemo(() => {
     setEntry(moodData());
+    setTime(formatTimeForPicker(moodData()?.date) || null);
     const index = qualityEnum.findIndex((str) => {
       return str === moodData()?.wellBeing;
     });
@@ -68,6 +72,7 @@ export default function MoodTracker() {
     error?: string;
     message?: string;
   };
+
   const handleSubmit = async (event: SubmitEvent) => {
     event.preventDefault();
 
@@ -164,13 +169,23 @@ export default function MoodTracker() {
                 <label class="text-h4 mb-2 font-grotesque leading-[120%] font-medium text-[#1E1E1E]">
                   Date
                 </label>
-                <DatePickerComponent
-                  value={entry()?.date.toLocaleDateString("en-us", {
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                />
+                <div class="flex flex-row gap-2 items-center">
+                  <div class="flex-1">
+                    <DatePickerComponent
+                      value={entry()?.date.toLocaleDateString("en-us", {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    />
+                  </div>
+                  <TimePicker
+                    time={time}
+                    setTime={setTime}
+                    name="time"
+                    class="flex-1"
+                  />
+                </div>
               </div>
               <AddNote
                 title="What have you noticed?"
