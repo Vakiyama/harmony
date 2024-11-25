@@ -5,7 +5,7 @@ import { TakenMedsWithNoteUser } from "@/schema/TakenMedications";
 
 const MedicationCard = ({ med }: { med: TakenMedsWithNoteUser }) => (
   <JournalCard
-    dateTime={formatCreatedDate(med.date)}
+    dateTime={formatCreatedDate(med.createdAt)}
     title="Medication Taken"
     value="medication taken"
     withMember={true}
