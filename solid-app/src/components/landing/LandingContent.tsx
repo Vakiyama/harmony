@@ -63,8 +63,6 @@ const LandingContent = () => {
   );
   const journalsData = createMemo(() => getJournals());
 
-  createEffect(() => console.log(defaultTeam()));
-
   const getTabIcon = (tabName: string) => {
     switch (tabName) {
       case "Medication Taken":

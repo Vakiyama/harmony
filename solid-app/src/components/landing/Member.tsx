@@ -2,7 +2,6 @@ import { AttachedUser } from "@/schema/Users";
 import { Image, ImageFallback, ImageRoot } from "~/components/ui/image";
 
 export default function Member(props: { member: AttachedUser | null }) {
-  // console.log(props.member);
   if (!props.member) {
     return (
       <div class="flex flex-row gap-x-2 items-center mb-4">
