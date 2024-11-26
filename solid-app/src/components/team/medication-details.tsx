@@ -3,6 +3,7 @@ import TextFieldLine from "~/components/shared/text-field-line";
 import AddPhoto from "~/components/team/tab-upload-photo";
 import { Button } from "~/components/ui/button";
 import { FormState, useTeam } from "~/context/team-context";
+import { showNotification } from "~/routes/api/notificationStore";
 
 const formFields: Array<{
   name: string;
@@ -59,6 +60,7 @@ const formFields: Array<{
     required: false,
   },
 ];
+
 export default function MedicationDetails({
   onMedicationAdded,
 }: {
@@ -109,6 +111,7 @@ export default function MedicationDetails({
       );
     });
     onMedicationAdded();
+    showNotification("Medication added");
   };
 
   return (
