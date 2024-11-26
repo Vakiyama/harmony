@@ -10,9 +10,14 @@ import TeamMedicationInfo from "./team-medical-info";
 import TeamHeaderName from "./team-header-name";
 import { useTeam } from "~/context/team-context";
 import TeamPreview from "../profile/team-preview";
+import { getUser } from "~/api";
+import { createAsync } from "@solidjs/router";
+import { Show } from "solid-js";
 
 export default function ReviewTeamInfo() {
+  const user = createAsync(async () => await getUser(), { deferStream: true });
   const team = useTeam();
+  console.log(user);
   return (
     <div class="flex flex-col gap-3">
       <div class="flex items-center justify-end flex-col mx-3">
@@ -61,12 +66,16 @@ export default function ReviewTeamInfo() {
           </TabsContent>
           <TabsContent value="members">
             <div class="flex flex-col gap-2 p-4">
-              <TeamPreview
-                memberName=""
-                imageUrl=""
-                description=""
-                userRole=""
-              />
+              <Show when={user()}>
+                <TeamPreview
+                  memberName={`${user()?.firstName || ""} ${
+                    user()?.lastName || ""
+                  }`}
+                  imageUrl={user()?.photo || ""}
+                  description={team.state.memberRelationship || ""}
+                  userRole="admin"
+                />
+              </Show>
             </div>
           </TabsContent>
         </Tabs>
