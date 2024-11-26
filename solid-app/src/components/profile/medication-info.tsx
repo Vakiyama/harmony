@@ -1,7 +1,23 @@
+import { TeamFromTeamId } from "@/schema/Teams";
 import { InfoCard } from "./info-card";
 import MedicalDetail from "./medical-detail";
 
-export default function MedicationInfo() {
+export default function MedicationInfo(props: {
+  data: TeamFromTeamId | undefined;
+}) {
+  const teamData = props.data;
+  if (!teamData) {
+    return null;
+  }
+  const healthCondition = teamData.data.recipients?.healthCondition;
+  const mobilityNeeds = teamData.data.recipients?.mobilityNeed;
+  const dietaryRestrictions = teamData.data.recipients?.dietaryRestrictions;
+  const allergies = teamData.data.recipients?.allergies;
+
+  const medications = teamData.medications;
+  const importantSurgeries = teamData.importantSurgeries;
+  const pastInjuries = teamData.pastInjuries;
+
   return (
     <div class="h-full flex flex-col gap-3">
       <InfoCard
@@ -24,27 +40,53 @@ export default function MedicationInfo() {
         sections={[
           {
             title: "Health Condition",
-            content: <p class="text-xs">Dementia</p>,
+            content: <p class="text-xs">{healthCondition}</p>,
           },
           {
             title: "Past Injuries",
-            content: <p class="text-xs ">Hip Fractures</p>,
+            content:
+              pastInjuries && pastInjuries.length > 0
+                ? pastInjuries.map((pastInjury, index) => (
+                    <p class="text-xs ">{pastInjury.name}</p>
+                  ))
+                : "No past injuries provided",
           },
           {
             title: "Important Surgeries",
-            content: <p class="text-xs ">Hip Surgery, 2021</p>,
+            content:
+              importantSurgeries && importantSurgeries.length > 0
+                ? importantSurgeries.map((surgery, index) => (
+                    <p class="text-xs">
+                      {surgery.name}, {surgery.year}
+                    </p>
+                  ))
+                : "No important surgeries provided",
           },
           {
             title: "Mobility Needs",
-            content: <p class="text-xs ">Requires walking care</p>,
+            content: (
+              <p class="text-xs ">
+                {mobilityNeeds ? mobilityNeeds : "No mobility needs provided"}
+              </p>
+            ),
           },
           {
             title: "Dietary Restrictions/Preference",
-            content: <p class="text-xs ">Must have 85g protein each meal</p>,
+            content: (
+              <p class="text-xs">
+                {dietaryRestrictions
+                  ? dietaryRestrictions
+                  : "No dietary restrictions/preferences provided"}
+              </p>
+            ),
           },
           {
             title: "Allergies",
-            content: <p class="text-xs ">None</p>,
+            content: (
+              <p class="text-xs ">
+                {allergies ? allergies : "No allergies provided"}
+              </p>
+            ),
           },
         ]}
       />
@@ -73,18 +115,26 @@ export default function MedicationInfo() {
           </div>
         </div>
         <div class="flex flex-col gap-2">
-          <MedicalDetail
-            medicineName="Advil"
-            medicineDose="200mg"
-            medicineInstructions="take after a meal"
-            medicineLink="/profile/medication-detail"
-          />
-          <MedicalDetail
-            medicineName="Vyvanse"
-            medicineDose="10mg"
-            medicineInstructions="taken with water"
-            medicineLink="/profile/medication-detail"
-          />
+          {medications.length ? (
+            medications.map((medication) => (
+              <MedicalDetail
+                medicineName={medication.name}
+                medicineDose={medication.dosage}
+                medicineInstructions={
+                  medication.instructions
+                    ? medication.instructions
+                    : "No medication instructions provided"
+                }
+                medicineLink={`/profile/medication-detail/${medication.id}`}
+              />
+            ))
+          ) : (
+            <div class="items-center">
+              <div class="flex flex-col border-1 rounded-md p-2 items-start">
+                <p>No medications provided</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

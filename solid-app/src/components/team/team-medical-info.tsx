@@ -47,7 +47,7 @@ export default function TeamMedicationInfo() {
                       {(injury) => <p>{injury.name}</p>}
                     </For>
                   ) : (
-                    "empty"
+                    "No past injuries provided"
                   )}
                 </div>
               ),
@@ -66,7 +66,7 @@ export default function TeamMedicationInfo() {
                       )}
                     </For>
                   ) : (
-                    "empty"
+                    "No important surgeries provided"
                   )}
                 </div>
               ),
@@ -74,30 +74,36 @@ export default function TeamMedicationInfo() {
             {
               title: "Mobility Needs",
               content: (
-                <p class="text-xs ">{mobilityNeed ? mobilityNeed : "empty"}</p>
+                <p class="text-xs ">
+                  {mobilityNeed ? mobilityNeed : "No mobility needs provided"}
+                </p>
               ),
             },
             {
               title: "Dietary Restrictions/Preference",
               content: (
                 <p class="text-xs ">
-                  {dietaryRestrictions ? dietaryRestrictions : "empty"}
+                  {dietaryRestrictions
+                    ? dietaryRestrictions
+                    : "No dietary restrictions/preferences provided"}
                 </p>
               ),
             },
             {
               title: "Allergies",
               content: (
-                <p class="text-xs ">{allergies ? allergies : "empty"}</p>
+                <p class="text-xs ">
+                  {allergies ? allergies : "No allergies provided"}
+                </p>
               ),
             },
           ]}
         />
 
         {/* Medication Details */}
-        <div class="mt-4 ">
-          <div class="w-full mt-2 flex flex-row justify-between items-center gap-x-2 rounded-md bg-[#D6CDF9] h-[48px]">
-            <div class="flex justify-center items-center p-2">
+        <div class="flex flex-col gap-3">
+          <div class="w-full flex flex-row justify-between items-center gap-2 rounded-md bg-primary-purple-100 h-full">
+            <div class="flex justify-center items-center p-2 gap-2">
               <div class="flex items-center justify-center aspect-square rounded-full px-2 bg-[#7859EA]">
                 <svg
                   width="14"
@@ -112,32 +118,36 @@ export default function TeamMedicationInfo() {
                   />
                 </svg>
               </div>
-              <div class="ml-2 font-semibold tracking-tight text-sm">
+              <div class="font-semibold tracking-tight text-sm">
                 Medication Details
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="mt-4">
-          {medications.length > 0 && (
-            <For each={medications}>
-              {(medication) => {
-                return (
+          <div class="flex flex-col gap-2">
+            {medications.length > 0 ? (
+              <For each={medications}>
+                {(medication) => (
                   <TeamMedicalDetail
                     medicineName={medication.name}
                     medicineDose={medication.dosage}
                     medicineInstructions={
                       medication.instructions
                         ? medication.instructions
-                        : "empty"
+                        : "No medication instructions provided"
                     }
                     medicineLink=""
                   />
-                );
-              }}
-            </For>
-          )}
+                )}
+              </For>
+            ) : (
+              <div class="items-center">
+                <div class="flex flex-col border rounded-md p-2 items-start">
+                  <p>No medications provided</p>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </>

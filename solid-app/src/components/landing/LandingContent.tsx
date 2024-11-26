@@ -1,10 +1,4 @@
 import {
-  Tabs,
-  TabsIndicator,
-  TabsList,
-  TabsTrigger,
-} from "~/components/ui/landing/landing-tabs";
-import {
   createMemo,
   createResource,
   createSignal,
@@ -14,11 +8,6 @@ import {
   useContext,
 } from "solid-js";
 import { getJournalsFromTeamId } from "~/api/journal";
-import MedicationIcon from "../icon/medication-icon";
-import MoodIcon from "../icon/mood-icon";
-import NotesIcon from "../icon/notes-icon";
-import NutritionIcon from "../icon/nutrition-icon";
-import SleepIcon from "../icon/sleep-icon";
 import { TeamContext } from "../Layout-Context";
 import MedicationCard from "./journal-card/MedicationCard";
 import MoodCard from "./journal-card/MoodCard";
@@ -33,13 +22,23 @@ import { SleepWithNoteUser } from "@/schema/Sleeps";
 import { useTeam } from "~/context/team-context";
 import BookIconSVG from "./IoBook.svg";
 import { TeamWithDefault } from "@/schema/Teams";
+import JournalsToggleGroup from "../shadcn/toggle-group";
 
 const LandingContent = () => {
+  const categoryMap: { [key: string]: string } = {
+    "Medication Taken": "medication",
+    Nutrition: "meal",
+    Sleep: "sleep",
+    Mood: "mood",
+    Notes: "note",
+  };
+  const [selectedOuter, setSelectedOuter] = createSignal<string | null>("All");
+  const [selectedInner, setSelectedInner] = createSignal<string[]>([]);
   const context = useContext(TeamContext);
   const team = useTeam();
   const [defaultTeam, setDefaultTeam] = createSignal<
     { team: TeamWithDefault } | undefined
-  >();
+  >(undefined);
   if (!context) {
     return <div>No team data available</div>;
   }
@@ -60,117 +59,66 @@ const LandingContent = () => {
     },
     async ({ teamId }) => await getJournalsFromTeamId(teamId)
   );
-  const journalsData = createMemo(() => getJournals());
+  const currentCards = createMemo(() => {
+    let filtered = getJournals() || [];
+    const outer = selectedOuter();
+    const inner = selectedInner();
 
-  const getTabIcon = (tabName: string) => {
-    switch (tabName) {
-      case "Medication Taken":
-        return (
-          <MedicationIcon
-            height="15"
-            width="15"
-            iconColor="currentColor"
-            class="mr-1"
-          />
-        );
-      case "Nutrition": {
-        return (
-          <NutritionIcon
-            height="15"
-            width="15"
-            iconColor="currentColor"
-            class="mr-1"
-          />
-        );
-      }
-      case "Sleep": {
-        return (
-          <SleepIcon
-            height="15"
-            width="15"
-            iconColor="currentColor"
-            class="mr-1"
-          />
-        );
-      }
-      case "Mood":
-        return (
-          <MoodIcon
-            height="15"
-            width="15"
-            iconColor="currentColor"
-            class="mr-1"
-          />
-        );
-      case "Notes":
-        return (
-          <NotesIcon
-            height="15"
-            width="15"
-            iconColor="currentColor"
-            class="mr-1"
-          />
-        );
+    if (outer && outer !== "All") {
+      filtered = filtered.filter((entry) => entry.type === outer);
     }
-  };
+
+    if (inner.length > 0) {
+      let filterArr = inner.map((filter) => categoryMap[filter]);
+      filtered = filtered.filter((entry) => filterArr.includes(entry.type));
+    }
+
+    return filtered;
+  });
 
   return (
     <div class="">
-      <Tabs defaultValue="all" class="w-full">
-        <TabsList class="w-full bg-white text-black px-2 overflow-x-scroll">
-          {[
-            "All",
-            "Medication Taken",
-            "Nutrition",
-            "Sleep",
-            "Mood",
-            "Notes",
-          ].map((tabName) => (
-            <TabsTrigger value={tabName.toLowerCase()} class="text-md">
-              {getTabIcon(tabName)}
-              <span class="">{tabName}</span>
-            </TabsTrigger>
-          ))}
-          <TabsIndicator />
-        </TabsList>
-
-        <div class="p-2 flex-grow h-full">
-          <Show when={journalsData() && defaultTeam()?.team.id}>
-            <For each={journalsData()}>
-              {(entry) => {
-                switch (entry.type) {
-                  case "medication":
-                    return (
-                      <MedicationCard
-                        med={entry.data as TakenMedsWithNoteUser}
-                      />
-                    );
-                  case "mood":
-                    return <MoodCard mood={entry.data as MoodsWithNoteUser} />;
-                  case "note":
-                    return <NoteCard note={entry.data as NoteWithUser} />;
-                  case "meal":
-                    return <MealCard meal={entry.data as MealWithNoteUser} />;
-                  case "sleep":
-                    return (
-                      <SleepCard sleep={entry.data as SleepWithNoteUser} />
-                    );
-                  default:
-                    return null;
-                }
-              }}
-            </For>
-          </Show>
-          <Show when={!journalsData() || journalsData()?.length === 0}>
-            <div class="border rounded-xl flex flex-col p-4 items-center justify-center gap-3 flex-grow min-h-[100px] h-[calc(100dvh_-_410px)]">
-              <img src={BookIconSVG} class="h-6" />
-              <p class="text-xs text-[#1E1E1E]/75  text-center">
-                Recent care team activity will <br /> show here.
-              </p>
-            </div>
-          </Show>
-        </div>
-      </Tabs>
+      <div class="w-full flex flex-wrap justify-center items-center pt-2 px-2">
+        <JournalsToggleGroup
+          items={["Medication Taken", "Nutrition", "Sleep", "Mood", "Notes"]}
+          getOuter={selectedOuter}
+          getInner={selectedInner}
+          setInner={setSelectedInner}
+          setOuter={setSelectedOuter}
+        />
+      </div>
+      <div class="p-2 flex-grow h-full">
+        <Show when={currentCards()}>
+          <For each={currentCards()}>
+            {(entry) => {
+              switch (entry.type) {
+                case "medication":
+                  return (
+                    <MedicationCard med={entry.data as TakenMedsWithNoteUser} />
+                  );
+                case "mood":
+                  return <MoodCard mood={entry.data as MoodsWithNoteUser} />;
+                case "note":
+                  return <NoteCard note={entry.data as NoteWithUser} />;
+                case "meal":
+                  return <MealCard meal={entry.data as MealWithNoteUser} />;
+                case "sleep":
+                  return <SleepCard sleep={entry.data as SleepWithNoteUser} />;
+                default:
+                  return null;
+              }
+            }}
+          </For>
+        </Show>
+        <Show when={!currentCards() || currentCards()?.length === 0}>
+          <div class="border rounded-xl flex flex-col p-4 items-center justify-center gap-3 flex-grow min-h-[100px] h-[calc(100dvh_-_410px)]">
+            <img src={BookIconSVG} class="h-6" />
+            <p class="text-xs text-[#1E1E1E]/75  text-center">
+              Recent care team activity will <br /> show here.
+            </p>
+          </div>
+        </Show>
+      </div>
     </div>
   );
 };

@@ -45,7 +45,7 @@ export default function Member(props: { member: AttachedUser | null }) {
         <p class="text-subtitle13 font-semibold">
           {props.member.firstName} {props.member.lastName}
         </p>
-        <p class="text-subtitle text-black50">Granddaughter</p>
+        <p class="text-subtitle text-black50">{props.member.relationship}</p>
       </div>
     </div>
   );

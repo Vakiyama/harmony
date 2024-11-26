@@ -14,12 +14,12 @@ import TeamPreview from "../profile/team-preview";
 export default function ReviewTeamInfo() {
   const team = useTeam();
   return (
-    <>
+    <div class="flex flex-col gap-3">
       <div class="flex items-center justify-end flex-col mx-3">
-        <div class="flex flex-col justify-end w-full">
-          <p class="text-2xl mt-3">Review Your Information</p>
-          <div class="flex justify-end items-center mt-1">
-            <p class="text-subtitle13 text-[#1E1E1E] mr-[6px]">Edit</p>
+        <div class="flex flex-col justify-end w-full gap-1">
+          <h1 class="text-h1">Review Your Information</h1>
+          <div class="flex justify-end items-center gap-1.5">
+            <p class="text-subtitle13 text-[#1E1E1E]">Edit</p>
             <svg
               width="12"
               height="12"
@@ -35,7 +35,7 @@ export default function ReviewTeamInfo() {
             </svg>
           </div>
         </div>
-        <div class="mt-1 self-start">
+        <div class="self-start">
           <TeamHeaderName
             firstName={team.state.recipient.firstName}
             lastName=""
@@ -43,8 +43,8 @@ export default function ReviewTeamInfo() {
           />
         </div>
       </div>
-      <div class="flex flex-col justify-self-end self-end w-full flex-grow mt-[26px]">
-        <Tabs defaultValue="general" class="w-full h-full">
+      <div class="flex flex-col justify-self-end self-end w-full flex-grow">
+        <Tabs defaultValue="general" class="w-full h-full flex flex-col gap-2">
           <TabsList class="w-full text-black overflow-scroll text-base flex items-center justify-center text-center align-middle font-normal">
             {["General", "Medical", "Members"].map((tabName) => (
               <TabsTrigger value={tabName.toLowerCase()} class="text-md">
@@ -53,7 +53,6 @@ export default function ReviewTeamInfo() {
             ))}
             <TabsIndicator />
           </TabsList>
-
           <TabsContent value="general">
             <TeamGeneralInfo />
           </TabsContent>
@@ -72,6 +71,6 @@ export default function ReviewTeamInfo() {
           </TabsContent>
         </Tabs>
       </div>
-    </>
+    </div>
   );
 }

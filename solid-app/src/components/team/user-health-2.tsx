@@ -36,12 +36,13 @@ export default function UserHealth2() {
           <TextFieldLine
             name="mobilityNeeds"
             label="Mobility Needs"
-            placeholder="Example: Requires walking cane"
+            placeholder="e.g. Requires walking cane"
             classRoot="mt-3 space-y-0"
             classLabel="text-h4 font-grotesque leading-[120%] inline-block mb-2"
             onInput={(e) =>
               team.updateRecipientField("mobilityNeed", e.currentTarget.value)
             }
+            value={team.state.recipient.mobilityNeed}
           />
           {/* Render past injuries input fields */}
           <div class="mt-6">
@@ -57,11 +58,11 @@ export default function UserHealth2() {
                     team.updatePastInjury(
                       index(),
                       "name",
-                      e.currentTarget.value,
+                      e.currentTarget.value
                     )
                   }
                   class="p-2 border rounded-[8px] w-full text-base mt-2"
-                  placeholder="Example: Hip Fracture"
+                  placeholder="e.g. Hip Fracture"
                   value={injury.name}
                 />
               )}
@@ -118,11 +119,12 @@ export default function UserHealth2() {
                         team.updateSurgery(
                           index(),
                           "name",
-                          e.currentTarget.value,
+                          e.currentTarget.value
                         )
                       }
                       class="p-2 border rounded-lg w-full text-base"
-                      placeholder="Example: Hip Surgery"
+                      placeholder="e.g. Hip Surgery"
+                      value={surgery.name}
                     />
                     <input
                       type="text"
@@ -131,11 +133,12 @@ export default function UserHealth2() {
                         team.updateSurgery(
                           index(),
                           "year",
-                          e.currentTarget.value,
+                          e.currentTarget.value
                         )
                       }
                       class="p-2 border rounded-lg w-7/12 text-base text-center"
-                      placeholder="Year"
+                      placeholder="e.g. 2019"
+                      value={surgery.year}
                     />
                   </div>
                   <textarea
@@ -144,11 +147,12 @@ export default function UserHealth2() {
                       team.updateSurgery(
                         index(),
                         "extraNotes",
-                        e.currentTarget.value,
+                        e.currentTarget.value
                       )
                     }
                     class="p-2 border rounded-lg w-full text-base"
                     placeholder="Extra notes"
+                    value={surgery.extraNotes}
                   />
                 </div>
               )}

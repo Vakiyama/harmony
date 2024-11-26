@@ -17,7 +17,7 @@ export const recipients = sqliteTable("recipients", {
   employment: text("employment"),
   allergies: text("allergies"),
   dietaryRestrictions: text("dietary_restrictions"),
-  pastInjuries: text("past_injuries"),
+  // pastInjuries: text("past_injuries"),
   mobilityNeed: text("mobility_need"),
   userId: integer("user_id").references(() => users.id),
 });

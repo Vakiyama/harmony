@@ -13,6 +13,7 @@ import { db } from "~/api/db";
 export interface FormState {
   id: number;
   teamName: string;
+  memberRelationship: string;
   recipient: {
     firstName: string;
     lastName?: string;
@@ -61,6 +62,7 @@ interface FormContextValue {
     value: string
   ) => void;
   updateTeamName: (value: string) => void;
+  updateRelationship: (value: string) => void;
   addSurgery: () => void;
   updateSurgery: (
     index: number,
@@ -93,6 +95,7 @@ export const TeamProvider: ParentComponent = (props) => {
   const [state, setState] = createStore<FormState>({
     id: -1,
     teamName: "",
+    memberRelationship: "",
     recipient: {
       firstName: "",
       gender: "",
@@ -118,6 +121,9 @@ export const TeamProvider: ParentComponent = (props) => {
     },
     updateTeamName: (value: string) => {
       setState("teamName", value);
+    },
+    updateRelationship: (value: string) => {
+      setState("memberRelationship", value);
     },
     updateRecipientField: (field, value) => {
       setState("recipient", field, value);

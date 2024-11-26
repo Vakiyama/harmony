@@ -29,7 +29,7 @@ export default function TextFieldLine({
   return (
     <TextFieldRoot class={`space-y-2 mt-5 ${classRoot || ""}`}>
       <TextFieldLabel class={`${classLabel}`}>
-        {label} {required && <span class="text-red-500">*</span>}
+        {label} {label && required && <span class="text-red-500">*</span>}
       </TextFieldLabel>
       <TextField
         type="text"

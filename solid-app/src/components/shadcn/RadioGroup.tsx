@@ -21,22 +21,25 @@ const RadioGroupComponent = (props: RadioGroupProps) => {
       name={props.name}
       value={value()}
       onChange={setValue}
-      class="flex w-full gap-2"
+      class="flex w-full gap-2 mt-2"
     >
       <For each={props.options}>
         {(option) => (
           <RadioGroupItem
             value={option}
-            class="relative flex items-center justify-start w-full h-10 text-base text-black50 rounded-md px-3 py-2 hover:bg-primary-purple-150"
+            class="relative flex items-center justify-center w-full h-12 text-base text-black50 rounded-md px-3 py-2 hover:bg-primary-purple-150 text-center focus-within:ring-2 focus-within:ring-black"
             classList={{
               "bg-primary-purple-150 font-medium text-black":
                 value() === option,
             }}
           >
+            {/* Hidden radio input */}
             <input
               type="radio"
               id={option}
-              class="absolute inset-0 w-full h-full opacity-0 peer"
+              class="absolute inset-0 w-full h-full hidden"
+              aria-label={option}
+              tabindex="0" // Ensure the input is focusable
             />
             <RadioGroupItemControl class="absolute inset-0 w-full h-full" />
             <RadioGroupItemLabel

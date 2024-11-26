@@ -1,4 +1,4 @@
-import { integer, numeric, text, sqliteTable } from "drizzle-orm/sqlite-core";
+import { integer, text, sqliteTable, real } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 import { AttachedNote, notes } from "./Notes";
 import { teams } from "./Teams";
@@ -18,7 +18,7 @@ export const sleeps = sqliteTable("sleeps", {
   id: integer("id").primaryKey().unique().notNull(),
   quality: text("quality", { enum: qualityEnum }).notNull(),
   timeFrame: text("time_frame", { enum: timeFrameEnumSleeps }).notNull(),
-  duration: numeric("duration").notNull(),
+  duration: real("duration").notNull(),
   troubleSleeping: integer("troubleSleeping", { mode: "boolean" }).notNull(),
   date: integer("date", { mode: "timestamp" })
     .notNull()
