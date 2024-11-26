@@ -3,7 +3,7 @@ import { Accessor, Setter } from "solid-js";
 
 export default function TextInput(props: {
   value: Accessor<string>;
-  setValue: Setter<string>;
+  setValue: Setter<string> | ((value: string) => void);
   label: string;
   placeholder: string;
 }) {

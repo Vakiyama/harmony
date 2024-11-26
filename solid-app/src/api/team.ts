@@ -15,6 +15,56 @@ import { pastInjuries } from "../../drizzle/schema/PastInjuries";
 import { importantSurgeries } from "../../drizzle/schema/ImportantSurgeries";
 import { calendars } from "../../drizzle/schema/Calendars";
 
+export async function joinTeam(
+  userId: number,
+  inviteCode: string,
+  relationship: string
+) {
+  const team = (
+    await db.select().from(teams).where(eq(teams.inviteCode, inviteCode))
+  )[0];
+  if (!team) {
+    return {
+      _tag: "error",
+      message: "No team with invite code found.",
+    } as const;
+  }
+  if (!relationship) {
+    return {
+      _tag: "error",
+      message: "Relationship must not be empty.",
+    } as const;
+  }
+  const [teamsError, teamsResult] = await mightFail(
+    db.select().from(teamMembers).where(eq(teamMembers.userId, userId))
+  );
+  if (teamsError) {
+    console.error(teamsError);
+    return { _tag: "error", message: "failed to get list of teams" } as const;
+  }
+  let defaultTeam = false;
+  if (!teamsResult.length) {
+    defaultTeam = true;
+  }
+  const teamMembersResult = await db
+    .select()
+    .from(teamMembers)
+    .where(
+      and(eq(teamMembers.userId, userId), eq(teamMembers.teamId, team.id))
+    );
+  if (teamMembersResult.length === 0) {
+    await db.insert(teamMembers).values({
+      userId,
+      teamId: team.id,
+      role: "member",
+      relationship,
+      defaultTeam,
+    });
+    return { _tag: "success", teamId: team.id } as const;
+  }
+  return { _tag: "error", message: "Member is already in team." } as const;
+}
+
 export const createMedicationAction = action(
   async ({
     medicationInput,
@@ -434,6 +484,7 @@ export const createTeamAction = action(
       db.select().from(teamMembers).where(eq(teamMembers.userId, userId))
     );
     if (teamsError) {
+      console.error(teamsError);
       return { error: "failed to get list of teams" };
     }
     let defaultTeam = false;
