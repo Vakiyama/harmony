@@ -127,7 +127,7 @@ export default function TeamMedicationInfo() {
           <div class="flex flex-col gap-2">
             {medications.length > 0 ? (
               <For each={medications}>
-                {(medication) => (
+                {(medication, index) => (
                   <TeamMedicalDetail
                     medicineName={medication.name}
                     medicineDose={medication.dosage}
@@ -136,7 +136,7 @@ export default function TeamMedicationInfo() {
                         ? medication.instructions
                         : "No medication instructions provided"
                     }
-                    medicineLink=""
+                    medicineLink={`/team/create/medication-detail/${index()}`}
                   />
                 )}
               </For>

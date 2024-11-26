@@ -2,9 +2,12 @@ import { useParams } from "@solidjs/router";
 import { MedicationCard } from "~/components/profile/medication-card";
 import MedicationImage from "~/components/profile/medication-image";
 import TopNav from "~/components/shared/TopNav";
+import { useTeam } from "~/context/team-context";
 
 export default function MedicationDetail() {
-  const { id } = useParams();
+  const params = useParams();
+  const team = useTeam();
+
   return (
     <div class="px-2">
       <TopNav leftNavigation="Back" name="Medication Details" />
