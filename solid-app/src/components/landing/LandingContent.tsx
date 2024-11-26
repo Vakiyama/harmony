@@ -87,7 +87,7 @@ const LandingContent = () => {
           setOuter={setSelectedOuter}
         />
       </div>
-      <div class="p-2 flex-grow h-full">
+      <div class="p-2 flex flex-col gap-3 h-full">
         <Show when={currentCards()}>
           <For each={currentCards()}>
             {(entry) => {

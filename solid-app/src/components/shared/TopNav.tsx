@@ -2,6 +2,7 @@ import { JSX } from "solid-js";
 import { A, useLocation, useParams } from "@solidjs/router";
 import { twMerge } from "tailwind-merge";
 import ChevronLeft from "../icon/chevron-left";
+import { FaSolidAngleDown } from "solid-icons/fa";
 
 export default function TopNav(props: {
   name?: JSX.Element;
@@ -59,7 +60,12 @@ export default function TopNav(props: {
 
         {/* Center column */}
         <div class="flex-1 flex justify-center items-center">
-          {props.name ? (
+          {location.pathname.startsWith(`/team/${params.id}/journal`) ? (
+            <div class="flex flex-1 justify-center items-center">
+              {props.name}'s care team
+              <FaSolidAngleDown class="text-xl" />
+            </div>
+          ) : props.name ? (
             <h4 class="text-h4 font-medium">{props.name}</h4>
           ) : null}
         </div>
