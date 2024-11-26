@@ -11,13 +11,11 @@ import { createEffect, createSignal, onCleanup, onMount, Show } from "solid-js";
 import { A } from "@solidjs/router";
 import { twMerge } from "tailwind-merge";
 import { Effect, Exit, pipe } from "effect";
-import { ArrayMessage } from "~/api/claude/effectGraph/messages";
 import { useHarmonyChat } from "../chat/harmony-chat";
 import { getUser } from "~/api/server";
 import { InferSelectModel } from "drizzle-orm";
 import { users } from "@/schema/Users";
 import { ImageRoot, Image } from "~/components/ui/image";
-import { DefaultEventsMap } from "socket.io";
 
 function toTwoDigits(value: number): string {
   return value.toString().length === 1 ? `0${value}` : `${value}`;
@@ -38,8 +36,6 @@ function sleep(ms: number) {
     }, ms),
   );
 }
-
-let timeout: NodeJS.Timeout;
 
 export default function HarmonyVoice() {
   const [counter, setCounter] = createSignal(0);
@@ -191,9 +187,12 @@ export default function HarmonyVoice() {
         let isHandlingConversation = false;
 
         socket.on("end-utterance", () => {
-          if (playing() || isHandlingConversation || 
+          if (
+            playing() ||
+            isHandlingConversation ||
             (currentStreamedRole() === "assitant" && messages.length !== 0)
-            ) return;
+          )
+            return;
           isHandlingConversation = true;
           setPlaying(true);
           setLastTranscribedMessage(transcribedMessage());
