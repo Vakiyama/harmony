@@ -40,7 +40,7 @@ export async function joinTeam(
   );
   if (teamsError) {
     console.error(teamsError);
-    return { error: "failed to get list of teams" };
+    return { _tag: "error", message: "failed to get list of teams" } as const;
   }
   let defaultTeam = false;
   if (!teamsResult.length) {
@@ -53,15 +53,13 @@ export async function joinTeam(
       and(eq(teamMembers.userId, userId), eq(teamMembers.teamId, team.id))
     );
   if (teamMembersResult.length === 0) {
-    await db
-      .insert(teamMembers)
-      .values({
-        userId,
-        teamId: team.id,
-        role: "member",
-        relationship,
-        defaultTeam,
-      });
+    await db.insert(teamMembers).values({
+      userId,
+      teamId: team.id,
+      role: "member",
+      relationship,
+      defaultTeam,
+    });
     return { _tag: "success", teamId: team.id } as const;
   }
   return { _tag: "error", message: "Member is already in team." } as const;
