@@ -59,11 +59,16 @@ export default function TopNav(props: {
         </div>
 
         {/* Center column */}
-        <div class="flex-1 flex justify-center items-center">
+        <div class="flex-1 flex items-center">
           {location.pathname.startsWith(`/team/${params.id}/journal`) ? (
-            <div class="flex flex-1 justify-center items-center">
-              {props.name}'s care team
-              <FaSolidAngleDown class="text-xl" />
+            <div class="flex flex-row items-center">
+              <h1 class="text-h4 font-medium flex items-center">
+                <span class="truncate overflow-hidden max-w-[120px]">
+                  {props.name}
+                </span>
+                <span class="whitespace-nowrap">'s Care Team</span>
+              </h1>
+              <FaSolidAngleDown class="ml-2 flex-shrink-0" />
             </div>
           ) : props.name ? (
             <h4 class="text-h4 font-medium">{props.name}</h4>
