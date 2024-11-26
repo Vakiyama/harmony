@@ -50,10 +50,10 @@ export default function AddMedication(props: {
   return (
     <>
       <Show when={!showMedicationForm()}>
-        <p class="flex justify-center text-subtitle13 text-stepsGray mt-3">
+        <p class="flex justify-center text-subtitle13 text-stepsGray mt-3 mb-4">
           6 of 8
         </p>
-        <div class="flex items-center justify-start flex-col h-full mt-4 mx-3 mb-[19px]">
+        <div class="flex items-center justify-start flex-col h-full gap-1 mx-3 mb-[19px]">
           <p class="self-start text-h2 font-grotesque leading-[120%] font-medium">
             Tell us about {team.state.recipient.firstName}'s Medication
           </p>
@@ -93,9 +93,9 @@ export default function AddMedication(props: {
             {/* add med */}
             <button
               onClick={handleAddMedication}
-              class="w-full mt-[10px] border text-addGray rounded-[8px] text-base"
+              class="w-full border text-addGray rounded-lg text-base"
             >
-              <div class="flex flex-col justify-center items-center gap-0 my-[10px]">
+              <div class="flex flex-col justify-center items-center gap-2 py-2">
                 <span class="justify-self-end">
                   <svg
                     width="12"
@@ -122,7 +122,7 @@ export default function AddMedication(props: {
                     />
                   </svg>
                 </span>
-                <span class="justify-self-start mt-1">Add Medication</span>
+                <span class="justify-self-start">Add Medication</span>
               </div>
             </button>
           </div>
@@ -135,9 +135,12 @@ export default function AddMedication(props: {
             >
               Next
             </Button>
-            <a onClick={team.nextStep} class="self-center text-subtitle13 mt-2">
+            <button
+              onClick={team.nextStep}
+              class="self-center text-subtitle13 mt-2"
+            >
               Skip for now
-            </a>
+            </button>
           </div>
         </div>
       </Show>
