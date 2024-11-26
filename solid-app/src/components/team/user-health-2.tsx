@@ -202,9 +202,12 @@ export default function UserHealth2() {
           >
             Next
           </Button>
-          <a onClick={team.nextStep} class="self-center text-subtitle13 mt-2">
+          <button
+            onClick={team.nextStep}
+            class="self-center text-subtitle13 mt-2"
+          >
             Skip for now
-          </a>
+          </button>
         </div>
       </div>
     </>

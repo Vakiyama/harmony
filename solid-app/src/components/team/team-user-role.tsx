@@ -62,12 +62,12 @@ export default function TeamUserRole() {
           </For>
         </div>
         <div class="flex flex-col justify-end w-full flex-grow">
-          <a
+          <button
             onClick={team.nextStep}
             class="self-center text-subtitle13 mt-2 mb-[18px]"
           >
             Skip for now
-          </a>
+          </button>
         </div>
       </div>
     </>

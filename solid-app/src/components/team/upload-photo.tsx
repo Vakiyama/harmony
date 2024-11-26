@@ -53,9 +53,9 @@ export default function UploadPhoto() {
         >
           Next
         </Button>
-        <a onClick={team.nextStep} class="text-subtitle13 mt-2">
+        <button onClick={team.nextStep} class="text-subtitle13 mt-2">
           Skip for now
-        </a>
+        </button>
       </div>
     </>
   );
