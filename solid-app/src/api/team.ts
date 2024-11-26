@@ -15,7 +15,11 @@ import { pastInjuries } from "../../drizzle/schema/PastInjuries";
 import { importantSurgeries } from "../../drizzle/schema/ImportantSurgeries";
 import { calendars } from "../../drizzle/schema/Calendars";
 
-export async function joinTeam(userId: number, inviteCode: string) {
+export async function joinTeam(
+  userId: number,
+  inviteCode: string,
+  relationship: string,
+) {
   const team = (
     await db.select().from(teams).where(eq(teams.inviteCode, inviteCode))
   )[0];
@@ -23,6 +27,12 @@ export async function joinTeam(userId: number, inviteCode: string) {
     return {
       _tag: "error",
       message: "No team with invite code found.",
+    } as const;
+  }
+  if (!relationship) {
+    return {
+      _tag: "error",
+      message: "Relationship must not be empty.",
     } as const;
   }
   const teamMembersResult = await db
@@ -34,8 +44,8 @@ export async function joinTeam(userId: number, inviteCode: string) {
   if (teamMembersResult.length === 0) {
     await db
       .insert(teamMembers)
-      .values({ userId, teamId: team.id, role: "member" });
-    return { _tag: "success" } as const;
+      .values({ userId, teamId: team.id, role: "member", relationship });
+    return { _tag: "success", teamId: team.id } as const;
   }
   return { _tag: "error", message: "Member is already in team." } as const;
 }
@@ -228,7 +238,7 @@ export const getTeamFromTeamId = async (teamId: number) => {
     db
       .select()
       .from(pastInjuries)
-      .where(eq(pastInjuries.recipientId, recipientId))
+      .where(eq(pastInjuries.recipientId, recipientId)),
   );
 
   if (pastInjuriesError || !pastInjuriesResult) {
@@ -240,7 +250,7 @@ export const getTeamFromTeamId = async (teamId: number) => {
     db
       .select()
       .from(importantSurgeries)
-      .where(eq(importantSurgeries.recipientId, recipientId))
+      .where(eq(importantSurgeries.recipientId, recipientId)),
   );
 
   if (importantSurgeriesError || !importantSurgeriesResult) {
@@ -462,6 +472,7 @@ export const createTeamAction = action(
       db.select().from(teamMembers).where(eq(teamMembers.userId, userId)),
     );
     if (teamsError) {
+      console.error(teamsError);
       return { error: "failed to get list of teams" };
     }
     let defaultTeam = false;

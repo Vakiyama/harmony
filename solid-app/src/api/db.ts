@@ -1,9 +1,11 @@
 import { drizzle } from "drizzle-orm/libsql";
 import { createClient } from "@libsql/client";
-import * as dotenv from "dotenv";
+// import * as dotenv from "dotenv";
+/*
 dotenv.config({
   path: ".env",
 });
+*/
 
 let client;
 

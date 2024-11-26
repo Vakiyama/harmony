@@ -4,19 +4,26 @@ import { Button } from "~/components/ui/button";
 import TextInput from "../Team/[id]/Calendar/Create/TextInput";
 import { joinTeam } from "~/api/team";
 import { getUser } from "~/api";
+import { useNavigate } from "@solidjs/router";
 
 export default function JoinTeam() {
   const [code, setCode] = createSignal("");
+  const [relationship, setRelationship] = createSignal("");
   const [user] = createSignal(getUser());
   const [error, setError] = createSignal<string | null>(null);
+  const navigate = useNavigate();
 
   async function handleSubmitCode(e: SubmitEvent) {
-    console.log(e);
     e.preventDefault();
     e.stopPropagation();
-    const response = await joinTeam((await user()).id, code());
+    if (relationship().length === 0)
+      return setError("Relationship must not be empty");
+    const response = await joinTeam((await user()).id, code(), relationship());
     if (response._tag === "error") {
       setError(response.message);
+    }
+    if (response._tag === "success") {
+      return navigate(`/team/${response.teamId}`);
     }
   }
 
@@ -25,13 +32,19 @@ export default function JoinTeam() {
       <TopNav leftNavigation="Back" name="Join a Team" />
       <form
         onSubmit={handleSubmitCode}
-        class="relative flex flex-col items-center justify-center w-full h-fit p-4 gap-6 h-full"
+        class="relative flex flex-col items-center justify-center w-full p-4 gap-4 h-full"
       >
         <TextInput
           label="Invite Code"
           placeholder="Code"
           value={code}
           setValue={setCode}
+        />
+        <TextInput
+          label="Relationship to care recipient"
+          placeholder="e.g. Friend, Family, Daughter, Son..."
+          value={relationship}
+          setValue={setRelationship}
         />
         <Show when={error()}>
           <p class="text-sm text-red-500">{error()}</p>
