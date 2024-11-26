@@ -12,7 +12,6 @@ import { TeamFromTeamId } from "@/schema/Teams";
 export default function ProfileTeamContent(props: {
   data: TeamFromTeamId | undefined;
 }) {
-  console.log("profile", props.data);
   return (
     <div class="h-full w-full flex items-center justify-center">
       <Tabs defaultValue="general info" class="w-full h-full flex flex-col">
