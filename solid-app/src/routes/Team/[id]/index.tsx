@@ -13,9 +13,6 @@ export default function SpecificTeamInfo() {
   });
 
   const teamData = createMemo(() => team());
-  if (team()) {
-    console.log("hello", team());
-  }
   return (
     <div class="px-2">
       {/* header */}

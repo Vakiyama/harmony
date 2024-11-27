@@ -1,6 +1,5 @@
 import { createEffect, createSignal, onMount, Suspense } from "solid-js";
 import Modal from "../../../../components/shared/modal";
-import JournalFeed from "./journal-feed";
 import { MetaProvider } from "@solidjs/meta";
 import Notification from "~/components/shared/notification";
 import {
@@ -13,6 +12,7 @@ import { createAsync, useParams } from "@solidjs/router";
 import { getListOfTeams, getTeamFromTeamId } from "~/api/team";
 import { TeamWithDefault } from "@/schema/Teams";
 import { useTeam } from "~/context/team-context";
+import LandingContent from "~/components/landing/LandingContent";
 
 export default function Journal() {
   const [teamListData, setTeamListData] = createSignal<
@@ -31,7 +31,7 @@ export default function Journal() {
     }
   });
   const [isModalOpen, setIsModalOpen] = createSignal(false);
-  const [isSideMenuOpen, setIsSideMenuOpen] = createSignal(false);
+  // const [isSideMenuOpen, setIsSideMenuOpen] = createSignal(false);
 
   const handleButtonClick = () => {
     setIsModalOpen((prev) => !prev);
@@ -61,15 +61,13 @@ export default function Journal() {
           defaultSetter: setTeamListData,
         }}
       />
-      <div class="flex flex-col text-start">
-        <div class="flex flex-row justify-between items-center mx-2">
+      <div class="flex flex-col text-start mx-2">
+        <div class="flex flex-row justify-between items-center">
           <h2 class="font-medium text-[24px]">Journal Entries</h2>
         </div>
-        <div class="">
-          <Suspense fallback={<div>Loading...</div>}>
-            <JournalFeed></JournalFeed>
-          </Suspense>
-        </div>
+        <Suspense fallback={<div>Loading...</div>}>
+          <LandingContent />
+        </Suspense>
 
         {isModalOpen() && (
           <div

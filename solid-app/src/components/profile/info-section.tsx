@@ -4,9 +4,9 @@ export function InfoSection(props: { title?: string; content: JSXElement }) {
   return (
     <div>
       <Show when={props.title}>
-        <h4 class="text-h4 font-medium">{props.title}</h4>
+        <h4 class="font-medium">{props.title}</h4>
       </Show>
-      <span class="text-black/75">{props.content}</span>
+      <p class="text-black/75 text-subtitle text-medium">{props.content}</p>
     </div>
   );
 }

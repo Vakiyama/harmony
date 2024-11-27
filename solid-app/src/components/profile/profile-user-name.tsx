@@ -23,10 +23,12 @@ export default function ProfileUserName(props: {
       </div>
 
       {/* Username and description */}
-      <div class="flex flex-row justify-between w-full items-center">
-        <div class="text-h2 font-medium">{`${props?.firstName} ${props?.lastName}`}</div>
+      <div class="flex flex-row justify-between w-full items-baseline">
+        <div class="h-full text-h2 font-medium">{`${props?.firstName} ${props?.lastName}`}</div>
         <Show when={props.inviteCode}>
-          <p class="text-h4 font-medium">Invite Code - {props.inviteCode}</p>
+          <p class="h-full text-h4 font-medium">
+            Invite Code - {props.inviteCode}
+          </p>
         </Show>
       </div>
     </div>

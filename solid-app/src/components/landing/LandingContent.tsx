@@ -77,8 +77,8 @@ const LandingContent = () => {
   });
 
   return (
-    <div class="">
-      <div class="w-full flex flex-wrap justify-center items-center pt-2 px-2">
+    <div class="flex flex-col gap-1.5">
+      <div class="w-full flex flex-wrap items-start">
         <JournalsToggleGroup
           items={["Medication Taken", "Nutrition", "Sleep", "Mood", "Notes"]}
           getOuter={selectedOuter}
@@ -87,7 +87,7 @@ const LandingContent = () => {
           setOuter={setSelectedOuter}
         />
       </div>
-      <div class="p-2 flex flex-col gap-3 h-full">
+      <div class="flex flex-col gap-3 h-full">
         <Show when={currentCards()}>
           <For each={currentCards()}>
             {(entry) => {
