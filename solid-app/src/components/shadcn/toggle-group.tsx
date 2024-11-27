@@ -103,7 +103,7 @@ const JournalsToggleGroup = (props: ToggleGroupProps) => {
   };
 
   return (
-    <div class="flex items-center gap-2 flex-wrap p-1 flex-col w-full">
+    <div class="flex gap-2 flex-wrap flex-col w-full">
       <ToggleGroupUI
         multiple={true}
         value={props.getInner()}

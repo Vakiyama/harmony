@@ -11,7 +11,6 @@ export default function TeamGeneralInfo() {
     phoneNumber,
     email,
     gender,
-    age,
     preferredLanguage,
     livesWith,
     employment,
@@ -38,17 +37,11 @@ export default function TeamGeneralInfo() {
         sections={[
           {
             title: "Phone Number",
-            content: (
-              <p class="text-xs">
-                {phoneNumber ? formatPhoneNumber(phoneNumber) : phoneNumber}
-              </p>
-            ),
+            content: phoneNumber ? formatPhoneNumber(phoneNumber) : phoneNumber,
           },
           {
             title: "Email",
-            content: (
-              <p class="text-xs ">{email ? email : "No email provided"}</p>
-            ),
+            content: email ? email : "No email provided",
           },
         ]}
       />
@@ -73,27 +66,19 @@ export default function TeamGeneralInfo() {
         sections={[
           {
             title: "Gender",
-            content: <p class="text-xs">{gender}</p>,
+            content: gender,
           },
           {
             title: "Preferred Language",
-            content: <p class="text-xs ">{preferredLanguage}</p>,
+            content: preferredLanguage,
           },
           {
             title: "Lives With",
-            content: (
-              <p class="text-xs ">
-                {livesWith ? livesWith : "No living arrangements provided"}
-              </p>
-            ),
+            content: livesWith ? livesWith : "No living arrangements provided",
           },
           {
             title: "Employment",
-            content: (
-              <p class="text-xs ">
-                {employment ? employment : "No employment status provided"}
-              </p>
-            ),
+            content: employment ? employment : "No employment status provided",
           },
         ]}
       />

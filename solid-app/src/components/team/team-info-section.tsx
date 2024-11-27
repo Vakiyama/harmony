@@ -7,9 +7,9 @@ export function TeamInfoSection(props: {
   return (
     <div>
       <Show when={props.title}>
-        <p class="text-sm font-semibold">{props.title}</p>
+        <p class="font-medium">{props.title}</p>
       </Show>
-      <span class="text-black/75">{props.content}</span>
+      <p class="text-black/75 text-subtitle">{props.content}</p>
     </div>
   );
 }

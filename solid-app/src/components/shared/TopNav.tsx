@@ -77,7 +77,7 @@ export default function TopNav(props: {
         props.class ? props.class : ""
       )}
     >
-      <div class="w-full flex flex-row px-2 h-full items-center">
+      <div class="w-full flex flex-row px-2 h-full items-center justify-start">
         {/* Left column */}
         <div class="flex-1 flex items-center">
           {backLocation && props.leftNavigation ? (
@@ -91,7 +91,7 @@ export default function TopNav(props: {
         </div>
 
         {/* Center column */}
-        <div class="flex-1 flex items-center">
+        <div class="flex-1 flex items-center justify-center">
           {location.pathname.startsWith(`/team/${params.id}/journal`) ? (
             <div class="flex flex-row items-center">
               <Show when={teamName()}>
@@ -106,7 +106,7 @@ export default function TopNav(props: {
                   onClick={() => toggleDropdown()}
                 />
                 {dropdownVisible() && (
-                  <div class="absolute bg-white border rounded-lg shadow-lg mt-2 p-2 w-48">
+                  <div class="absolute left-0 top-2/3 rounded-b-lg bg-white shadow-lg p-2 w-full">
                     <ul class="list-none">
                       {props.forTeamSetting?.teamData?.map((item) => (
                         <li
