@@ -9,14 +9,14 @@ const EventCalendarDisplay = (props: {
   teamId: number;
 }) => {
   const getDayName = (date: string) => {
-    return moment.weekdaysShort()[moment(date).day()].toUpperCase();
+    return moment.weekdaysShort()[moment(date, "YYYY-MM-DD").day()];
   };
   const getDayNumber = (date: string) => {
     return moment(date).date();
   };
   const getGroupedEvents = () => {
     return props.events().reduce((acc, event) => {
-      const date = moment(event.timeStart!).format("YYYY-MM-DD");
+      const date = moment(event.timeStart).format("YYYY-MM-DD");
       if (!acc[date]) {
         acc[date] = [];
       }
@@ -35,7 +35,7 @@ const EventCalendarDisplay = (props: {
           <div class="self-stretch justify-between items-start inline-flex space-x-5">
             <div class="w-8 flex-col justify-start items-center gap-0.5 inline-flex">
               <div class="self-stretch text-center text-[#5d5d5d]/75 text-[11px] font-normal font-['SF Pro'] leading-[13.20px]">
-                {getDayName(date)}
+                {String(getDayName(date)).toUpperCase()}
               </div>
               <div class="self-stretch text-center text-[#5d5d5d] text-base font-['SF Pro'] leading-tight">
                 {getDayNumber(date)}

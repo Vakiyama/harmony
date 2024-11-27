@@ -167,13 +167,10 @@ export const getCalendarData = async (props: {
 
   // Add type filters dynamically
   if (props.filters.task && props.filters.event) {
-    console.log("both");
     conditions.push(or(eq(events.type, "task"), eq(events.type, "event")));
   } else if (props.filters.task) {
-    console.log("tasks only");
     conditions.push(eq(events.type, "task"));
   } else if (props.filters.event) {
-    console.log("events only");
     conditions.push(eq(events.type, "event"));
   }
 
@@ -372,6 +369,5 @@ export const getEventParticipant = async (eventId: number, userId: number) => {
         eq(eventParticipants.userId, userId)
       )
     );
-  console.log(result, "help");
   return result[0];
 };

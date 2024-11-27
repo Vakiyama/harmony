@@ -53,8 +53,8 @@ const EventCard = (props: {
       case "event":
         return (
           <div
-            class="w-0.5  bg-[#7859ea] rounded-[20px] absolute left-1.5"
-            style={{ height: "calc(100% - 20px)" }}
+            class="w-0.5 bg-[#7859ea] rounded-[20px] absolute left-1.5"
+            style={{ height: "calc(100% - 15px)" }}
           />
         );
       case "mood":

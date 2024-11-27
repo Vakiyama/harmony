@@ -231,18 +231,18 @@ export default function CalendarPage() {
         let title, notes, timeStart;
         switch (entry.type) {
           case "meal":
-            timeStart = new Date(entry.data.date.toLocaleString());
+            timeStart = new Date(entry.data.date.toISOString());
             title = entry.data.category;
             notes = entry.data.consumption;
             break;
           case "medication":
-            timeStart = new Date(entry.data.date.toLocaleString());
+            timeStart = new Date(entry.data.date.toISOString());
             title = entry.data.medications.name;
             const note = await getNoteById(entry.data.noteId);
             notes = note?.note;
             break;
           case "mood":
-            timeStart = new Date(entry.data.date.toLocaleString());
+            timeStart = new Date(entry.data.date.toISOString());
             title = "Mood";
             notes = entry.data.wellBeing.toLowerCase();
             break;
@@ -251,12 +251,11 @@ export default function CalendarPage() {
             notes = entry.data.note;
             break;
           case "sleep":
-            timeStart = new Date(entry.data.date.toLocaleString());
+            timeStart = new Date(entry.data.date.toISOString());
             title = "Sleep";
             notes = entry.data.quality.toLowerCase();
             break;
         }
-
         return {
           timeStart: timeStart ?? entry.createdAt,
           type: entry.type,
