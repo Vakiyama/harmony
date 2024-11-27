@@ -1,4 +1,4 @@
-import { createSignal, Suspense } from "solid-js";
+import { createEffect, createSignal, onMount, Suspense } from "solid-js";
 import Modal from "../../../../components/shared/modal";
 import JournalFeed from "./journal-feed";
 import { MetaProvider } from "@solidjs/meta";
@@ -10,10 +10,28 @@ import {
 } from "~/routes/api/notificationStore";
 import TopNav from "~/components/shared/TopNav";
 import { createAsync, useParams } from "@solidjs/router";
-import { getTeamFromTeamId } from "~/api/team";
+import { getListOfTeams, getTeamFromTeamId } from "~/api/team";
+import { TeamWithDefault } from "@/schema/Teams";
+import { useTeam } from "~/context/team-context";
 
 export default function Journal() {
+  const [teamListData, setTeamListData] = createSignal<
+    { team: TeamWithDefault }[] | undefined
+  >(undefined);
+  const teamContext = useTeam();
+  createEffect(async () => {
+    const teamData = await getListOfTeams();
+    setTeamListData(teamData);
+  });
+  onMount(async () => {
+    const teamData = await getListOfTeams();
+    const defaultTeam = teamData.find((team) => team.team.defaultTeam);
+    if (defaultTeam && teamContext.state.id === -1) {
+      teamContext.updateTeamId(defaultTeam.team.id);
+    }
+  });
   const [isModalOpen, setIsModalOpen] = createSignal(false);
+  const [isSideMenuOpen, setIsSideMenuOpen] = createSignal(false);
 
   const handleButtonClick = () => {
     setIsModalOpen((prev) => !prev);
@@ -37,27 +55,15 @@ export default function Journal() {
 
   return (
     <MetaProvider>
-      <TopNav name={team()?.data.teams.teamName} rightNavigation={<>x</>} />
+      <TopNav
+        forTeamSetting={{
+          teamData: teamListData(),
+          defaultSetter: setTeamListData,
+        }}
+      />
       <div class="flex flex-col text-start">
         <div class="flex flex-row justify-between items-center mx-2">
           <h2 class="font-medium text-[24px]">Journal Entries</h2>
-          {/* <button
-            onClick={handleButtonClick}
-            class="flex flex-row gap-1 w-[65px] h-[27px] bg-white items-center justify-center"
-          >
-            <p class="text-base">New</p>
-            <svg
-              fill="#7859EA"
-              stroke-width="0"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 512 512"
-              height="27px"
-              width="27px"
-              style="overflow: visible; color: currentcolor;"
-            >
-              <path d="M256 512a256 256 0 1 0 0-512 256 256 0 1 0 0 512zm-24-168v-64h-64c-13.3 0-24-10.7-24-24s10.7-24 24-24h64v-64c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24h-64v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"></path>
-            </svg>
-          </button> */}
         </div>
         <div class="">
           <Suspense fallback={<div>Loading...</div>}>
