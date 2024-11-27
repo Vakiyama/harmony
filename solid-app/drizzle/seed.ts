@@ -35,8 +35,7 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
     .set({
       firstName: "Chelsea",
       lastName: "Woo",
-      photo:
-        "https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg",
+      photo: "/Chelsea.png",
     })
     .where(eq(users.id, 1));
 
@@ -47,14 +46,13 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
   const mom = await db
     .insert(users)
     .values({
-      displayName: "Sandy",
-      email: "sandy@gmail.com",
-      firstName: "Sandy",
+      displayName: "Jennifer",
+      email: "Jennifer@gmail.com",
+      firstName: "Jennifer",
       kindeId: v4(),
-      lastName: "",
+      lastName: "Woo",
       roleType: "User",
-      photo:
-        "https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg",
+      photo: "/Jennifer.png",
     })
     .returning()
     .onConflictDoNothing();
@@ -62,14 +60,13 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
   const aunt = await db
     .insert(users)
     .values({
-      displayName: "Crystal",
-      email: "crystal@gmail.com",
-      firstName: "Crystal",
+      displayName: "Sylvia",
+      email: "Sylvia@gmail.com",
+      firstName: "Sylvia",
       kindeId: v4(),
-      lastName: "",
+      lastName: "Woo",
       roleType: "User",
-      photo:
-        "https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg",
+      photo: "/Sylvia.png",
     })
     .returning()
     .onConflictDoNothing();
@@ -77,14 +74,13 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
   const grandma = await db
     .insert(users)
     .values({
-      displayName: "Lola",
+      displayName: "Popo",
       email: "lola@outlook.com",
-      firstName: "Lola",
+      firstName: "Popo",
       kindeId: v4(),
       lastName: "",
       roleType: "User",
-      photo:
-        "https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg",
+      photo: "/family.jpeg",
     })
     .returning()
     .onConflictDoNothing();
@@ -101,21 +97,20 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
 
   const recipientsData = [
     {
-      firstName: "Lola",
+      firstName: "Popo",
       lastName: "",
-      email: "lola@outlook.com",
+      email: "popo@outlook.com",
       phoneNumber: "604-123-4567",
       recipientType: "user",
       age: "76",
       gender: "Female",
       preferredLanguage: "Cantonese",
       healthCondition: "Alzheimers",
-      livesWith: "Sandy",
+      livesWith: "Jennifer",
       // hometown: "Hometown",
       employment: "Unemployed",
       userId: grandma[0].id,
-      photo:
-        "https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg",
+      photo: "/family.jpeg",
     },
     // {
     //   firstName: "Penny",
@@ -144,11 +139,10 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
   // Seed Teams
   const teamsData = [
     {
-      teamName: "Lola",
+      teamName: "Popo",
       recipientId: recipientsList[0].id, // Adjust based on the recipient ID
       inviteCode: generateRandomCode(),
-      photo:
-        "https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg",
+      photo: "/family.jpeg",
     },
   ];
 
@@ -191,7 +185,7 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
   const calendarsData = [
     {
       teamId: teamsList[0].id,
-      name: "Lola's Calendar",
+      name: "Popo's Calendar",
     },
   ];
 
@@ -232,7 +226,7 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
       notes: "Purchase supplies for the week.",
       location: "Supermarket",
       repeat: "never",
-      type: "task",
+      type: "event",
       timeStart: new Date("2024-11-03T14:00:00"),
       timeEnd: new Date("2024-11-03T15:00:00"),
     },
