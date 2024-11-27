@@ -44,8 +44,13 @@ import { teams } from "../../../drizzle/schema/Teams";
 import { recipients } from "../../../drizzle/schema/Recipients";
 import { journals } from "../../../drizzle/schema/Journals";
 import { getJournalsFromTeamId, getMedicationsFromTeamId } from "../journal";
-import { getCalendarData, getCalendarFromTeamId } from "../calendar";
+import {
+  getCalendar,
+  getCalendarFromTeamId,
+  getCalendarFromTeamIdWithEvents,
+} from "../calendar";
 import { events } from "../../../drizzle/schema/Events";
+import { getTeamFromTeamId } from "../team";
 
 const CHAT_SYSTEM_MESSAGE = `
 You are a helpful assitant to a caretaker. Your name is "Harmony".
@@ -111,7 +116,6 @@ const journalTables = {
 };
 
 const takenMedicationsSchema = createInsertSchema(takenMedications);
-console.log(takenMedicationsSchema.shape);
 const mealsSchema = createInsertSchema(meals);
 const sleepSchema = createInsertSchema(sleeps);
 const moodSchema = createInsertSchema(moods);
@@ -286,7 +290,6 @@ function createCalendarEventTool(
   teamId: number,
   toolUse: ToolUse,
 ) {
-  console.log(toolUse, params);
   return pipe(
     Effect.tryPromise({
       try: () => getCalendarFromTeamId(teamId),
@@ -346,6 +349,7 @@ const queryCalendarToolDefinition = Effect.runSync(
   }),
 );
 
+getCalendarFromTeamId;
 function queryCalendarTool(
   params: z.infer<typeof queryCalendarToolSchema>,
   teamId: number,
@@ -358,7 +362,7 @@ function queryCalendarTool(
     Effect.flatMap((result) => {
       return pipe(
         Effect.tryPromise({
-          try: () => getCalendarData({ teamId }),
+          try: () => getCalendarFromTeamIdWithEvents(teamId),
           catch: (e) => new QueryDBError(e),
         }),
         Effect.flatMap((calendarResult) =>
@@ -372,7 +376,7 @@ function queryCalendarTool(
           const eventsAndJournal = {
             events: calendars.map((calendar) => ({
               ...calendar,
-              timeStart: calendar.event.timeStart!,
+              timeStart: calendar.events.timeStart!,
             })),
             journals: result!.map((journal) => ({
               ...journal,
@@ -538,7 +542,6 @@ async function getRecipientFromUserId(userId: number, teamId: number) {
     .innerJoin(recipients, eq(teams.recipientId, recipients.id))
     .where(eq(teams.id, teamId));
 
-  //  console.log(teamsResults, teamId);
   const recipient = teamsResults[0];
   if (!recipient) {
     throw new Error("No teams?");
@@ -853,7 +856,7 @@ export const harmonyChat = async (
         }
       }),
       Effect.retry(
-        Schedule.exponential(1000).pipe(Schedule.compose(Schedule.recurs(5))),
+        Schedule.exponential(1000).pipe(Schedule.compose(Schedule.recurs(3))),
       ),
     ),
   );

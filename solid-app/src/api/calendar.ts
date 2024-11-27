@@ -1,7 +1,7 @@
 import { cache } from "@solidjs/router";
 import { AlarmInput, alarms } from "../../drizzle/schema/Alarms";
 import { CalendarInput, calendars } from "../../drizzle/schema/Calendars";
-import { EventInput, events } from "../../drizzle/schema/Events";
+import { Event, EventInput, events } from "../../drizzle/schema/Events";
 import { db } from "./db";
 import { and, eq, or, SQLWrapper } from "drizzle-orm";
 import { TeamMember, teamMembers } from "../../drizzle/schema/TeamMembers";
@@ -46,11 +46,23 @@ export const deleteAlarm = async (alarmId: number) => {
   return result;
 };
 
+export const getCalendarFromTeamIdWithEvents = async (teamId: number) => {
+  "use server";
+  return await db
+    .select({ id: calendars.id, events })
+    .from(calendars)
+    .innerJoin(events, eq(events.calendarId, calendars.id))
+    .where(eq(calendars.teamId, teamId));
+};
 // Calendars
 export const getCalendarFromTeamId = async (teamId: number) => {
   "use server";
   return (
-    await db.select().from(calendars).where(eq(calendars.teamId, teamId))
+    await db
+      .select({ id: calendars.id, events })
+      .from(calendars)
+      .leftJoin(events, eq(events.calendarId, calendars.id))
+      .where(eq(calendars.teamId, teamId))
   )[0];
 };
 
@@ -155,13 +167,10 @@ export const getCalendarData = async (props: {
 
   // Add type filters dynamically
   if (props.filters.task && props.filters.event) {
-    console.log("both");
     conditions.push(or(eq(events.type, "task"), eq(events.type, "event")));
   } else if (props.filters.task) {
-    console.log("tasks only");
     conditions.push(eq(events.type, "task"));
   } else if (props.filters.event) {
-    console.log("events only");
     conditions.push(eq(events.type, "event"));
   }
 
@@ -194,7 +203,7 @@ export const getCalendarData = async (props: {
   // Execute the query
   try {
     const result = await query.where(and(...conditions));
-    return result;
+    return result as Event[];
   } catch (error) {
     console.error(error);
     throw error;
@@ -360,6 +369,5 @@ export const getEventParticipant = async (eventId: number, userId: number) => {
         eq(eventParticipants.userId, userId)
       )
     );
-  console.log(result, "help");
   return result[0];
 };

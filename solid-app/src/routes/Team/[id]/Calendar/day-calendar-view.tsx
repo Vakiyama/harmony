@@ -1,16 +1,13 @@
-import {
-  Accessor,
-  createMemo,
-  createSignal,
-  For,
-  Setter,
-  Show,
-} from "solid-js";
+import { Accessor, createSignal, For, Setter, Show } from "solid-js";
 import moment from "moment";
 import type { Event } from "@/schema/Events";
 import EventCard from "~/components/ui/event-card";
-interface NestedEvent extends Event {
-  nestedEvents?: Event[];
+import { CalendarEventType, CalendarJournalType } from ".";
+interface NestedEvent extends CalendarEventType {
+  nestedEvents?: (CalendarEventType | CalendarJournalType)[];
+}
+interface NestedJournal extends CalendarJournalType {
+  nestedEvents?: (CalendarEventType | CalendarJournalType)[];
 }
 const DayCalendarView = (props: {
   selectedDay: Accessor<number>;
@@ -24,20 +21,21 @@ const DayCalendarView = (props: {
   setCurrentDay: Setter<number>;
   currentMonth: Accessor<string>;
   currentYear: Accessor<number>;
-  events: Accessor<Event[]>;
+  events: Accessor<(CalendarEventType | CalendarJournalType)[]>;
   isCalendarOpen: Accessor<boolean>;
   teamId: number;
 }) => {
   const [startX, setStartX] = createSignal(0);
+
   const getFormattedDate = () => {
     return moment(
       `${props.selectedYear()}-${props.selectedMonth()}-${props.selectedDay()}`,
       "YYYY-MMMM-D"
     ).format("dddd D, YYYY");
   };
-  const getEventsForSelectedDay = (): NestedEvent[] => {
+  const getEventsForSelectedDay = (): (NestedEvent | NestedJournal)[] => {
     const filteredEvents = props.events().filter((event) => {
-      if (!event.timeStart || !event.timeEnd) return false;
+      if (!event.timeStart) return false;
       const eventDate = moment(event.timeStart);
       return (
         eventDate.date() === props.selectedDay() &&
@@ -49,21 +47,34 @@ const DayCalendarView = (props: {
     filteredEvents.sort((a, b) =>
       moment(a.timeStart).isBefore(moment(b.timeStart)) ? -1 : 1
     );
-
     const nestedEventsSet = new Set<number>();
 
     const findNestedEvents = (
-      parentEvent: Event,
-      remainingEvents: Event[]
-    ): Event[] => {
+      parentEvent: CalendarEventType | CalendarJournalType,
+      remainingEvents: (CalendarEventType | CalendarJournalType)[]
+    ): (CalendarEventType | CalendarJournalType)[] => {
       const directNestedEvents = remainingEvents.filter(
         (potentialNestedEvent) => {
+          let backUpPotentialEndTime = new Date(
+            potentialNestedEvent.timeStart!
+          );
+          backUpPotentialEndTime?.setMinutes(
+            backUpPotentialEndTime.getMinutes() + 50
+          );
+
+          let backUpParentEndTime = new Date(parentEvent.timeStart!);
+          backUpParentEndTime?.setMinutes(
+            backUpParentEndTime.getMinutes() + 50
+          );
+
+          let timeStart = new Date(potentialNestedEvent.timeStart!);
+
           return (
+            moment(
+              potentialNestedEvent.timeEnd ?? backUpPotentialEndTime
+            ).isBefore(moment(parentEvent.timeEnd ?? backUpParentEndTime)) &&
             moment(potentialNestedEvent.timeStart).isAfter(
               moment(parentEvent.timeStart)
-            ) &&
-            moment(potentialNestedEvent.timeEnd).isBefore(
-              moment(parentEvent.timeEnd)
             )
           );
         }
@@ -73,12 +84,12 @@ const DayCalendarView = (props: {
       return directNestedEvents.map((nestedEvent) => {
         const furtherNestedEvents = findNestedEvents(
           nestedEvent,
-          remainingEvents.filter((e) => e.id !== nestedEvent.id)
+          remainingEvents.filter((e) => e.index !== nestedEvent.index)
         );
 
         // Add all nested events to the set
-        nestedEventsSet.add(nestedEvent.id);
-        furtherNestedEvents.forEach((e) => nestedEventsSet.add(e.id));
+        nestedEventsSet.add(nestedEvent.index);
+        furtherNestedEvents.forEach((e) => nestedEventsSet.add(e.index));
 
         return {
           ...nestedEvent,
@@ -88,25 +99,26 @@ const DayCalendarView = (props: {
       });
     };
 
-    const mappedEvents: Event[] = filteredEvents.map((event) => {
-      const nestedEvents = findNestedEvents(
-        event,
-        filteredEvents.filter((e) => e.id !== event.id)
-      );
+    const mappedEvents: (CalendarEventType | CalendarJournalType)[] =
+      filteredEvents.map((event) => {
+        const nestedEvents = findNestedEvents(
+          event,
+          filteredEvents.filter((e) => e.index !== event.index)
+        );
 
-      return {
-        ...event,
-        nestedEvents: nestedEvents.length > 0 ? nestedEvents : undefined,
-      };
-    });
-
+        return {
+          ...event,
+          nestedEvents: nestedEvents.length > 0 ? nestedEvents : undefined,
+        };
+      });
     const finalEvents = mappedEvents.filter(
-      (event) => !nestedEventsSet.has(event.id)
+      (event) => !nestedEventsSet.has(event.index)
     );
+
     return finalEvents;
   };
 
-  function getNestedLevel(event: NestedEvent) {
+  function getNestedLevel(event: NestedEvent | NestedJournal) {
     if (!event.nestedEvents || event.nestedEvents.length === 0) {
       return 0;
     }
@@ -118,14 +130,14 @@ const DayCalendarView = (props: {
   }
 
   function findEventDepth(
-    eventToFind: NestedEvent,
-    events: NestedEvent[],
+    eventToFind: NestedEvent | NestedJournal,
+    events: (NestedEvent | NestedJournal)[],
     currentDepth: number = 0
   ): number {
     let maxDepth = -1;
 
     events.forEach((event) => {
-      if (event.id === eventToFind.id) {
+      if (event.index === eventToFind.index) {
         maxDepth = Math.max(maxDepth, currentDepth);
       }
 
@@ -143,13 +155,15 @@ const DayCalendarView = (props: {
   }
 
   const calculateEventPosition = (
-    allEvents: NestedEvent[],
-    event: NestedEvent,
+    allEvents: (NestedEvent | NestedJournal)[],
+    event: NestedEvent | NestedJournal,
     parentStartMinutes: number = 0
   ) => {
     const start = moment(event.timeStart);
-    const end = moment(event.timeEnd);
+    let journalEndTime = new Date(event.timeStart!);
+    journalEndTime?.setMinutes(journalEndTime.getMinutes() + 30);
 
+    const end = moment(event.timeEnd ?? journalEndTime);
     const startMinutes =
       start.hours() * 60 + start.minutes() - parentStartMinutes;
     const endMinutes = end.hours() * 60 + end.minutes() - parentStartMinutes;
@@ -161,6 +175,7 @@ const DayCalendarView = (props: {
     if (height < 48) {
       height = 48;
     }
+
     return {
       top: `${top}px`,
       height: `${height}px`,
@@ -255,11 +270,15 @@ const DayCalendarView = (props: {
                     <EventCard
                       teamId={props.teamId}
                       event={event}
-                      class="ml-[66px] h-full rounded-lg px-4 py-2"
+                      class={`ml-[66px] h-full rounded-lg px-4 py-2 ${
+                        event.type === "event" ? "items-start" : ""
+                      }`}
                     />
                     {event.nestedEvents && event.nestedEvents.length > 0 && (
                       <For each={event.nestedEvents}>
-                        {(nestedEvent: Event) => {
+                        {(
+                          nestedEvent: CalendarEventType | CalendarJournalType
+                        ) => {
                           const parentStartMinutes =
                             moment(event.timeStart).hours() * 60 +
                             moment(event.timeStart).minutes() +
@@ -284,7 +303,9 @@ const DayCalendarView = (props: {
                               <EventCard
                                 teamId={props.teamId}
                                 event={nestedEvent}
-                                class={`w-[calc(100%-2rem)] rounded-lg px-4 py-2 relative z-[1] border-2 border-white h-full`}
+                                class={`w-[calc(100%-2rem)] rounded-lg px-4 py-2 relative z-[1] border-2 border-white h-full ${
+                                  event.type === "event" ? "items-start" : ""
+                                } `}
                               />
                             </div>
                           );

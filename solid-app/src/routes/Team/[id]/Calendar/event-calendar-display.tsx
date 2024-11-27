@@ -2,26 +2,27 @@ import { Accessor, For } from "solid-js";
 import type { Event } from "@/schema/Events";
 import EventCard from "~/components/ui/event-card";
 import moment from "moment";
+import { CalendarJournalType } from ".";
 
 const EventCalendarDisplay = (props: {
-  events: Accessor<Event[]>;
+  events: Accessor<(Event | CalendarJournalType)[]>;
   teamId: number;
 }) => {
   const getDayName = (date: string) => {
-    return moment.weekdaysShort()[moment(date).day()].toUpperCase();
+    return moment.weekdaysShort()[moment(date, "YYYY-MM-DD").day()];
   };
   const getDayNumber = (date: string) => {
     return moment(date).date();
   };
   const getGroupedEvents = () => {
     return props.events().reduce((acc, event) => {
-      const date = moment(event.timeStart!).format("YYYY-MM-DD");
+      const date = moment(event.timeStart).format("YYYY-MM-DD");
       if (!acc[date]) {
         acc[date] = [];
       }
       acc[date].push(event);
       return acc;
-    }, {} as Record<string, Event[]>);
+    }, {} as Record<string, (Event | CalendarJournalType)[]>);
   };
   const getDates = () => {
     return Object.keys(getGroupedEvents()).sort();
@@ -34,7 +35,7 @@ const EventCalendarDisplay = (props: {
           <div class="self-stretch justify-between items-start inline-flex space-x-5">
             <div class="w-8 flex-col justify-start items-center gap-0.5 inline-flex">
               <div class="self-stretch text-center text-[#5d5d5d]/75 text-[11px] font-normal font-['SF Pro'] leading-[13.20px]">
-                {getDayName(date)}
+                {String(getDayName(date)).toUpperCase()}
               </div>
               <div class="self-stretch text-center text-[#5d5d5d] text-base font-['SF Pro'] leading-tight">
                 {getDayNumber(date)}
@@ -42,7 +43,15 @@ const EventCalendarDisplay = (props: {
             </div>
             <div class="w-full flex-col justify-start items-end gap-1 inline-flex">
               <For each={getGroupedEvents()[date]}>
-                {(event) => <EventCard event={event} teamId={props.teamId} />}
+                {(event) => (
+                  <EventCard
+                    event={event}
+                    teamId={props.teamId}
+                    class={`h-full py-2 ${
+                      event.type === "event" ? "items-start pl-4" : ""
+                    }`}
+                  />
+                )}
               </For>
             </div>
           </div>

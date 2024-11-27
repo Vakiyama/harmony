@@ -4,6 +4,7 @@ import {
   createSignal,
   onMount,
   Show,
+  useContext,
 } from "solid-js";
 import { mightFail } from "might-fail";
 import type { Event } from "@/schema/Events";
@@ -30,6 +31,8 @@ import {
   notificationMessage,
 } from "~/routes/api/notificationStore";
 import Notification from "~/components/shared/notification";
+import { getJournalsFromTeamId, getNoteById } from "~/api/journal";
+import { TeamContext } from "~/components/Layout-Context";
 
 moment.locale("en");
 moment.updateLocale("en", { weekdaysMin: "S_M_T_W_T_F_S".split("_") });
@@ -48,9 +51,47 @@ export type CalendarFilterType =
   | "complete"
   | "uncompleted";
 
+type Journal = {
+  timeStart: Date;
+  timeEnd?: Date;
+  type: "medication" | "note" | "mood" | "sleep" | "meal";
+  data: any;
+  id: number;
+  title: string;
+  notes: string;
+};
+
+export interface CalendarJournalType extends Journal {
+  index: number;
+}
+
+export interface CalendarEventType extends Event {
+  index: number;
+}
+
+export type JournalReturnType = {
+  id: number;
+  type: "note" | "mood" | "medication" | "sleep" | "meal";
+  entryId: number;
+  data: any;
+  createdAt: Date;
+};
 export default function CalendarPage() {
   const param = useParams();
-  const teamId = parseInt(param.id);
+  const context = useContext(TeamContext);
+
+  if (!context) {
+    return <div>No team data available</div>;
+  }
+
+  const { teamListData, refetchTrigger } = context;
+
+  const defaultTeam = () =>
+    teamListData()?.find((team) => team.team.defaultTeam === true);
+  const teamId = defaultTeam()?.team.id ?? parseInt(param.id);
+  if (!teamId) {
+    return <div>No team data available</div>;
+  }
   const DEFAULT_FILTERS: CalendarFilterType[] = [
     "events",
     "tasks",
@@ -58,10 +99,12 @@ export default function CalendarPage() {
     "complete",
     "uncompleted",
   ];
-  const [events, setEvents] = createSignal<Event[]>([]);
-  const [currentView, setCurrentView] = createSignal<"day" | "week" | "month">(
-    "week"
-  );
+  const [events, setEvents] = createSignal<
+    (CalendarEventType | CalendarJournalType)[]
+  >([]);
+  const [currentView, setCurrentView] = createSignal<
+    "day" | "week" | "month" | undefined
+  >(undefined);
   const [teamMembers, setTeamMembers] = createSignal<
     { users: User; teammembers: TeamMember }[]
   >([]);
@@ -83,10 +126,20 @@ export default function CalendarPage() {
       ? searchParams.select.toString()
       : DEFAULT_TEAMMEMBERS.join(","),
   });
+
   onMount(async () => {
+    setCurrentView(
+      localStorage.getItem("calendarViewMode")
+        ? (localStorage.getItem("calendarViewMode") as "week" | "day" | "month")
+        : "week"
+    );
     const calendar = await getCalendarFromTeamId(teamId);
     await fetchEvents(calendar.id);
     await fetchTeamMembers(teamId);
+  });
+
+  createEffect(() => {
+    localStorage.setItem("calendarViewMode", currentView() ?? "week");
   });
 
   const [resource, { mutate, refetch }] = createResource(
@@ -111,12 +164,25 @@ export default function CalendarPage() {
     }
   );
 
-  createEffect(() => {
+  createEffect(async () => {
     const currentResource = resource();
+    const [journalEntriesError, journalEntrisResult] = await mightFail(
+      getJournalsFromTeamId(teamId)
+    );
+    if (journalEntriesError) {
+      return console.error(journalEntriesError);
+    }
+    const formatedJournalEntries = await formatJournalEntries(
+      journalEntrisResult ?? []
+    );
+    const sortedItems = sortCalendarItems([
+      ...formatedJournalEntries,
+      ...resource()!,
+    ]);
 
     // Check if resource is defined and is an array before setting events
     if (currentResource && Array.isArray(currentResource)) {
-      setEvents(currentResource); // Set the events when the resource is loaded and is an array
+      setEvents(sortedItems); // Set the events when the resource is loaded and is an array
     }
   });
   const handleRefetch = async () => {
@@ -125,12 +191,27 @@ export default function CalendarPage() {
 
   const [isSideMenuOpen, setIsSideMenuOpen] = createSignal(false);
   const [isCalendarOpen, setIsCalendarOpen] = createSignal(true);
+
   const fetchEvents = async (calendarId: number) => {
+    const [journalEntriesError, journalEntrisResult] = await mightFail(
+      getJournalsFromTeamId(teamId)
+    );
+    if (journalEntriesError) {
+      return console.error(journalEntriesError);
+    }
     const [eventError, eventResult] = await mightFail(getAllEvents(calendarId));
     if (eventError) {
       return console.error(eventError);
     }
-    setEvents(eventResult);
+
+    const formatedJournalEntries = await formatJournalEntries(
+      journalEntrisResult ?? []
+    );
+    const sortedItems = sortCalendarItems([
+      ...eventResult,
+      ...formatedJournalEntries,
+    ]);
+    setEvents(sortedItems);
   };
   const fetchTeamMembers = async (teamId: number) => {
     const [eventError, eventResult] = await mightFail(
@@ -142,6 +223,59 @@ export default function CalendarPage() {
     setTeamMembers(eventResult);
   };
 
+  const formatJournalEntries = async (
+    journalEntries: JournalReturnType[]
+  ): Promise<Journal[]> => {
+    return Promise.all(
+      journalEntries.map(async (entry) => {
+        let title, notes, timeStart;
+        switch (entry.type) {
+          case "meal":
+            timeStart = new Date(entry.data.date.toISOString());
+            title = entry.data.category;
+            notes = entry.data.consumption;
+            break;
+          case "medication":
+            timeStart = new Date(entry.data.date.toISOString());
+            title = entry.data.medications.name;
+            const note = await getNoteById(entry.data.noteId);
+            notes = note?.note;
+            break;
+          case "mood":
+            timeStart = new Date(entry.data.date.toISOString());
+            title = "Mood";
+            notes = entry.data.wellBeing.toLowerCase();
+            break;
+          case "note":
+            title = "Notes";
+            notes = entry.data.note;
+            break;
+          case "sleep":
+            timeStart = new Date(entry.data.date.toISOString());
+            title = "Sleep";
+            notes = entry.data.quality.toLowerCase();
+            break;
+        }
+        return {
+          timeStart: timeStart ?? entry.createdAt,
+          type: entry.type,
+          data: entry.data,
+          id: entry.id,
+          notes,
+          title,
+        };
+      })
+    );
+  };
+
+  const sortCalendarItems = (items: (Event | Journal)[]) => {
+    const sortedItem = items.toSorted(
+      (a, b) => a.timeStart?.getTime()! - b.timeStart?.getTime()!
+    );
+    return sortedItem.map((i, index) => {
+      return { ...i, index };
+    });
+  };
   return (
     <>
       <div class="h-full fixed w-full overflow-y-auto">
