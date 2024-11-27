@@ -81,20 +81,20 @@ export default function Journal() {
         )}
       </div>
       <button
-        class="absolute bottom-[90px] right-3 rounded-full w-14 h-14 bg-primary-purple-150 flex flex-col justify-center items-center"
+        class="absolute bottom-[90px] right-3 rounded-full w-[65px] h-[65px] bg-primary-purple-500 flex flex-col justify-center items-center shadow-[4px_4px_4px_rgba(0,0,0,0.25)]"
         onClick={handleButtonClick}
       >
         <svg
-          fill="#1E1E1E"
-          opacity="0.5"
-          stroke-width="0"
+          width="48"
+          height="48"
+          viewBox="0 0 48 48"
+          fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 512 512"
-          height="24px"
-          width="24px"
-          style="overflow: visible; color: currentcolor;"
         >
-          <path d="m362.7 19.3-48.4 48.4 130 130 48.4-48.4c25-25 25-65.5 0-90.5l-39.4-39.5c-25-25-65.5-25-90.5 0zm-71 71L58.6 323.5c-10.4 10.4-18 23.3-22.2 37.4L1 481.2c-2.5 8.5-.2 17.6 6 23.8s15.3 8.5 23.7 6.1L151 475.7c14.1-4.2 27-11.8 37.4-22.2l233.3-233.2-130-130z"></path>
+          <path
+            d="M18.519 36.8433L34.0194 21.343L26.657 13.9806L11.1567 29.481C10.9433 29.6946 10.7917 29.962 10.718 30.2549L9 39L17.7434 37.282C18.037 37.2086 18.3056 37.0568 18.519 36.8433ZM39.0233 16.3391C39.6487 15.7135 40 14.8652 40 13.9806C40 13.096 39.6487 12.2477 39.0233 11.6221L36.3779 8.97671C35.7523 8.35132 34.904 8 34.0194 8C33.1348 8 32.2865 8.35132 31.6609 8.97671L29.0155 11.6221L36.3779 18.9845L39.0233 16.3391Z"
+            fill="#FCFCFC"
+          />
         </svg>
       </button>
       {isNotificationVisible() && (
