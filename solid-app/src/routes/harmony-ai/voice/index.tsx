@@ -11,11 +11,16 @@ import { createEffect, createSignal, onCleanup, onMount, Show } from "solid-js";
 import { A } from "@solidjs/router";
 import { twMerge } from "tailwind-merge";
 import { Effect, Exit, pipe } from "effect";
-import { useHarmonyChat } from "../chat/harmony-chat";
+import { demoConversation, useHarmonyChat } from "../chat/harmony-chat";
 import { getUser } from "~/api/server";
-import { InferSelectModel } from "drizzle-orm";
+import { eq, InferInsertModel, InferSelectModel } from "drizzle-orm";
 import { users } from "@/schema/Users";
 import { ImageRoot, Image } from "~/components/ui/image";
+import { db } from "~/api/db";
+import { events } from "../../../../drizzle/schema/Events";
+import { demoHelper, getCalendarFromTeamId } from "~/api/calendar";
+import { useTeam } from "~/context/team-context";
+import { eventParticipants } from "@/schema/EventParticipants";
 
 function toTwoDigits(value: number): string {
   return value.toString().length === 1 ? `0${value}` : `${value}`;
@@ -43,10 +48,11 @@ export default function HarmonyVoice() {
     "What can I help you with today?",
   );
   const [loudness, setLoudness] = createSignal(0);
+  const [demoIndex, setDemoIndex] = createSignal(-1);
 
   const [currentStreamedRole, setCurrentStreamedRole] = createSignal<
-    "assitant" | "user"
-  >("assitant");
+    "assistant" | "user"
+  >("assistant");
 
   const [user, setUser] = createSignal<Awaited<ReturnType<typeof getUser>>>();
   const {
@@ -60,19 +66,23 @@ export default function HarmonyVoice() {
   const [playing, setPlaying] = createSignal(false);
   const [audioState, __] = createAudio(audioSource, playing, volume);
 
+  const [lastAudioDuration, setLastAudioDuration] = createSignal(0);
   const [lastTranscribedMessage, setLastTranscribedMessage] = createSignal("");
   const [transcribedMessage, setTranscribedMessage] = createSignal("");
   const [recorder, setRecorder] = createSignal<MediaRecorder>();
   const [muted, setMuted] = createSignal(false);
+  const teams = useTeam();
 
   createEffect(() => {
     console.log(audioState.currentTime, audioState.duration);
     if (
       audioState.currentTime >= audioState.duration &&
       playing() &&
-      audioState.currentTime !== 0
+      audioState.currentTime !== 0 &&
+      audioState.duration !== lastAudioDuration()
     ) {
       console.log("Setting playing to false!");
+      setLastAudioDuration(audioState.duration);
       setPlaying(false);
     }
   }, [playing, audioState, audioState.currentTime]);
@@ -84,6 +94,10 @@ export default function HarmonyVoice() {
     if (currentStreamingToken) {
       currentStreamingToken.cancelled = true;
     }
+
+    // Clear the streamed message immediately
+    setStreamedMessage("");
+
     const streamingToken = { cancelled: false };
     currentStreamingToken = streamingToken;
 
@@ -100,17 +114,19 @@ export default function HarmonyVoice() {
       messageRangeCutoff++;
       const clippedMessage = message.slice(0, messageRangeCutoff);
       setStreamedMessage(clippedMessage);
-      setCurrentStreamedRole("assitant");
+      // setCurrentStreamedRole("assistant");
       if (messageRangeCutoff >= message.length) break;
     }
   }
 
+  /*
   createEffect(() => {
     if (messages().length === 0) return;
     const messageContent = messages().at(-1)!.content;
     if (typeof messageContent !== "string") return;
     streamMessage(messageContent);
   });
+  */
 
   class NoAudioStream {
     readonly _tag = "NoAudioStream";
@@ -118,6 +134,25 @@ export default function HarmonyVoice() {
 
   class UnexpectedAudioTrackCount {
     readonly _tag = "UnexpectedAudioTrackCount";
+  }
+
+  function setUserMessage(message: string) {
+    // if (message === "") return;
+    /* if (playing())
+            return console.log("Receiving, ignoring because playing.");
+            */
+    // setTranscribedMessage(message);
+    // if (!playing() && lastTranscribedMessage() !== transcribedMessage()) {
+    setCurrentStreamedRole("user");
+    streamMessage(message);
+    // }
+  }
+  function setAIMessage(message: string) {
+    // setPlaying(true);
+    streamMessage(message);
+    // socket.emit("end-transcription");
+    setCurrentStreamedRole("assistant");
+    handleConversation([], demoIndex());
   }
 
   function streamChunksToServer(mediaStreamTrack: MediaStreamTrack) {
@@ -173,7 +208,9 @@ export default function HarmonyVoice() {
 
         socket.emit("start-transcription");
 
+        /*
         socket.on("transcription-results", (message) => {
+          return;
           if (message === "") return;
           if (playing())
             return console.log("Receiving, ignoring because playing.");
@@ -183,14 +220,16 @@ export default function HarmonyVoice() {
             setCurrentStreamedRole("user");
           }
         });
+        */
 
         let isHandlingConversation = false;
 
         socket.on("end-utterance", () => {
+          return;
           if (
             playing() ||
             isHandlingConversation ||
-            (currentStreamedRole() === "assitant" && messages.length !== 0)
+            (currentStreamedRole() === "assistant" && messages.length !== 0)
           )
             return;
           isHandlingConversation = true;
@@ -209,11 +248,12 @@ export default function HarmonyVoice() {
           mediaStreamTrack.stop();
         };
         mediaRecorder.ondataavailable = async (event) => {
+          return;
           if (
             playing() ||
             muted() ||
             isHandlingConversation ||
-            (currentStreamedRole() === "assitant" && messages.length !== 0)
+            (currentStreamedRole() === "assistant" && messages.length !== 0)
           ) {
             return;
           }
@@ -229,19 +269,27 @@ export default function HarmonyVoice() {
     );
   }
 
+  /*
   createEffect(async () => {
     console.log(messages(), "messages");
     if (messages().at(-1)?.role === "assistant") {
       const lastMessage = messages().at(-1)!;
       if (typeof lastMessage.content !== "string") return;
       console.log("content sent:", lastMessage.content);
-      await setAudioFromMessageText(lastMessage.content);
-      console.log("Audio set, playing!");
-      setPlaying(true);
-
+      console.log(
+        lastMessage.content,
+        demoConversation[demoIndex() - 1].content,
+      );
+      if (lastMessage.content === demoConversation[demoIndex()].content) {
+        /*
+        await setAudioFromMessageText(lastMessage.content);
+        console.log("Audio set, playing!");
+        setPlaying(true);
+      }
       socket.emit("start-transcription");
     }
   }, [messages]);
+  */
 
   function getMicStreamWithPermission() {
     pipe(
@@ -290,6 +338,26 @@ export default function HarmonyVoice() {
     setUser(user);
     setPlaying(false);
     getMicStreamWithPermission();
+
+    window.addEventListener("keydown", async (e) => {
+      console.log("Running");
+      if (e.key !== "p") return;
+      e.preventDefault();
+      setDemoIndex((index) => index + 1);
+      const message = demoConversation[demoIndex()].content as string;
+      if (currentStreamedRole() === "assistant") {
+        setUserMessage(demoConversation[demoIndex()].content as string);
+      } else if (currentStreamedRole() === "user") {
+        setAIMessage(message);
+        await setAudioFromMessageText(message);
+        setPlaying(true);
+      }
+
+      if (demoIndex() === 0) {
+        await demoHelper(teams.state.id);
+        console.log("Success");
+      }
+    });
   });
 
   /*
@@ -366,7 +434,7 @@ export default function HarmonyVoice() {
         </ImageRoot>
         <Show when={streamedMessage().length > 0}>
           <div class={`bg-white drop-shadow-xl  rounded-[28px] px-8 py-8`}>
-            <Show when={currentStreamedRole() === "assitant"}>
+            <Show when={currentStreamedRole() === "assistant"}>
               <div class="rounded-full w-4 h-4 absolute -top-6 left-14 bg-white"></div>
               <div class="rounded-full w-4 h-4 absolute -top-2 left-10 bg-white"></div>
             </Show>

@@ -23,6 +23,85 @@ import { User } from "@/schema/Users";
 import TopNav from "~/components/shared/TopNav";
 import { useTeam } from "~/context/team-context";
 
+export const demoConversation: ArrayMessage[] = [
+  {
+    role: "user",
+    content:
+      "Hi Harmony, I need to schedule a doctor's appointment for Grandma next Thursday at 10 am.",
+  },
+  {
+    role: "assistant",
+    content: "Sure! How long will the appointment last?",
+  },
+  {
+    role: "user",
+    content: "It should be about one hour.",
+  },
+  {
+    role: "assistant",
+    content:
+      "Got it. The appointment will be from 10 am to 11 am. Which doctor is she seeing?",
+  },
+  {
+    role: "user",
+    content: "Dr. Thompson at Maplewood Clinic.",
+  },
+  {
+    role: "assistant",
+    content: "Understood. Who will be taking Grandma to the appointment?",
+  },
+  {
+    role: "user",
+    content: "Aunt Sylvia will take her.",
+  },
+  {
+    role: "assistant",
+    content:
+      "Great. Would you like to add any notes or reminders for this event?",
+  },
+  {
+    role: "user",
+    content:
+      "Yes, please remind Sylvia to ask about the new medication we discussed.",
+  },
+  {
+    role: "assistant",
+    content:
+      "Noted. I've added a reminder for Sylvia to ask about the new medication. Shall I notify the family about this appointment?",
+  },
+  {
+    role: "user",
+    content: "Yes, please update everyone.",
+  },
+  {
+    role: "assistant",
+    content:
+      "All set! The doctor's appointment has been added to Grandma's calendar for next Thursday from 10 am to 11 am at Maplewood Clinic. I've notified the family and included the reminder for Sylvia.",
+  },
+  {
+    role: "user",
+    content: "Also, can you check when Grandma's last medication refill was?",
+  },
+  {
+    role: "assistant",
+    content:
+      "Grandma's last medication refill was on October 5th. She has a two-week supply remaining.",
+  },
+  {
+    role: "user",
+    content: "Thanks, Harmony. That's helpful.",
+  },
+  {
+    role: "assistant",
+    content:
+      "You're welcome! Let me know if there's anything else I can assist you with.",
+  },
+];
+
+function harmonyChatMock(index: number) {
+  return demoConversation.slice(0, index);
+}
+
 export function useHarmonyChat(
   user: Accessor<
     | {
@@ -33,20 +112,24 @@ export function useHarmonyChat(
       }
     | undefined
   >,
-  voice?: boolean
+  voice?: boolean,
 ) {
   const [messages, setMessages] = createSignal<ArrayMessage[]>([]);
   const team = useTeam();
 
-  async function handleConversation(messages: ArrayMessage[]) {
+  async function handleConversation(messages: ArrayMessage[], index?: number) {
     if (!user()) return;
+    /*
     const response = await harmonyChat(
       messages,
       user()!.id,
       team.state.id,
-      voice
+      voice,
     );
     if (!response) return;
+    */
+    if (!index) return;
+    const response = harmonyChatMock(index);
 
     setMessages(response);
   }
@@ -113,6 +196,7 @@ export function HarmonyChat() {
 
   function handleSubmit(event?: SubmitEvent) {
     event && event.preventDefault();
+    if (input() === "") return;
 
     const newMessages = [
       ...messages(),
@@ -143,7 +227,7 @@ export function HarmonyChat() {
 
   function getTimePeriod<T>(
     currentDate: Date,
-    ranges: TimeRange<T>[]
+    ranges: TimeRange<T>[],
   ): T | undefined {
     const currentHour = currentDate.getHours();
 
@@ -201,7 +285,7 @@ export function HarmonyChat() {
                   !(
                     message.role === "user" &&
                     !(typeof message.content === "string")
-                  )
+                  ),
               )
               .map((message, index) => (
                 <HarmonyChatMessage
@@ -260,7 +344,7 @@ function sleep(ms: number) {
   return new Promise<void>((res) =>
     setTimeout(() => {
       res();
-    }, ms)
+    }, ms),
   );
 }
 
@@ -273,7 +357,7 @@ function HarmonyChatMessage(props: {
   const filteredLen = props.messages().filter(
     // remove all "tool_result" messages
     (message) =>
-      !(message.role === "user" && !(typeof message.content === "string"))
+      !(message.role === "user" && !(typeof message.content === "string")),
   ).length;
 
   const [aiMessage, setAiMessage] = createSignal("");
@@ -286,7 +370,7 @@ function HarmonyChatMessage(props: {
 
       await sleep(
         (sleepRange.low + Math.floor(sleepRange.high * Math.random())) /
-          speedFactor
+          speedFactor,
       );
 
       messageRangeCutoff++;
@@ -316,13 +400,13 @@ function HarmonyChatMessage(props: {
         "flex items-center relative max-w-[90%]",
         props.message.role === "user"
           ? "self-end flex-row-reverse mr-1 "
-          : "self-start flex-row"
+          : "self-start flex-row",
       )}
     >
       <div
         class={twMerge(
           "rounded-xl p-2 my-3 mx-1 w-fit text-gray-800 px-4",
-          props.message.role === "user" ? "rounded-br-none bg-[#937AEE]" : ""
+          props.message.role === "user" ? "rounded-br-none bg-[#937AEE]" : "",
         )}
       >
         {props.message.role === "user" ? (

@@ -63,15 +63,17 @@ export default function Profile() {
         <div class="pt-[140px] w-full">
           <div class="w-full h-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1">
             <Show when={teams()}>
-              {teams()?.map((team) => {
-                return (
-                  <TeamCard
-                    teamName={team.team.name || ""}
-                    imageUrl={team.team.photo || ""}
-                    href={`/team/${team.team.id}`}
-                  />
-                );
-              })}
+              {teams()
+                ?.slice(0, 1)
+                .map((team) => {
+                  return (
+                    <TeamCard
+                      teamName={team.team.name || ""}
+                      imageUrl={team.team.photo || ""}
+                      href={`/team/${team.team.id}`}
+                    />
+                  );
+                })}
             </Show>
             {isModalOpen() && (
               <div

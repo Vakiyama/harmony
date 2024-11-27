@@ -91,7 +91,7 @@ export function LandingHeader(props: {
         {dropdownVisible() && (
           <div class="absolute bg-white border rounded-lg shadow-lg mt-2 p-2 w-48">
             <ul class="list-none">
-              {props.teamData?.map((item) => (
+              {props.teamData?.slice(0, 1).map((item) => (
                 <li
                   class="p-2 hover:bg-gray-200 cursor-pointer"
                   onClick={() => setDefaultTeam(item.team)}
