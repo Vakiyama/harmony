@@ -25,16 +25,16 @@ function generateRandomCode(): string {
 
 export const seedData = async (user?: InferSelectModel<typeof users>) => {
   console.log("Seeding...");
-  const usersData = user ? [user] : await db.select().from(users);
+  let usersData = user ? [user] : await db.select().from(users);
   if (usersData.length <= 0) {
     throw new Error("Please create a user first using kinde");
   }
-  const grandma = await db
+  const mom = await db
     .insert(users)
     .values({
-      displayName: "grandma",
-      email: "grandma@gmail.com",
-      firstName: "grandma",
+      displayName: "Sandy",
+      email: "mom@gmail.com",
+      firstName: "Sandy",
       kindeId: v4(),
       lastName: "",
       roleType: "User",
@@ -42,12 +42,12 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
     .returning()
     .onConflictDoNothing();
 
-  const grandpa = await db
+  const aunt = await db
     .insert(users)
     .values({
-      displayName: "grandpa",
-      email: "grandpa@gmail.com",
-      firstName: "grandpa",
+      displayName: "Crystal",
+      email: "aunt@gmail.com",
+      firstName: "Crystal",
       kindeId: v4(),
       lastName: "",
       roleType: "User",
@@ -67,9 +67,9 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
 
   const recipientsData = [
     {
-      firstName: "Grandma",
+      firstName: "mom",
       lastName: "Lola",
-      email: "grandma@example.com",
+      email: "mom@example.com",
       phoneNumber: "1234567890",
       recipientType: "user",
       age: "76",
@@ -79,16 +79,16 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
       livesWith: "Tina",
       // hometown: "Hometown",
       employment: "Unemployed",
-      userId: grandma[0].id,
+      userId: mom[0].id,
     },
     {
-      firstName: "Grandpa",
+      firstName: "Penny",
       lastName: "Smith",
-      email: "grandpa@example.com",
+      email: "aunt@example.com",
       phoneNumber: "0987654321",
       recipientType: "user",
       age: "78",
-      gender: "male",
+      gender: "female",
       preferredLanguage: "English",
       healthCondition: "",
       livesWith: "Tina",
@@ -96,40 +96,34 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
       employment: "Retired",
       allergies: "",
       dietaryRestrictions: "",
-      userId: grandpa[0].id,
+      userId: aunt[0].id,
     },
   ];
+
   await db.insert(recipients).values(recipientsData).onConflictDoNothing();
 
   const recipientsList = await db.select().from(recipients);
-  console.log(recipients);
+  console.log(recipientsList);
 
   // Seed Teams
   const teamsData = [
     {
-      teamName: "Team Alpha",
+      teamName: "mom",
       recipientId: recipientsList[0].id, // Adjust based on the recipient ID
       inviteCode: generateRandomCode(),
       photo:
         "https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg",
     },
-    {
-      teamName: "Team Beta",
-      recipientId: recipientsList[1].id,
-      inviteCode: generateRandomCode(),
-      photo:
-        "https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg",
-    },
   ];
 
-  await db
-    .insert(teams)
-    .values({ ...teamsData })
-    .onConflictDoNothing();
+  for (const data of teamsData) {
+    await db.insert(teams).values(data).onConflictDoNothing();
+  }
 
   const teamsList = await db.select().from(teams);
-  console.log(teams);
+  console.log(teamsList);
 
+  usersData = await db.select().from(users);
   // Seed TeamMembers
   const teamMembersData = [
     {
@@ -137,25 +131,31 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
       userId: usersData[0].id,
       role: "admin",
       defaultTeam: true,
+      relationship: "Daughter",
     },
     {
-      teamId: teamsList[1].id,
+      teamId: teamsList[0].id,
       userId: usersData[0].id,
       role: "member",
       defaultTeam: false,
+      relationship: "Aunt",
+    },
+    {
+      teamId: teamsList[0].id,
+      userId: usersData[0].id,
+      role: "member",
+      defaultTeam: false,
+      relationship: "Mom",
     },
   ];
+
   await db.insert(teamMembers).values(teamMembersData).onConflictDoNothing();
 
   // Seed Calendars
   const calendarsData = [
     {
       teamId: teamsList[0].id,
-      name: "Team Alpha Calendar",
-    },
-    {
-      teamId: teamsList[1].id,
-      name: "Team Beta Calendar",
+      name: "mom Calendar",
     },
   ];
 
@@ -200,46 +200,6 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
       timeStart: new Date("2024-11-03T14:00:00"),
       timeEnd: new Date("2024-11-03T15:00:00"),
     },
-    {
-      calendarId: Calendars[1].id,
-      title: "Physical Therapy Session",
-      notes: "Attend session with client.",
-      location: "Rehabilitation Center",
-      repeat: "never",
-      type: "event",
-      timeStart: new Date("2024-10-31T09:00:00"),
-      timeEnd: new Date("2024-10-31T10:00:00"),
-    },
-    {
-      calendarId: Calendars[1].id,
-      title: "Weekly Check-in",
-      notes: "Discuss care plan and progress.",
-      location: "Home",
-      repeat: "weekly",
-      type: "event",
-      timeStart: new Date("2024-11-02T16:00:00"),
-      timeEnd: new Date("2024-11-02T17:00:00"),
-    },
-    {
-      calendarId: Calendars[1].id,
-      title: "Monthly Health Check-up",
-      notes: "Check blood pressure and vitals",
-      timeStart: new Date(
-        moment()
-          .add(1, "month")
-          .set({ date: 29, hour: 10, minute: 0 })
-          .format(),
-      ), // 29th of next month at 10 AM
-      timeEnd: new Date(
-        moment()
-          .add(1, "month")
-          .set({ date: 29, hour: 11, minute: 0 })
-          .format(),
-      ),
-      location: "Health Clinic",
-      repeat: "never",
-      type: "event",
-    },
   ];
   for await (const data of eventsData) {
     await db
@@ -282,7 +242,7 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
   //Seed Medications
   const medicationsData = [
     {
-      name: "Omeprazole",
+      name: "Aricept",
       dosage: "10mg",
       frequency: "1 per day",
       schedule: "Morning",
@@ -300,7 +260,7 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
       dosage: "500mg",
       frequency: "1 per day",
       schedule: "Evening",
-      teamId: teamsList[1].id,
+      teamId: teamsList[0].id,
     },
   ];
   for await (const data of medicationsData) {
