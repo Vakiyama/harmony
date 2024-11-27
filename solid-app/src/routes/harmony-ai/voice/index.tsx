@@ -21,6 +21,7 @@ import { events } from "../../../../drizzle/schema/Events";
 import { demoHelper, getCalendarFromTeamId } from "~/api/calendar";
 import { useTeam } from "~/context/team-context";
 import { eventParticipants } from "@/schema/EventParticipants";
+import { getListOfTeams } from "~/api/team";
 
 function toTwoDigits(value: number): string {
   return value.toString().length === 1 ? `0${value}` : `${value}`;
@@ -38,14 +39,14 @@ function sleep(ms: number) {
   return new Promise<void>((res) =>
     setTimeout(() => {
       res();
-    }, ms),
+    }, ms)
   );
 }
 
 export default function HarmonyVoice() {
   const [counter, setCounter] = createSignal(0);
   const [streamedMessage, setStreamedMessage] = createSignal(
-    "What can I help you with today?",
+    "What can I help you with today?"
   );
   const [loudness, setLoudness] = createSignal(0);
   const [demoIndex, setDemoIndex] = createSignal(-1);
@@ -108,7 +109,7 @@ export default function HarmonyVoice() {
 
       await sleep(
         (sleepRange.low + Math.floor(sleepRange.high * Math.random())) /
-          speedFactor,
+          speedFactor
       );
 
       messageRangeCutoff++;
@@ -265,7 +266,7 @@ export default function HarmonyVoice() {
 
         mediaRecorder.start(100);
         setRecorder(mediaRecorder);
-      },
+      }
     );
   }
 
@@ -315,7 +316,7 @@ export default function HarmonyVoice() {
           },
           onFailure: console.error,
         });
-      },
+      }
     );
   }
 
@@ -333,6 +334,8 @@ export default function HarmonyVoice() {
   onCleanup(handleCleanup);
 
   onMount(async () => {
+    const teamData = await getListOfTeams();
+    const defaultTeam = teamData.find((team) => team.team.defaultTeam);
     setInterval(() => setCounter(counter() + 1), 1000);
     const user = await getUser();
     setUser(user);
@@ -354,7 +357,8 @@ export default function HarmonyVoice() {
       }
 
       if (demoIndex() === 11) {
-        await demoHelper(teams.state.id);
+        console.log("YO", defaultTeam?.team.id);
+        await demoHelper(defaultTeam?.team.id!);
         console.log("Success");
       }
     });
@@ -394,7 +398,7 @@ export default function HarmonyVoice() {
           console.log(url);
           return url;
         },
-        setAudioSource,
+        setAudioSource
       );
     }
   }
@@ -425,9 +429,7 @@ export default function HarmonyVoice() {
         <ImageRoot
           class={twMerge(
             "mt-0 ml-4 h-[260px] w-[260px]",
-            messages().at(-1)?.role === "assistant"
-              ? "h-[280px] w-[280px]"
-              : "",
+            messages().at(-1)?.role === "assistant" ? "h-[280px] w-[280px]" : ""
           )}
         >
           <Image class="w-full" src={HarmonyMascotAnimated} />
@@ -465,14 +467,14 @@ export default function HarmonyVoice() {
           <div
             class={twMerge(
               "rounded-full bg-[#1E1E1E]/15 w-16 h-16 flex items-center justify-center",
-              muted() ? "border-2 border-red-500" : "",
+              muted() ? "border-2 border-red-500" : ""
             )}
             onClick={() => {
               setMuted((muted) => {
                 const newMuted = !muted;
 
                 socket.emit(
-                  newMuted ? "end-transcription" : "start-transcription",
+                  newMuted ? "end-transcription" : "start-transcription"
                 );
 
                 return newMuted;

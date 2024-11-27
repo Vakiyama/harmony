@@ -131,7 +131,7 @@ export default function CalendarPage() {
     setCurrentView(
       localStorage.getItem("calendarViewMode")
         ? (localStorage.getItem("calendarViewMode") as "week" | "day" | "month")
-        : "week"
+        : "day"
     );
     const calendar = await getCalendarFromTeamId(teamId);
     await fetchEvents(calendar.id);
