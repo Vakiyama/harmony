@@ -27,7 +27,7 @@ export const demoConversation: ArrayMessage[] = [
   {
     role: "user",
     content:
-      "Hi Harmony, I need to schedule a doctor's appointment for Grandma next Thursday at 10 am.",
+      "Hi Harmony, I need to schedule a doctor's appointment for Grandma tomorrow at 10 am.",
   },
   {
     role: "assistant",
@@ -76,7 +76,7 @@ export const demoConversation: ArrayMessage[] = [
   {
     role: "assistant",
     content:
-      "All set! The doctor's appointment has been added to Grandma's calendar for next Thursday from 10 am to 11 am at Maplewood Clinic. I've notified the family and included the reminder for Sylvia.",
+      "All set! The doctor's appointment has been added to Grandma's calendar for next tomorrow from 10 am to 11 am at Maplewood Clinic. I've notified the family and included the reminder for Sylvia.",
   },
   {
     role: "user",
