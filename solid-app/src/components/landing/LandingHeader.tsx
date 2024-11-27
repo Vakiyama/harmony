@@ -59,7 +59,7 @@ export function LandingHeader(props: {
   };
 
   return (
-    <div class="flex justify-between items-center p-4 bg-white w-full fixed top-0">
+    <div class="flex justify-between items-center p-4 bg-white fixed top-0 w-full">
       <div class="flex flex-col">
         <div class="flex flex-row items-center gap-2" onClick={toggleDropdown}>
           <Suspense fallback={<div>Loading team...</div>}>
@@ -89,7 +89,7 @@ export function LandingHeader(props: {
         <p class="text-sm text-gray-500">{currentDate}</p>
 
         {dropdownVisible() && (
-          <div class="absolute bg-white border rounded-lg shadow-lg mt-2 p-2 w-48">
+          <div class="absolute left-0 top-2/3 rounded-b-lg bg-white shadow-lg p-2 w-full">
             <ul class="list-none">
               {props.teamData?.map((item) => (
                 <li
@@ -105,7 +105,7 @@ export function LandingHeader(props: {
       </div>
 
       <div class="flex flex-col items-end">
-        <svg
+        {/* <svg
           width="30"
           height="30"
           viewBox="0 0 30 30"
@@ -116,7 +116,7 @@ export function LandingHeader(props: {
             d="M15 30C15.9216 30.0012 16.8207 29.7129 17.5722 29.1752C18.3237 28.6376 18.8904 27.8773 19.1935 27H10.8066C11.1097 27.8773 11.6763 28.6376 12.4279 29.1752C13.1794 29.7129 14.0785 30.0012 15 30ZM25.4167 18.879V12C25.4167 7.1745 22.1652 3.1095 17.7605 1.887C17.3244 0.78 16.259 0 15 0C13.7411 0 12.6756 0.78 12.2396 1.887C7.83486 3.111 4.58337 7.1745 4.58337 12V18.879L2.04319 21.4395C1.90473 21.5786 1.79493 21.7438 1.7201 21.9258C1.64527 22.1079 1.6069 22.303 1.60718 22.5V24C1.60718 24.3978 1.76396 24.7794 2.04303 25.0607C2.3221 25.342 2.70061 25.5 3.09527 25.5H26.9048C27.2995 25.5 27.678 25.342 27.957 25.0607C28.2361 24.7794 28.3929 24.3978 28.3929 24V22.5C28.3932 22.303 28.3548 22.1079 28.28 21.9258C28.2051 21.7438 28.0953 21.5786 27.9569 21.4395L25.4167 18.879Z"
             fill="#1E1E1E"
           />
-        </svg>
+        </svg> */}
       </div>
     </div>
   );
