@@ -353,7 +353,7 @@ export default function HarmonyVoice() {
         setPlaying(true);
       }
 
-      if (demoIndex() === 0) {
+      if (demoIndex() === 11) {
         await demoHelper(teams.state.id);
         console.log("Success");
       }
