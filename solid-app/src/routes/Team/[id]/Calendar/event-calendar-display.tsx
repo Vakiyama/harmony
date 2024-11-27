@@ -43,7 +43,15 @@ const EventCalendarDisplay = (props: {
             </div>
             <div class="w-full flex-col justify-start items-end gap-1 inline-flex">
               <For each={getGroupedEvents()[date]}>
-                {(event) => <EventCard event={event} teamId={props.teamId} />}
+                {(event) => (
+                  <EventCard
+                    event={event}
+                    teamId={props.teamId}
+                    class={`h-full py-2 ${
+                      event.type === "event" ? "items-start pl-4" : ""
+                    }`}
+                  />
+                )}
               </For>
             </div>
           </div>
