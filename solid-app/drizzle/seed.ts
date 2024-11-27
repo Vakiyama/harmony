@@ -10,8 +10,11 @@ import { EventInput, events } from "./schema/Events";
 import { medications } from "./schema/Medications";
 import { eventParticipants } from "./schema/EventParticipants";
 import moment from "moment";
-import { InferSelectModel } from "drizzle-orm";
+import { eq, InferSelectModel } from "drizzle-orm";
 import { v4 } from "uuid";
+import { qualityEnum, sleeps, timeFrameEnumSleeps } from "./schema/Sleeps";
+import { journals, journalType } from "./schema/Journals";
+import { categoryEnumMeals, consumptionEnum, meals } from "./schema/Meals";
 
 function generateRandomCode(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -25,6 +28,18 @@ function generateRandomCode(): string {
 
 export const seedData = async (user?: InferSelectModel<typeof users>) => {
   console.log("Seeding...");
+
+  //override current user details with chelsea for demo
+  await db
+    .update(users)
+    .set({
+      firstName: "Chelsea",
+      lastName: "Woo",
+      photo:
+        "https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg",
+    })
+    .where(eq(users.id, 1));
+
   let usersData = user ? [user] : await db.select().from(users);
   if (usersData.length <= 0) {
     throw new Error("Please create a user first using kinde");
@@ -33,11 +48,13 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
     .insert(users)
     .values({
       displayName: "Sandy",
-      email: "mom@gmail.com",
+      email: "sandy@gmail.com",
       firstName: "Sandy",
       kindeId: v4(),
       lastName: "",
       roleType: "User",
+      photo:
+        "https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg",
     })
     .returning()
     .onConflictDoNothing();
@@ -46,11 +63,28 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
     .insert(users)
     .values({
       displayName: "Crystal",
-      email: "aunt@gmail.com",
+      email: "crystal@gmail.com",
       firstName: "Crystal",
       kindeId: v4(),
       lastName: "",
       roleType: "User",
+      photo:
+        "https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg",
+    })
+    .returning()
+    .onConflictDoNothing();
+
+  const grandma = await db
+    .insert(users)
+    .values({
+      displayName: "Lola",
+      email: "lola@outlook.com",
+      firstName: "Lola",
+      kindeId: v4(),
+      lastName: "",
+      roleType: "User",
+      photo:
+        "https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg",
     })
     .returning()
     .onConflictDoNothing();
@@ -67,37 +101,39 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
 
   const recipientsData = [
     {
-      firstName: "mom",
-      lastName: "Lola",
-      email: "mom@example.com",
-      phoneNumber: "1234567890",
+      firstName: "Lola",
+      lastName: "",
+      email: "lola@outlook.com",
+      phoneNumber: "604-123-4567",
       recipientType: "user",
       age: "76",
-      gender: "female",
-      preferredLanguage: "English",
-      healthCondition: "",
-      livesWith: "Tina",
+      gender: "Female",
+      preferredLanguage: "Cantonese",
+      healthCondition: "Alzheimers",
+      livesWith: "Sandy",
       // hometown: "Hometown",
       employment: "Unemployed",
-      userId: mom[0].id,
+      userId: grandma[0].id,
+      photo:
+        "https://res.cloudinary.com/daobc6dfz/image/upload/v1724046745/pexels-conojeghuo-375889_iij9gb.jpg",
     },
-    {
-      firstName: "Penny",
-      lastName: "Smith",
-      email: "aunt@example.com",
-      phoneNumber: "0987654321",
-      recipientType: "user",
-      age: "78",
-      gender: "female",
-      preferredLanguage: "English",
-      healthCondition: "",
-      livesWith: "Tina",
-      // hometown: "Oldtown",
-      employment: "Retired",
-      allergies: "",
-      dietaryRestrictions: "",
-      userId: aunt[0].id,
-    },
+    // {
+    //   firstName: "Penny",
+    //   lastName: "Smith",
+    //   email: "aunt@example.com",
+    //   phoneNumber: "0987654321",
+    //   recipientType: "user",
+    //   age: "78",
+    //   gender: "female",
+    //   preferredLanguage: "English",
+    //   healthCondition: "",
+    //   livesWith: "Tina",
+    //   // hometown: "Oldtown",
+    //   employment: "Retired",
+    //   allergies: "",
+    //   dietaryRestrictions: "",
+    //   userId: aunt[0].id,
+    // },
   ];
 
   await db.insert(recipients).values(recipientsData).onConflictDoNothing();
@@ -108,7 +144,7 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
   // Seed Teams
   const teamsData = [
     {
-      teamName: "mom",
+      teamName: "Lola",
       recipientId: recipientsList[0].id, // Adjust based on the recipient ID
       inviteCode: generateRandomCode(),
       photo:
@@ -135,17 +171,17 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
     },
     {
       teamId: teamsList[0].id,
-      userId: usersData[0].id,
-      role: "member",
-      defaultTeam: false,
-      relationship: "Aunt",
-    },
-    {
-      teamId: teamsList[0].id,
-      userId: usersData[0].id,
+      userId: usersData[1].id,
       role: "member",
       defaultTeam: false,
       relationship: "Mom",
+    },
+    {
+      teamId: teamsList[0].id,
+      userId: usersData[2].id,
+      role: "member",
+      defaultTeam: false,
+      relationship: "Aunt",
     },
   ];
 
@@ -155,7 +191,7 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
   const calendarsData = [
     {
       teamId: teamsList[0].id,
-      name: "mom Calendar",
+      name: "Lola's Calendar",
     },
   ];
 
@@ -180,16 +216,16 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
       timeStart: new Date("2024-10-30T08:00:00"),
       timeEnd: new Date("2024-10-30T08:30:00"),
     },
-    {
-      calendarId: Calendars[0].id,
-      title: "Doctor's Appointment",
-      notes: "Accompany to check-up.",
-      location: "Local Clinic",
-      repeat: "never",
-      type: "event",
-      timeStart: new Date("2024-11-01T10:00:00"),
-      timeEnd: new Date("2024-11-01T11:00:00"),
-    },
+    // {
+    //   calendarId: Calendars[0].id,
+    //   title: "Doctor's Appointment",
+    //   notes: "Accompany to check-up.",
+    //   location: "Local Clinic",
+    //   repeat: "never",
+    //   type: "event",
+    //   timeStart: new Date("2024-11-01T10:00:00"),
+    //   timeEnd: new Date("2024-11-01T11:00:00"),
+    // },
     {
       calendarId: Calendars[0].id,
       title: "Grocery Shopping",
@@ -266,6 +302,51 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
   for await (const data of medicationsData) {
     await db.insert(medications).values(data).onConflictDoNothing();
   }
+
+  //Seed Journals
+  const sleepEntry = await db
+    .insert(sleeps)
+    .values({
+      quality: qualityEnum[3],
+      timeFrame: timeFrameEnumSleeps[1],
+      troubleSleeping: false,
+      duration: 8,
+      date: new Date(1732680000 * 1000),
+      teamId: teamsList[0].id,
+      userId: usersData[1].id,
+      createdAt: new Date(1732722300 * 1000),
+    })
+    .returning()
+    .onConflictDoNothing()
+    .then((res) => res[0]);
+
+  const nutritionEntry = await db
+    .insert(meals)
+    .values({
+      category: categoryEnumMeals[0],
+      foodName: "Oatmeal",
+      consumption: consumptionEnum[3],
+      date: new Date(1732728900 * 1000),
+      teamId: teamsList[0].id,
+      userId: usersData[1].id,
+      createdAt: new Date(1732728900 * 1000),
+    })
+    .returning()
+    .onConflictDoNothing()
+    .then((res) => res[0]);
+
+  await db.insert(journals).values([
+    {
+      type: journalType[3],
+      entryId: sleepEntry.id,
+      createdAt: new Date(1732722300 * 1000),
+    },
+    {
+      type: journalType[4],
+      entryId: nutritionEntry.id,
+      createdAt: new Date(1732728900 * 1000),
+    },
+  ]);
 
   console.log("Database seeded successfully!");
 };
