@@ -13,7 +13,6 @@ export default function MedicationInfo(props: {
   const mobilityNeeds = teamData.data.recipients?.mobilityNeed;
   const dietaryRestrictions = teamData.data.recipients?.dietaryRestrictions;
   const allergies = teamData.data.recipients?.allergies;
-
   const medications = teamData.medications;
   const importantSurgeries = teamData.importantSurgeries;
   const pastInjuries = teamData.pastInjuries;
@@ -40,53 +39,39 @@ export default function MedicationInfo(props: {
         sections={[
           {
             title: "Health Condition",
-            content: <p class="text-xs">{healthCondition}</p>,
+            content: healthCondition,
           },
           {
             title: "Past Injuries",
             content:
               pastInjuries && pastInjuries.length > 0
-                ? pastInjuries.map((pastInjury, index) => (
-                    <p class="text-xs ">{pastInjury.name}</p>
-                  ))
+                ? pastInjuries.map((pastInjury, index) => `${pastInjury.name}`)
                 : "No past injuries provided",
           },
           {
             title: "Important Surgeries",
             content:
               importantSurgeries && importantSurgeries.length > 0
-                ? importantSurgeries.map((surgery, index) => (
-                    <p class="text-xs">
-                      {surgery.name}, {surgery.year}
-                    </p>
-                  ))
+                ? importantSurgeries.map(
+                    (surgery, index) => `${surgery.name}, ${surgery.year}`
+                  )
                 : "No important surgeries provided",
           },
           {
             title: "Mobility Needs",
-            content: (
-              <p class="text-xs ">
-                {mobilityNeeds ? mobilityNeeds : "No mobility needs provided"}
-              </p>
-            ),
+            content: mobilityNeeds
+              ? mobilityNeeds
+              : "No mobility needs provided",
           },
           {
             title: "Dietary Restrictions/Preference",
-            content: (
-              <p class="text-xs">
-                {dietaryRestrictions
-                  ? dietaryRestrictions
-                  : "No dietary restrictions/preferences provided"}
-              </p>
-            ),
+            content: dietaryRestrictions
+              ? dietaryRestrictions
+              : "No dietary restrictions/preferences provided",
           },
           {
             title: "Allergies",
-            content: (
-              <p class="text-xs ">
-                {allergies ? allergies : "No allergies provided"}
-              </p>
-            ),
+            content: allergies ? allergies : "No allergies provided",
           },
         ]}
       />
@@ -109,9 +94,7 @@ export default function MedicationInfo(props: {
                 />
               </svg>
             </div>
-            <div class="font-semibold tracking-tight text-sm">
-              Medication Details
-            </div>
+            <div class="font-semibold tracking-tight">Medication Details</div>
           </div>
         </div>
         <div class="flex flex-col gap-2">
@@ -130,8 +113,8 @@ export default function MedicationInfo(props: {
             ))
           ) : (
             <div class="items-center">
-              <div class="flex flex-col border-1 rounded-md p-2 items-start">
-                <p>No medications provided</p>
+              <div class="flex flex-col border rounded-md p-2 items-start">
+                <p class="text-black/75">No medications provided</p>
               </div>
             </div>
           )}

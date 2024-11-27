@@ -7,7 +7,6 @@ export default function TeamMedicationInfo() {
   const team = useTeam();
   const { healthCondition, mobilityNeed, dietaryRestrictions, allergies } =
     team.state.recipient;
-  // const { medications } = team.state.medications;
   const importantSurgeries = team.state.importantSurgeries;
   const pastInjuries = team.state.pastInjuries;
   const medications = team.state.medications;
@@ -35,12 +34,12 @@ export default function TeamMedicationInfo() {
           sections={[
             {
               title: "Health Condition",
-              content: <p class="text-xs">{healthCondition}</p>,
+              content: healthCondition,
             },
             {
               title: "Past Injuries",
               content: (
-                <div class="text-xs">
+                <div>
                   {pastInjuries.length > 0 &&
                   pastInjuries[0].name.trim() !== "" ? (
                     <For each={pastInjuries}>
@@ -55,7 +54,7 @@ export default function TeamMedicationInfo() {
             {
               title: "Important Surgeries",
               content: (
-                <div class="text-xs ">
+                <div>
                   {importantSurgeries.length > 0 &&
                   importantSurgeries[0].name.trim() !== "" ? (
                     <For each={importantSurgeries}>
@@ -73,29 +72,19 @@ export default function TeamMedicationInfo() {
             },
             {
               title: "Mobility Needs",
-              content: (
-                <p class="text-xs ">
-                  {mobilityNeed ? mobilityNeed : "No mobility needs provided"}
-                </p>
-              ),
+              content: mobilityNeed
+                ? mobilityNeed
+                : "No mobility needs provided",
             },
             {
               title: "Dietary Restrictions/Preference",
-              content: (
-                <p class="text-xs ">
-                  {dietaryRestrictions
-                    ? dietaryRestrictions
-                    : "No dietary restrictions/preferences provided"}
-                </p>
-              ),
+              content: dietaryRestrictions
+                ? dietaryRestrictions
+                : "No dietary restrictions/preferences provided",
             },
             {
               title: "Allergies",
-              content: (
-                <p class="text-xs ">
-                  {allergies ? allergies : "No allergies provided"}
-                </p>
-              ),
+              content: allergies ? allergies : "No allergies provided",
             },
           ]}
         />
@@ -143,7 +132,7 @@ export default function TeamMedicationInfo() {
             ) : (
               <div class="items-center">
                 <div class="flex flex-col border rounded-md p-2 items-start">
-                  <p>No medications provided</p>
+                  <p class="text-black/75">No medications provided</p>
                 </div>
               </div>
             )}

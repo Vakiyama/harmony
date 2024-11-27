@@ -77,7 +77,7 @@ export default function TopNav(props: {
         props.class ? props.class : ""
       )}
     >
-      <div class="w-full flex flex-row px-2 h-full items-center">
+      <div class="w-full flex flex-row px-2 h-full items-center justify-start">
         {/* Left column */}
         <div class="flex-1 flex items-center">
           {backLocation && props.leftNavigation ? (
@@ -91,7 +91,7 @@ export default function TopNav(props: {
         </div>
 
         {/* Center column */}
-        <div class="flex-1 flex items-center">
+        <div class="flex-1 flex items-center justify-center">
           {location.pathname.startsWith(`/team/${params.id}/journal`) ? (
             <div class="flex flex-row items-center">
               <Show when={teamName()}>

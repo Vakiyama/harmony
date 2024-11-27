@@ -8,7 +8,7 @@ export const Card = (props: ComponentProps<"div">) => {
   return (
     <div
       class={cn(
-        "rounded-xl border bg-card text-card-foreground shadow",
+        "rounded-xl border bg-card text-card-foreground flex flex-col gap-3",
         local.class
       )}
       {...rest}
@@ -22,7 +22,7 @@ export const CardHeader = (props: ComponentProps<"div">) => {
   return (
     <div
       class={cn(
-        "flex flex-row justify-between items-center space-y-1.5 p-2",
+        "flex flex-row justify-between items-center px-2 pt-3",
         local.class
       )}
       {...rest}
