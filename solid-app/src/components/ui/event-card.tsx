@@ -45,9 +45,7 @@ const EventCard = (props: {
   const getEventIcon = (event: Event | CalendarJournalType) => {
     switch (event.type) {
       case "task":
-        return (
-          <FaRegularCircleCheck class="text-lg ml-0.5 text-[#6FC94F] self-center" />
-        );
+        return <FaRegularCircleCheck class="text-lg ml-0.5 text-[#6FC94F]" />;
       case "medication":
         return <CgPillIcon class="text-lg ml-0.5 self-center" />;
       case "event":
@@ -82,7 +80,7 @@ const EventCard = (props: {
         class={twMerge(
           `relative self-stretch h-12 pl-1 pr-2 py-1 ${getEventBackground(
             props.event
-          )} rounded-md justify-start items-center gap-1.5 inline-flex`,
+          )} rounded-md justify-start items-start gap-1.5 inline-flex`,
           props?.class
         )}
         style={props.style || {}}
@@ -91,49 +89,55 @@ const EventCard = (props: {
             navigate(`/team/${props.teamId}/calendar/event/${props.event.id}`);
         }}
       >
-        {getEventIcon(props.event)}
         <div
-          class={`grow shrink basis-0 h-7 justify-between items-center flex `}
+          class={` ${
+            props.event.type === "event" ? "" : "flex items-center gap-2 "
+          }`}
         >
-          <div class="grow shrink relative basis-0 h-8 flex-col justify-between items-start inline-flex">
-            <div class="self-stretch h-[16px] text-[#1e1e1e]/75 text-base font-sf-pro leading-tight">
-              {concatString(props.event.title, 23)}
-            </div>
-            <div class="flex space-x-1 justify-self-center">
-              <Switch
-                fallback={
-                  <div class="self-stretch h-[13px] text-[#1e1e1e]/50 text-[13px] font-normal font-sf-pro leading-none">
-                    {concatString(props.event.notes, 30)}
-                  </div>
-                }
-              >
-                <Match when={props.event.type === "event"}>
-                  <For each={response()}>
-                    {(data, i) => (
-                      <Show when={data.status === "yes"}>
-                        <div class="self-stretch h-[13px] text-[#1e1e1e]/50 text-[13px] font-normal font-sf-pro leading-none">
-                          {data.participant.firstName}{" "}
-                          {data.participant.lastName}
-                          <Show when={response()!.length > 1}>
-                            {i() === response.length ? "," : ""}
-                          </Show>
-                        </div>
-                      </Show>
-                    )}
-                  </For>
-                </Match>
-              </Switch>
-            </div>
-          </div>
-          <div class="w-[123px] h-7 flex-col justify-between absolute right-2 items-end inline-flex">
-            <div class="self-stretch h-2.5 text-right text-[#1e1e1e]/50 text-[13px] font-normal font-sf-pro uppercase leading-none">
-              {moment(props.event.timeStart).format("h:mm A")}
-            </div>
-            {props.event.timeEnd && (
-              <div class="self-stretch h-3 text-right text-[#1e1e1e]/50 text-[13px] font-normal font-sf-pro uppercase leading-none">
-                {moment(props.event.timeEnd).format("h:mm A")}
+          {getEventIcon(props.event)}
+          <div
+            class={`grow shrink basis-0 h-7 justify-between items-center flex `}
+          >
+            <div class="grow shrink relative basis-0 h-8 flex-col justify-between items-start inline-flex">
+              <div class="self-stretch h-[16px] text-[#1e1e1e]/75 text-base font-sf-pro leading-tight">
+                {concatString(props.event.title, 23)}
               </div>
-            )}
+              <div class="flex space-x-1 justify-self-center">
+                <Switch
+                  fallback={
+                    <div class="self-stretch h-[13px] text-[#1e1e1e]/50 text-[13px] font-normal font-sf-pro leading-none">
+                      {concatString(props.event.notes, 30)}
+                    </div>
+                  }
+                >
+                  <Match when={props.event.type === "event"}>
+                    <For each={response()}>
+                      {(data, i) => (
+                        <Show when={data.status === "yes"}>
+                          <div class="self-stretch h-[13px] text-[#1e1e1e]/50 text-[13px] font-normal font-sf-pro leading-none">
+                            {data.participant.firstName}{" "}
+                            {data.participant.lastName}
+                            <Show when={response()!.length > 1}>
+                              {i() === response.length ? "," : ""}
+                            </Show>
+                          </div>
+                        </Show>
+                      )}
+                    </For>
+                  </Match>
+                </Switch>
+              </div>
+            </div>
+            <div class="w-[123px] h-7 flex-col justify-between absolute right-2 items-end inline-flex">
+              <div class="self-stretch h-2.5 text-right text-[#1e1e1e]/50 text-[13px] font-normal font-sf-pro uppercase leading-none">
+                {moment(props.event.timeStart).format("h:mm A")}
+              </div>
+              {props.event.timeEnd && (
+                <div class="self-stretch h-3 text-right text-[#1e1e1e]/50 text-[13px] font-normal font-sf-pro uppercase leading-none">
+                  {moment(props.event.timeEnd).format("h:mm A")}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

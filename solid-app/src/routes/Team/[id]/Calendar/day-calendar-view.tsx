@@ -270,8 +270,8 @@ const DayCalendarView = (props: {
                     <EventCard
                       teamId={props.teamId}
                       event={event}
-                      class={`ml-[66px] h-full rounded-lg px-4 py-2 ${
-                        event.type === "event" ? "items-start" : ""
+                      class={`ml-[66px] h-full rounded-lg px-2 py-2 ${
+                        event.type === "event" ? "items-start px-4" : ""
                       }`}
                     />
                     {event.nestedEvents && event.nestedEvents.length > 0 && (
