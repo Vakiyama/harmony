@@ -122,10 +122,10 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
     },
   ];
 
-  await db
-    .insert(teams)
-    .values({ ...teamsData })
-    .onConflictDoNothing();
+  for (const data of teamsData) {
+    
+    await db.insert(teams).values(data).onConflictDoNothing();
+  }
 
   const teamsList = await db.select().from(teams);
   console.log(teams);
@@ -137,12 +137,14 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
       userId: usersData[0].id,
       role: "admin",
       defaultTeam: true,
+      relationship: "",
     },
     {
       teamId: teamsList[1].id,
       userId: usersData[0].id,
       role: "member",
       defaultTeam: false,
+      relationship: "",
     },
   ];
   await db.insert(teamMembers).values(teamMembersData).onConflictDoNothing();
@@ -225,16 +227,10 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
       title: "Monthly Health Check-up",
       notes: "Check blood pressure and vitals",
       timeStart: new Date(
-        moment()
-          .add(1, "month")
-          .set({ date: 29, hour: 10, minute: 0 })
-          .format(),
+        moment().add(1, "month").set({ date: 29, hour: 10, minute: 0 }).format()
       ), // 29th of next month at 10 AM
       timeEnd: new Date(
-        moment()
-          .add(1, "month")
-          .set({ date: 29, hour: 11, minute: 0 })
-          .format(),
+        moment().add(1, "month").set({ date: 29, hour: 11, minute: 0 }).format()
       ),
       location: "Health Clinic",
       repeat: "never",
