@@ -51,7 +51,7 @@ export type CalendarFilterType =
   | "complete"
   | "uncompleted";
 
-export type CalendarJournalType = {
+type Journal = {
   timeStart: Date;
   timeEnd?: Date;
   type: "medication" | "note" | "mood" | "sleep" | "meal";
@@ -60,6 +60,14 @@ export type CalendarJournalType = {
   title: string;
   notes: string;
 };
+
+export interface CalendarJournalType extends Journal {
+  index: number;
+}
+
+export interface CalendarEventType extends Event {
+  index: number;
+}
 
 export type JournalReturnType = {
   id: number;
@@ -91,7 +99,9 @@ export default function CalendarPage() {
     "complete",
     "uncompleted",
   ];
-  const [events, setEvents] = createSignal<(Event | CalendarJournalType)[]>([]);
+  const [events, setEvents] = createSignal<
+    (CalendarEventType | CalendarJournalType)[]
+  >([]);
   const [currentView, setCurrentView] = createSignal<
     "day" | "week" | "month" | undefined
   >(undefined);
@@ -165,9 +175,14 @@ export default function CalendarPage() {
     const formatedJournalEntries = await formatJournalEntries(
       journalEntrisResult ?? []
     );
+    const sortedItems = sortCalendarItems([
+      ...formatedJournalEntries,
+      ...formatedJournalEntries,
+    ]);
+
     // Check if resource is defined and is an array before setting events
     if (currentResource && Array.isArray(currentResource)) {
-      setEvents([...currentResource, ...formatedJournalEntries]); // Set the events when the resource is loaded and is an array
+      setEvents(sortedItems); // Set the events when the resource is loaded and is an array
     }
   });
   const handleRefetch = async () => {
@@ -210,11 +225,10 @@ export default function CalendarPage() {
 
   const formatJournalEntries = async (
     journalEntries: JournalReturnType[]
-  ): Promise<CalendarJournalType[]> => {
+  ): Promise<Journal[]> => {
     return Promise.all(
       journalEntries.map(async (entry) => {
         let title, notes, timeStart;
-        console.log(entry);
         switch (entry.type) {
           case "meal":
             timeStart = new Date(entry.data.date.toLocaleString());
@@ -255,10 +269,13 @@ export default function CalendarPage() {
     );
   };
 
-  const sortCalendarItems = (items: (Event | CalendarJournalType)[]) => {
-    return items.toSorted(
+  const sortCalendarItems = (items: (Event | Journal)[]) => {
+    const sortedItem = items.toSorted(
       (a, b) => a.timeStart?.getTime()! - b.timeStart?.getTime()!
     );
+    return sortedItem.map((i, index) => {
+      return { ...i, index };
+    });
   };
   return (
     <>
