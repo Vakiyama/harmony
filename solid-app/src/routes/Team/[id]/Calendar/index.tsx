@@ -177,7 +177,7 @@ export default function CalendarPage() {
     );
     const sortedItems = sortCalendarItems([
       ...formatedJournalEntries,
-      ...formatedJournalEntries,
+      ...resource()!,
     ]);
 
     // Check if resource is defined and is an array before setting events
