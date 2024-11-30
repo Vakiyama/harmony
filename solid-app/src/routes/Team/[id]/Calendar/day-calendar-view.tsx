@@ -224,7 +224,7 @@ const DayCalendarView = (props: {
       <div class="flex flex-col p-4 h-full w-full ">
         <Show when={props.isCalendarOpen()}>
           <div
-            class="text-lg font-medium z-10 text-black fixed top-[130px] w-full bg-[#F2F2F2] border-y-1 border-black15 -ml-5 -mt-5 flex flex-col align-center"
+            class="text-lg font-medium z-[2] text-black fixed top-[130px] w-full bg-[#F2F2F2] border-y-1 border-black15 -ml-5 -mt-5 flex flex-col align-center"
             ontouchstart={handleTouchStart}
             ontouchend={handleTouchEnd}
           >

@@ -119,13 +119,14 @@ const CalendarCreateEvent = () => {
         <TopNav
           name={
             team()?.data.recipients
-              ? `${team()?.data.recipients?.firstName}'s Care Team`
+              ? `${team()?.data.recipients?.firstName}`
               : ""
           }
           leftNavigation="Calendar"
+          class="z-[1]"
         />
       </Show>
-      <div class="relative top-[95px] flex flex-col items-center w-full h-full overflow-y-auto px-3">
+      <div class="relative top-[95px] flex flex-col items-center w-full overflow-y-auto px-3">
         <form class="space-y-[18px] max-w-lg w-full h-[100%]">
           <ShowError error={error()}></ShowError>
           <div class="flex gap-3 justify-between mt-3">
