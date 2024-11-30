@@ -1,11 +1,13 @@
 import { TextField } from "@kobalte/core/text-field";
 import { Accessor, Setter } from "solid-js";
+import { cn } from "~/libs/cn";
 
 export default function TextArea(props: {
   value: Accessor<any>;
   setValue: Setter<any>;
   label: string;
   placeholder: string;
+  class?: string;
 }) {
   const handleInput = (e: InputEvent) => {
     // this is here to add a space after -'s for a list like experience
@@ -25,7 +27,7 @@ export default function TextArea(props: {
       </TextField.Label>
       <TextField.TextArea
         value={props.value()}
-        class="border p-1 rounded-lg ps-4 h-40 font-sf-pro"
+        class={cn("border p-1 rounded-lg ps-4 h-40 font-sf-pro", props?.class)}
         placeholder={props.placeholder}
         onInput={handleInput}
       />

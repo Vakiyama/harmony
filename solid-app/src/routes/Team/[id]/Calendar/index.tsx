@@ -22,7 +22,7 @@ import CalendarTopNav from "~/components/calendar/calendar-top-nav";
 import { User } from "@/schema/Users";
 import { TeamMember } from "@/schema/TeamMembers";
 import DayCalendarView from "./day-calendar-view";
-import { useSearchParams } from "@solidjs/router";
+import { A, useSearchParams } from "@solidjs/router";
 import { SetSearchParams } from "node_modules/@solidjs/router/dist/types";
 import { useParams } from "@solidjs/router";
 import {
@@ -278,19 +278,19 @@ export default function CalendarPage() {
   };
   return (
     <>
-      <div class="h-full fixed w-full overflow-y-auto">
-        <div class={`${isSideMenuOpen() ? "" : "hidden"}`}>
-          <CalendarSideMenu
-            refetchData={handleRefetch}
-            searchParams={searchParams}
-            setSearchParams={setSearchParams}
-            setIsSideMenuOpen={setIsSideMenuOpen}
-            teamMembers={teamMembers}
-            setCurrentView={setCurrentView}
-            params={params}
-            setParams={setParams}
-          />
-        </div>
+      {isSideMenuOpen() && (
+        <CalendarSideMenu
+          refetchData={handleRefetch}
+          searchParams={searchParams}
+          setSearchParams={setSearchParams}
+          setIsSideMenuOpen={setIsSideMenuOpen}
+          teamMembers={teamMembers}
+          setCurrentView={setCurrentView}
+          params={params}
+          setParams={setParams}
+        />
+      )}
+      <div class="h-full w-full overflow-y-auto">
         <CalendarTopNav
           teamId={teamId}
           month={currentMonth}
@@ -305,6 +305,7 @@ export default function CalendarPage() {
           setIsCalendarOpen={setIsCalendarOpen}
           isCalendarOpen={isCalendarOpen}
         />
+
         <Show when={currentView() === "month"}>
           <MonthCalendarView
             teamId={teamId}
@@ -364,6 +365,20 @@ export default function CalendarPage() {
           onClose={hideNotification}
         />
       )}
+      <A href={`/team/${teamId}/calendar/create`}>
+        <button class="absolute bottom-[90px] right-3 rounded-full w-[65px] h-[65px] bg-primary-purple-500 flex flex-col justify-center items-center shadow-[4px_4px_4px_rgba(0,0,0,0.25)]">
+          <svg
+            fill="#FCFCFC"
+            stroke-width="0"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 448 512"
+            height="38px"
+            width="38px"
+          >
+            <path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32v144H48c-17.7 0-32 14.3-32 32s14.3 32 32 32h144v144c0 17.7 14.3 32 32 32s32-14.3 32-32V288h144c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"></path>
+          </svg>
+        </button>
+      </A>
     </>
   );
 }

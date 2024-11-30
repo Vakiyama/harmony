@@ -1,4 +1,4 @@
-import { createEffect, createMemo, createSignal } from "solid-js";
+import { createEffect, createMemo, createSignal, Show } from "solid-js";
 import { Button } from "~/components/ui/button";
 import TextInput from "./TextInput";
 import TextArea from "./TextAreaInput";
@@ -16,10 +16,10 @@ import { User } from "@/schema/Users";
 import { mightFail } from "might-fail";
 import SelectMultipleInput from "~/components/shadcn/MultiSelect";
 import ShowError from "~/routes/Team/[id]/journal/show-error";
-import EventCreateTopNav from "~/components/calendar/calendar-create-top-nav";
 import { getTeamFromTeamId } from "~/api/team";
 import { formatTimeForPicker } from "~/lib/formateDateLocal";
 import { showNotification } from "~/routes/api/notificationStore";
+import TopNav from "~/components/shared/TopNav";
 
 const getFormattedDate = (): string => new Date().toISOString().split("T")[0];
 
@@ -115,18 +115,23 @@ const CalendarCreateEvent = () => {
   }
   return (
     <>
-      <EventCreateTopNav
-        teamId={teamId}
-        handleCreate={createEventHandler}
-        name={team()?.data.recipients?.firstName}
-      />
-      <div class="flex flex-col items-center mt-3 w-full">
-        <form class="space-y-4 max-w-lg w-full px-4">
+      <Show when={team()}>
+        <TopNav
+          name={
+            team()?.data.recipients
+              ? `${team()?.data.recipients?.firstName}'s Care Team`
+              : ""
+          }
+          leftNavigation="Calendar"
+        />
+      </Show>
+      <div class="relative top-[95px] flex flex-col items-center w-full h-full overflow-y-auto px-3">
+        <form class="space-y-[18px] max-w-lg w-full h-[100%]">
           <ShowError error={error()}></ShowError>
-          <div class="flex gap-4 justify-between">
+          <div class="flex gap-3 justify-between mt-3">
             <Button
               class={twMerge(
-                "w-[177px] h-[40px]",
+                "w-1/2 h-12",
                 eventType() === "event"
                   ? "bg-purple-200 hover:bg-purple-300"
                   : ""
@@ -134,11 +139,13 @@ const CalendarCreateEvent = () => {
               variant="outline"
               onClick={() => setEventType("event")}
             >
-              Event
+              <p class="font-medium leading-[120%] font-sf-pro text-base selected:font-weight-[590px]">
+                Event
+              </p>
             </Button>
             <Button
               class={twMerge(
-                "px-20",
+                "w-1/2 h-12",
                 eventType() === "task"
                   ? "bg-purple-200 hover:bg-purple-300"
                   : ""
@@ -161,49 +168,65 @@ const CalendarCreateEvent = () => {
             setValue={setLocation}
             value={location}
           />
-          <p class="text-lg font-semibold">Time</p>
-          <TimeDateCalendar
-            label="Start Time"
-            date={timeStartDate}
-            setDate={setTimeStartDate}
-            time={timeStartTime}
-            setTime={setTimeStartTime}
-          />
-          <TimeDateCalendar
-            label="End Time"
-            date={timeEndDate}
-            setDate={setTimeEndDate}
-            time={timeEndTime}
-            setTime={setTimeEndTime}
-          />
-          <p class="text-lg font-semibold">Repeat</p>
-          <SelectInput
-            class="w-full p-1 rounded-lg py-6 ps-4 "
-            placeholder="Never"
-            options={
-              [
-                { value: "never", label: "Never" },
-                { value: "daily", label: "Daily" },
-                { value: "weekly", label: "Weekly" },
-                { value: "monthly", label: "Monthly" },
-              ] as const
-            }
-            setSelectedOption={setRepeat}
-          />
-          <p class="text-lg font-semibold">Person</p>
+          <div class="flex flex-col">
+            <p class="text-lg font-semibold">Time</p>
+            <div class="flex flex-col gap-3">
+              <TimeDateCalendar
+                label="Start Time"
+                date={timeStartDate}
+                setDate={setTimeStartDate}
+                time={timeStartTime}
+                setTime={setTimeStartTime}
+              />
+              <TimeDateCalendar
+                label="End Time"
+                date={timeEndDate}
+                setDate={setTimeEndDate}
+                time={timeEndTime}
+                setTime={setTimeEndTime}
+              />
+            </div>
+          </div>
+          <div class="flex flex-col">
+            <p class="text-lg font-semibold">Repeat</p>
+            <SelectInput
+              class="w-full rounded-lg"
+              placeholder="Never"
+              options={
+                [
+                  { value: "never", label: "Never" },
+                  { value: "daily", label: "Daily" },
+                  { value: "weekly", label: "Weekly" },
+                  { value: "monthly", label: "Monthly" },
+                ] as const
+              }
+              setSelectedOption={setRepeat}
+            />
+          </div>
+          <div class="flex flex-col">
+            <p class="text-lg font-semibold">Person</p>
 
-          <SelectMultipleInput
-            class="w-full p-1 rounded-lg py-6 ps-4 "
-            placeholder="Person"
-            options={teamMemberOptions()}
-            setSelectedOptions={setTeamMemberIds}
-          />
+            <SelectMultipleInput
+              class="w-full p-1 rounded-lg py-6 ps-4 "
+              placeholder="Person"
+              options={teamMemberOptions()}
+              setSelectedOptions={setTeamMemberIds}
+            />
+          </div>
           <TextArea
             label="Notes"
             placeholder="Notes"
             value={notes}
             setValue={setNotes}
+            class="h-28"
           />
+          <Button
+            class="rounded-[100px] h-12 w-full bg-primary-purple-300 text-black"
+            variant="default"
+            onClick={createEventHandler}
+          >
+            Create
+          </Button>
         </form>
       </div>
     </>

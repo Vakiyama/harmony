@@ -26,7 +26,7 @@ export default function CalendarTopNav(props: {
     props.setSelectedYear(moment().year());
   };
   return (
-    <div class="fixed top-0 w-full flex flex-row h-[110px] bg-white">
+    <div class="absolute top-0 w-full flex flex-row h-[110px] bg-white">
       {/* Left section: Month and dropdown */}
       <div class="w-full flex flex-row justify-between items-end px-4 mb-4 h-full">
         <div
@@ -70,8 +70,7 @@ export default function CalendarTopNav(props: {
               {moment().date()}
             </p>
           </button>
-          <A href="/" class="text-md">
-            {/* Search icon */}
+          {/* <A href="/" class="text-md">
             <svg
               width="21"
               height="22"
@@ -84,9 +83,8 @@ export default function CalendarTopNav(props: {
                 fill="#1E1E1E"
               />
             </svg>
-          </A>
-          <A href={`/team/${props.teamId}/calendar/create`} class="text-md">
-            {/* Create icon */}
+          </A> */}
+          {/* <A href={`/team/${props.teamId}/calendar/create`} class="text-md">
             <svg
               width="21"
               height="20"
@@ -99,7 +97,7 @@ export default function CalendarTopNav(props: {
                 fill="#1E1E1E"
               />
             </svg>
-          </A>
+          </A> */}
           <button
             class="text-md"
             onclick={() => props.setIsSideMenuOpen(!props.isSideMenuOpen())}

@@ -15,7 +15,7 @@ export type SelectOptions<T> = {
 };
 
 function isStringArray<T>(
-  options: SelectOptions<T>[] | string[],
+  options: SelectOptions<T>[] | string[]
 ): options is string[] {
   return typeof options[0] === "string";
 }

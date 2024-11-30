@@ -4,6 +4,7 @@ import { createResource, Show, useContext } from "solid-js";
 import EventCard from "~/components/calendar/EventCard";
 import { TeamContext } from "~/components/Layout-Context";
 import CalendarIconSVG from "./assets/FaSolidCalendar.svg";
+import { A } from "@solidjs/router";
 
 export default function Index() {
   const context = useContext(TeamContext);
@@ -23,14 +24,20 @@ export default function Index() {
       const refetch = refetchTrigger();
       return teamId ? { teamId, refetch } : undefined;
     },
-    async ({ teamId }) => await getAllEvents(teamId, 3),
+    async ({ teamId }) => await getAllEvents(teamId, 3)
   );
   return (
     <main class="flex flex-col m-2 gap-4">
       <section class="h-full flex flex-col gap-2">
         <div class="flex flex-row items-center justify-between">
           <h2 class="text-h3 font-medium">Coming up</h2>
-          <p class="text-black">See all</p>
+          <Show when={defaultTeam()}>
+            <A href={`/team/${defaultTeam()?.team.id}/calendar`}>
+              <button>
+                <p class="text-black">See all</p>
+              </button>
+            </A>
+          </Show>
         </div>
         <div class="flex flex-col gap-2">
           <Show when={events()}>
@@ -53,7 +60,7 @@ export default function Index() {
       </section>
       <section class="">
         <div class="h-full flex flex-col">
-          <p class="text-h3 font-medium">While you were away...</p>
+          <p class="text-h3 font-medium mb-2">While you were away...</p>
           <LandingContent />
         </div>
       </section>
