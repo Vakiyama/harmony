@@ -11,6 +11,7 @@ import CgSmileIcon from "../icon/cg-smile";
 import LoNutritionIcon from "../icon/lo-nutrition";
 import LoSleepIcon from "../icon/lo-sleep";
 import LoNotesIcon from "../icon/lo-notes";
+import { getEventBackground } from "~/utils/getEventBackground";
 
 const EventCard = (props: {
   event: Event | CalendarJournalType;
@@ -23,24 +24,6 @@ const EventCard = (props: {
     const response = await getEventParticipants(props.event.id, props.teamId);
     return response ?? [];
   });
-  const getEventBackground = (event: Event | CalendarJournalType) => {
-    switch (event.type) {
-      case "task":
-        return "bg-[#e2f4dc]";
-      case "medication":
-        return "bg-[#FFE3DE]";
-      case "event":
-        return "bg-[#f1eefc]";
-      case "mood":
-        return "bg-[#FFE6EF]";
-      case "meal":
-        return "bg-[#E2F4DC]";
-      case "note":
-        return "bg-[#FDF3C7]";
-      case "sleep":
-        return "bg-[#D1D8E8]";
-    }
-  };
 
   const getEventIcon = (event: Event | CalendarJournalType) => {
     switch (event.type) {

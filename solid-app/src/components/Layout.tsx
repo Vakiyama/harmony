@@ -99,7 +99,8 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
             location.pathname.startsWith(`/team/${params.id}/journal/`) ||
             location.pathname.startsWith(`/harmony-ai`) ||
             location.pathname.startsWith(`/team/create`) ||
-            location.pathname.startsWith(`/api/auth`)
+            location.pathname.startsWith(`/api/auth`) ||
+            location.pathname.startsWith(`/team/${params.id}/calendar`)
               ? ""
               : "pb-[100px]"
           }`}

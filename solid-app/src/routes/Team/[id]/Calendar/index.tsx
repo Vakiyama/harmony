@@ -166,17 +166,17 @@ export default function CalendarPage() {
 
   createEffect(async () => {
     const currentResource = resource();
-    const [journalEntriesError, journalEntrisResult] = await mightFail(
+    const [journalEntriesError, journalEntriesResult] = await mightFail(
       getJournalsFromTeamId(teamId)
     );
     if (journalEntriesError) {
       return console.error(journalEntriesError);
     }
-    const formatedJournalEntries = await formatJournalEntries(
-      journalEntrisResult ?? []
+    const formattedJournalEntries = await formatJournalEntries(
+      journalEntriesResult ?? []
     );
     const sortedItems = sortCalendarItems([
-      ...formatedJournalEntries,
+      ...formattedJournalEntries,
       ...resource()!,
     ]);
 
@@ -193,7 +193,7 @@ export default function CalendarPage() {
   const [isCalendarOpen, setIsCalendarOpen] = createSignal(true);
 
   const fetchEvents = async (calendarId: number) => {
-    const [journalEntriesError, journalEntrisResult] = await mightFail(
+    const [journalEntriesError, journalEntriesResult] = await mightFail(
       getJournalsFromTeamId(teamId)
     );
     if (journalEntriesError) {
@@ -204,12 +204,12 @@ export default function CalendarPage() {
       return console.error(eventError);
     }
 
-    const formatedJournalEntries = await formatJournalEntries(
-      journalEntrisResult ?? []
+    const formattedJournalEntries = await formatJournalEntries(
+      journalEntriesResult ?? []
     );
     const sortedItems = sortCalendarItems([
       ...eventResult,
-      ...formatedJournalEntries,
+      ...formattedJournalEntries,
     ]);
     setEvents(sortedItems);
   };
@@ -290,7 +290,7 @@ export default function CalendarPage() {
           setParams={setParams}
         />
       )}
-      <div class="h-full w-full overflow-y-auto">
+      <div class="h-full w-full overflow-y-auto overflow-x-clip">
         <CalendarTopNav
           teamId={teamId}
           month={currentMonth}

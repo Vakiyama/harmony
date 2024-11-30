@@ -14,7 +14,11 @@ module.exports = {
     "bg-createTeamBackground",
   ],
   darkMode: ["class", '[data-kb-theme="dark"]'],
-  content: ["src/routes/**/*.{ts,tsx}", "src/components/**/*.{ts,tsx}"],
+  content: [
+    "src/routes/**/*.{ts,tsx}",
+    "src/components/**/*.{ts,tsx}",
+    "src/utils/*.{ts,tsx}",
+  ],
   prefix: "",
   theme: {
     fontFamily: {

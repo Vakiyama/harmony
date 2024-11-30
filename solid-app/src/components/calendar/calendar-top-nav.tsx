@@ -26,7 +26,7 @@ export default function CalendarTopNav(props: {
     props.setSelectedYear(moment().year());
   };
   return (
-    <div class="absolute top-0 w-full flex flex-row h-[110px] bg-white">
+    <div class="absolute top-0 w-full flex flex-row h-[110px] bg-white z-[1]">
       {/* Left section: Month and dropdown */}
       <div class="w-full flex flex-row justify-between items-end px-4 mb-4 h-full">
         <div
@@ -61,9 +61,9 @@ export default function CalendarTopNav(props: {
         </div>
 
         {/* Right section: Icons */}
-        <div class="flex flex-row items-center py-2 gap-x-6 pb-[9px]">
+        <div class="flex flex-row items-center justify-center py-2 gap-x-6 pb-[9px]">
           <button
-            class="w-5 h-5 border-2 rounded-sm border-black flex flex-col align-center justify-center"
+            class="w-[22px] h-[22px] border-2 rounded-sm border-black flex flex-col align-center justify-center"
             onClick={handleReturnToToday}
           >
             <p class="text-subtitle13 w-full font-grotesque">
