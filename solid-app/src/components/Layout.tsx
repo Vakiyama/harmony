@@ -13,7 +13,6 @@ import { TeamWithDefault } from "@/schema/Teams";
 import NavBar from "./shared/nav-bar";
 import { TeamContext, TeamContextType } from "./Layout-Context";
 import { useTeam } from "~/context/team-context";
-import ChevronLeft from "./icon/chevron-left";
 
 const Layout: Component<{ children: JSXElement }> = (props) => {
   const location = useLocation();
@@ -99,8 +98,7 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
             location.pathname.startsWith(`/team/${params.id}/journal/`) ||
             location.pathname.startsWith(`/harmony-ai`) ||
             location.pathname.startsWith(`/team/create`) ||
-            location.pathname.startsWith(`/api/auth`) ||
-            location.pathname.startsWith(`/team/${params.id}/calendar`)
+            location.pathname.startsWith(`/api/auth`)
               ? ""
               : "pb-[100px]"
           }`}

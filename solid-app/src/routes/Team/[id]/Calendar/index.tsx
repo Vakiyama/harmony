@@ -290,75 +290,81 @@ export default function CalendarPage() {
           setParams={setParams}
         />
       )}
-      <div class="h-full w-full overflow-y-auto overflow-x-clip">
-        <CalendarTopNav
-          teamId={teamId}
-          month={currentMonth}
-          setIsSideMenuOpen={setIsSideMenuOpen}
-          isSideMenuOpen={isSideMenuOpen}
-          setCurrentDay={setCurrentDay}
-          setCurrentMonth={setCurrentMonth}
-          setCurrentYear={setCurrentYear}
-          setSelectedDay={setSelectedDay}
-          setSelectedMonth={setSelectedMonth}
-          setSelectedYear={setSelectedYear}
-          setIsCalendarOpen={setIsCalendarOpen}
-          isCalendarOpen={isCalendarOpen}
-        />
-
-        <Show when={currentView() === "month"}>
-          <MonthCalendarView
+      <Show when={currentView() !== undefined || currentView() !== null}>
+        <div
+          class={`w-full overflow-y-auto overflow-x-clip ${
+            currentView() === "day" ? "h-full" : ""
+          }`}
+        >
+          <CalendarTopNav
             teamId={teamId}
-            currentMonth={currentMonth}
-            setCurrentMonth={setCurrentMonth}
-            selectedYear={selectedYear}
-            setSelectedYear={setSelectedYear}
-            selectedMonth={selectedMonth}
-            setSelectedMonth={setSelectedMonth}
-            selectedDay={selectedDay}
-            setSelectedDay={setSelectedDay}
-            events={events}
-            currentYear={currentYear}
-            setCurrentYear={setCurrentYear}
-            isCalendarOpen={isCalendarOpen}
-          />
-        </Show>
-        <Show when={currentView() === "week"}>
-          <WeekCalendarView
-            teamId={teamId}
-            selectedYear={selectedYear}
-            setSelectedYear={setSelectedYear}
-            selectedMonth={selectedMonth}
-            setSelectedMonth={setSelectedMonth}
-            selectedDay={selectedDay}
-            setSelectedDay={setSelectedDay}
-            currentMonth={currentMonth}
-            currentYear={currentYear}
-            setCurrentMonth={setCurrentMonth}
-            setCurrentYear={setCurrentYear}
-            events={events}
-            isCalendarOpen={isCalendarOpen}
-          />
-        </Show>
-        <Show when={currentView() === "day"}>
-          <DayCalendarView
-            teamId={teamId}
-            selectedDay={selectedDay}
-            selectedMonth={selectedMonth}
-            selectedYear={selectedYear}
-            setSelectedDay={setSelectedDay}
-            setSelectedMonth={setSelectedMonth}
-            setSelectedYear={setSelectedYear}
-            setCurrentMonth={setCurrentMonth}
-            setCurrentYear={setCurrentYear}
+            month={currentMonth}
+            setIsSideMenuOpen={setIsSideMenuOpen}
+            isSideMenuOpen={isSideMenuOpen}
             setCurrentDay={setCurrentDay}
-            currentMonth={currentMonth}
-            currentYear={currentYear}
-            events={events}
+            setCurrentMonth={setCurrentMonth}
+            setCurrentYear={setCurrentYear}
+            setSelectedDay={setSelectedDay}
+            setSelectedMonth={setSelectedMonth}
+            setSelectedYear={setSelectedYear}
+            setIsCalendarOpen={setIsCalendarOpen}
             isCalendarOpen={isCalendarOpen}
           />
-        </Show>
-      </div>
+
+          <Show when={currentView() === "month"}>
+            <MonthCalendarView
+              teamId={teamId}
+              currentMonth={currentMonth}
+              setCurrentMonth={setCurrentMonth}
+              selectedYear={selectedYear}
+              setSelectedYear={setSelectedYear}
+              selectedMonth={selectedMonth}
+              setSelectedMonth={setSelectedMonth}
+              selectedDay={selectedDay}
+              setSelectedDay={setSelectedDay}
+              events={events}
+              currentYear={currentYear}
+              setCurrentYear={setCurrentYear}
+              isCalendarOpen={isCalendarOpen}
+            />
+          </Show>
+          <Show when={currentView() === "week"}>
+            <WeekCalendarView
+              teamId={teamId}
+              selectedYear={selectedYear}
+              setSelectedYear={setSelectedYear}
+              selectedMonth={selectedMonth}
+              setSelectedMonth={setSelectedMonth}
+              selectedDay={selectedDay}
+              setSelectedDay={setSelectedDay}
+              currentMonth={currentMonth}
+              currentYear={currentYear}
+              setCurrentMonth={setCurrentMonth}
+              setCurrentYear={setCurrentYear}
+              events={events}
+              isCalendarOpen={isCalendarOpen}
+            />
+          </Show>
+          <Show when={currentView() === "day"}>
+            <DayCalendarView
+              teamId={teamId}
+              selectedDay={selectedDay}
+              selectedMonth={selectedMonth}
+              selectedYear={selectedYear}
+              setSelectedDay={setSelectedDay}
+              setSelectedMonth={setSelectedMonth}
+              setSelectedYear={setSelectedYear}
+              setCurrentMonth={setCurrentMonth}
+              setCurrentYear={setCurrentYear}
+              setCurrentDay={setCurrentDay}
+              currentMonth={currentMonth}
+              currentYear={currentYear}
+              events={events}
+              isCalendarOpen={isCalendarOpen}
+            />
+          </Show>
+        </div>
+      </Show>
       {isNotificationVisible() && (
         <Notification
           title={notificationMessage()}

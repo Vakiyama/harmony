@@ -121,7 +121,7 @@ const CalendarView = (props: {
     <>
       <Show when={props.isCalendarOpen()}>
         <div
-          class="bg-[#F2F2F2] pt-4 pb-1"
+          class="bg-[#F2F2F2] pt-4 pb-1 h-full"
           ontouchstart={handleTouchStart}
           ontouchend={handleTouchEnd}
         >
@@ -213,7 +213,7 @@ const CalendarView = (props: {
           </div>
         </div>
       </Show>
-      <div class="flex justify-center pt-4 px-3 bg-white">
+      <div class="h-full flex justify-center pt-4 px-3 bg-white">
         <EventCalendarDisplay events={props.events} teamId={props.teamId} />
       </div>
     </>
