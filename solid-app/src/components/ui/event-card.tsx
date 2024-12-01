@@ -106,7 +106,7 @@ const EventCard = (props: {
                 <Switch
                   fallback={
                     <div class="self-stretch h-[13px] text-[#1e1e1e]/50 text-[13px] font-normal font-sf-pro leading-none">
-                      {concatString(props.event.notes, 30)}
+                      {concatString(props.event.notes, 23)}
                     </div>
                   }
                 >

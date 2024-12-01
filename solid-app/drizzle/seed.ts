@@ -50,7 +50,7 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
       email: "Jennifer@gmail.com",
       firstName: "Jennifer",
       kindeId: v4(),
-      lastName: "Woo",
+      lastName: "Shang",
       roleType: "User",
       photo: "/Jennifer.png",
     })
@@ -64,7 +64,7 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
       email: "Sylvia@gmail.com",
       firstName: "Sylvia",
       kindeId: v4(),
-      lastName: "Woo",
+      lastName: "Shang",
       roleType: "User",
       photo: "/Sylvia.png",
     })
@@ -161,14 +161,14 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
       userId: usersData[0].id,
       role: "admin",
       defaultTeam: true,
-      relationship: "Daughter",
+      relationship: "Grandaughter",
     },
     {
       teamId: teamsList[0].id,
       userId: usersData[1].id,
       role: "member",
       defaultTeam: false,
-      relationship: "Mom",
+      relationship: "Daughter",
     },
     {
       teamId: teamsList[0].id,
@@ -206,9 +206,9 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
       notes: "Remember to bring prescription paper.",
       location: "Local Clinic",
       repeat: "never",
-      type: "event",
-      timeStart: new Date("2024-11-27T15:00:00"),
-      timeEnd: new Date("2024-11-27T15:30:00"),
+      type: "task",
+      timeStart: new Date("2024-11-27T11:30:00"),
+      timeEnd: new Date("2024-11-27T12:00:00"),
     },
     {
       calendarId: Calendars[0].id,
@@ -217,8 +217,8 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
       location: "Supermarket",
       repeat: "never",
       type: "event",
-      timeStart: new Date("2024-11-27T14:00:00"),
-      timeEnd: new Date("2024-11-27T16:00:00"),
+      timeStart: new Date("2024-11-27T11:00:00"),
+      timeEnd: new Date("2024-11-27T13:00:00"),
     },
   ];
   for await (const data of eventsData) {
