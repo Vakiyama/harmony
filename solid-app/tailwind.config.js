@@ -142,6 +142,22 @@ module.exports = {
           "0%,70%,100%": { opacity: "1" },
           "20%,50%": { opacity: "0" },
         },
+        fadeInLeft: {
+          from: { opacity: 0, transform: 'translateX(100%)' },
+          to: { opacity: 1, transform: 'translateX(0)' },
+        },
+        fadeInRight: {
+          from: { opacity: 0, transform: 'translateX(-100%)' },
+          to: { opacity: 1, transform: 'translateX(0)' },
+        },
+        fadeIn: {
+          "0%": { opacity: 0 },
+          "100%": { opacity: 1 },
+        },
+        fadeOut: {
+          "0%": { opacity: 1 },
+          "100%": { opacity: 0 },
+        },
       },
 
       animation: {
@@ -151,6 +167,10 @@ module.exports = {
         "collapsible-up": "collapsible-up 0.2s ease-out",
         "caret-blink": "caret-blink 1.25s ease-out infinite",
         "sound-wave": "sound-wave 2s ease-out infinite",
+        fadeLeft: 'fadeInLeft 0.3s ease-out',
+        fadeRight: 'fadeInRight 0.3s ease-out',
+        fadeIn: "fadeIn 0.3s ease-out",
+        fadeOut: "fadeOut 0.3s ease-out",
       },
     },
   },
