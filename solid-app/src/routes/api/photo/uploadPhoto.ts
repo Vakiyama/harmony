@@ -4,9 +4,7 @@ import { APIEvent } from "@solidjs/start/server";
 export const POST = async ({ request }: APIEvent) => {
   try {
     const formData = await request.formData();
-    console.log("api formData", formData);
     const fileEntry = formData.get("photo");
-    console.log("fileEntry", fileEntry);
 
     if (!fileEntry || !(fileEntry instanceof File)) {
       return new Response("No file uploaded", { status: 400 });
@@ -17,7 +15,6 @@ export const POST = async ({ request }: APIEvent) => {
     if (!file) {
       return new Response("No file uploaded", { status: 400 });
     }
-    console.log("file", file);
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
@@ -27,7 +24,6 @@ export const POST = async ({ request }: APIEvent) => {
         folder: "harmony",
       }
     );
-    console.log("api", result);
     return new Response(JSON.stringify({ url: result.secure_url }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
