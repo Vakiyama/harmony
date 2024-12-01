@@ -134,10 +134,10 @@ const CalendarSideMenu = (props: {
 
   return (
     <div
-      class="absolute z-[60] h-full w-full flex bg-black bg-opacity-50"
+      class="fixed top-0 h-full w-full flex bg-black bg-opacity-50 z-[3]"
       onclick={handleBackdropClick}
     >
-      <div class="w-[265px] h-full absolute right-0 bg-[#fcfcfc] ">
+      <div class="w-[265px] h-[calc(100%+110px)] absolute right-0 bg-[#fcfcfc] ">
         <div class="w-full h-[90px] pt-1.5 pb-2.5  bg-[#fcfcfc] border-b border-[#1e1e1e]/20 flex-col justify-end items-center gap-2.5 inline-flex">
           <button
             class="w-44 h-6 flex justify-between items-center"

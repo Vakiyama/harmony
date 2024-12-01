@@ -1,8 +1,18 @@
-import { Accessor, createSignal, For, Setter, Show } from "solid-js";
+import {
+  Accessor,
+  createMemo,
+  createSignal,
+  For,
+  onMount,
+  Setter,
+  Show,
+} from "solid-js";
 import moment from "moment";
 import { Event } from "@/schema/Events";
 import EventCalendarDisplay from "./event-calendar-display";
 import { CalendarJournalType } from ".";
+import { getEventBackground } from "~/utils/getEventBackground";
+import { cn } from "~/libs/cn";
 
 const WeekCalendarView = (props: {
   selectedDay: Accessor<number>;
@@ -38,12 +48,40 @@ const WeekCalendarView = (props: {
   );
 
   const hasEventsOnDay = (dayInfo: { fullDate: moment.Moment }) => {
-    return props.events().some((event) => {
+    const matchingEvents = props.events().filter((event) => {
       if (!event.timeStart) return false;
       const eventDate = moment(event.timeStart);
       return eventDate.isSame(dayInfo.fullDate, "day");
     });
+
+    return {
+      hasEvents: matchingEvents.length > 0,
+      eventCount: matchingEvents.length,
+    };
   };
+
+  function getClosestEvents(events: (Event | CalendarJournalType)[]) {
+    const now = moment();
+
+    const sortedEvents = events
+      .filter((event) => event.timeStart)
+      .map((event) => {
+        const timeDiff = moment(event.timeStart).diff(now);
+        return { ...event, timeDiff };
+      })
+      .sort((a, b) => {
+        const absDiffA = Math.abs(a.timeDiff);
+        const absDiffB = Math.abs(b.timeDiff);
+
+        if (a.timeDiff < 0 && b.timeDiff >= 0) return -1;
+        if (a.timeDiff >= 0 && b.timeDiff < 0) return 1;
+
+        return absDiffA - absDiffB;
+      })
+      .slice(0, 3);
+
+    return sortedEvents.sort((a, b) => a.timeDiff - b.timeDiff);
+  }
 
   const handleSelectDay = (dayInfo: {
     day: string;
@@ -125,8 +163,41 @@ const WeekCalendarView = (props: {
                     >
                       {dayInfo.day}
                     </div>
-                    <Show when={hasEventsOnDay(dayInfo)}>
-                      <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full aspect-square h-2 bg-[#9b82f3]" />
+                    <Show when={hasEventsOnDay(dayInfo).hasEvents}>
+                      <div
+                        class={`absolute -bottom-1 h-2 ${
+                          hasEventsOnDay(dayInfo).eventCount >= 3
+                            ? "left-[calc(50%-8px)]"
+                            : hasEventsOnDay(dayInfo).eventCount > 1
+                            ? "left-[calc(50%-6px)]"
+                            : "left-[calc(50%-4px)]"
+                        }`}
+                      >
+                        <For
+                          each={getClosestEvents(
+                            props.events().filter((event) => {
+                              const eventMoment = moment(event.timeStart);
+                              const dayInfoUTC = dayInfo.fullDate.utc();
+                              return eventMoment.isSame(dayInfoUTC, "day");
+                            })
+                          )}
+                        >
+                          {(event, index) => {
+                            const horizontalOffset = index() * 4;
+                            return index() <= 2 ? (
+                              <div
+                                class={cn(
+                                  `absolute rounded-full w-[9px] h-[9px] border border-white/85`,
+                                  getEventBackground(event, true)
+                                )}
+                                style={{
+                                  transform: `translateX(${horizontalOffset}px)`,
+                                }}
+                              ></div>
+                            ) : null;
+                          }}
+                        </For>
+                      </div>
                     </Show>
                   </div>
                 );
@@ -135,7 +206,7 @@ const WeekCalendarView = (props: {
           </div>
         </div>
       </Show>
-      <div class="flex justify-center pt-4 px-3 bg-white">
+      <div class="flex justify-center pt-4 px-3 bg-white pb-3 h-[calc(100%+95px)]">
         <EventCalendarDisplay events={props.events} teamId={props.teamId} />
       </div>
     </>
