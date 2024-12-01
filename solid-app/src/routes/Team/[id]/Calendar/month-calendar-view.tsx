@@ -1,4 +1,11 @@
-import { Accessor, createSignal, For, Setter, Show } from "solid-js";
+import {
+  Accessor,
+  createEffect,
+  createSignal,
+  For,
+  Setter,
+  Show,
+} from "solid-js";
 import moment from "moment";
 import { Event } from "@/schema/Events";
 import EventCalendarDisplay from "./event-calendar-display";
@@ -26,6 +33,7 @@ const CalendarView = (props: {
   >(null);
   const weekdays = moment.weekdaysMin();
   const months = moment.months();
+  const [monthEvents, setMonthEvents] = createSignal(props.events());
 
   const fullYear = Object.fromEntries(
     months.map((monthName, monthIndex) => {
@@ -44,6 +52,25 @@ const CalendarView = (props: {
       ];
     })
   );
+  createEffect(() => {
+    const selectedMoment = moment(props.selectedMonth(), "MMMM"); // Convert selectedMonth to moment object
+    if (!selectedMoment.isValid()) {
+      console.error("Invalid month");
+      return;
+    }
+
+    // Filter events based on the selected month
+    const filteredEvents = props.events().filter((event) => {
+      const eventStartTime = moment(event.timeStart); // Assuming events have timeStart as a string
+      return (
+        eventStartTime.month() === selectedMoment.month() &&
+        eventStartTime.year() === selectedMoment.year()
+      ); // Filter by the same month and year
+    });
+
+    setMonthEvents(filteredEvents); // Update the events for the selected month
+    console.log(filteredEvents); // Debug log
+  }, [props.selectedMonth]);
   const handleSelectMonth = (monthName: string, change: number) => {
     const month = moment(monthName, "MMMM");
 
@@ -233,7 +260,7 @@ const CalendarView = (props: {
         </div>
       </Show>
       <div class="h-full flex justify-center pt-4 px-3 bg-white">
-        <EventCalendarDisplay events={props.events} teamId={props.teamId} />
+        <EventCalendarDisplay events={monthEvents} teamId={props.teamId} />
       </div>
     </>
   );
