@@ -23,10 +23,10 @@ export default function TimePicker(props: TimeProps) {
     <input
       name={props.name}
       class={twMerge(
-        `border border-lofiGray text-base px-4 !p-[13px] rounded-md !select-none items-center ${
+        `border border-lofiGray text-base px-4 rounded-md !select-none items-center ${
           props.time() ? "text-black" : "text-black"
         }`,
-        props.class,
+        props.class
       )}
       type="time"
       value={props.time() || placeholderTime}
