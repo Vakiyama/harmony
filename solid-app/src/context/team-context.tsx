@@ -112,7 +112,6 @@ export const TeamProvider: ParentComponent = (props) => {
 
   const contextValue: FormContextValue = {
     state,
-
     updateField: (section, field, value) => {
       setState(section as any, field as any, value);
     },

@@ -5,13 +5,16 @@ import TextInput from "../Team/[id]/Calendar/Create/TextInput";
 import { joinTeam } from "~/api/team";
 import { getUser } from "~/api";
 import { useNavigate } from "@solidjs/router";
+import { useTeam } from "~/context/team-context";
 
 export default function JoinTeam() {
   const [code, setCode] = createSignal("");
   const [relationship, setRelationship] = createSignal("");
   const [user] = createSignal(getUser());
   const [error, setError] = createSignal<string | null>(null);
+
   const navigate = useNavigate();
+  const team = useTeam();
 
   async function handleSubmitCode(e: SubmitEvent) {
     e.preventDefault();
@@ -23,6 +26,7 @@ export default function JoinTeam() {
       setError(response.message);
     }
     if (response._tag === "success") {
+      team.updateTeamId(response.teamId);
       return navigate(`/team/${response.teamId}`);
     }
   }

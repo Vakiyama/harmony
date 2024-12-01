@@ -37,7 +37,6 @@ export function useHarmonyChat(
 ) {
   const [messages, setMessages] = createSignal<ArrayMessage[]>([]);
   const team = useTeam();
-
   async function handleConversation(messages: ArrayMessage[]) {
     if (!user()) return;
     const response = await harmonyChat(
