@@ -291,7 +291,7 @@ export default function CalendarPage() {
     <>
       {isSideMenuOpen() && (
         <>
-          <div class="absolute top-0 left-0 z-40 w-full bg-black opacity-50" />
+          <div class="absolute top-0 left-0 z-40 w-full h-full bg-black opacity-50" />
           <div
             class={`absolute top-0 left-0 z-50 w-full h-full duration-300 ${
               isSideMenuVisible() ? "animate-fadeRight" : "animate-fadeLeft"
