@@ -15,6 +15,12 @@ export default function UploadPhoto() {
   const handleFileChange = async (e: Event) => {
     const fileInput = e.target as HTMLInputElement;
     if (fileInput?.files?.[0]) {
+      const file = fileInput.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        setError("File size exceeds 5MB. Please choose a smaller file");
+        return;
+      }
+      setError("");
       setSelectedFile(fileInput.files[0]);
       const reader = new FileReader();
       reader.onload = () => {
@@ -35,6 +41,9 @@ export default function UploadPhoto() {
 
     try {
       const result = await photoAction(formData);
+      if (result.error) {
+        setError(result.error);
+      }
       setIsUploading(true);
       team.updateRecipientField("photo", result);
       setError("");
@@ -102,6 +111,7 @@ export default function UploadPhoto() {
             )}
           </label>
         </div>
+        {error() && <p class="text-red-500 text-sm mt-2">{error()}</p>}
         <Button
           type="button"
           onClick={handleNext}

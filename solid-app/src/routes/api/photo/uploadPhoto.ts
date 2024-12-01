@@ -7,14 +7,32 @@ export const POST = async ({ request }: APIEvent) => {
     const fileEntry = formData.get("photo");
 
     if (!fileEntry || !(fileEntry instanceof File)) {
-      return new Response("No file uploaded", { status: 400 });
+      return new Response(JSON.stringify({ error: "No file uploaded" }), {
+        status: 400,
+      });
     }
 
     const file = fileEntry as File;
 
     if (!file) {
-      return new Response("No file uploaded", { status: 400 });
+      return new Response(JSON.stringify({ error: "No file uploaded" }), {
+        status: 400,
+      });
     }
+
+    if (file.size > 5 * 1024 * 1024) {
+      return new Response(JSON.stringify({ error: "File size exceeds 5MB" }), {
+        status: 400,
+      });
+    }
+
+    const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif"];
+    if (!allowedMimeTypes.includes(file.type)) {
+      return new Response(JSON.stringify({ error: "Invalid file type" }), {
+        status: 400,
+      });
+    }
+
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
@@ -31,10 +49,15 @@ export const POST = async ({ request }: APIEvent) => {
   } catch (error) {
     if (error instanceof Error) {
       console.error("Error during file upload:", error.message);
-      return new Response("Upload failed", { status: 500 });
+      return new Response(JSON.stringify({ error: "Upload failed" }), {
+        status: 500,
+      });
     }
 
     console.error("Unknown error during file upload:", error);
-    return new Response("Upload failed due to unknown error", { status: 500 });
+    return new Response(
+      JSON.stringify({ error: "Upload failed due to unknown error" }),
+      { status: 500 }
+    );
   }
 };
