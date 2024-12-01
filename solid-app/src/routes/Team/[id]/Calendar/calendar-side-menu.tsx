@@ -1,6 +1,6 @@
 import { TeamMember } from "@/schema/TeamMembers";
 import { User } from "@/schema/Users";
-import { useSearchParams } from "@solidjs/router";
+import { createAsync, useSearchParams } from "@solidjs/router";
 import {
   NavigateOptions,
   SearchParams,
@@ -10,17 +10,19 @@ import { FaSolidAngleDown, FaSolidAngleUp } from "solid-icons/fa";
 import {
   Accessor,
   batch,
+  createMemo,
   createSignal,
   For,
   onMount,
   Setter,
   Show,
 } from "solid-js";
+import { getTeamFromTeamId } from "~/api/team";
 import BsGrid2x3GapFill from "~/components/icon/bs-grid-2x3-gap-fill";
 import BsGrid3x3GapFill from "~/components/icon/bs-grid-3x3-gap-fill";
-import CalendarIcon from "~/components/icon/calendar-icon";
 import TbRectangleFilled from "~/components/icon/tb-rectangle-filled";
 import Checkbox from "~/components/shared/checkbox";
+
 type CalendarFilterType =
   | "events"
   | "tasks"
@@ -28,20 +30,13 @@ type CalendarFilterType =
   | "complete"
   | "uncompleted";
 
-const DEFAULT_FILTERS: CalendarFilterType[] = [
-  "events",
-  "tasks",
-  "medication",
-  "complete",
-  "uncompleted",
-];
-
 const CalendarSideMenu = (props: {
   refetchData: () => Promise<void>;
   setIsSideMenuOpen: Setter<boolean>;
   teamMembers: Accessor<{ users: User; teammembers: TeamMember }[]>;
   params: Accessor<SetSearchParams>;
   setParams: Setter<SetSearchParams>;
+  teamId: number;
   setSearchParams: (
     params: SetSearchParams,
     options?: Partial<NavigateOptions>
@@ -50,10 +45,17 @@ const CalendarSideMenu = (props: {
 
   setCurrentView: Setter<"day" | "week" | "month" | undefined>;
 }) => {
+  const [isClosing, setIsClosing] = createSignal(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [isPeopleOpen, setIsPeopleOpen] = createSignal(false);
   const [isCalendarOpen, setIsCalendarOpen] = createSignal(false);
   const [isTeamOpen, setIsTeamOpen] = createSignal(false);
+
+  const team = createAsync(async () => await getTeamFromTeamId(props.teamId), {
+    deferStream: true,
+  });
+
+  const teamData = createMemo(() => team());
 
   const updateFilters = async (newFilters: string) => {
     props.setSearchParams(
@@ -89,7 +91,10 @@ const CalendarSideMenu = (props: {
 
   function handleBackdropClick(e: Event) {
     if (e.target === e.currentTarget) {
-      props.setIsSideMenuOpen(false);
+      setIsClosing(true);
+      setTimeout(() => {
+        props.setIsSideMenuOpen(false);
+      }, 300);
     }
   }
 
@@ -134,20 +139,26 @@ const CalendarSideMenu = (props: {
 
   return (
     <div
-      class="fixed top-0 h-full w-full flex bg-black bg-opacity-50 z-[3]"
+      class={`absolute top-0 h-full w-full flex z-[3] ${
+        isClosing() ? "animate-fadeOut" : ""
+      }`}
       onclick={handleBackdropClick}
     >
-      <div class="w-[265px] h-[calc(100%+110px)] absolute right-0 bg-[#fcfcfc] ">
-        <div class="w-full h-[90px] pt-1.5 pb-2.5  bg-[#fcfcfc] border-b border-[#1e1e1e]/20 flex-col justify-end items-center gap-2.5 inline-flex">
+      <div class="w-[265px] h-full absolute right-0 bg-[#fcfcfc] ">
+        <div class="w-full h-[90px] pt-1.5 pb-2.5 bg-[#fcfcfc] border-b border-[#1e1e1e]/20 flex-col justify-end items-center gap-2.5 inline-flex">
           <button
             class="w-44 h-6 flex justify-between items-center"
             onclick={() => {
               setIsTeamOpen(!isTeamOpen());
             }}
           >
-            <div class="text-[#1e1e1e] text-[19px] font-medium font-grotesque  leading-[22.80px]">
-              Lola’s Care Team
-            </div>
+            <Show when={teamData()}>
+              <div class="text-[#1e1e1e] text-[19px] font-medium font-grotesque leading-[22.80px]">
+                {teamData()?.data.teams.teamName
+                  ? `${teamData()?.data.teams.teamName}'s Care Team`
+                  : ""}
+              </div>
+            </Show>
             <Show
               when={isTeamOpen()}
               fallback={<FaSolidAngleDown class="text-xl" />}

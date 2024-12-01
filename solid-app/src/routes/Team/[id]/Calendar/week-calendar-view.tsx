@@ -29,6 +29,9 @@ const WeekCalendarView = (props: {
   isCalendarOpen: Accessor<boolean>;
   teamId: number;
 }) => {
+  const [slideDirection, setSlideDirection] = createSignal<
+    "left" | "right" | null
+  >(null);
   const weekdays = moment.weekdaysMin();
 
   const [currentWeekStart, setCurrentWeekStart] = createSignal(
@@ -96,24 +99,30 @@ const WeekCalendarView = (props: {
   };
 
   const handleCurrentWeek = (change: number) => {
-    const newStart = currentWeekStart().add(change, "week");
-    setCurrentWeekStart(newStart);
+    setSlideDirection(change > 0 ? "left" : "right");
 
-    const midWeek = newStart.clone().add(3, "days");
-    props.setCurrentMonth(midWeek.format("MMMM"));
-    props.setCurrentYear(midWeek.year());
+    setTimeout(() => {
+      const newStart = currentWeekStart().add(change, "week");
+      setCurrentWeekStart(newStart);
 
-    setDaysWithDates(
-      Array.from({ length: 7 }, (_, i) => {
-        const date = newStart.clone().add(i, "days");
-        return {
-          day: date.format("D"),
-          month: date.format("MMMM"),
-          year: date.year(),
-          fullDate: date,
-        };
-      })
-    );
+      const midWeek = newStart.clone().add(3, "days");
+      props.setCurrentMonth(midWeek.format("MMMM"));
+      props.setCurrentYear(midWeek.year());
+
+      setDaysWithDates(
+        Array.from({ length: 7 }, (_, i) => {
+          const date = newStart.clone().add(i, "days");
+          return {
+            day: date.format("D"),
+            month: date.format("MMMM"),
+            year: date.year(),
+            fullDate: date,
+          };
+        })
+      );
+
+      setSlideDirection(null);
+    }, 300);
   };
 
   let startX: number;
@@ -140,12 +149,17 @@ const WeekCalendarView = (props: {
           ontouchstart={handleTouchStart}
           ontouchend={handleTouchEnd}
         >
-          <div class="grid grid-cols-7 text-center text-lg font-medium text-[#00000080] mb-1">
+          <div class="grid grid-cols-7 text-center text-lg font-medium text-[#00000080] mb-1 transition-transform duration-300">
             <For each={weekdays}>
               {(weekDayName) => <div class="py-2">{weekDayName}</div>}
             </For>
           </div>
-          <div class="grid grid-cols-7 pb-3">
+          <div
+            class={cn("grid grid-cols-7 pb-3", {
+              "animate-fadeLeft": slideDirection() === "left",
+              "animate-fadeRight": slideDirection() === "right",
+            })}
+          >
             <For each={daysWithDates()}>
               {(dayInfo) => {
                 return (
@@ -206,7 +220,7 @@ const WeekCalendarView = (props: {
           </div>
         </div>
       </Show>
-      <div class="flex justify-center pt-4 px-3 bg-white pb-3 h-[calc(100%+95px)]">
+      <div class="flex justify-center pt-4 px-3 bg-white pb-3 h-full">
         <EventCalendarDisplay events={props.events} teamId={props.teamId} />
       </div>
     </>
