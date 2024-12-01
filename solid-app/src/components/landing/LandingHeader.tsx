@@ -1,7 +1,5 @@
 import { createAsync, RouteDefinition, useAction } from "@solidjs/router";
 import { TeamWithDefault } from "../../../drizzle/schema/Teams";
-import { BiSolidBell } from "solid-icons/bi";
-import { FaSolidAngleDown } from "solid-icons/fa";
 import {
   createEffect,
   createSignal,

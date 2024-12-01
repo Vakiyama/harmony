@@ -17,6 +17,7 @@ import {
 } from "~/components/ui/date-picker";
 import { Index } from "solid-js";
 import { Portal } from "solid-js/web";
+import moment from "moment";
 
 const DatePickerComponent = (props: { required?: boolean; value?: string }) => {
   return (
@@ -24,9 +25,9 @@ const DatePickerComponent = (props: { required?: boolean; value?: string }) => {
       <DatePickerInput
         id="date"
         name="date"
-        placeholder="Pick a date"
+        placeholder="MM/DD/YYYY"
         required={props.required}
-        value={props.value}
+        value={props.value || moment().format("MMMM D, YYYY")}
       />
       <Portal>
         <DatePickerContent>

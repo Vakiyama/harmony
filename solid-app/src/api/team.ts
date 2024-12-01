@@ -14,6 +14,7 @@ import { teamMembers } from "../../drizzle/schema/TeamMembers";
 import { pastInjuries } from "../../drizzle/schema/PastInjuries";
 import { importantSurgeries } from "../../drizzle/schema/ImportantSurgeries";
 import { calendars } from "../../drizzle/schema/Calendars";
+import { cloudinary } from "~/middleware/cloudinaryConfig";
 
 export async function joinTeam(
   userId: number,
@@ -407,16 +408,19 @@ export const createRecipientAction = action(
     const [recipientError, recipientResult] = await mightFail(
       db.insert(recipients).values(recipientInput).returning({
         recipientId: recipients.id,
+        photo: recipients.photo,
       })
     );
     if (recipientError) {
       console.error("Recipient insertion error:", recipientError);
       return { error: "Failed to insert recipient entry." };
     }
+    console.log("recipient", recipientResult[0]);
     return {
       success: true,
       message: "Recipient successfully created.",
       recipientId: recipientResult[0].recipientId,
+      photo: recipientResult[0].photo,
     };
   },
   "createRecipientAction"
@@ -440,6 +444,7 @@ export const createTeamAction = action(
       teamName: string;
       recipientId: number;
       memberRelationship: string;
+      photo?: string;
     };
   }) => {
     "use server";
@@ -539,7 +544,6 @@ export const createSurgeryAction = action(
       if (!surgery.name || !surgery.year) {
         return { error: "Surgery name and year are required" };
       }
-      console.log("backend:", surgery);
       const [surgeriesError] = await mightFail(
         db.insert(importantSurgeries).values({ ...surgery, recipientId })
       );
@@ -598,3 +602,25 @@ export const createPastInjuryAction = action(
   },
   "createPastInjuryAction"
 );
+
+export const uploadPhotoAction = action(async (formData: FormData) => {
+  const file = formData.get("photo") as File;
+  if (!file) {
+    return { error: "No file selected" };
+  }
+  try {
+    const response = await fetch("/api/photo/uploadPhoto", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { error: errorData.error || "Failed to upload photo" };
+    }
+    const data = await response.json();
+    return data.url;
+  } catch (error) {
+    return { error: "Failed to upload photo" };
+  }
+}, "uploadPhotoAction");

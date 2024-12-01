@@ -173,8 +173,10 @@ export default function Medication() {
                 (isEditing() && med()) || (!isEditing() && medicationOptions())
               }
             >
-              <div>
-                <label>Select Medication</label>
+              <div class="flex flex-col gap-2">
+                <label class="font-grotesque text-h4 font-medium leading-[120%]">
+                  Select Medication
+                </label>
                 <SelectInput
                   name="medication"
                   class={twMerge("w-full p-1 rounded-lg py-4 ps-4")}
@@ -185,14 +187,16 @@ export default function Medication() {
                 />
               </div>
             </Show>
-            <div>
+            <div class="flex flex-col gap-2">
               <Show
                 when={
                   (isEditing() && medType()) ||
                   (!isEditing() && medicationTypes)
                 }
               >
-                <label>Medication Type</label>
+                <label class="font-grotesque text-h4 font-medium leading-[120%]">
+                  Medication Type
+                </label>
                 <SelectInput
                   name="medicationType"
                   class="w-full p-1 rounded-lg py-4 ps-4 "
@@ -205,9 +209,11 @@ export default function Medication() {
             </div>
             <div class="flex flex-col gap-2 justify-center">
               <Show when={(isEditing() && entry()) || !isEditing()}>
-                <label class="text-h4">Date & Time Taken</label>
+                <label class="font-grotesque text-h4 font-medium leading-[120%]">
+                  Date & Time Taken
+                </label>
                 <div class="flex flex-row gap-2 items-center">
-                  <div class="flex-1">
+                  <div class="flex-2">
                     <DatePickerComponent
                       value={entry()?.date.toLocaleDateString("en-us", {
                         month: "long",
@@ -220,7 +226,7 @@ export default function Medication() {
                     time={time}
                     setTime={setTime}
                     name="time"
-                    class="flex-1"
+                    class="flex-1 py-1"
                   />
                 </div>
               </Show>

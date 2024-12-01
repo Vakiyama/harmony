@@ -189,8 +189,19 @@ export default function CalendarPage() {
     await refetch();
   };
 
+  const [isSideMenuVisible, setIsSideMenuVisible] = createSignal(false);
   const [isSideMenuOpen, setIsSideMenuOpen] = createSignal(false);
   const [isCalendarOpen, setIsCalendarOpen] = createSignal(true);
+
+  const toggleSideMenu = () => {
+    if (isSideMenuOpen()) {
+      setIsSideMenuVisible(false);
+      setTimeout(() => setIsSideMenuOpen(false), 300);
+    } else {
+      setIsSideMenuOpen(true);
+      setIsSideMenuVisible(true);
+    }
+  };
 
   const fetchEvents = async (calendarId: number) => {
     const [journalEntriesError, journalEntriesResult] = await mightFail(
@@ -279,16 +290,26 @@ export default function CalendarPage() {
   return (
     <>
       {isSideMenuOpen() && (
-        <CalendarSideMenu
-          refetchData={handleRefetch}
-          searchParams={searchParams}
-          setSearchParams={setSearchParams}
-          setIsSideMenuOpen={setIsSideMenuOpen}
-          teamMembers={teamMembers}
-          setCurrentView={setCurrentView}
-          params={params}
-          setParams={setParams}
-        />
+        <>
+          <div class="absolute top-0 left-0 z-40 w-full h-full bg-black opacity-50" />
+          <div
+            class={`absolute top-0 left-0 z-50 w-full h-full duration-300 ${
+              isSideMenuVisible() ? "animate-fadeRight" : "animate-fadeLeft"
+            }`}
+          >
+            <CalendarSideMenu
+              refetchData={handleRefetch}
+              searchParams={searchParams}
+              setSearchParams={setSearchParams}
+              setIsSideMenuOpen={setIsSideMenuOpen}
+              teamMembers={teamMembers}
+              setCurrentView={setCurrentView}
+              params={params}
+              setParams={setParams}
+              teamId={teamId}
+            />
+          </div>
+        </>
       )}
       <Show when={currentView() !== undefined || currentView() !== null}>
         <div

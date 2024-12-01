@@ -28,6 +28,9 @@ const CalendarView = (props: {
   currentYear: Accessor<number>;
   teamId: number;
 }) => {
+  const [slideDirection, setSlideDirection] = createSignal<
+    "left" | "right" | null
+  >(null);
   const weekdays = moment.weekdaysMin();
   const months = moment.months();
   const [monthEvents, setMonthEvents] = createSignal(props.events());
@@ -95,12 +98,14 @@ const CalendarView = (props: {
     const endX = event.changedTouches[0].clientX;
     if (startX > endX + 50) {
       // swipe left
+      setSlideDirection("left");
       if (props.selectedMonth() === "December") {
         props.setSelectedYear(props.selectedYear() + 1);
       }
       handleSelectMonth(props.selectedMonth(), 1);
     } else if (startX < endX - 50) {
       // swipe right
+      setSlideDirection("right");
       if (props.selectedMonth() === "January") {
         props.setSelectedYear(props.selectedYear() - 1);
       }
@@ -108,6 +113,9 @@ const CalendarView = (props: {
     }
     props.setCurrentMonth(props.selectedMonth());
     props.setCurrentYear(props.selectedYear());
+
+    // Reset animation state after the transition
+    setTimeout(() => setSlideDirection(null), 300);
   };
 
   const hasEventsOnDay = (dayInfo: { fullDate: moment.Moment }) => {
@@ -148,11 +156,17 @@ const CalendarView = (props: {
     <>
       <Show when={props.isCalendarOpen()}>
         <div
-          class="bg-[#F2F2F2] pt-4 pb-1 h-full"
+          class="bg-[#F2F2F2] pt-4 pb-1"
           ontouchstart={handleTouchStart}
           ontouchend={handleTouchEnd}
         >
-          <div>
+          <div
+            class={cn(
+              "transition-transform duration-300",
+              slideDirection() === "left" ? "animate-fadeLeft" : "",
+              slideDirection() === "right" ? "animate-fadeRight" : ""
+            )}
+          >
             <div class="grid grid-cols-7 text-center text-lg font-medium text-[#00000080]  mb-1">
               <For each={weekdays}>
                 {(weekDayName) => <div class="py-2">{weekDayName}</div>}

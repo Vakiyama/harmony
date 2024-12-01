@@ -92,13 +92,14 @@ export default function CreateSomeone() {
         setTeamError(recipientResult.error || "Failed to create recipient");
         throw new Error(recipientResult.error || "Failed to create recipient");
       }
+      console.log("fontend", recipientResult.photo);
       showNotification("Recipient created successfully");
-
       // create team
       const teamResult = (await teamAction({
         teamInput: {
           teamName: team.state.teamName,
           recipientId: recipientResult.recipientId,
+          photo: recipientResult.photo || "",
           memberRelationship: team.state.memberRelationship,
         },
       })) as CreateTeamActionResponse;
@@ -115,7 +116,6 @@ export default function CreateSomeone() {
         team.state.importantSurgeries[0].name !== "" &&
         team.state.importantSurgeries[0].year !== ""
       ) {
-        console.log("before creating", team.state.importantSurgeries);
         const surgeryResult = (await surgeryAction({
           surgeriesInput: {
             surgeries: team.state.importantSurgeries,
@@ -135,7 +135,6 @@ export default function CreateSomeone() {
         team.state.pastInjuries.length > 0 &&
         team.state.pastInjuries[0].name.trim() !== ""
       ) {
-        console.log("before creating", team.state.pastInjuries);
         const injuryResult = (await injuryAction({
           injuriesInput: {
             injuries: team.state.pastInjuries,
@@ -166,7 +165,7 @@ export default function CreateSomeone() {
         showNotification("Medications added successfully");
       }
       showNotification("Created Team successfully");
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      await new Promise((resolve) => setTimeout(resolve, 5000));
       team.resetForm();
       window.location.href = "/";
     } catch (error) {

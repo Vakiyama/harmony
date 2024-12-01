@@ -19,7 +19,7 @@ export default function TimeDateCalendar(props: {
       />
 
       <TimePicker
-        class="border py-6 px-2 rounded-lg focus:bg-purple-200 focus:border-none "
+        class="border py-3 px-2 rounded-lg focus:bg-purple-200 focus:border-none "
         setTime={props.setTime}
         time={props.time}
       />
