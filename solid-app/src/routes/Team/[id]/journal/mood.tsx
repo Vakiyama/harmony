@@ -170,7 +170,7 @@ export default function MoodTracker() {
                   Date
                 </label>
                 <div class="flex flex-row gap-2 items-center">
-                  <div class="flex-1">
+                  <div class="flex-2">
                     <DatePickerComponent
                       value={entry()?.date.toLocaleDateString("en-us", {
                         month: "long",
@@ -183,7 +183,7 @@ export default function MoodTracker() {
                     time={time}
                     setTime={setTime}
                     name="time"
-                    class="flex-1"
+                    class="flex-1 py-1"
                   />
                 </div>
               </div>

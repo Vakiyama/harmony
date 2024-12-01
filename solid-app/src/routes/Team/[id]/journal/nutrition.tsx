@@ -123,10 +123,12 @@ export default function NutritionTracker() {
             method="post"
             class="flex flex-col mt-2 gap-2"
           >
-            <div class="flex flex-col gap-2 justify-center w-full">
-              <div class="flex flex-col gap-2">
-                <Show when={(isEditing() && entry()) || !isEditing()}>
-                  <label>Meal Type</label>
+            <div class="flex flex-col justify-center w-full">
+              <Show when={(isEditing() && entry()) || !isEditing()}>
+                <div class="flex flex-col mt-4 mb-4">
+                  <label class="text-h4 font-grotesque leading-[120%] font-medium mb-1">
+                    Meal Type
+                  </label>
                   <SelectInput
                     options={["Breakfast", "Lunch", "Dinner", "Snack"]}
                     setSelectedOption={() => undefined}
@@ -138,7 +140,11 @@ export default function NutritionTracker() {
                       label: entry()?.category || "",
                     }}
                   />
-                  <label class="text-h4">Food Name</label>
+                </div>
+                <div class="flex flex-col mb-4">
+                  <label class="text-h4 font-grotesque leading-[120%] font-medium mb-1">
+                    Food Name
+                  </label>
                   <input
                     type="text"
                     id="foodName"
@@ -147,7 +153,11 @@ export default function NutritionTracker() {
                     placeholder="Food Name"
                     value={entry()?.foodName || ""}
                   />
-                  <label class="text-h4">Drink Name</label>
+                </div>
+                <div class="flex flex-col mb-4">
+                  <label class="text-h4 font-grotesque leading-[120%] font-medium mb-1">
+                    Drink Name
+                  </label>
                   <input
                     type="text"
                     id="drinkName"
@@ -156,41 +166,46 @@ export default function NutritionTracker() {
                     placeholder="Drink Name"
                     value={entry()?.drinkName || ""}
                   />
-                </Show>
-              </div>
+                </div>
+              </Show>
+
               <Show
                 when={
                   (isEditing() && entry()) || (!isEditing() && recipientData())
                 }
               >
-                <label class="text-h4">{`How much did ${
-                  recipientData()?.recipient?.firstName ||
-                  recipientData()?.recipient?.lastName
-                }  eat?`}</label>
-                <SelectInput
-                  options={[
-                    "None",
-                    "Less than half",
-                    "Half",
-                    "More than half",
-                    "All",
-                  ]}
-                  setSelectedOption={() => undefined}
-                  placeholder="Select Amount Eaten"
-                  class="w-full p-1 rounded-lg py-4 ps-4"
-                  name="consumption"
-                  defaultValue={{
-                    value: entry()?.consumption || "",
-                    label: entry()?.consumption || "",
-                  }}
-                />
+                <div class="flex flex-col mb-4">
+                  <label class="text-h4 font-grotesque leading-[120%] font-medium mb-1">{`How much did ${
+                    recipientData()?.recipient?.firstName ||
+                    recipientData()?.recipient?.lastName
+                  }  eat?`}</label>
+                  <SelectInput
+                    options={[
+                      "None",
+                      "Less than half",
+                      "Half",
+                      "More than half",
+                      "All",
+                    ]}
+                    setSelectedOption={() => undefined}
+                    placeholder="Select Amount Eaten"
+                    class="w-full p-1 rounded-lg py-4 ps-4"
+                    name="consumption"
+                    defaultValue={{
+                      value: entry()?.consumption || "",
+                      label: entry()?.consumption || "",
+                    }}
+                  />
+                </div>
               </Show>
             </div>
             <Show when={(isEditing() && entry()) || !isEditing()}>
-              <div class="flex flex-col gap-2">
-                <label class="text-h4">Date & Time Taken</label>
+              <div class="flex flex-col mb-4">
+                <label class="text-h4 font-grotesque leading-[120%] font-medium mb-1">
+                  Date & Time Taken
+                </label>
                 <div class="flex flex-row gap-2 items-center">
-                  <div class="flex-1">
+                  <div class="flex-2">
                     <DatePickerComponent
                       value={entry()?.date.toLocaleDateString("en-us", {
                         month: "long",
@@ -203,13 +218,18 @@ export default function NutritionTracker() {
                     time={time}
                     setTime={setTime}
                     name="time"
-                    class="flex-1"
+                    class="flex-1 py-1"
                   />
                 </div>
               </div>
 
-              <div class="flex flex-col" onClick={() => setShowAddPhoto(true)}>
-                <label class="text-h4">Photo</label>
+              <div
+                class="flex flex-col mb-8"
+                onClick={() => setShowAddPhoto(true)}
+              >
+                <label class="text-h4 font-grotesque leading-[120%] font-medium mb-1">
+                  Photo
+                </label>
                 <Upload type="photo" description="Tap to add a photo" />
               </div>
               <AddNote
@@ -218,7 +238,7 @@ export default function NutritionTracker() {
                 content={entry()?.note?.note || ""}
               />
               <Button
-                class="rounded-[100px] h-12 w-full bg-primary-purple-300 text-black"
+                class="rounded-[100px] h-12 w-full bg-primary-purple-300 text-black mt-6"
                 variant="default"
                 type="submit"
               >
