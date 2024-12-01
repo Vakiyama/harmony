@@ -100,7 +100,9 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
             location.pathname.startsWith(`/team/create`) ||
             location.pathname.startsWith(`/api/auth`)
               ? ""
-              : "pb-[150px]"
+              : location.pathname.startsWith(`/team/${params.id}/calendar`)
+              ? "pb-[150px]"
+              : "pb-[100px]"
           }`}
         >
           {props.children}
