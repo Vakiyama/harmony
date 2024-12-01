@@ -1,5 +1,6 @@
 import {
   Accessor,
+  createEffect,
   createMemo,
   createSignal,
   For,
@@ -34,6 +35,7 @@ const WeekCalendarView = (props: {
   const [currentWeekStart, setCurrentWeekStart] = createSignal(
     moment().startOf("week")
   );
+  const [weekEvents, setWeekEvents] = createSignal(props.events());
 
   const [daysWithDates, setDaysWithDates] = createSignal(
     Array.from({ length: 7 }, (_, i) => {
@@ -96,7 +98,7 @@ const WeekCalendarView = (props: {
   };
 
   const handleCurrentWeek = (change: number) => {
-    const newStart = currentWeekStart().add(change, "week");
+    const newStart = currentWeekStart().clone().add(change, "week");
     setCurrentWeekStart(newStart);
 
     const midWeek = newStart.clone().add(3, "days");
@@ -115,6 +117,18 @@ const WeekCalendarView = (props: {
       })
     );
   };
+
+  createEffect(() => {
+    const startOfWeek = currentWeekStart();
+    const endOfWeek = moment(startOfWeek).endOf("week");
+
+    const filteredEvents = props.events().filter((event) => {
+      const eventStartTime = moment(event.timeStart);
+      return eventStartTime.isBetween(startOfWeek, endOfWeek, null, "[]");
+    });
+    setWeekEvents(filteredEvents);
+    console.log(filteredEvents);
+  }, [currentWeekStart]);
 
   let startX: number;
 
@@ -207,7 +221,7 @@ const WeekCalendarView = (props: {
         </div>
       </Show>
       <div class="flex justify-center pt-4 px-3 bg-white pb-3 h-[calc(100%+95px)]">
-        <EventCalendarDisplay events={props.events} teamId={props.teamId} />
+        <EventCalendarDisplay events={weekEvents} teamId={props.teamId} />
       </div>
     </>
   );
