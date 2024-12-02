@@ -1,4 +1,4 @@
-import { createSignal, onMount, Show } from "solid-js";
+import { createSignal, onMount, Show, useContext } from "solid-js";
 import TopNav from "~/components/shared/TopNav";
 import { Button } from "~/components/ui/button";
 import TextInput from "../Team/[id]/Calendar/Create/TextInput";
@@ -6,12 +6,15 @@ import { joinTeam } from "~/api/team";
 import { getUser } from "~/api";
 import { useNavigate } from "@solidjs/router";
 import { useTeam } from "~/context/team-context";
+import { TeamContext } from "~/components/Layout-Context";
 
 export default function JoinTeam() {
   const [code, setCode] = createSignal("");
   const [relationship, setRelationship] = createSignal("");
   const [user] = createSignal(getUser());
   const [error, setError] = createSignal<string | null>(null);
+
+  const context = useContext(TeamContext);
 
   const navigate = useNavigate();
   const team = useTeam();
@@ -27,6 +30,8 @@ export default function JoinTeam() {
     }
     if (response._tag === "success") {
       team.updateTeamId(response.teamId);
+      context?.refetchTrigger();
+
       return navigate(`/team/${response.teamId}`);
     }
   }

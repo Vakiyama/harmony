@@ -32,11 +32,13 @@ export function LandingHeader(props: {
   const team = useTeam();
 
   createEffect(() => {
-    const defaultTeam = props.teamData?.find(
-      (team) => team.team.defaultTeam === true
-    );
-    setTeamName(defaultTeam?.team.name || undefined);
-    team.updateTeamId(defaultTeam?.team.id!);
+    if (team.state.id === -1) {
+      const defaultTeam = props.teamData?.find(
+        (team) => team.team.defaultTeam === true,
+      );
+      setTeamName(defaultTeam?.team.name || undefined);
+      team.updateTeamId(defaultTeam?.team.id!);
+    }
   });
 
   const toggleDropdown = () => {
