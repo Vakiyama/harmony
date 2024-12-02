@@ -2,7 +2,15 @@ import { Event } from "@/schema/Events";
 import { useNavigate } from "@solidjs/router";
 import moment from "moment";
 import { FaRegularCircleCheck } from "solid-icons/fa";
-import { createResource, For, JSX, Match, Show, Switch } from "solid-js";
+import {
+  createResource,
+  createSignal,
+  For,
+  JSX,
+  Match,
+  Show,
+  Switch,
+} from "solid-js";
 import { twMerge } from "tailwind-merge";
 import { getEventParticipants } from "~/api/calendar";
 import { CalendarJournalType } from "~/routes/Team/[id]/Calendar";
@@ -12,6 +20,20 @@ import LoNutritionIcon from "../icon/lo-nutrition";
 import LoSleepIcon from "../icon/lo-sleep";
 import LoNotesIcon from "../icon/lo-notes";
 import { getEventBackground } from "~/utils/getEventBackground";
+import MedicationCard from "../landing/journal-card/MedicationCard";
+import MoodCard from "../landing/journal-card/MoodCard";
+import NoteCard from "../landing/journal-card/NoteCard";
+import MealCard from "../landing/journal-card/MealCard";
+import SleepCard from "../landing/journal-card/SleepCard";
+import { TakenMedsWithNoteUser } from "@/schema/TakenMedications";
+import { MoodsWithNoteUser } from "@/schema/Moods";
+import { NoteWithUser } from "@/schema/Notes";
+import { MealWithNoteUser } from "@/schema/Meals";
+import { SleepWithNoteUser } from "@/schema/Sleeps";
+import {
+  JournalEntryDialog,
+  JournalEntryDialogContent,
+} from "./journal-entry-dialog";
 
 const EventCard = (props: {
   event: Event | CalendarJournalType;
@@ -24,6 +46,7 @@ const EventCard = (props: {
     const response = await getEventParticipants(props.event.id, props.teamId);
     return response ?? [];
   });
+  const [isModalOpen, setIsModalOpen] = createSignal(false);
 
   const getEventIcon = (event: Event | CalendarJournalType) => {
     switch (event.type) {
@@ -59,6 +82,25 @@ const EventCard = (props: {
     }
   };
 
+  const renderModalContent = () => {
+    switch (props.event.type) {
+      case "medication":
+        return (
+          <MedicationCard med={props.event.data as TakenMedsWithNoteUser} />
+        );
+      case "mood":
+        return <MoodCard mood={props.event.data as MoodsWithNoteUser} />;
+      case "note":
+        return <NoteCard note={props.event.data as NoteWithUser} />;
+      case "meal":
+        return <MealCard meal={props.event.data as MealWithNoteUser} />;
+      case "sleep":
+        return <SleepCard sleep={props.event.data as SleepWithNoteUser} />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <>
       <div
@@ -70,8 +112,11 @@ const EventCard = (props: {
         )}
         style={props.style || {}}
         onClick={() => {
-          if (props.event.type === "task" || props.event.type === "event")
+          if (props.event.type === "task" || props.event.type === "event") {
             navigate(`/team/${props.teamId}/calendar/event/${props.event.id}`);
+          } else {
+            setIsModalOpen(true);
+          }
         }}
       >
         {getEventIcon(props.event)}
@@ -120,6 +165,11 @@ const EventCard = (props: {
           </div>
         </div>
       </div>
+      <JournalEntryDialog open={isModalOpen()} onOpenChange={setIsModalOpen}>
+        <JournalEntryDialogContent>
+          {renderModalContent()}
+        </JournalEntryDialogContent>
+      </JournalEntryDialog>
     </>
   );
 };
