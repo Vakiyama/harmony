@@ -37,6 +37,7 @@ export function useHarmonyChat(
 ) {
   const [messages, setMessages] = createSignal<ArrayMessage[]>([]);
   const team = useTeam();
+  console.log(team.state.id, "team Id at HOok");
   async function handleConversation(messages: ArrayMessage[]) {
     if (!user()) return;
     const response = await harmonyChat(
@@ -46,6 +47,15 @@ export function useHarmonyChat(
       voice,
     );
     if (!response) return;
+
+    const lastMessage = response.at(-1);
+    if (
+      typeof lastMessage?.content === "object" &&
+      lastMessage.content[0].type === "tool_use"
+    ) {
+      console.log("using tool!", response);
+      handleConversation(response);
+    }
 
     setMessages(response);
   }
@@ -70,10 +80,8 @@ export function HarmonyChat() {
 
   function setTextAreaHeight() {
     if (textAreaRef) {
-      console.log(textAreaRef.value, "val");
       setInput(textAreaRef.value);
       if (textAreaRef.value === "") {
-        console.log("do the thing!");
         return setTextAreaHeightStyle(44);
       }
       const scrollHeight = textAreaRef.scrollHeight;
@@ -186,7 +194,7 @@ export function HarmonyChat() {
                         Good {currentTimeOfDay}, {(user() as User)!.firstName}!
                       </h2>
                     </Show>
-                    <h3 class="opacity-50">What can I help with today?</h3>
+                    <h3 class="opacity-75">What can I help with today?</h3>
                   </div>
                 </div>
               </Show>

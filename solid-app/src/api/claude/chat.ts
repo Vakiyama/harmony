@@ -349,11 +349,12 @@ const queryCalendarToolDefinition = Effect.runSync(
   }),
 );
 
-getCalendarFromTeamId;
 function queryCalendarTool(
   params: z.infer<typeof queryCalendarToolSchema>,
   teamId: number,
 ) {
+  console.log(params, "params");
+  console.log(teamId, "teamId");
   return pipe(
     Effect.tryPromise({
       try: () => getJournalsFromTeamId(teamId),
@@ -873,6 +874,7 @@ export const harmonyChat = async (
         const unwrapped = toArray(getFirst(next.messages));
 
         const lastMessage = unwrapped.at(-1);
+        /*
         if (lastMessage) {
           if (typeof lastMessage.content === "string") {
             return unwrapped;
@@ -882,6 +884,7 @@ export const harmonyChat = async (
             return harmonyChat(unwrapped, id, teamId, voice);
           }
         }
+        */
         return unwrapped;
       },
     }),
