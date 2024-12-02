@@ -33,18 +33,17 @@ export function useHarmonyChat(
       }
     | undefined
   >,
-  voice?: boolean
+  voice?: boolean,
 ) {
   const [messages, setMessages] = createSignal<ArrayMessage[]>([]);
   const team = useTeam();
-
   async function handleConversation(messages: ArrayMessage[]) {
     if (!user()) return;
     const response = await harmonyChat(
       messages,
       user()!.id,
       team.state.id,
-      voice
+      voice,
     );
     if (!response) return;
 
@@ -143,7 +142,7 @@ export function HarmonyChat() {
 
   function getTimePeriod<T>(
     currentDate: Date,
-    ranges: TimeRange<T>[]
+    ranges: TimeRange<T>[],
   ): T | undefined {
     const currentHour = currentDate.getHours();
 
@@ -201,7 +200,7 @@ export function HarmonyChat() {
                   !(
                     message.role === "user" &&
                     !(typeof message.content === "string")
-                  )
+                  ),
               )
               .map((message, index) => (
                 <HarmonyChatMessage
@@ -260,7 +259,7 @@ function sleep(ms: number) {
   return new Promise<void>((res) =>
     setTimeout(() => {
       res();
-    }, ms)
+    }, ms),
   );
 }
 
@@ -273,7 +272,7 @@ function HarmonyChatMessage(props: {
   const filteredLen = props.messages().filter(
     // remove all "tool_result" messages
     (message) =>
-      !(message.role === "user" && !(typeof message.content === "string"))
+      !(message.role === "user" && !(typeof message.content === "string")),
   ).length;
 
   const [aiMessage, setAiMessage] = createSignal("");
@@ -286,7 +285,7 @@ function HarmonyChatMessage(props: {
 
       await sleep(
         (sleepRange.low + Math.floor(sleepRange.high * Math.random())) /
-          speedFactor
+          speedFactor,
       );
 
       messageRangeCutoff++;
@@ -316,13 +315,13 @@ function HarmonyChatMessage(props: {
         "flex items-center relative max-w-[90%]",
         props.message.role === "user"
           ? "self-end flex-row-reverse mr-1 "
-          : "self-start flex-row"
+          : "self-start flex-row",
       )}
     >
       <div
         class={twMerge(
           "rounded-xl p-2 my-3 mx-1 w-fit text-gray-800 px-4",
-          props.message.role === "user" ? "rounded-br-none bg-[#937AEE]" : ""
+          props.message.role === "user" ? "rounded-br-none bg-[#937AEE]" : "",
         )}
       >
         {props.message.role === "user" ? (

@@ -1,7 +1,7 @@
 import { createAsync } from "@solidjs/router";
 import { createSignal, Show } from "solid-js";
 import { getUser } from "~/api";
-import { getListOfTeams } from "~/api/team";
+import { getListOfTeamsNoMembers } from "~/api/team";
 import ProfileHeaderHome from "~/components/profile/profile-header-home";
 import ProfileUserName from "~/components/profile/profile-user-name";
 import TeamCard from "~/components/profile/team-card";
@@ -9,7 +9,7 @@ import TeamModal from "~/components/profile/team-modal";
 export default function Profile() {
   const [isModalOpen, setIsModalOpen] = createSignal(false);
   const user = createAsync(async () => await getUser(), { deferStream: true });
-  const teams = createAsync(async () => await getListOfTeams(), {
+  const teams = createAsync(async () => await getListOfTeamsNoMembers(), {
     deferStream: true,
   });
 
