@@ -1,13 +1,22 @@
 import { JSXElement } from "solid-js";
 import { twMerge } from "tailwind-merge";
 
-export function BottomModal(props: { children: JSXElement; height?: number }) {
+export function BottomModal(props: {
+  children: JSXElement;
+  height?: number;
+  blurBackground?: boolean;
+  close: () => void;
+}) {
   return (
     <>
       <div
         class={twMerge(
-          "absolute top-0 left-0 backdrop-blur bg-black/60 w-full z-10 h-screen",
+          "absolute top-0 left-0  w-full z-10 h-screen",
+          props.blurBackground === undefined || props.blurBackground === true
+            ? "backdrop-blur bg-black/60"
+            : "",
         )}
+        onClick={() => props.close()}
       />
       <div
         class={`

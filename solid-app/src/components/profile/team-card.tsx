@@ -16,7 +16,7 @@ export default function TeamCard(props: {
         <TeamImage teamName={props.teamName} imageUrl={props.imageUrl} />
       </div>
 
-      <div class="flex items-center justify-center text-base font-medium w-full h-[35px]">
+      <div class="flex items-center justify-center text-base font-medium w-full h-[35px] overflow-hidden">
         {props.teamName}
       </div>
     </A>

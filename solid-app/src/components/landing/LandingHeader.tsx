@@ -32,12 +32,15 @@ export function LandingHeader(props: {
   const team = useTeam();
 
   createEffect(() => {
-    if (team.state.id === -1) {
+    if (team.state.id === -1 || team.state.id === undefined) {
       const defaultTeam = props.teamData?.find(
         (team) => team.team.defaultTeam === true,
       );
+      if (!defaultTeam) return;
       setTeamName(defaultTeam?.team.name || undefined);
       team.updateTeamId(defaultTeam?.team.id!);
+    } else {
+      setTeamName(team.state.teamName);
     }
   });
 

@@ -34,6 +34,10 @@ const Layout: Component<{ children: JSXElement }> = (props) => {
     const defaultTeam = teamData.find((team) => team.team.defaultTeam);
     if (defaultTeam && team.state.id === -1) {
       team.updateTeamId(defaultTeam.team.id);
+    } else if (!defaultTeam && team.state.id === -1) {
+      if (teamData.length > 0) {
+        team.updateTeamId(teamData[0].team.id);
+      }
     }
   });
 

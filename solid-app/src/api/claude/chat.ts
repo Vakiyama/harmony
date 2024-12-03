@@ -77,7 +77,7 @@ all caps isn't very natural.
 When asking for info, try to be conversational as much as possible! Instead of asking for 7 different things at once,
 ask for them one at a time. This will keep the caretaker more engaged and less confused!
 
-The current date is: ${new Date(Date.now()).toLocaleTimeString()}
+The current date is: ${new Date().toLocaleString()}
 `;
 
 const CHAT_SYSTEM_MESSAGE_WITH_VOICE = `
@@ -349,11 +349,12 @@ const queryCalendarToolDefinition = Effect.runSync(
   }),
 );
 
-getCalendarFromTeamId;
 function queryCalendarTool(
   params: z.infer<typeof queryCalendarToolSchema>,
   teamId: number,
 ) {
+  console.log(params, "params");
+  console.log(teamId, "teamId");
   return pipe(
     Effect.tryPromise({
       try: () => getJournalsFromTeamId(teamId),
@@ -873,6 +874,7 @@ export const harmonyChat = async (
         const unwrapped = toArray(getFirst(next.messages));
 
         const lastMessage = unwrapped.at(-1);
+        /*
         if (lastMessage) {
           if (typeof lastMessage.content === "string") {
             return unwrapped;
@@ -882,6 +884,7 @@ export const harmonyChat = async (
             return harmonyChat(unwrapped, id, teamId, voice);
           }
         }
+        */
         return unwrapped;
       },
     }),
