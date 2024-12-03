@@ -4,6 +4,7 @@ import TopNav from "~/components/shared/TopNav";
 import { onMount, createSignal } from "solid-js";
 import { getMedFromMedId } from "~/api/team";
 import { useParams } from "@solidjs/router";
+import { Show } from "solid-js";
 
 type Medication = {
   name: string;
@@ -14,6 +15,7 @@ type Medication = {
   sideEffects: string;
   instructions: string;
   pharmacyInfo: string;
+  teamId: number | null;
 };
 
 export default function MedicationDetail() {
@@ -27,12 +29,14 @@ export default function MedicationDetail() {
     sideEffects: "",
     instructions: "",
     pharmacyInfo: "",
+    teamId: null,
   });
   onMount(async () => {
     const medId = Number(params.id);
     if (medId) {
       try {
         const fetchedMed = await getMedFromMedId(medId);
+        console.log(fetchedMed);
 
         const normalizedMed: Medication = {
           name: fetchedMed?.name || "No medication name provided",
@@ -47,6 +51,7 @@ export default function MedicationDetail() {
           instructions:
             fetchedMed?.instructions || "No medication instructions provided",
           pharmacyInfo: fetchedMed?.pharmacyInfo || "No pharmacy info provided",
+          teamId: fetchedMed?.teamId || null,
         };
 
         setMed(normalizedMed);
@@ -57,7 +62,13 @@ export default function MedicationDetail() {
   });
   return (
     <div class="px-2">
-      <TopNav leftNavigation="Team" name="Medication Details" />
+      <Show when={med().teamId}>
+        <TopNav
+          leftNavigation="Team"
+          name="Medication Details"
+          backNav={med().teamId ? `/team/${med().teamId}` : "/profile"}
+        />
+      </Show>
       <MedicationCard
         title={med().name}
         sections={[

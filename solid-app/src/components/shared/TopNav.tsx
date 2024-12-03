@@ -11,6 +11,7 @@ export default function TopNav(props: {
   name?: JSX.Element;
   leftNavigation?: JSX.Element;
   rightNavigation?: JSX.Element;
+  backNav?: string;
   class?: string;
   forTeamSetting?: {
     teamData: { team: TeamWithDefault }[] | undefined;
@@ -67,7 +68,7 @@ export default function TopNav(props: {
   }
 
   if (location.pathname.startsWith("/profile/medication-detail")) {
-    backLocation = `/team/${params.id}`;
+    backLocation = props.backNav;
   }
 
   if (location.pathname.startsWith(`/team/${params.id}/calendar/create`)) {
