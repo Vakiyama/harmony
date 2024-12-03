@@ -477,7 +477,7 @@ export default function CalendarPage() {
           <Show
             when={AISummary() && !fetchingSummary()}
             fallback={
-              <div class="pt-4 px-3 flex flex-col items-center">
+              <div class="pt-4 px-8 flex flex-col items-center">
                 <ImageRoot class="mt-0 ml-4 h-[280px] w-[280px]">
                   <Image class="w-full" src={HarmonyMascot} />
                 </ImageRoot>
@@ -511,7 +511,7 @@ export default function CalendarPage() {
               </div>
             }
           >
-            <div class="pt-4 px-3 items-center">
+            <div class="pt-4 px-8 items-center">
               <h1 class="text-3xl">
                 {currentView() === "day"
                   ? "Daily"
@@ -520,7 +520,7 @@ export default function CalendarPage() {
                     : "Monthly"}{" "}
                 Summary
               </h1>
-              <div class="flex flex-row items-center gap-1 pb-3">
+              <div class="flex flex-row items-center gap-1 pb-4">
                 <h2 class="text-black/50">Powered by Harmony AI</h2>
                 <svg
                   width="13"
