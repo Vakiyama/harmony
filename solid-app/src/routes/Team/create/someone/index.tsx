@@ -93,7 +93,6 @@ export default function CreateSomeone() {
         throw new Error(recipientResult.error || "Failed to create recipient");
       }
       console.log("fontend", recipientResult.photo);
-      showNotification("Recipient created successfully");
       // create team
       const teamResult = (await teamAction({
         teamInput: {
@@ -127,7 +126,6 @@ export default function CreateSomeone() {
           console.log(surgeryResult.error || "Failed to create surgeries");
           // setTeamError(surgeryResult.error || "Failed to create surgeries");
         }
-        showNotification("Surgeries added successfully");
       }
 
       // create past injuries
@@ -146,7 +144,6 @@ export default function CreateSomeone() {
           console.log(injuryResult.error || "Failed to create injuries");
           // setTeamError(injuryResult.error || "Failed to create injuries");
         }
-        showNotification("Past injuries added successfully");
       }
 
       // create medications
@@ -162,9 +159,8 @@ export default function CreateSomeone() {
           console.log(medicationResult.error || "Failed to create medications");
           // setTeamError(medicationResult.error ||"Failed to create medication");
         }
-        showNotification("Medications added successfully");
       }
-      showNotification("Created Team successfully");
+      showNotification("Team created successfully");
       await new Promise((resolve) => setTimeout(resolve, 5000));
       team.resetForm();
       window.location.href = "/";
