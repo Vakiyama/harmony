@@ -60,10 +60,14 @@ export default function TopNav(props: {
   }
 
   if (
-    location.pathname.includes("/profile/") ||
+    location.pathname.startsWith("/profile/") ||
     location.pathname.endsWith(`/team/${params.id}`)
   ) {
     backLocation = "/profile";
+  }
+
+  if (location.pathname.startsWith("/profile/medication-detail")) {
+    backLocation = `/team/${params.id}`;
   }
 
   if (location.pathname.startsWith(`/team/${params.id}/calendar/create`)) {
@@ -120,6 +124,14 @@ export default function TopNav(props: {
                   </div>
                 )}
               </Show>
+            </div>
+          ) : location.pathname.startsWith(`/profile/medication-detail`) ? (
+            <div class="flex flex-row items-center">
+              <h1 class="text-h4 font-medium flex items-center">
+                <span class="truncate overflow-hidden max-w-full">
+                  {props.name}
+                </span>
+              </h1>
             </div>
           ) : props.name ? (
             <div class="flex flex-row items-center">
