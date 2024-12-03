@@ -1,27 +1,27 @@
 import ModalOption from "./modal-option";
-import { createResource, useContext } from "solid-js";
-import { TeamContext } from "../Layout-Context";
+import { createSignal, onMount } from "solid-js";
+import { useTeam } from "~/context/team-context";
+import { getListOfTeams } from "~/api/team";
 
 interface ModalProps {
   onClose?: () => void;
 }
 
 export default function Modal(props: ModalProps) {
-  const context = useContext(TeamContext);
-
-  if (!context) {
-    return <div>No team data available</div>;
-  }
-
-  const { teamListData, refetchTrigger } = context;
-
-  const defaultTeam = () =>
-    teamListData()?.find((team) => team.team.defaultTeam === true);
-
-  const [data] = createResource(() => {
-    const teamId = defaultTeam()?.team.id;
-    const refetch = refetchTrigger();
-    return teamId ? { teamId, refetch } : undefined;
+  const team = useTeam();
+  const [teamId, setTeamId] = createSignal<number | undefined>();
+  onMount(async () => {
+    if (team.state.id === -1 || team.state.id === undefined) {
+      const teamData = await getListOfTeams();
+      const defaultTeam = teamData.find(
+        (team) => team.team.defaultTeam === true
+      );
+      if (!defaultTeam) return;
+      setTeamId(defaultTeam?.team.id || undefined);
+      team.updateTeamId(defaultTeam?.team.id!);
+    } else {
+      setTeamId(team.state.id);
+    }
   });
 
   const handleClose = () => {
@@ -60,35 +60,35 @@ export default function Modal(props: ModalProps) {
         <ModalOption
           title="Medication"
           description="Log to keep track of the medication schedule."
-          link={`/team/${data()?.teamId}/journal/medications`}
+          link={`/team/${teamId()}/journal/medications`}
           background="medicationTakenBackground"
           iconBackground="#5B0E00"
         />
         <ModalOption
           title="Mood"
           description="Keep track of daily moods to see how the day went."
-          link={`/team/${data()?.teamId}/journal/mood`}
+          link={`/team/${teamId()}/journal/mood`}
           background="moodBackground"
           iconBackground="#761739"
         />
         <ModalOption
           title="Nutrition"
           description="Log meals to track nutrition throughout the day."
-          link={`/team/${data()?.teamId}/journal/nutrition`}
+          link={`/team/${teamId()}/journal/nutrition`}
           background="nutritionBackground"
           iconBackground="#19370E"
         />
         <ModalOption
           title="Sleep"
           description="Log sleep hours to track nightly rest patterns."
-          link={`/team/${data()?.teamId}/journal/sleep`}
+          link={`/team/${teamId()}/journal/sleep`}
           background="sleepBackground"
           iconBackground="#091E54"
         />
         <ModalOption
           title="Note"
           description="Add personal notes for observations and details."
-          link={`/team/${data()?.teamId}/journal/notes`}
+          link={`/team/${teamId()}/journal/notes`}
           background="notesBackground"
           iconBackground="#4E412B"
         />
