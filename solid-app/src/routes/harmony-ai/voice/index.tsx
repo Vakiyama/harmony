@@ -16,18 +16,7 @@ import { getUser } from "~/api/server";
 import { InferSelectModel } from "drizzle-orm";
 import { users } from "@/schema/Users";
 import { ImageRoot, Image } from "~/components/ui/image";
-
-function toTwoDigits(value: number): string {
-  return value.toString().length === 1 ? `0${value}` : `${value}`;
-}
-
-function formatCounter(seconds: number) {
-  if (seconds / 60 > 0) {
-    const minutes = Math.floor(seconds / 60);
-    const secondsRemainder = seconds - Math.floor(seconds / 60) * 60;
-    return `${toTwoDigits(minutes)}:${toTwoDigits(secondsRemainder)}`;
-  } else return `00:${toTwoDigits(seconds)}`;
-}
+import { useTeam } from "~/context/team-context";
 
 function sleep(ms: number) {
   return new Promise<void>((res) =>
@@ -63,6 +52,8 @@ export default function HarmonyVoice() {
   const [transcribedMessage, setTranscribedMessage] = createSignal("");
   const [recorder, setRecorder] = createSignal<MediaRecorder>();
   const [muted, setMuted] = createSignal(false);
+
+  const teams = useTeam();
 
   createEffect(() => {
     console.log(audioState.currentTime, audioState.duration);
@@ -196,10 +187,10 @@ export default function HarmonyVoice() {
           setPlaying(true);
           setLastTranscribedMessage(transcribedMessage());
           socket.emit("end-transcription");
-          handleConversation([
-            ...messages(),
-            { role: "user", content: transcribedMessage() },
-          ]).finally(() => {
+          handleConversation(
+            [...messages(), { role: "user", content: transcribedMessage() }],
+            teams.state.id,
+          ).finally(() => {
             isHandlingConversation = false;
           });
         });

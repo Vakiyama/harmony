@@ -25,8 +25,9 @@ export default function TopNav(props: {
   const team = useTeam();
   createEffect(() => {
     const defaultTeam = props.forTeamSetting?.teamData?.find(
-      (team) => team.team.defaultTeam === true
+      (team) => team.team.defaultTeam === true,
     );
+    if (!defaultTeam) return;
     setTeamName(defaultTeam?.team.name || undefined);
     team.updateTeamId(defaultTeam?.team.id!);
   });
@@ -74,7 +75,7 @@ export default function TopNav(props: {
     <div
       class={twMerge(
         "w-full flex flex-row min-h-[95px] bg-white fixed top-0 items-center",
-        props.class ? props.class : ""
+        props.class ? props.class : "",
       )}
     >
       <div class="w-full flex flex-row px-2 h-full items-center justify-start gap-3">
