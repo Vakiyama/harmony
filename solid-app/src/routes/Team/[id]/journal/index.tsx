@@ -8,8 +8,7 @@ import {
   hideNotification,
 } from "~/routes/api/notificationStore";
 import TopNav from "~/components/shared/TopNav";
-import { createAsync, useParams } from "@solidjs/router";
-import { getListOfTeams, getTeamFromTeamId } from "~/api/team";
+import { getListOfTeams } from "~/api/team";
 import { TeamWithDefault } from "@/schema/Teams";
 import { useTeam } from "~/context/team-context";
 import LandingContent from "~/components/landing/LandingContent";
@@ -46,12 +45,6 @@ export default function Journal() {
       closeModal();
     }
   };
-
-  const params = useParams();
-  const teamId = parseInt(params.id);
-  const team = createAsync(async () => await getTeamFromTeamId(teamId), {
-    deferStream: true,
-  });
 
   return (
     <MetaProvider>
