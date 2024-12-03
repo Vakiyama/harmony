@@ -37,7 +37,7 @@ export function useHarmonyChat(
 ) {
   const [messages, setMessages] = createSignal<ArrayMessage[]>([]);
   const team = useTeam();
-  async function handleConversation(messages: ArrayMessage[]) {
+  async function handleConversation(messages: ArrayMessage[], teamId: number) {
     if (!user()) return;
     const response = await harmonyChat(
       messages,
@@ -46,6 +46,14 @@ export function useHarmonyChat(
       voice,
     );
     if (!response) return;
+
+    const lastMessage = response.at(-1)!;
+    if (
+      typeof lastMessage.content === "object" &&
+      lastMessage.content[0].type === "tool_result"
+    ) {
+      handleConversation(response, teamId);
+    }
 
     setMessages(response);
   }
@@ -62,18 +70,19 @@ export function HarmonyChat() {
   const [lastMessage, setLastMessage] = createSignal<HTMLDivElement>();
   const [user, setUser] = createSignal<Awaited<ReturnType<typeof getUser>>>();
   const [textAreaHeightStyle, setTextAreaHeightStyle] = createSignal(10);
+  const [loadingConversation, setLoadingConversation] = createSignal(true);
 
   // @ts-ignore
   const { messages, setMessages, handleConversation } = useHarmonyChat(user);
+
+  const teams = useTeam();
 
   let textAreaRef!: HTMLTextAreaElement;
 
   function setTextAreaHeight() {
     if (textAreaRef) {
-      console.log(textAreaRef.value, "val");
       setInput(textAreaRef.value);
       if (textAreaRef.value === "") {
-        console.log("do the thing!");
         return setTextAreaHeightStyle(44);
       }
       const scrollHeight = textAreaRef.scrollHeight;
@@ -113,6 +122,8 @@ export function HarmonyChat() {
   function handleSubmit(event?: SubmitEvent) {
     event && event.preventDefault();
 
+    setLoadingConversation(true);
+
     const newMessages = [
       ...messages(),
       { role: "user", content: input() } as const,
@@ -123,7 +134,11 @@ export function HarmonyChat() {
     ]);
 
     console.log(newMessages, "messages sent to claude");
-    handleConversation(newMessages);
+
+    handleConversation(newMessages, teams.state.id).finally(() =>
+      setLoadingConversation(false),
+    );
+
     setInput("");
     textAreaRef.value = "";
     setTextAreaHeight();
@@ -186,12 +201,41 @@ export function HarmonyChat() {
                         Good {currentTimeOfDay}, {(user() as User)!.firstName}!
                       </h2>
                     </Show>
-                    <h3 class="opacity-50">What can I help with today?</h3>
+                    <h3 class="opacity-75">What can I help with today?</h3>
                   </div>
                 </div>
               </Show>
             }
           >
+            <Show when={loadingConversation()}>
+              <div class="flex flex-row relative max-w-[90%] gap-4 ml-[20px] mb-[33px] items-center">
+                <div class="animate-spin w-6 h-6">
+                  <svg
+                    viewBox="0 0 19 19"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <g clip-path="url(#clip0_5890_5010)">
+                      <path
+                        d="M9.50004 17.4167C13.8723 17.4167 17.4167 13.8723 17.4167 9.50004C17.4167 5.12779 13.8723 1.58337 9.50004 1.58337C5.12779 1.58337 1.58337 5.12779 1.58337 9.50004C1.58337 13.8723 5.12779 17.4167 9.50004 17.4167Z"
+                        stroke="#F2F2F2"
+                        stroke-width="3.16667"
+                      />
+                      <path
+                        d="M3.16667 9.5C3.16667 7.8203 3.83393 6.20939 5.02166 5.02166C6.20939 3.83393 7.8203 3.16667 9.5 3.16667V0C4.25363 0 0 4.25363 0 9.5H3.16667ZM4.75 13.6887C3.72734 12.5333 3.16398 11.043 3.16667 9.5H0C0 11.9083 0.898542 14.1107 2.375 15.7843L4.75 13.6887Z"
+                        fill="#7859EA"
+                      />
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_5890_5010">
+                        <rect width="19" height="19" fill="white" />
+                      </clipPath>
+                    </defs>
+                  </svg>
+                </div>
+                <p>Harmony is thinking...</p>
+              </div>
+            </Show>
             {messages()
               .toReversed()
               .filter(
@@ -296,7 +340,6 @@ function HarmonyChatMessage(props: {
         .reverse()
         .join("");
 
-      console.log("setting ai message", clippedMessage);
       setAiMessage(clippedMessage);
       if (messageRangeCutoff === message.content.length) break;
     }
@@ -305,6 +348,7 @@ function HarmonyChatMessage(props: {
   createEffect(() => {
     if (props.message.role === "assistant") {
       console.log("streaming", props.message);
+      if (typeof props.message.content !== "string") return;
       streamMessage(props.message);
     }
   });
@@ -349,8 +393,51 @@ function HarmonyChatMessage(props: {
               props.index === filteredLen - 1 ? props.setLastMessage : undefined
             }
           >
-            <div>
-              Harmony using tool: {(props.message.content as [ToolUse])[0].name}
+            <div class="flex flex-row gap-4 items-center">
+              <Show when={props.index === 0}>
+                <div class="animate-spin w-6 h-6">
+                  <svg
+                    viewBox="0 0 19 19"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <g clip-path="url(#clip0_5890_5010)">
+                      <path
+                        d="M9.50004 17.4167C13.8723 17.4167 17.4167 13.8723 17.4167 9.50004C17.4167 5.12779 13.8723 1.58337 9.50004 1.58337C5.12779 1.58337 1.58337 5.12779 1.58337 9.50004C1.58337 13.8723 5.12779 17.4167 9.50004 17.4167Z"
+                        stroke="#F2F2F2"
+                        stroke-width="3.16667"
+                      />
+                      <path
+                        d="M3.16667 9.5C3.16667 7.8203 3.83393 6.20939 5.02166 5.02166C6.20939 3.83393 7.8203 3.16667 9.5 3.16667V0C4.25363 0 0 4.25363 0 9.5H3.16667ZM4.75 13.6887C3.72734 12.5333 3.16398 11.043 3.16667 9.5H0C0 11.9083 0.898542 14.1107 2.375 15.7843L4.75 13.6887Z"
+                        fill="#7859EA"
+                      />
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_5890_5010">
+                        <rect width="19" height="19" fill="white" />
+                      </clipPath>
+                    </defs>
+                  </svg>
+                </div>
+              </Show>
+              {/*
+               * createCalendarEvent
+               * getJournalEntries
+               * createJournalEntry
+               * getCalendar
+               */}
+              <p>
+                {(props.message.content as [ToolUse])[0].name ===
+                "createCalendarEvent"
+                  ? "Harmony creating a calendar event..."
+                  : (props.message.content as [ToolUse])[0].name ===
+                      "getJournalEntries"
+                    ? "Harmony searching journal entries..."
+                    : (props.message.content as [ToolUse])[0].name ===
+                        "createJournalEntry"
+                      ? "Harmony creating a journal entry..."
+                      : "Harmony getting calendar events..."}
+              </p>
             </div>
           </div>
         )}
