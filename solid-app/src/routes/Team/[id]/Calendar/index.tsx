@@ -33,6 +33,7 @@ import {
 import Notification from "~/components/shared/notification";
 import { getJournalsFromTeamId, getNoteById } from "~/api/journal";
 import { TeamContext } from "~/components/Layout-Context";
+import TeamModal from "~/components/profile/team-modal";
 
 moment.locale("en");
 moment.updateLocale("en", { weekdaysMin: "S_M_T_W_T_F_S".split("_") });
@@ -85,12 +86,64 @@ export default function CalendarPage() {
   }
 
   const { teamListData, refetchTrigger } = context;
+  const [isTeamModalOpen, setIsTeamModalOpen] = createSignal(false);
+
+  const openTeamModal = () => {
+    setIsTeamModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsTeamModalOpen(false);
+  };
+
+  const handleBackdropClick = (e: MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      closeModal();
+    }
+  };
 
   const defaultTeam = () =>
     teamListData()?.find((team) => team.team.defaultTeam === true);
   const teamId = defaultTeam()?.team.id ?? parseInt(param.id);
   if (!teamId) {
-    return <div>No team data available</div>;
+    return (
+      <>
+        <div class="flex flex-col gap-5 h-full px-2">
+          <div class="mt-4 text-center text-gray-600 border rounded-xl flex flex-col p-4 items-center justify-center gap-3 flex-grow min-h-[100px] h-[calc(100dvh_-_410px)]">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M6 1.62359V3.10594H3.75C2.50781 3.10594 1.5 4.1019 1.5 5.32947V7.553H22.5V5.32947C22.5 4.1019 21.4922 3.10594 20.25 3.10594H18V1.62359C18 0.803662 17.3297 0.141235 16.5 0.141235C15.6703 0.141235 15 0.803662 15 1.62359V3.10594H9V1.62359C9 0.803662 8.32969 0.141235 7.5 0.141235C6.67031 0.141235 6 0.803662 6 1.62359ZM22.5 9.03535H1.5V21.6354C1.5 22.8629 2.50781 23.8589 3.75 23.8589H20.25C21.4922 23.8589 22.5 22.8629 22.5 21.6354V9.03535Z"
+                fill="#937AEE"
+              />
+            </svg>
+
+            <p class="text-lg">
+              Please create or join a team to view your calendar.
+            </p>
+          </div>
+          <button
+            onClick={openTeamModal}
+            class="h-[48px] font-medium bg-primary-purple-500 rounded-[100px] text-white"
+          >
+            Create / Join Team
+          </button>
+        </div>
+        {isTeamModalOpen() && (
+          <div
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]"
+            onClick={handleBackdropClick}
+          >
+            <TeamModal onClose={closeModal} />
+          </div>
+        )}
+      </>
+    );
   }
   const DEFAULT_FILTERS: CalendarFilterType[] = [
     "events",

@@ -13,7 +13,6 @@ import { getListOfTeams, getTeamFromTeamId } from "~/api/team";
 import { TeamWithDefault } from "@/schema/Teams";
 import { useTeam } from "~/context/team-context";
 import LandingContent from "~/components/landing/LandingContent";
-import { Button } from "~/components/ui/button";
 import TeamModal from "~/components/profile/team-modal";
 
 export default function Journal() {
@@ -48,6 +47,7 @@ export default function Journal() {
 
   const closeModal = () => {
     setIsModalOpen(false);
+    setIsTeamModalOpen(false);
   };
 
   const handleBackdropClick = (e: Event) => {

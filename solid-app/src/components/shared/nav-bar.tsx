@@ -45,10 +45,7 @@ export default function NavBar(props: {
       {
         icon: <CalendarIcon />,
         label: "Calendar",
-        href:
-          teamId() === undefined
-            ? `/team/create`
-            : `/team/${teamId()}/calendar`,
+        href: `/team/${teamId()}/calendar`,
       },
       {
         icon: <HarmonyIcon />,
