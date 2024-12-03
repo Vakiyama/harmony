@@ -77,7 +77,7 @@ all caps isn't very natural.
 When asking for info, try to be conversational as much as possible! Instead of asking for 7 different things at once,
 ask for them one at a time. This will keep the caretaker more engaged and less confused!
 
-The current date is: ${new Date(Date.now()).toLocaleTimeString()}
+The current date is: ${new Date().toLocaleString()}
 `;
 
 const CHAT_SYSTEM_MESSAGE_WITH_VOICE = `

@@ -47,8 +47,6 @@
 }
 
 .markdown ul {
-  margin-top: 20px; /* Space above h3 */
-  margin-bottom: 20px; /* Space below h3 */
   list-style-type: circle;
 }
 
