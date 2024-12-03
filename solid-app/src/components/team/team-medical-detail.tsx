@@ -1,21 +1,25 @@
 import { A } from "@solidjs/router";
+import { Medications } from "@/schema/Medications";
 
-export default function TeamMedicalDetail(props: {
-  medicineName: string;
-  medicineDose: string;
-  medicineInstructions: string;
+type Med = Omit<Medications, "id" | "teamId" | "createdAt" | "updatedAt">;
+
+export default function TeamMedicalDetail({
+  med,
+  medicineLink,
+}: {
+  med: Med;
   medicineLink: string;
 }) {
   return (
     <div class="relative">
-      <A href={props.medicineLink}>
+      <A href={medicineLink}>
         <div class="border-[1px] rounded-md mt-3 items-start">
           <div class="flex items-center justify-between">
             <div>
-              <p class="ml-3 mt-3 font-semi text-md">{props.medicineName}</p>
+              <p class="ml-3 mt-3 font-semi text-md">{med.name}</p>
 
               <p class="ml-3 mt-1 mb-2 font-semi text-gray-500 text-sm">
-                {props.medicineDose}, {props.medicineInstructions}
+                {med.dosage}, {med.instructions}
               </p>
             </div>
             <div>

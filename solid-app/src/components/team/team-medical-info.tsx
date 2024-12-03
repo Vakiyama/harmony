@@ -118,13 +118,7 @@ export default function TeamMedicationInfo() {
               <For each={medications}>
                 {(medication, index) => (
                   <TeamMedicalDetail
-                    medicineName={medication.name}
-                    medicineDose={medication.dosage}
-                    medicineInstructions={
-                      medication.instructions
-                        ? medication.instructions
-                        : "No medication instructions provided"
-                    }
+                    med={medication}
                     medicineLink={`/team/create/medication-detail/${index()}`}
                   />
                 )}
