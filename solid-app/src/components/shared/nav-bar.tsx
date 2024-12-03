@@ -62,8 +62,7 @@ export default function NavBar(props: {
       {
         icon: <JournalIcon />,
         label: "Journal",
-        href:
-          teamId() === undefined ? `/team/create` : `/team/${teamId()}/journal`,
+        href: `/team/${teamId()}/journal`,
       },
       { icon: <ProfileIcon />, label: "Profile", href: "/profile" },
     ];
