@@ -92,7 +92,7 @@ export default function CreateSomeone() {
         setTeamError(recipientResult.error || "Failed to create recipient");
         throw new Error(recipientResult.error || "Failed to create recipient");
       }
-      console.log("fontend", recipientResult.photo);
+
       // create team
       const teamResult = (await teamAction({
         teamInput: {
@@ -107,7 +107,6 @@ export default function CreateSomeone() {
         setTeamError(teamResult.error || "Failed to create team");
         throw new Error(teamResult.error || "Failed to create team");
       }
-      showNotification("Team created successfully");
 
       // create important surgeries
       if (
@@ -160,8 +159,8 @@ export default function CreateSomeone() {
           // setTeamError(medicationResult.error ||"Failed to create medication");
         }
       }
-      showNotification("Team created successfully");
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      showNotification("Team Created Successfully");
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       team.resetForm();
       window.location.href = "/";
     } catch (error) {
@@ -182,8 +181,8 @@ export default function CreateSomeone() {
             }
             return back()();
           }}
-          rightText={team.currentStep() === 10 ? "Create Team" : aiButton()}
-          rightAction={team.currentStep() === 10 ? handleSubmit : undefined}
+          rightText={team.currentStep() === 9 ? "Create Team" : aiButton()}
+          rightAction={team.currentStep() === 9 ? handleSubmit : undefined}
           isCreating={isCreating()}
         />
       </Show>
@@ -267,11 +266,11 @@ export default function CreateSomeone() {
         </Show>
 
         {/* step 9: team Name */}
-        <Show when={team.currentStep() === 9}>
+        {/* <Show when={team.currentStep() === 9}>
           <TeamUserRole />
-        </Show>
+        </Show> */}
         {/* step 10: review */}
-        <Show when={team.currentStep() === 10}>
+        <Show when={team.currentStep() === 9}>
           <ReviewTeamInfo />
         </Show>
       </form>
