@@ -1,7 +1,6 @@
 import { useNavigate, useParams } from "@solidjs/router";
 import { MedicationCard } from "~/components/profile/medication-card";
 import MedicationImage from "~/components/profile/medication-image";
-import TopNav from "~/components/shared/TopNav";
 import TeamTopNav from "~/components/team/team-top-nav";
 import { useTeam } from "~/context/team-context";
 

@@ -22,7 +22,7 @@ export default function TeamPreview(props: TeamPreviewProps) {
         <div class="flex-grow text-start text-base font-medium">
           {memberName}
         </div>
-        <div class="text-subtitle text-gray-400">{description}</div>
+        <div class="text-gray-400">{description}</div>
       </div>
       <div class="absolute top-2 right-2 text-sm font-sf-pro text-gray-600 capitalize">
         {userRole}

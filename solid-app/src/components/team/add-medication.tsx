@@ -28,7 +28,6 @@ export default function AddMedication(props: {
   };
 
   const handleMedicationAdded = () => {
-    console.log("Medication added");
     setMedicationChanged(true);
     setShowMedicationForm(false);
     props.setCloseAddMed(true);
