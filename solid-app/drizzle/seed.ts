@@ -187,8 +187,8 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
       location: "Local Clinic",
       repeat: "never",
       type: "event",
-      timeStart: new Date("2024-11-01T10:00:00"),
-      timeEnd: new Date("2024-11-01T11:00:00"),
+      timeStart: new Date("2024-12-01T10:00:00"),
+      timeEnd: new Date("2024-12-03T11:00:00"),
     },
     {
       calendarId: Calendars[0].id,
@@ -197,8 +197,8 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
       location: "Supermarket",
       repeat: "never",
       type: "task",
-      timeStart: new Date("2024-11-03T14:00:00"),
-      timeEnd: new Date("2024-11-03T15:00:00"),
+      timeStart: new Date("2024-12-03T14:00:00"),
+      timeEnd: new Date("2024-12-03T15:00:00"),
     },
   ];
   for await (const data of eventsData) {

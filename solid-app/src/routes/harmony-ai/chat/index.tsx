@@ -24,7 +24,7 @@ export default function Index() {
   return (
     <>
       <Show when={user() && !user()?.chosenVoice}>
-        <BottomModal>
+        <BottomModal close={() => {}}>
           <OnboardingIntro user={user()!} fetchUser={fetchUser} />
         </BottomModal>
       </Show>
