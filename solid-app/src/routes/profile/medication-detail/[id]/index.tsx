@@ -39,7 +39,7 @@ export default function MedicationDetail() {
           },
           {
             title: "Type of Medication",
-            content: med()?.typeOfMedication,
+            content: med()?.typeOfMedication || "No medication type provided",
           },
           {
             title: "Frequency",
@@ -51,15 +51,17 @@ export default function MedicationDetail() {
           },
           {
             title: "Side Effects",
-            content: med()?.sideEffects,
+            content:
+              med()?.sideEffects || "No medication side effects provided",
           },
           {
             title: "Instructions",
-            content: med()?.instructions,
+            content:
+              med()?.instructions || "No medication instructions provided",
           },
           {
             title: "Pharmacy Information",
-            content: med()?.pharmacyInfo,
+            content: med()?.pharmacyInfo || "No pharmacy info provided",
           },
           ...(med()?.pharmacyImg
             ? [
