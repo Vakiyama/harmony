@@ -445,7 +445,7 @@ export default function CalendarPage() {
       )}
       <Show when={currentView() !== undefined || currentView() !== null}>
         <div
-          class={`w-full overflow-y-auto overflow-x-clip ${
+          class={`w-full overflow-x-clip ${
             currentView() === "day" ? "h-full" : ""
           }`}
         >
