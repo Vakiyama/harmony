@@ -171,7 +171,7 @@ export const getListOfTeams = async () => {
   console.log("userid", userId);
   const [teamsError, teamsResult] = await mightFail(
     db
-      .select({
+      .selectDistinct({
         team: {
           id: teamMembers.teamId,
           name: teams.teamName,

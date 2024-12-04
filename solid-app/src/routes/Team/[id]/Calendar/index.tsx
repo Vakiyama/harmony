@@ -42,6 +42,8 @@ import { useHarmonyChat } from "~/routes/harmony-ai/chat/harmony-chat";
 import { getUser } from "~/api/server";
 import SolidMarkdown from "@zentered/solid-markdown";
 import { ImageRoot } from "~/components/ui/image";
+import { getListOfTeams } from "~/api/team";
+import { TeamWithDefault } from "@/schema/Teams";
 
 moment.locale("en");
 moment.updateLocale("en", { weekdaysMin: "S_M_T_W_T_F_S".split("_") });
@@ -94,6 +96,27 @@ export default function CalendarPage() {
     return <div>No team data available</div>;
   }
 
+  const [teamId, setTeamId] = createSignal<number | undefined>();
+  const [teamListData, setTeamListData] = createSignal<
+    { team: TeamWithDefault }[] | undefined
+  >(undefined);
+  const teamContext = useTeam();
+  createEffect(async () => {
+    teamListData();
+    const teamData = await getListOfTeams();
+    handleRefetch();
+    console.log(events());
+  });
+  onMount(async () => {
+    const teamData = await getListOfTeams();
+    setTeamListData(teamData);
+    const defaultTeam = teamData.find((team) => team.team.defaultTeam);
+    setTeamId(defaultTeam?.team.id);
+    if (defaultTeam && teamContext.state.id === -1) {
+      teamContext.updateTeamId(defaultTeam.team.id);
+    }
+  });
+
   const [isTeamModalOpen, setIsTeamModalOpen] = createSignal(false);
 
   const openTeamModal = () => {
@@ -109,11 +132,10 @@ export default function CalendarPage() {
       closeModal();
     }
   };
-  const { teamListData } = context;
 
   const defaultTeam = () =>
     teamListData()?.find((team) => team.team.defaultTeam === true);
-  const teamId = defaultTeam()?.team.id ?? parseInt(param.id);
+  const defaultTeamId = defaultTeam()?.team.id ?? parseInt(param.id);
   if (!teamId) {
     return (
       <>
@@ -195,9 +217,9 @@ export default function CalendarPage() {
         ? (localStorage.getItem("calendarViewMode") as "week" | "day" | "month")
         : "week"
     );
-    const calendar = await getCalendarFromTeamId(teamId);
+    const calendar = await getCalendarFromTeamId(teamId());
     await fetchEvents(calendar.id);
-    await fetchTeamMembers(teamId);
+    await fetchTeamMembers(teamId());
     setUser(await getUser());
     handleGetAISummary();
   });
@@ -216,7 +238,7 @@ export default function CalendarPage() {
         ? params.selected.toString().split(",")
         : [];
       return await getCalendarData({
-        teamId,
+        teamId: teamId()!,
         selectedUsers,
         filters: {
           uncomplete: paramsArray.includes("uncompleted"),
@@ -231,8 +253,9 @@ export default function CalendarPage() {
   createEffect(async () => {
     const currentResource = resource();
     const [journalEntriesError, journalEntriesResult] = await mightFail(
-      getJournalsFromTeamId(teamId)
+      getJournalsFromTeamId(teamId())
     );
+    console.log("GG");
     if (journalEntriesError) {
       return console.error(journalEntriesError);
     }
@@ -269,7 +292,7 @@ export default function CalendarPage() {
 
   const fetchEvents = async (calendarId: number) => {
     const [journalEntriesError, journalEntriesResult] = await mightFail(
-      getJournalsFromTeamId(teamId)
+      getJournalsFromTeamId(teamId())
     );
     if (journalEntriesError) {
       return console.error(journalEntriesError);
@@ -390,7 +413,7 @@ export default function CalendarPage() {
       `,
         },
       ],
-      teamId
+      teamId()
     );
   }
 
@@ -438,19 +461,23 @@ export default function CalendarPage() {
               setCurrentView={setCurrentView}
               params={params}
               setParams={setParams}
-              teamId={teamId}
+              forTeamSetting={{
+                teamData: teamListData(),
+                defaultSetter: setTeamListData,
+              }}
+              setTeamId={setTeamId}
             />
           </div>
         </>
       )}
       <Show when={currentView() !== undefined || currentView() !== null}>
         <div
-          class={`w-full overflow-y-auto overflow-x-clip ${
+          class={`w-full overflow-x-clip ${
             currentView() === "day" ? "h-full" : ""
           }`}
         >
           <CalendarTopNav
-            teamId={teamId}
+            teamId={teamId()}
             month={currentMonth}
             setIsSideMenuOpen={setIsSideMenuOpen}
             isSideMenuOpen={isSideMenuOpen}
@@ -467,7 +494,7 @@ export default function CalendarPage() {
 
           <Show when={currentView() === "month"}>
             <MonthCalendarView
-              teamId={teamId}
+              teamId={teamId()}
               currentMonth={currentMonth}
               setCurrentMonth={setCurrentMonth}
               selectedYear={selectedYear}
@@ -484,7 +511,7 @@ export default function CalendarPage() {
           </Show>
           <Show when={currentView() === "week"}>
             <WeekCalendarView
-              teamId={teamId}
+              teamId={teamId()}
               selectedYear={selectedYear}
               setSelectedYear={setSelectedYear}
               selectedMonth={selectedMonth}
@@ -501,7 +528,7 @@ export default function CalendarPage() {
           </Show>
           <Show when={currentView() === "day"}>
             <DayCalendarView
-              teamId={teamId}
+              teamId={teamId()}
               selectedDay={selectedDay}
               selectedMonth={selectedMonth}
               selectedYear={selectedYear}
@@ -600,7 +627,7 @@ export default function CalendarPage() {
           </Show>
         </BottomModal>
       </Show>
-      <A href={`/team/${teamId}/calendar/create`}>
+      <A href={`/team/${teamId()}/calendar/create`}>
         <button class="absolute bottom-[90px] right-3 rounded-full w-[65px] h-[65px] bg-primary-purple-500 flex flex-col justify-center items-center shadow-[4px_4px_4px_rgba(0,0,0,0.25)]">
           <svg
             fill="#FCFCFC"
