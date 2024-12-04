@@ -1,6 +1,6 @@
 import { APIEvent } from "@solidjs/start/server";
 import { Server } from "socket.io";
-import { SocketWithIO, IOSocketServer } from "~/types/socket";
+import { SocketWithIO, IOSocketServer, SocketServer } from "~/types/socket";
 import {
   createClient,
   ListenLiveClient,
@@ -10,12 +10,26 @@ import {
 // URL for the realtime streaming audio you would like to transcribe
 const deepgram = createClient(process.env.DEEPGRAM_API_KEY);
 
+export class SocketIo {
+  private static io: Server;
+
+  public static getInstance(server: SocketServer): Server {
+    if (!SocketIo.io) {
+      SocketIo.io = new Server(server, {
+        path: "/api/ws",
+      });
+    }
+
+    return SocketIo.io;
+  }
+}
+
 export function GET({ nativeEvent }: APIEvent) {
   const socket = nativeEvent.node.res.socket as SocketWithIO | null;
   if (!socket) return;
   if (socket.server.io) {
     console.log(
-      "Socket is already running ",
+      "Socket is already running "
       //+
       // request.url,
       // request
@@ -23,9 +37,7 @@ export function GET({ nativeEvent }: APIEvent) {
   } else {
     console.log("Initializing Socket");
 
-    const io: IOSocketServer = new Server(socket.server, {
-      path: "/api/ws",
-    });
+    const io: IOSocketServer = SocketIo.getInstance(socket.server);
 
     socket.server.io = io;
 
@@ -62,11 +74,11 @@ export async function processAudioFrame(frameDataStream: {
 
         connection.on(LiveTranscriptionEvents.Transcript, (data) => {
           console.log(
-            `Transcription: ${data.channel.alternatives[0].transcript}`,
+            `Transcription: ${data.channel.alternatives[0].transcript}`
           );
           socket.emit(
             "transcription-results",
-            data.channel.alternatives[0].transcript,
+            data.channel.alternatives[0].transcript
           );
         });
 
@@ -117,6 +129,7 @@ export async function processAudioFrame(frameDataStream: {
       socket.on("new-user", (name) => {
         users[socket.id] = name;
         socket.broadcast.emit("user-connected", name);
+        socket.join(name);
       });
       socket.on("send-chat-message", (message) => {
         socket.broadcast.emit("chat-message", {
