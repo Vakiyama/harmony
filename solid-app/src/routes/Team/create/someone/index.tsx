@@ -1,8 +1,6 @@
 import { useAction, useNavigate } from "@solidjs/router";
 import { createEffect, createSignal, Show } from "solid-js";
 import { useTeam } from "~/context/team-context";
-import { showNotification } from "~/routes/api/notificationStore";
-
 import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
 import UploadPhoto from "../../../../components/team/upload-photo";
@@ -13,7 +11,6 @@ import UserHealth2 from "../../../../components/team/user-health-2";
 import UserRelationship from "../../../../components/team/user-relationship";
 import AddMedication from "../../../../components/team/add-medication";
 import { TextField, TextFieldRoot } from "~/components/ui/textfield";
-import TeamUserRole from "../../../../components/team/team-user-role";
 import ReviewTeamInfo from "~/components/team/review-team-info";
 import Notification from "~/components/shared/notification";
 import aiButton from "~/components/svg/ai-icon";
@@ -159,10 +156,8 @@ export default function CreateSomeone() {
           // setTeamError(medicationResult.error ||"Failed to create medication");
         }
       }
-      showNotification("Team Created Successfully");
-      await new Promise((resolve) => setTimeout(resolve, 2000));
       team.resetForm();
-      window.location.href = "/";
+      navigate(`/team/${teamResult.teamId}`);
     } catch (error) {
       console.error("Error creating team or recipient:", error);
       setTeamError("Failed to create team");
