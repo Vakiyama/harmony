@@ -223,7 +223,7 @@ export default function NutritionTracker() {
                 </div>
               </div>
 
-              <div
+              {/* <div
                 class="flex flex-col mb-8"
                 onClick={() => setShowAddPhoto(true)}
               >
@@ -231,7 +231,7 @@ export default function NutritionTracker() {
                   Photo
                 </label>
                 <Upload type="photo" description="Tap to add a photo" />
-              </div>
+              </div> */}
               <AddNote
                 title="Add Notes"
                 placeholder="What else would you like to note about their nutrition?"

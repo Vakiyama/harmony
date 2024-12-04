@@ -117,7 +117,7 @@ export default function CreateNote() {
                   placeholder="Add your notes for the day!"
                   content={noteValue()}
                 />
-                <label class="text-h4">Add Media</label>
+                {/* <label class="text-h4">Add Media</label>
                 <div class="flex flex-row w-full gap-2">
                   <div class="w-full" onClick={() => setShowAddPhoto(true)}>
                     <Upload type="photo" description="Tap to add a photo" />
@@ -128,7 +128,7 @@ export default function CreateNote() {
                       <Upload type="file" description="Tap to upload a file" />
                     </div>
                   </label>
-                </div>
+                </div> */}
                 <Button
                   class="rounded-[100px] h-12 w-full bg-primary-purple-300 text-black"
                   variant="default"
