@@ -13,6 +13,8 @@ import { AttachedUser } from "@/schema/Users";
 import { A } from "@solidjs/router";
 import { useTeam } from "~/context/team-context";
 import { getListOfTeams } from "~/api/team";
+import { getUser } from "~/api";
+import { User } from "@/schema/Users";
 
 export function JournalCard(props: {
   icon: JSXElement;
@@ -26,7 +28,11 @@ export function JournalCard(props: {
 }) {
   const team = useTeam();
   const [teamId, setTeamId] = createSignal<number | undefined>();
+  const [user, setUser] = createSignal<User>();
+
   onMount(async () => {
+    const currentUser = await getUser();
+    setUser(currentUser);
     if (team.state.id === -1 || team.state.id === undefined) {
       const teamData = await getListOfTeams();
       const defaultTeam = teamData.find(
@@ -78,15 +84,17 @@ export function JournalCard(props: {
               >
                 {props.dateTime}
               </CardDescription>
-              <A
-                href={`/team/${teamId()}/journal/${
-                  props.value === "medication taken"
-                    ? "medications"
-                    : props.value
-                }?edit=${props.entryId}`}
-              >
-                <FaSolidPen size={11} color="#1E1E1EBF" />
-              </A>
+              {user()?.id === props.member?.id && (
+                <A
+                  href={`/team/${teamId()}/journal/${
+                    props.value === "medication taken"
+                      ? "medications"
+                      : props.value
+                  }?edit=${props.entryId}`}
+                >
+                  <FaSolidPen size={11} color="#1E1E1EBF" />
+                </A>
+              )}
             </div>
           </div>
         </CardHeader>
