@@ -16,7 +16,7 @@ export default function ProfileUserName(props: {
             alt={`${props?.firstName} ${props?.lastName}`}
             class="object-cover w-full h-full rounded-full"
           />
-          <ImageFallback class="flex items-center justify-center w-full h-full rounded-full">{`${
+          <ImageFallback class="flex items-center w-full h-full rounded-full text-xl">{`${
             props.firstName ? props.firstName[0] : ""
           } ${props.lastName ? props.lastName[0] : ""}`}</ImageFallback>
         </ImageRoot>
