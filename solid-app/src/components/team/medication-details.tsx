@@ -123,9 +123,9 @@ export default function MedicationDetails({
     if (!localMedication().schedule) {
       fieldErrors["schedule"] = "Medication schedule is required";
     }
-    if (!localMedication().pharmacyImg) {
-      fieldErrors["pharmacyImg"] = "Please select a photo for the pharmacy";
-    }
+    // if (!localMedication().pharmacyImg) {
+    //   fieldErrors["pharmacyImg"] = "Please select a photo for the pharmacy";
+    // }
 
     if (Object.keys(fieldErrors).length) {
       setError(fieldErrors);
@@ -133,17 +133,17 @@ export default function MedicationDetails({
     }
 
     const file = selectedFile();
-    if (!file) {
-      // setError("Please select a file");
-      return;
-    }
-    const formData = new FormData();
-    formData.append("photo", file);
+    // if (!file) {
+    // setError("Please select a file");
+    //   return;
+    // }
+    if (file) {
+      const formData = new FormData();
+      formData.append("photo", file);
 
-    try {
       const result = await photoAction(formData);
       if (result.error) {
-        setError({ pharmaycyImg: result.error });
+        setError({ pharmacyImg: result.error });
         return;
       }
       setLocalMedication((prev) => ({
@@ -151,7 +151,8 @@ export default function MedicationDetails({
         pharmacyImg: result,
       }));
       // setIsUploading(true);
-
+    }
+    try {
       team.addMedication();
       const currentMedicationIndex = team.state.medications.length - 1;
       Object.keys(localMedication()).forEach((key) => {
@@ -173,11 +174,9 @@ export default function MedicationDetails({
         pharmacyInfo: "",
         pharmacyImg: "",
       });
-      setPreviewUrl(null);
-      setSelectedFile(null);
     } catch (err) {
       console.error("Upload error:", err);
-      setError({ pharmacyImg: "Faile to upload image" });
+      setError({ pharmacyImg: "Failed to upload image" });
     } finally {
       setPreviewUrl(null);
       setSelectedFile(null);
