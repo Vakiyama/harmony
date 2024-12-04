@@ -56,7 +56,7 @@ export const ImageFallback = <T extends ValidComponent = "span">(
   return (
     <ImagePrimitive.Fallback
       class={cn(
-        "flex h-full w-full items-center justify-center rounded-md bg-muted mt-0 pt-0",
+        "flex h-full w-full items-center justify-center rounded-t-md bg-primary-purple-150 text-primary-purple-500 mt-0 pt-0",
         local.class
       )}
       {...rest}
