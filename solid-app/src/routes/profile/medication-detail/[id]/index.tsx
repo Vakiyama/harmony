@@ -61,10 +61,16 @@ export default function MedicationDetail() {
             title: "Pharmacy Information",
             content: med()?.pharmacyInfo,
           },
-          // {
-          //   title: "Medication Photo",
-          //   content: <MedicationImage />,
-          // },
+          ...(med()?.pharmacyImg
+            ? [
+                {
+                  title: "Medication Photo",
+                  content: (
+                    <MedicationImage pharmacyImg={med()!.pharmacyImg!} />
+                  ),
+                },
+              ]
+            : []),
         ]}
       />
     </div>
