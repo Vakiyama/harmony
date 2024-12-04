@@ -15,6 +15,7 @@ type Medication = {
   sideEffects: string;
   instructions: string;
   pharmacyInfo: string;
+  pharmacyImg: string;
   teamId: number | null;
 };
 
@@ -29,6 +30,7 @@ export default function MedicationDetail() {
     sideEffects: "",
     instructions: "",
     pharmacyInfo: "",
+    pharmacyImg: "",
     teamId: null,
   });
   onMount(async () => {
@@ -51,6 +53,7 @@ export default function MedicationDetail() {
           instructions:
             fetchedMed?.instructions || "No medication instructions provided",
           pharmacyInfo: fetchedMed?.pharmacyInfo || "No pharmacy info provided",
+          pharmacyImg: fetchedMed?.pharmacyImg || "No pharmacy image provided",
           teamId: fetchedMed?.teamId || null,
         };
 
@@ -100,10 +103,10 @@ export default function MedicationDetail() {
             title: "Pharmacy Information",
             content: med().pharmacyInfo,
           },
-          // {
-          //   title: "Medication Photo",
-          //   content: <MedicationImage />,
-          // },
+          {
+            title: "Medication Photo",
+            content: <MedicationImage pharmacyImg={med().pharmacyImg} />,
+          },
         ]}
       />
     </div>
