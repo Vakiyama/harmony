@@ -1,5 +1,4 @@
 import { For } from "solid-js";
-import UserType from "~/components/team/user-type";
 import { useTeam } from "~/context/team-context";
 import { Button } from "../ui/button";
 
@@ -51,11 +50,6 @@ export default function TeamUserRole() {
                   >
                     {role.name}
                   </Button>
-                  {/* <UserType
-                    name={role.name}
-                    description={role.description}
-                    onClick={() => {}}
-                    /> */}
                 </div>
               );
             }}

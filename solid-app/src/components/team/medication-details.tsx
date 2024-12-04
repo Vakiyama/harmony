@@ -1,8 +1,7 @@
 import { useAction } from "@solidjs/router";
-import { createSignal, For, onMount, Setter } from "solid-js";
+import { createSignal, For } from "solid-js";
 import { uploadPhotoAction } from "~/api/team";
 import TextFieldLine from "~/components/shared/text-field-line";
-import AddPhoto from "~/components/team/tab-upload-photo";
 import { Button } from "~/components/ui/button";
 import { FormState, useTeam } from "~/context/team-context";
 
@@ -123,9 +122,6 @@ export default function MedicationDetails({
     if (!localMedication().schedule) {
       fieldErrors["schedule"] = "Medication schedule is required";
     }
-    // if (!localMedication().pharmacyImg) {
-    //   fieldErrors["pharmacyImg"] = "Please select a photo for the pharmacy";
-    // }
 
     if (Object.keys(fieldErrors).length) {
       setError(fieldErrors);
@@ -133,10 +129,7 @@ export default function MedicationDetails({
     }
 
     const file = selectedFile();
-    // if (!file) {
-    // setError("Please select a file");
-    //   return;
-    // }
+
     if (file) {
       const formData = new FormData();
       formData.append("photo", file);
@@ -150,7 +143,6 @@ export default function MedicationDetails({
         ...prev,
         pharmacyImg: result,
       }));
-      // setIsUploading(true);
     }
     try {
       team.addMedication();
@@ -223,8 +215,6 @@ export default function MedicationDetails({
           <p class="text-h4 font-grotesque leading-[120%] mb-2 mt-6">
             Medication Photo
           </p>
-          {/* <AddPhoto medicationIndex={team.state.medications.length - 1} /> */}
-
           <div class="border-[1px] border-photoBoxGray w-full h-[310px] rounded-[8px] mt-6 flex flex-col justify-center ">
             <label
               for="photo-upload"

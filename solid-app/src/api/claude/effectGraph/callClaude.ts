@@ -58,8 +58,6 @@ import {
 import { pipe, Option, Match, Effect, Either, Context } from "effect";
 import { type Tool } from "./toolUse";
 
-console.log(process.env.ANTHROPIC_API_KEY, "API KEY");
-
 export function makeClaudeAPICall(body: ReturnType<typeof getRequestBody>) {
   return pipe(
     body,
@@ -82,28 +80,28 @@ export function makeClaudeAPICall(body: ReturnType<typeof getRequestBody>) {
                   body: stringified,
                 }),
               catch: (error) => FetchError(error as Error),
-            }),
-          ),
-        ),
+            })
+          )
+        )
       ),
     Effect.flatMap((response) =>
       Effect.tryPromise({
         try: () =>
           response.json() as Promise<AssistantResponse | ErrorResponse>,
         catch: (e) => JsonParseError(e as Error),
-      }),
+      })
     ),
     Effect.flatMap((response) =>
       Match.value(response).pipe(
         Match.when({ type: "message" }, (assistantResponse) =>
-          Effect.succeed(assistantResponse as AssistantResponse),
+          Effect.succeed(assistantResponse as AssistantResponse)
         ),
         Match.when({ type: "error" }, (error) =>
-          Effect.fail(error as ErrorResponse),
+          Effect.fail(error as ErrorResponse)
         ),
-        Match.exhaustive,
-      ),
-    ),
+        Match.exhaustive
+      )
+    )
   );
 }
 
@@ -116,14 +114,14 @@ export class ClaudeApi extends Context.Tag("ClaudeApi")<
   ClaudeApi,
   {
     readonly fetchFromApi: (
-      body: ReturnType<typeof getRequestBody>,
+      body: ReturnType<typeof getRequestBody>
     ) => Effect.Effect<
       AssistantResponse,
       StringifyError | FetchError | JsonParseError | ErrorResponse,
       never
     >;
   }
->() { }
+>() {}
 
 export type TextResponse = { type: "text"; text: string };
 export type ToolUse = {
@@ -193,22 +191,22 @@ type CallClaudeWithFormat<F extends ZodObjectAny> = {
 } & BaseParams;
 
 function getRequestBody<F extends ZodObjectAny>(
-  params: CallClaudeWithFormat<F> | CallClaude | CallClaudeTools,
+  params: CallClaudeWithFormat<F> | CallClaude | CallClaudeTools
 ) {
   return pipe(
     params,
     Match.type<CallClaudeWithFormat<F> | CallClaude | CallClaudeTools>().pipe(
       Match.when({ type: "format" }, (params) =>
-        Either.left(getResponsePrompt(params.jsonFormat.format)),
+        Either.left(getResponsePrompt(params.jsonFormat.format))
       ),
       Match.when({ type: "default" }, (params) => Either.left(params.system)),
       Match.when({ type: "tools" }, (params) =>
         Either.right({
           tools: params.tools,
           tool_choice: params.toolChoice,
-        }),
+        })
       ),
-      Match.exhaustive,
+      Match.exhaustive
     ),
     Either.mapBoth({
       onLeft: (system) => ({
@@ -224,7 +222,7 @@ function getRequestBody<F extends ZodObjectAny>(
         system: params.system,
         ...tools,
       }),
-    }),
+    })
   );
 }
 
@@ -257,7 +255,7 @@ const JsonFetchError = (error: Error): JsonFetchError => ({
 function handleRetryParse<F extends ZodObjectAny>(
   error: string,
   params: CallClaudeWithFormat<F>,
-  assistantResponse: any,
+  assistantResponse: any
 ) {
   return parseWithFormat(
     {
@@ -273,14 +271,14 @@ function handleRetryParse<F extends ZodObjectAny>(
         return getFirst(params.messages);
       }),
     },
-    assistantResponse,
+    assistantResponse
   );
 }
 
 function handleJsonOrError<F extends ZodObjectAny>(
   jsonOrError: Either.Either<any, RetryLimitError | JsonParseError>,
   params: CallClaudeWithFormat<F>,
-  assitantResponse: any,
+  assitantResponse: any
 ) {
   return Either.match(jsonOrError, {
     onRight: (json: any) =>
@@ -297,7 +295,7 @@ function handleJsonOrError<F extends ZodObjectAny>(
 
               Please correct your mistakes and try again.`,
         params,
-        assitantResponse,
+        assitantResponse
       ),
   });
 }
@@ -314,7 +312,7 @@ export const JsonParseError = (error: Error): JsonParseError => ({
 
 function parseWithFormat<F extends ZodObjectAny>(
   params: CallClaudeWithFormat<F>,
-  assistantResponse: any,
+  assistantResponse: any
 ): Effect.Effect<z.output<F>, JsonParseError> {
   return pipe(
     params,
@@ -326,13 +324,13 @@ function parseWithFormat<F extends ZodObjectAny>(
       pipe(
         responseText,
         (responseText) => Effect.try(() => JSON.parse(responseText)),
-        Effect.mapError(JsonParseError),
-      ),
+        Effect.mapError(JsonParseError)
+      )
     ),
     Effect.either,
     Effect.flatMap((jsonOrError) =>
-      handleJsonOrError(jsonOrError, params, assistantResponse),
-    ),
+      handleJsonOrError(jsonOrError, params, assistantResponse)
+    )
   );
 }
 
@@ -371,9 +369,13 @@ function schemaToString(schema: ZodTypeAny): string {
     case z.ZodFirstPartyTypeKind.ZodLiteral:
       return `${JSON.stringify(schema._def.value)}${description}`;
     case z.ZodFirstPartyTypeKind.ZodEnum:
-      return `${schema._def.values.map((v: any) => JSON.stringify(v)).join(" | ")}${description}`;
+      return `${schema._def.values
+        .map((v: any) => JSON.stringify(v))
+        .join(" | ")}${description}`;
     case z.ZodFirstPartyTypeKind.ZodUnion:
-      return `(${schema._def.options.map(schemaToString).join(" | ")})${description}`;
+      return `(${schema._def.options
+        .map(schemaToString)
+        .join(" | ")})${description}`;
     case z.ZodFirstPartyTypeKind.ZodArray:
       return `Array<${schemaToString(schema._def.type)}>${description}`;
     case z.ZodFirstPartyTypeKind.ZodObject:
@@ -383,11 +385,17 @@ function schemaToString(schema: ZodTypeAny): string {
         .join(",\n");
       return `{\n${fields}\n}${description}`;
     case z.ZodFirstPartyTypeKind.ZodOptional:
-      return `${schemaToString(schema._def.innerType)} | undefined${description}`;
+      return `${schemaToString(
+        schema._def.innerType
+      )} | undefined${description}`;
     case z.ZodFirstPartyTypeKind.ZodNullable:
       return `${schemaToString(schema._def.innerType)} | null${description}`;
     case z.ZodFirstPartyTypeKind.ZodDefault:
-      return `${schemaToString(schema._def.innerType)} // default: ${JSON.stringify(schema._def.defaultValue())}${description}`;
+      return `${schemaToString(
+        schema._def.innerType
+      )} // default: ${JSON.stringify(
+        schema._def.defaultValue()
+      )}${description}`;
     case z.ZodFirstPartyTypeKind.ZodAny:
       return `any${description}`;
     case z.ZodFirstPartyTypeKind.ZodUnknown:
@@ -400,9 +408,13 @@ function schemaToString(schema: ZodTypeAny): string {
       const items = schema._def.items.map(schemaToString).join(", ");
       return `[${items}]${description}`;
     case z.ZodFirstPartyTypeKind.ZodRecord:
-      return `{ [key: string]: ${schemaToString(schema._def.valueType)} }${description}`;
+      return `{ [key: string]: ${schemaToString(
+        schema._def.valueType
+      )} }${description}`;
     case z.ZodFirstPartyTypeKind.ZodMap:
-      return `Map<${schemaToString(schema._def.keyType)}, ${schemaToString(schema._def.valueType)}>${description}`;
+      return `Map<${schemaToString(schema._def.keyType)}, ${schemaToString(
+        schema._def.valueType
+      )}>${description}`;
     case z.ZodFirstPartyTypeKind.ZodSet:
       return `Set<${schemaToString(schema._def.valueType)}>${description}`;
     case z.ZodFirstPartyTypeKind.ZodDate:
@@ -433,12 +445,12 @@ export function callClaudeWithoutFormat(params: CallClaude) {
     Effect.provideService(ClaudeApi, {
       fetchFromApi: makeClaudeAPICall,
     }),
-    (result) => Effect.retry(result, { times: params.retryCount }), // handle this, json or request error!
+    (result) => Effect.retry(result, { times: params.retryCount }) // handle this, json or request error!
   );
 }
 
 export function callClaudeWithFormat<F extends ZodObjectAny>(
-  params: CallClaudeWithFormat<F>,
+  params: CallClaudeWithFormat<F>
 ) {
   return pipe(
     params,
@@ -447,8 +459,8 @@ export function callClaudeWithFormat<F extends ZodObjectAny>(
       fetchFromApi: makeClaudeAPICall,
     }),
     Effect.flatMap((assistantResponse) =>
-      parseWithFormat(params, assistantResponse),
-    ),
+      parseWithFormat(params, assistantResponse)
+    )
   );
 }
 
@@ -493,8 +505,13 @@ function getToolCallFromResponse<T extends Tool[]>({
   return Effect.fail(InvalidToolCallError());
 }
 
-export type UnwrapEffectError<T> =
-  T extends Effect.Effect<infer _, infer E, infer _> ? E : never;
+export type UnwrapEffectError<T> = T extends Effect.Effect<
+  infer _,
+  infer E,
+  infer _
+>
+  ? E
+  : never;
 
 export function callClaudeWithTools<T extends Tool[]>(params: CallClaudeTools) {
   return pipe(
@@ -507,32 +524,32 @@ export function callClaudeWithTools<T extends Tool[]>(params: CallClaudeTools) {
       pipe(
         Effect.if(
           assistantResponse.content.findIndex(
-            (message) => message.type === "tool_use",
+            (message) => message.type === "tool_use"
           ) === -1,
           {
             onTrue: () => Effect.succeed(Either.left(assistantResponse)),
             onFalse: () =>
               pipe(
                 getToolCallFromResponse<T>(assistantResponse),
-                Effect.map((item) => Either.right(item)),
+                Effect.map((item) => Either.right(item))
               ),
-          },
+          }
         ),
         Effect.map((p) =>
-          Either.mapBoth(p, { onLeft: (p) => p, onRight: (p) => p }),
-        ),
-      ),
-    ),
+          Either.mapBoth(p, { onLeft: (p) => p, onRight: (p) => p })
+        )
+      )
+    )
   );
 }
 
 function callClaude<F extends ZodObjectAny>(
-  params: CallClaudeWithFormat<F> | CallClaude | CallClaudeTools,
+  params: CallClaudeWithFormat<F> | CallClaude | CallClaudeTools
 ) {
   return pipe(params, getRequestBody, (body) =>
     pipe(
       ClaudeApi,
-      Effect.flatMap((value) => value.fetchFromApi(body)),
-    ),
+      Effect.flatMap((value) => value.fetchFromApi(body))
+    )
   );
 }

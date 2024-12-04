@@ -19,17 +19,6 @@ const NoteCard = ({ note }: { note: NoteWithUser }) => (
         title: "New Update",
         content: <p class="text-subtitle">{note.note}</p>,
       },
-      // {
-      //   content: (
-      //     <>
-      //       {/* Images */}
-      //       <div class="flex flex-row gap-x-2">
-      //         <LandingImage />
-      //         <LandingImage />
-      //       </div>
-      //     </>
-      //   ),
-      // },
     ]}
   />
 );

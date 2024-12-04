@@ -13,7 +13,6 @@ import {
   createMemo,
   createSignal,
   For,
-  onMount,
   Setter,
   Show,
 } from "solid-js";

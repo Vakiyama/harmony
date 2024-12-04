@@ -5,21 +5,15 @@ import { Button } from "~/components/ui/button";
 import {
   Popover,
   PopoverContent,
-  PopoverDescription,
   PopoverTitle,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import {
-  TextField,
-  TextFieldLabel,
-  TextFieldRoot,
-} from "~/components/ui/textfield";
 
 const ProfilePopover = () => {
   const [isOpen, setIsOpen] = createSignal(false);
   return (
     <div class="flex flex-row gap-1.5 justify-between items-center mx-2">
-      <p class="text-base text-sm">New</p>
+      <p>New</p>
       <Popover open={isOpen()} onOpenChange={setIsOpen}>
         <PopoverTrigger
           as={(props: PopoverTriggerProps) => (

@@ -1,10 +1,8 @@
 import {
   Accessor,
   createEffect,
-  createMemo,
   createSignal,
   For,
-  onMount,
   Setter,
   Show,
 } from "solid-js";
@@ -135,7 +133,6 @@ const WeekCalendarView = (props: {
       return eventStartTime.isBetween(startOfWeek, endOfWeek, null, "[]");
     });
     setWeekEvents(filteredEvents);
-    console.log(filteredEvents);
   }, [currentWeekStart]);
 
   let startX: number;

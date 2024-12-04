@@ -2,13 +2,11 @@ import {
   createContext,
   ParentComponent,
   useContext,
-  JSX,
   createSignal,
   Accessor,
   onMount,
 } from "solid-js";
 import { createStore } from "solid-js/store";
-import { db } from "~/api/db";
 import { getListOfTeams, getTeamFromTeamId } from "~/api/team";
 
 export interface FormState {
@@ -60,7 +58,7 @@ interface FormContextValue {
   updateTeamId: (value: number) => void;
   updateRecipientField: (
     field: keyof FormState["recipient"],
-    value: string,
+    value: string
   ) => void;
   updateTeamName: (value: string) => void;
   updateRelationship: (value: string) => void;
@@ -68,19 +66,19 @@ interface FormContextValue {
   updateSurgery: (
     index: number,
     field: keyof FormState["importantSurgeries"][0],
-    value: string,
+    value: string
   ) => void;
   addMedication: () => void;
   updateMedication: (
     index: number,
     field: keyof FormState["medications"][0],
-    value: string,
+    value: string
   ) => void;
   addPastInjury: () => void;
   updatePastInjury: (
     index: number,
     field: keyof FormState["pastInjuries"][0],
-    value: string,
+    value: string
   ) => void;
   currentStep: Accessor<number>;
   nextStep: () => void;
@@ -117,10 +115,9 @@ export const TeamProvider: ParentComponent = (props) => {
       setState(section as any, field as any, value);
     },
     updateTeamId: (value: number) => {
-      console.log("updateTeamId called with value", value);
       setState("id", value);
       getTeamFromTeamId(value).then(
-        (result) => result && setState("teamName", result.data.teams.teamName),
+        (result) => result && setState("teamName", result.data.teams.teamName)
       );
     },
     updateTeamName: (value: string) => {
@@ -214,7 +211,6 @@ export const useTeam = () => {
   onMount(async () => {
     const teamData = await getListOfTeams();
     const defaultTeam = teamData.find((team) => team.team.defaultTeam);
-    console.log(defaultTeam, "team!", context.state.id);
     if (defaultTeam && context.state.id === -1) {
       context.updateTeamId(defaultTeam.team.id);
     } else if (!defaultTeam && context.state.id === -1) {

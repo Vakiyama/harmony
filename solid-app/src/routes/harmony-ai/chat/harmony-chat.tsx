@@ -33,7 +33,7 @@ export function useHarmonyChat(
       }
     | undefined
   >,
-  voice?: boolean,
+  voice?: boolean
 ) {
   const [messages, setMessages] = createSignal<ArrayMessage[]>([]);
   const team = useTeam();
@@ -43,7 +43,7 @@ export function useHarmonyChat(
       messages,
       user()!.id,
       team.state.id,
-      voice,
+      voice
     );
     if (!response) return;
 
@@ -133,10 +133,8 @@ export function HarmonyChat() {
       { role: "user", content: input() } as const,
     ]);
 
-    console.log(newMessages, "messages sent to claude");
-
     handleConversation(newMessages, teams.state.id).finally(() =>
-      setLoadingConversation(false),
+      setLoadingConversation(false)
     );
 
     setInput("");
@@ -157,7 +155,7 @@ export function HarmonyChat() {
 
   function getTimePeriod<T>(
     currentDate: Date,
-    ranges: TimeRange<T>[],
+    ranges: TimeRange<T>[]
   ): T | undefined {
     const currentHour = currentDate.getHours();
 
@@ -244,7 +242,7 @@ export function HarmonyChat() {
                   !(
                     message.role === "user" &&
                     !(typeof message.content === "string")
-                  ),
+                  )
               )
               .map((message, index) => (
                 <HarmonyChatMessage
@@ -303,7 +301,7 @@ function sleep(ms: number) {
   return new Promise<void>((res) =>
     setTimeout(() => {
       res();
-    }, ms),
+    }, ms)
   );
 }
 
@@ -316,7 +314,7 @@ function HarmonyChatMessage(props: {
   const filteredLen = props.messages().filter(
     // remove all "tool_result" messages
     (message) =>
-      !(message.role === "user" && !(typeof message.content === "string")),
+      !(message.role === "user" && !(typeof message.content === "string"))
   ).length;
 
   const [aiMessage, setAiMessage] = createSignal("");
@@ -329,7 +327,7 @@ function HarmonyChatMessage(props: {
 
       await sleep(
         (sleepRange.low + Math.floor(sleepRange.high * Math.random())) /
-          speedFactor,
+          speedFactor
       );
 
       messageRangeCutoff++;
@@ -347,7 +345,6 @@ function HarmonyChatMessage(props: {
 
   createEffect(() => {
     if (props.message.role === "assistant") {
-      console.log("streaming", props.message);
       if (typeof props.message.content !== "string") return;
       streamMessage(props.message);
     }
@@ -359,13 +356,13 @@ function HarmonyChatMessage(props: {
         "flex items-center relative max-w-[90%]",
         props.message.role === "user"
           ? "self-end flex-row-reverse mr-1 "
-          : "self-start flex-row",
+          : "self-start flex-row"
       )}
     >
       <div
         class={twMerge(
           "rounded-xl p-2 my-3 mx-1 w-fit text-gray-800 px-4",
-          props.message.role === "user" ? "rounded-br-none bg-[#937AEE]" : "",
+          props.message.role === "user" ? "rounded-br-none bg-[#937AEE]" : ""
         )}
       >
         {props.message.role === "user" ? (
@@ -431,12 +428,12 @@ function HarmonyChatMessage(props: {
                 "createCalendarEvent"
                   ? "Harmony creating a calendar event..."
                   : (props.message.content as [ToolUse])[0].name ===
-                      "getJournalEntries"
-                    ? "Harmony searching journal entries..."
-                    : (props.message.content as [ToolUse])[0].name ===
-                        "createJournalEntry"
-                      ? "Harmony creating a journal entry..."
-                      : "Harmony getting calendar events..."}
+                    "getJournalEntries"
+                  ? "Harmony searching journal entries..."
+                  : (props.message.content as [ToolUse])[0].name ===
+                    "createJournalEntry"
+                  ? "Harmony creating a journal entry..."
+                  : "Harmony getting calendar events..."}
               </p>
             </div>
           </div>

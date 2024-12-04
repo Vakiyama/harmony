@@ -1,6 +1,5 @@
 import { Button } from "~/components/ui/button";
 import WordMark from "~/components/svg/wordmark";
-import PlaceholderMark from "~/components/svg/placeholder";
 import { createSignal } from "solid-js";
 import { type oauthMethods, oauthLogin } from "~/api/auth-server-actions";
 import { useAction } from "@solidjs/router";
@@ -62,8 +61,6 @@ export default function Landing() {
                   <AuthIcons.AppleIcon class="inline-block mr-[76px]"></AuthIcons.AppleIcon>
                   Continue with Apple
                 </span>
-                {/* <PlaceholderMark class="absolute left-[10%]" />
-                Continue with Apple */}
               </Button>
             </span>
           </div>

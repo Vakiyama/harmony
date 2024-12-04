@@ -1,6 +1,5 @@
 import { Accessor, createSignal, For, Setter, Show } from "solid-js";
 import moment from "moment";
-import type { Event } from "@/schema/Events";
 import EventCard from "~/components/ui/event-card";
 import { CalendarEventType, CalendarJournalType } from ".";
 interface NestedEvent extends CalendarEventType {

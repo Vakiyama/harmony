@@ -69,7 +69,6 @@ const CalendarView = (props: {
     });
 
     setMonthEvents(filteredEvents); // Update the events for the selected month
-    console.log(filteredEvents); // Debug log
   }, [props.selectedMonth]);
   const handleSelectMonth = (monthName: string, change: number) => {
     const month = moment(monthName, "MMMM");

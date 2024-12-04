@@ -1,12 +1,6 @@
 import { createAsync, RouteDefinition, useAction } from "@solidjs/router";
 import { TeamWithDefault } from "../../../drizzle/schema/Teams";
-import {
-  createEffect,
-  createSignal,
-  onMount,
-  Setter,
-  Suspense,
-} from "solid-js";
+import { createEffect, createSignal, Setter, Suspense } from "solid-js";
 import { updateDefaultTeam } from "~/api/team";
 import { getUser } from "~/api";
 import { useTeam } from "~/context/team-context";
@@ -34,7 +28,7 @@ export function LandingHeader(props: {
   createEffect(() => {
     if (team.state.id === -1 || team.state.id === undefined) {
       const defaultTeam = props.teamData?.find(
-        (team) => team.team.defaultTeam === true,
+        (team) => team.team.defaultTeam === true
       );
       if (!defaultTeam) return;
       setTeamName(defaultTeam?.team.name || undefined);

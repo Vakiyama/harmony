@@ -119,8 +119,7 @@ export default function CreateSomeone() {
         })) as CreateSurgeryActionResponse;
 
         if (!surgeryResult.success) {
-          console.log(surgeryResult.error || "Failed to create surgeries");
-          // setTeamError(surgeryResult.error || "Failed to create surgeries");
+          console.error(surgeryResult.error || "Failed to create surgeries");
         }
       }
 
@@ -137,8 +136,7 @@ export default function CreateSomeone() {
         })) as CreateInjuryActionResponse;
 
         if (!injuryResult.success) {
-          console.log(injuryResult.error || "Failed to create injuries");
-          // setTeamError(injuryResult.error || "Failed to create injuries");
+          console.error(injuryResult.error || "Failed to create injuries");
         }
       }
 
@@ -152,8 +150,9 @@ export default function CreateSomeone() {
         })) as CreateMedicationActionResponse;
 
         if (!medicationResult.success) {
-          console.log(medicationResult.error || "Failed to create medications");
-          // setTeamError(medicationResult.error ||"Failed to create medication");
+          console.error(
+            medicationResult.error || "Failed to create medications"
+          );
         }
       }
       team.resetForm();

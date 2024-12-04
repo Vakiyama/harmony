@@ -1,10 +1,9 @@
-import { setTime } from "effect/TestClock";
 import { createEffect } from "solid-js";
 import { twMerge } from "tailwind-merge";
 import { formatTimeForPicker } from "~/lib/formateDateLocal";
 
 interface TimeProps {
-  time: () => string | null; // Time can initially be null to simulate the placeholder
+  time: () => string | null;
   setTime: (newTime: string) => void;
   name?: string;
   class?: string;
@@ -30,7 +29,6 @@ export default function TimePicker(props: TimeProps) {
       )}
       type="time"
       value={props.time() || placeholderTime}
-      // placeholder={props.time() || placeholderTime}
       onInput={(e) => props.setTime(e.currentTarget.value)}
     />
   );

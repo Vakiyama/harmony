@@ -1,6 +1,3 @@
-import { RadioGroupContext } from "@ark-ui/solid";
-import { createAsync, type RouteDefinition } from "@solidjs/router";
-import { getUser, logout } from "~/api";
 import AlertDialogDemo from "~/components/shadcn/AlertDialog";
 import ButtonDemo from "~/components/shadcn/Button";
 import CardDemo from "~/components/shadcn/Card";
@@ -9,7 +6,6 @@ import DatePickerDemo from "~/components/shadcn/DatePicker";
 import DialogDemo from "~/components/shadcn/Dialog";
 import ImageDemo from "~/components/shadcn/Image";
 import RadioGroupDemo from "~/components/shadcn/RadioGroup";
-import SelectDemo from "~/components/shadcn/Select";
 import SeparatorDemo from "~/components/shadcn/Separator";
 import SkeletonDemo from "~/components/shadcn/Skelaton";
 import SwitchDemo from "~/components/shadcn/Switch";
@@ -53,7 +49,6 @@ export default function Components() {
         </div>
         <div class="mr-5 w-full sm:w-auto mb-10">
           <div class="mb-3">Select</div>
-          {/* <SelectDemo options={["1", "2", "3"]} placeholder="demo" /> */}
         </div>
         <div class="mr-5 w-full sm:w-auto mb-10">
           <div class="mb-3">Separator</div>

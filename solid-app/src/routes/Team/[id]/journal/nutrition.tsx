@@ -18,7 +18,6 @@ import { Button } from "~/components/ui/button";
 import AddNote from "~/routes/Team/[id]/journal/add-notes";
 import Header from "./header";
 import SelectInput from "~/components/shadcn/Select";
-import Upload from "./upload";
 import { showNotification } from "~/routes/api/notificationStore";
 import NutritionIcon from "~/components/icon/nutrition-icon";
 import { MealWithNoteUser } from "@/schema/Meals";
@@ -222,16 +221,6 @@ export default function NutritionTracker() {
                   />
                 </div>
               </div>
-
-              {/* <div
-                class="flex flex-col mb-8"
-                onClick={() => setShowAddPhoto(true)}
-              >
-                <label class="text-h4 font-grotesque leading-[120%] font-medium mb-1">
-                  Photo
-                </label>
-                <Upload type="photo" description="Tap to add a photo" />
-              </div> */}
               <AddNote
                 title="Add Notes"
                 placeholder="What else would you like to note about their nutrition?"
@@ -269,8 +258,6 @@ export default function NutritionTracker() {
           <AddPhotoModal
             onCancel={() => setShowAddPhoto(false)}
             onClose={() => setShowAddPhoto(false)}
-            // onCamera={() => }
-            // onFromGallery={() => }
           />
         </Show>
       </section>
