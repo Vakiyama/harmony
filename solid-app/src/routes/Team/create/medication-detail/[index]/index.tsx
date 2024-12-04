@@ -71,7 +71,9 @@ export default function TeamMedicationDetail() {
           },
           {
             title: "Medication Photo",
-            content: <MedicationImage />,
+            content: (
+              <MedicationImage pharmacyImg={pharmacyImg ? pharmacyImg : ""} />
+            ),
           },
         ]}
       />

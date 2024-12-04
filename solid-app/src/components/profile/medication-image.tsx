@@ -1,14 +1,14 @@
 import { Image, ImageFallback, ImageRoot } from "~/components/ui/image";
-export default function MedicationImage() {
+export default function MedicationImage(props: { pharmacyImg: string | "" }) {
   return (
-    <ImageRoot class="flex items-center justify-center h-[234px] w-full bg-blue-300 rounded-lg border">
+    <ImageRoot class="flex items-center justify-center h-[234px] w-full bg-gray-200  rounded-lg border overflow-hidden">
       <Image
-        src="https://res.cloudinary.com/daobc6dfz/image/upload/v1729999438/06210700462_1200x1200_vspw2e.webp"
+        src={props.pharmacyImg}
         alt="hngngn"
-        class="object-fill w-full"
+        class="object-contain w-full h-full"
       />
       <ImageFallback class="flex items-center justify-center w-full h-full bg-gray-200 rounded-lg">
-        TD
+        Not available
       </ImageFallback>
     </ImageRoot>
   );
