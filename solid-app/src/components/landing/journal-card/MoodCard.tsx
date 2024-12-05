@@ -46,17 +46,6 @@ const MoodCard = ({ mood }: { mood: MoodsWithNoteUser }) => (
               title: `What ${mood.user!.firstName} Noticed`,
               content: <p class="text-subtitle">{mood.note.note}</p>,
             },
-            // {
-            //   content: (
-            //     <>
-            //       Images
-            //       <div class="flex flex-row gap-x-2">
-            //         <LandingImage />
-            //         <LandingImage />
-            //       </div>
-            //     </>
-            //   ),
-            // },
           ]
         : []),
     ]}

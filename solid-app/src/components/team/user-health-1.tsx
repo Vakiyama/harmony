@@ -56,7 +56,6 @@ export default function UserHealth1() {
       }
     });
     setErrors(newErrors);
-    // console.log(errors());
     if (!hasError) {
       team.nextStep();
     }

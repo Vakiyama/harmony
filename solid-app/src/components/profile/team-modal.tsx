@@ -1,4 +1,3 @@
-import ModalOption from "../shared/modal-option";
 import TeamModalOption from "./team-modal-option";
 
 interface ModalProps {

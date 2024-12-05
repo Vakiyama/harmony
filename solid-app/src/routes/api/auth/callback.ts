@@ -15,16 +15,11 @@ export const GET = async ({ request }: APIEvent) => {
   if (infoString) {
     registerInfo = JSON.parse(decodeURIComponent(infoString)) as RegisterInfo;
   }
-  // console.log(registerInfo);
 
   const manager = await sessionManager();
   const expectedState = await manager.getSessionItem("auth_state");
   const url = new URL(request.url);
   const receivedState = url.searchParams.get("state");
-  // console.log(url.searchParams);
-
-  // console.log("Expected State:", expectedState);
-  // console.log("Received State:", receivedState);
 
   if (expectedState !== receivedState) {
     return new Response("State mismatch", { status: 400 });

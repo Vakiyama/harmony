@@ -1,4 +1,4 @@
-import { createEffect, createMemo, createSignal, onMount } from "solid-js";
+import { createMemo, createSignal, onMount } from "solid-js";
 import { Button } from "~/components/ui/button";
 
 import { twMerge } from "tailwind-merge";
@@ -8,17 +8,12 @@ import { createAsync, useNavigate } from "@solidjs/router";
 import type { TeamMember } from "@/schema/TeamMembers";
 import { User } from "@/schema/Users";
 import { mightFail } from "might-fail";
-import { isValidEnumValue } from "~/api/dbHelper";
-import moment from "moment";
 import TextInput from "../TextInput";
-import TimeDateCalendar from "../TimeDateCalendar";
-import TextArea from "../TextAreaInput";
 import { TextField } from "@kobalte/core/text-field";
 
 const CalendarCreateEvent = () => {
   const navigate = useNavigate();
   const teamMembers = createAsync(
-    // temp get teamId first
     async () => await getTeamMembersFromTeamId(1),
     { deferStream: true }
   );
@@ -202,8 +197,6 @@ const CalendarCreateEvent = () => {
           </button>
         </div>
       </form>
-      {/* temp */}
-      <div class="h-[88px]"></div>
     </div>
   );
 };

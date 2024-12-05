@@ -1,6 +1,6 @@
-import { cn } from "~/libs/cn"; // Utility function for class name management
-import { Slider as SliderKobalte } from "@kobalte/core/slider"; // Import Kobalte Slider components
-import { createSignal } from "solid-js"; // Solid's reactive signal
+import { cn } from "~/libs/cn";
+import { Slider as SliderKobalte } from "@kobalte/core/slider";
+import { createSignal } from "solid-js";
 import ReallyTerrible from "~/routes/Team/[id]/journal/really-terrible";
 import SomewhatBad from "~/routes/Team/[id]/journal/somewhat-bad";
 import CompletelyOkay from "../../routes/Team/[id]/journal/completely-okay";
@@ -8,7 +8,7 @@ import PrettyGood from "~/routes/Team/[id]/journal/pretty-good";
 import SuperAwesome from "~/routes/Team/[id]/journal/super-awesome";
 
 type SliderProps = {
-  className?: string; // Allow additional class names
+  className?: string;
   step?: number;
   minValue?: number;
   maxValue?: number;
@@ -17,7 +17,7 @@ type SliderProps = {
   name: string;
 };
 export function Slider(props: SliderProps) {
-  const [value, setValue] = createSignal<number>(props.defaultValue ?? 50); // Create a signal for the slider value
+  const [value, setValue] = createSignal<number>(props.defaultValue ?? 50);
 
   const getSliderOption = () => {
     switch (value()) {

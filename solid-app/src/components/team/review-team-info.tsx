@@ -17,7 +17,6 @@ import { Show } from "solid-js";
 export default function ReviewTeamInfo() {
   const user = createAsync(async () => await getUser(), { deferStream: true });
   const team = useTeam();
-  console.log(user);
   return (
     <div class="flex flex-col gap-3">
       <div class="flex items-center justify-end flex-col mx-3">

@@ -1,6 +1,3 @@
-import { createSignal } from "solid-js";
-import { useTeam } from "~/context/team-context";
-
 export default function AddPhoto() {
   return (
     <div class="border-[1px] border-photoBoxGray w-full h-[310px] rounded-[8px] mt-6 flex flex-col justify-center ">

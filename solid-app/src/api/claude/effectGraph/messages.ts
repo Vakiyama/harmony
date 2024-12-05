@@ -29,7 +29,6 @@ export type AssistantMessage = {
 } & BaseMessage;
 
 export function getFirst(message: Message): Message {
-  // console.log(message, "getFirst");
   return Option.match(message.prev, {
     onSome: (prev) => {
       if (!prev) return message;
@@ -50,7 +49,7 @@ export function getLast(message: Message): Message {
 }
 
 export function createMessage<T extends Message>(
-  messageArgs: Omit<T, "next" | "prev"> & Partial<Pick<T, "next" | "prev">>,
+  messageArgs: Omit<T, "next" | "prev"> & Partial<Pick<T, "next" | "prev">>
 ): T {
   return {
     ...messageArgs,
@@ -63,7 +62,7 @@ export type ArrayMessage = Omit<Omit<Message, "next">, "prev">;
 
 export function toArray(
   message: Message,
-  acc: ArrayMessage[] = [],
+  acc: ArrayMessage[] = []
 ): ArrayMessage[] {
   return Option.match(message.next as Option.Option<Message>, {
     onSome: (next) => {
@@ -82,22 +81,22 @@ export function toArray(
 
 export function toLinkedList(
   messages: ArrayMessage[],
-  acc: Option.Option<Message> = Option.none(),
+  acc: Option.Option<Message> = Option.none()
 ): Option.Option<Message> {
   return messages.length === 0
     ? acc
     : pipe(
-      acc,
-      Option.match({
-        onNone: () =>
-          toLinkedList(
-            messages.slice(1),
-            Option.some(createMessage({ ...messages[0] })),
-          ),
-        onSome: (acc) => {
-          getLast(acc).next = Option.some(createMessage({ ...messages[0] }));
-          return toLinkedList(messages.slice(1), Option.some(acc));
-        },
-      }),
-    );
+        acc,
+        Option.match({
+          onNone: () =>
+            toLinkedList(
+              messages.slice(1),
+              Option.some(createMessage({ ...messages[0] }))
+            ),
+          onSome: (acc) => {
+            getLast(acc).next = Option.some(createMessage({ ...messages[0] }));
+            return toLinkedList(messages.slice(1), Option.some(acc));
+          },
+        })
+      );
 }

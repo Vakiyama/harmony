@@ -1,8 +1,5 @@
 import { MetaProvider } from "@solidjs/meta";
 import { LandingHeader } from "~/components/landing/LandingHeader";
-import LandingContent from "~/components/landing/LandingContent";
-import { TaskName } from "~/components/landing/TaskName";
-import Member from "~/components/landing/Member";
 import UpdateLandingContent from "~/components/landing/UpdateLandingContent";
 
 export default function New() {
@@ -45,5 +42,3 @@ export default function New() {
     </MetaProvider>
   );
 }
-
-// export default Index;

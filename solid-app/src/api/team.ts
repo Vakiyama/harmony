@@ -14,7 +14,6 @@ import { teamMembers } from "../../drizzle/schema/TeamMembers";
 import { pastInjuries } from "../../drizzle/schema/PastInjuries";
 import { importantSurgeries } from "../../drizzle/schema/ImportantSurgeries";
 import { calendars } from "../../drizzle/schema/Calendars";
-import { cloudinary } from "~/middleware/cloudinaryConfig";
 
 export async function joinTeam(
   userId: number,
@@ -168,7 +167,6 @@ export const getListOfTeams = async () => {
   if (!userId) {
     return [];
   }
-  console.log("userid", userId);
   const [teamsError, teamsResult] = await mightFail(
     db
       .selectDistinct({
@@ -184,7 +182,6 @@ export const getListOfTeams = async () => {
       .leftJoin(teams, eq(teamMembers.teamId, teams.id))
       .where(eq(teamMembers.userId, userId))
   );
-  console.log(teamsResult);
   if (teamsError || !teamsResult.length) {
     return [];
   }
@@ -199,7 +196,6 @@ export const getListOfTeamsNoMembers = async () => {
   if (!userId) {
     return [];
   }
-  console.log("userid", userId);
   const [teamsError, teamsResult] = await mightFail(
     db
       .select({
@@ -216,7 +212,6 @@ export const getListOfTeamsNoMembers = async () => {
       .leftJoin(teams, eq(teamMembers.teamId, teams.id))
       .where(eq(teamMembers.userId, userId))
   );
-  console.log(teamsResult);
   if (teamsError || !teamsResult.length) {
     return [];
   }
@@ -327,12 +322,10 @@ export const updateDefaultTeam = action(async (teamId: number) => {
   const session = await manager.getSession();
   const userId: number = session.data.userId;
   if (!userId) {
-    console.log("User is not Authenticated");
     return undefined;
   }
   const isMember = await isMemberOfTeam(userId, teamId);
   if (!isMember) {
-    console.log("Insufficient Permissions");
     return undefined;
   }
   const transactionResult = await db.transaction(async (tx) => {
@@ -369,7 +362,6 @@ export const updateDefaultTeam = action(async (teamId: number) => {
         details: newDefaultError,
       };
     }
-    console.log("Default team updated successfully!");
 
     const [selectError, selectResult] = await mightFail(
       tx
@@ -453,7 +445,6 @@ export const createRecipientAction = action(
       console.error("Recipient insertion error:", recipientError);
       return { error: "Failed to insert recipient entry." };
     }
-    console.log("recipient", recipientResult[0]);
     return {
       success: true,
       message: "Recipient successfully created.",

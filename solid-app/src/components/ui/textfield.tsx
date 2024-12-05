@@ -54,7 +54,6 @@ export const TextFieldLabel = <T extends ValidComponent = "label">(
   props: PolymorphicProps<T, textFieldLabelProps<T>>
 ) => {
   const [local, rest] = splitProps(props as textFieldLabelProps, ["class"]);
-  console.log();
   return (
     <TextFieldPrimitive.Label
       class={cn(textfieldLabel(), local.class)}

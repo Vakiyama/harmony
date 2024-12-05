@@ -1,8 +1,6 @@
 import { MetaProvider } from "@solidjs/meta";
 import { LandingHeader } from "~/components/landing/LandingHeader";
 import LandingContent from "~/components/landing/LandingContent";
-import { TaskName } from "~/components/landing/TaskName";
-import Member from "~/components/landing/Member";
 
 export default function UpToDate() {
   return (
@@ -61,5 +59,3 @@ export default function UpToDate() {
     </MetaProvider>
   );
 }
-
-// export default Index;
