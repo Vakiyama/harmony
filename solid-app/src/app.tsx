@@ -7,10 +7,8 @@ import "./input.css";
 import Layout from "./components/Layout";
 import { MetaProvider } from "@solidjs/meta";
 import { TeamProvider } from "./context/team-context";
-import { createEffect, createSignal, onMount } from "solid-js";
-import { createStore } from "solid-js/store";
+import { createEffect, onMount } from "solid-js";
 import { clientSocket as socket } from "~/lib/clientSocket";
-import { Server } from "socket.io";
 import {
   hideNotification,
   isNotificationVisible,
@@ -46,12 +44,12 @@ export default function App() {
       appendMessage(`Journal entry deleted (ID: ${entryId})`);
     });
 
-    socket.on("calendar-event-created", (event) => {
-      appendMessage(`New event created: ${event.title}`);
+    socket.on("calendar-event-created", (eventTitle) => {
+      appendMessage(`New event created: ${eventTitle}`);
     });
 
     socket.on("calendar-event-edited", (event) => {
-      appendMessage(`Event updated: ${event.title}`);
+      appendMessage(`Event updated: ${event}`);
     });
 
     socket.on("calendar-event-deleted", (eventId) => {

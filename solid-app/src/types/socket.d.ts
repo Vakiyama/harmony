@@ -22,13 +22,13 @@ export interface ServerToClientEvents {
   "transcription-results": (message: string) => void;
   "end-utterance": () => void;
   // Journal Entry Events
-  "journal-entry-created": (journal: JournalReturnType) => void;
-  "journal-entry-edited": (journal: JournalReturnType) => void;
+  "journal-entry-created": (journal: string) => void;
+  "journal-entry-edited": (journal: string) => void;
   "journal-entry-deleted": (entryId: string) => void;
 
   // Calendar Event Events
-  "calendar-event-created": (event: CalendarEventType) => void;
-  "calendar-event-edited": (event: CalendarEventType) => void;
+  "calendar-event-created": (event: string) => void;
+  "calendar-event-edited": (eventTitle: string) => void;
   "calendar-event-deleted": (eventId: string) => void;
 }
 
@@ -39,19 +39,13 @@ export interface ClientToServerEvents {
   "start-transcription": () => void;
   "end-transcription": () => void;
   // Journal Entry Events
-  "create-journal-entry": (
-    entry: Omit<JournalReturnType, "id" | "createdAt" | "updatedAt">
-  ) => void;
-  "edit-journal-entry": (
-    entry: Partial<JournalReturnType> & { id: string }
-  ) => void;
+  "create-journal-entry": (entry: string) => void;
+  "edit-journal-entry": (entry: string) => void;
   "delete-journal-entry": (entryId: string) => void;
 
   // Calendar Event Events
-  "create-calendar-event": (event: Omit<CalendarEventType, "id">) => void;
-  "edit-calendar-event": (
-    event: Partial<CalendarEventType> & { id: string }
-  ) => void;
+  "create-calendar-event": (event: { title: string; userId: string }) => void;
+  "edit-calendar-event": (event: string) => void;
   "delete-calendar-event": (eventId: string) => void;
 }
 

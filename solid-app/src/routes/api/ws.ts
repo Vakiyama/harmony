@@ -143,6 +143,33 @@ export async function processAudioFrame(frameDataStream: {
       });
 
       // streaming audio to google-tts
+
+      socket.on("create-journal-entry", (entryData) => {
+        socket.broadcast.emit("journal-entry-created", entryData);
+      });
+
+      socket.on("edit-journal-entry", (updatedEntry) => {
+        socket.broadcast.emit("journal-entry-edited", updatedEntry);
+      });
+
+      socket.on("delete-journal-entry", (entryId) => {
+        socket.broadcast.emit("journal-entry-deleted", entryId);
+      });
+
+      // Calendar Event Handlers
+      socket.on("create-calendar-event", (eventData) => {
+        socket.broadcast
+          .to(eventData.userId)
+          .emit("calendar-event-created", eventData.title);
+      });
+
+      socket.on("edit-calendar-event", (updatedEvent) => {
+        socket.broadcast.emit("calendar-event-edited", updatedEvent);
+      });
+
+      socket.on("delete-calendar-event", (eventId) => {
+        socket.broadcast.emit("calendar-event-deleted", eventId);
+      });
     });
 
     return new Response();

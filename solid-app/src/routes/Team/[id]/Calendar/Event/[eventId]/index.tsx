@@ -40,6 +40,7 @@ import { mightFail } from "might-fail";
 import DeleteConfirmation from "~/components/shared/delete-confirmation";
 import { getUser } from "~/api/server";
 import { showNotification } from "~/routes/api/notificationStore";
+import { clientSocket as socket } from "~/lib/clientSocket";
 
 type Participant = {
   participant: User;
@@ -228,6 +229,7 @@ export default function EventPage() {
     // reset team member ids
     // setTeamMemberIds(participants()?.map((p) => p.participant.id) ?? []);
     closeModal();
+    socket.emit("edit-calendar-event", event()?.title!);
     // temp need to invalidate
   };
 

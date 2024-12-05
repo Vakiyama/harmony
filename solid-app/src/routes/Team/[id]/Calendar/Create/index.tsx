@@ -20,6 +20,7 @@ import { getTeamFromTeamId } from "~/api/team";
 import { formatTimeForPicker } from "~/lib/formateDateLocal";
 import { showNotification } from "~/routes/api/notificationStore";
 import TopNav from "~/components/shared/TopNav";
+import { clientSocket as socket } from "~/lib/clientSocket";
 
 const getFormattedDate = (): string => new Date().toISOString().split("T")[0];
 
@@ -110,7 +111,14 @@ const CalendarCreateEvent = () => {
     if (createEventError) {
       return console.error(createEventError);
     }
+    const memberIds = teamMemberOptions().map((member) => member.value);
     showNotification(`${eventType() === "event" ? "Event" : "Task"} Created`);
+    for (const userId of memberIds) {
+      socket.emit("create-calendar-event", {
+        title: title(),
+        userId: userId.toString(),
+      });
+    }
     navigate(`/team/${teamId}/calendar`);
   }
   return (
