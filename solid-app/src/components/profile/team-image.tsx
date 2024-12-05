@@ -3,14 +3,16 @@ import {
   ImageFallback,
   ImageRoot,
 } from "~/components/ui/teams/team-image";
-import { createSignal } from "solid-js";
+import { createSignal, onMount } from "solid-js";
 
 export default function TeamImage(props: {
   teamName: string;
   imageUrl: string;
 }) {
   const [imageError, setImageError] = createSignal(false);
-
+  onMount(() => {
+    if (props.imageUrl === "") setImageError(true);
+  });
   const handleImageError = () => {
     setImageError(true);
   };
@@ -19,7 +21,7 @@ export default function TeamImage(props: {
     <>
       <div class="max-h-[161px] w-full">
         <ImageRoot class="items-center justify-center h-full w-full object-cover ">
-          {!imageError ? (
+          {!imageError() ? (
             <Image
               src={props.imageUrl}
               alt={props.teamName}
