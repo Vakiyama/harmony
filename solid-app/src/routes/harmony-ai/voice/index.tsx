@@ -1,12 +1,9 @@
 import HarmonyMascotAnimated from "./harmony-mascot-animated.webp";
-import HarmonyMascot from "../images/harmony-mascot.svg";
 import { createAudio } from "@solid-primitives/audio";
-import { io, Socket } from "socket.io-client";
 import { clientSocket as socket } from "~/lib/clientSocket";
 
 import Speaker from "../images/Speaker.svg";
 import EndCall from "../images/end.svg";
-import Mute from "../images/BsMicMuteFill.svg";
 import { createEffect, createSignal, onCleanup, onMount, Show } from "solid-js";
 import { A } from "@solidjs/router";
 import { twMerge } from "tailwind-merge";
@@ -22,13 +19,13 @@ function sleep(ms: number) {
   return new Promise<void>((res) =>
     setTimeout(() => {
       res();
-    }, ms)
+    }, ms),
   );
 }
 
 export default function HarmonyVoice() {
   const [streamedMessage, setStreamedMessage] = createSignal(
-    "What can I help you with today?"
+    "What can I help you with today?",
   );
   const [loudness, setLoudness] = createSignal(0);
 
@@ -50,10 +47,31 @@ export default function HarmonyVoice() {
 
   const [lastTranscribedMessage, setLastTranscribedMessage] = createSignal("");
   const [transcribedMessage, setTranscribedMessage] = createSignal("");
-  const [recorder, setRecorder] = createSignal<MediaRecorder>();
+  const [recorder, setRecorder] = createSignal<{
+    loudnessInterval: NodeJS.Timeout;
+    scriptProcessor: ScriptProcessorNode;
+    analyser: AnalyserNode;
+    source: MediaStreamAudioSourceNode;
+    audioContext: AudioContext;
+  } | null>(null);
   const [muted, setMuted] = createSignal(false);
 
   const teams = useTeam();
+
+  function closeStream(params: {
+    loudnessInterval: NodeJS.Timeout;
+    scriptProcessor: ScriptProcessorNode;
+    analyser: AnalyserNode;
+    source: MediaStreamAudioSourceNode;
+    audioContext: AudioContext;
+  }) {
+    clearInterval(params.loudnessInterval);
+    params.scriptProcessor.disconnect();
+    params.analyser.disconnect();
+    params.source.disconnect();
+    params.audioContext.close();
+    return null;
+  }
 
   createEffect(() => {
     if (
@@ -82,7 +100,7 @@ export default function HarmonyVoice() {
 
       await sleep(
         (sleepRange.low + Math.floor(sleepRange.high * Math.random())) /
-          speedFactor
+          speedFactor,
       );
 
       messageRangeCutoff++;
@@ -118,15 +136,102 @@ export default function HarmonyVoice() {
         // Create a MediaStreamSource from the MediaStream
         const source = audioContext.createMediaStreamSource(stream);
 
-        // Create an AnalyserNode
+        // Create an AnalyserNode for loudness calculation
         const analyser = audioContext.createAnalyser();
         analyser.fftSize = 256; // Adjust as needed
 
         // Connect the source to the analyser
         source.connect(analyser);
 
+        // Create a ScriptProcessorNode for capturing raw audio
+        const bufferSize = 4096;
+        const scriptProcessor = audioContext.createScriptProcessor(
+          bufferSize,
+          1,
+          1,
+        );
+
+        // Connect the source to the ScriptProcessorNode
+        source.connect(scriptProcessor);
+        scriptProcessor.connect(audioContext.destination);
+        let isHandlingConversation = false;
+
+        socket.on("transcription-results", (message) => {
+          console.log("message received,", message);
+          if (message === "") return;
+          if (playing()) return;
+          setTranscribedMessage(message);
+          if (!playing() && lastTranscribedMessage() !== transcribedMessage()) {
+            setStreamedMessage(message);
+            setCurrentStreamedRole("user");
+          }
+        });
+
+        console.log("aslo setup");
+        socket.on("end-utterance", () => {
+          if (
+            playing() ||
+            isHandlingConversation ||
+            (currentStreamedRole() === "assitant" && messages.length !== 0)
+          ) {
+            return;
+          }
+          isHandlingConversation = true;
+          setPlaying(true);
+          setLastTranscribedMessage(transcribedMessage());
+          socket.emit("end-transcription");
+          console.log([
+            ...messages(),
+            { role: "user", content: transcribedMessage() },
+          ]);
+          handleConversation(
+            [...messages(), { role: "user", content: transcribedMessage() }],
+            teams.state.id,
+          ).finally(() => {
+            isHandlingConversation = false;
+          });
+        });
+
+        // Event handler for processing audio data
+        scriptProcessor.onaudioprocess = (audioProcessingEvent) => {
+          const inputBuffer = audioProcessingEvent.inputBuffer;
+          const rawData = inputBuffer.getChannelData(0); // Get raw PCM data for channel 0
+
+          // Convert Float32Array to Int16Array (optional, based on server requirements)
+          const int16Data = floatTo16BitPCM(rawData);
+          let isHandlingConversation = false;
+
+          if (
+            !(
+              playing() ||
+              muted() ||
+              isHandlingConversation ||
+              (currentStreamedRole() === "assitant" && messages.length !== 0)
+            )
+          ) {
+            // Send raw data to the server via WebSocket
+            socket.emit("write-transcription", {
+              data: int16Data.buffer, // Send as ArrayBuffer
+              sampleRate: audioContext.sampleRate,
+            });
+            return;
+          }
+          // No MediaRecorder events to handle
+          // Instead, manage the audio stream directly
+        };
+
+        // Function to convert Float32Array to Int16Array
+        function floatTo16BitPCM(float32Array: Float32Array): Int16Array {
+          const int16Array = new Int16Array(float32Array.length);
+          for (let i = 0; i < float32Array.length; i++) {
+            let s = Math.max(-1, Math.min(1, float32Array[i]));
+            int16Array[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+          }
+          return int16Array;
+        }
+
+        // Function to compute loudness and update animations
         function updateLoudness() {
-          // Function to compute loudness and update animations
           const bufferLength = analyser.frequencyBinCount;
           const dataArray = new Uint8Array(bufferLength);
           analyser.getByteTimeDomainData(dataArray);
@@ -141,75 +246,37 @@ export default function HarmonyVoice() {
 
           setLoudness(muted() || playing() ? 0 : rms);
         }
-        setInterval(() => {
+
+        // Update loudness at regular intervals
+        const loudnessInterval = setInterval(() => {
           updateLoudness();
         }, 100);
+
+        // Cleanup when the stream ends
+        stream.addEventListener("ended", () => {
+          console.log("running here?");
+          closeStream({
+            loudnessInterval,
+            scriptProcessor,
+            analyser,
+            source,
+            audioContext,
+          });
+        });
+
+        setRecorder({
+          loudnessInterval,
+          scriptProcessor,
+          analyser,
+          source,
+          audioContext,
+        });
 
         return stream;
       },
       (mediaStream) => {
-        const recorder = new MediaRecorder(mediaStream, {
-          mimeType: "audio/webm;codecs=opus",
-          audioBitsPerSecond: 16000,
-        });
-        return recorder;
+        // Since we're handling raw audio, no MediaRecorder setup is needed here
       },
-      (mediaRecorder) => {
-        // create request and stream here
-
-        socket.emit("start-transcription");
-
-        socket.on("transcription-results", (message) => {
-          if (message === "") return;
-          if (playing()) return;
-          setTranscribedMessage(message);
-          if (!playing() && lastTranscribedMessage() !== transcribedMessage()) {
-            setStreamedMessage(message);
-            setCurrentStreamedRole("user");
-          }
-        });
-
-        let isHandlingConversation = false;
-
-        socket.on("end-utterance", () => {
-          if (
-            playing() ||
-            isHandlingConversation ||
-            (currentStreamedRole() === "assitant" && messages.length !== 0)
-          )
-            return;
-          isHandlingConversation = true;
-          setPlaying(true);
-          setLastTranscribedMessage(transcribedMessage());
-          socket.emit("end-transcription");
-          handleConversation(
-            [...messages(), { role: "user", content: transcribedMessage() }],
-            teams.state.id
-          ).finally(() => {
-            isHandlingConversation = false;
-          });
-        });
-
-        mediaRecorder.onstop = () => {
-          mediaStreamTrack.stop();
-        };
-        mediaRecorder.ondataavailable = async (event) => {
-          if (
-            playing() ||
-            muted() ||
-            isHandlingConversation ||
-            (currentStreamedRole() === "assitant" && messages.length !== 0)
-          ) {
-            return;
-          }
-          socket.emit("write-transcription", {
-            dataBlob: event.data,
-          });
-        };
-
-        mediaRecorder.start(100);
-        setRecorder(mediaRecorder);
-      }
     );
   }
 
@@ -247,17 +314,18 @@ export default function HarmonyVoice() {
           },
           onFailure: console.error,
         });
-      }
+      },
     );
   }
 
   function handleCleanup() {
     if (!user()) return;
-    const recorderSignal = recorder();
-    if (recorderSignal) {
-      recorderSignal.stop();
-      setRecorder(undefined);
+    if (recorder()) {
+      closeStream(recorder()!);
+      console.log("running in cleanu pfunc?");
+      setRecorder(null);
     }
+    socket.emit("end-transcription");
   }
 
   onCleanup(handleCleanup);
@@ -265,6 +333,7 @@ export default function HarmonyVoice() {
   onMount(async () => {
     const user = await getUser();
     setUser(user);
+    socket.emit("start-transcription");
     setPlaying(false);
     getMicStreamWithPermission();
   });
@@ -302,7 +371,7 @@ export default function HarmonyVoice() {
         (url) => {
           return url;
         },
-        setAudioSource
+        setAudioSource,
       );
     }
   }
@@ -330,7 +399,9 @@ export default function HarmonyVoice() {
         <ImageRoot
           class={twMerge(
             "mt-0 ml-4 h-[260px] w-[260px]",
-            messages().at(-1)?.role === "assistant" ? "h-[280px] w-[280px]" : ""
+            messages().at(-1)?.role === "assistant"
+              ? "h-[280px] w-[280px]"
+              : "",
           )}
         >
           <Image class="w-full" src={HarmonyMascotAnimated} />
@@ -368,14 +439,14 @@ export default function HarmonyVoice() {
           <div
             class={twMerge(
               "rounded-full bg-[#1E1E1E]/15 w-16 h-16 flex items-center justify-center",
-              muted() ? "bg-white text-error" : ""
+              muted() ? "bg-white text-error" : "",
             )}
             onClick={() => {
               setMuted((muted) => {
                 const newMuted = !muted;
 
                 socket.emit(
-                  newMuted ? "end-transcription" : "start-transcription"
+                  newMuted ? "end-transcription" : "start-transcription",
                 );
 
                 return newMuted;

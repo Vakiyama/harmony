@@ -42,45 +42,17 @@ export async function processAudioFrame(frameDataStream: {
   */
 
     io.on("connection", (socket) => {
-      const connection = deepgram.listen.live({
-        model: "nova-2",
-        language: "en-US",
-        smart_format: true,
-        interim_results: true,
-        utterance_end_ms: 1000,
-        keywords: ["Harmony", "mood", "journal", "entry", "note"],
-      });
+      let connection: ReturnType<typeof deepgram.listen.live> | null = null;
 
       const keepAlive = setInterval(() => {
+        if (!connection) return;
         connection.keepAlive();
       }, 5000);
 
-      connection.on(LiveTranscriptionEvents.Open, () => {
-        connection.on(LiveTranscriptionEvents.Close, () => {
-          console.log("Connection close event.");
-        });
-
-        connection.on(LiveTranscriptionEvents.Transcript, (data) => {
-          console.log(
-            `Transcription: ${data.channel.alternatives[0].transcript}`,
-          );
-          socket.emit(
-            "transcription-results",
-            data.channel.alternatives[0].transcript,
-          );
-        });
-
-        connection.on(LiveTranscriptionEvents.Metadata, (data) => {
-          console.log("meta:", data);
-        });
-
-        connection.on(LiveTranscriptionEvents.Error, (err) => {
-          console.error(err);
-        });
-
-        connection.on(LiveTranscriptionEvents.UtteranceEnd, () => {
-          socket.emit("end-utterance");
-        });
+      socket.on("end-transcription", () => {
+        if (!connection) return;
+        connection.requestClose();
+        connection = null;
       });
 
       socket.on("write-transcription", (frameDataStream) => {
@@ -98,7 +70,53 @@ export async function processAudioFrame(frameDataStream: {
         );
         */
 
-        connection.send(frameDataStream.dataBlob);
+        if (!connection) {
+          connection = deepgram.listen.live({
+            model: "nova-2",
+            language: "en-US",
+            smart_format: true,
+            interim_results: true,
+            utterance_end_ms: 1000,
+            keywords: ["Harmony", "mood", "journal", "entry", "note"],
+            sample_rate: frameDataStream.sampleRate,
+            encoding: "linear16",
+          });
+          connection.on(LiveTranscriptionEvents.Open, () => {
+            if (!connection) return;
+            connection.on(LiveTranscriptionEvents.Close, () => {
+              console.log("Connection close event.");
+            });
+
+            connection.on(LiveTranscriptionEvents.Transcript, (data) => {
+              console.log(
+                `Transcription: ${data.channel.alternatives[0].transcript}`,
+              );
+              socket.emit(
+                "transcription-results",
+                data.channel.alternatives[0].transcript,
+              );
+            });
+
+            connection.on(LiveTranscriptionEvents.Metadata, (data) => {
+              console.log("meta:", data);
+            });
+
+            connection.on(LiveTranscriptionEvents.Error, (err) => {
+              console.error(err);
+            });
+
+            connection.on(LiveTranscriptionEvents.UtteranceEnd, () => {
+              console.log("end utterance event ifred");
+              socket.emit("end-utterance");
+            });
+          });
+        }
+        console.log(
+          "Frame:",
+          frameDataStream.data.byteLength,
+          frameDataStream.sampleRate,
+        );
+        connection.send(frameDataStream.data);
       });
 
       /*
@@ -111,13 +129,16 @@ export async function processAudioFrame(frameDataStream: {
       socket.on("disconnect", () => {
         console.log("Client disconnected");
         clearInterval(keepAlive);
+        if (!connection) return;
         connection.requestClose();
+        connection = null;
       });
 
       socket.on("new-user", (name) => {
         users[socket.id] = name;
         socket.broadcast.emit("user-connected", name);
       });
+
       socket.on("send-chat-message", (message) => {
         socket.broadcast.emit("chat-message", {
           message: message,
