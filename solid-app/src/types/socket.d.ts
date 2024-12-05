@@ -30,6 +30,17 @@ export interface ServerToClientEvents {
   "calendar-event-created": (event: string) => void;
   "calendar-event-edited": (eventTitle: string) => void;
   "calendar-event-deleted": (eventId: string) => void;
+  "calendar-task-completed": (event: {
+    title: string;
+    userId: string;
+    complete: boolean;
+  }) => void;
+  "status-calendar-event-updated": (event: {
+    title: string;
+    userId: string;
+    status: string;
+    user: string;
+  }) => void;
 }
 
 export interface ClientToServerEvents {
@@ -42,11 +53,21 @@ export interface ClientToServerEvents {
   "create-journal-entry": (entry: string) => void;
   "edit-journal-entry": (entry: string) => void;
   "delete-journal-entry": (entryId: string) => void;
-
   // Calendar Event Events
+  "complete-calendar-task": (event: {
+    title: string;
+    userId: string;
+    complete: boolean;
+  }) => void;
+  "update-status-calendar-event": (event: {
+    title: string;
+    userId: string;
+    status: string;
+    user: string;
+  }) => void;
   "create-calendar-event": (event: { title: string; userId: string }) => void;
-  "edit-calendar-event": (event: string) => void;
-  "delete-calendar-event": (eventId: string) => void;
+  "edit-calendar-event": (event: { title: string; userId: string }) => void;
+  "delete-calendar-event": (eventId: { title: string; userId: string }) => void;
 }
 
 interface InterServerEvents {

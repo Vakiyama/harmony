@@ -163,12 +163,26 @@ export async function processAudioFrame(frameDataStream: {
           .emit("calendar-event-created", eventData.title);
       });
 
-      socket.on("edit-calendar-event", (updatedEvent) => {
-        socket.broadcast.emit("calendar-event-edited", updatedEvent);
+      socket.on("edit-calendar-event", (eventData) => {
+        socket.broadcast
+          .to(eventData.userId)
+          .emit("calendar-event-edited", eventData.title);
       });
 
-      socket.on("delete-calendar-event", (eventId) => {
-        socket.broadcast.emit("calendar-event-deleted", eventId);
+      socket.on("delete-calendar-event", (eventData) => {
+        socket.broadcast
+          .to(eventData.userId)
+          .emit("calendar-event-deleted", eventData.title);
+      });
+      socket.on("complete-calendar-task", (eventData) => {
+        socket.broadcast
+          .to(eventData.userId)
+          .emit("calendar-task-completed", eventData);
+      });
+      socket.on("update-status-calendar-event", (eventData) => {
+        socket.broadcast
+          .to(eventData.userId)
+          .emit("status-calendar-event-updated", eventData);
       });
     });
 

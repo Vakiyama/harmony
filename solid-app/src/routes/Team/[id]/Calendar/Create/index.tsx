@@ -21,6 +21,7 @@ import { formatTimeForPicker } from "~/lib/formateDateLocal";
 import { showNotification } from "~/routes/api/notificationStore";
 import TopNav from "~/components/shared/TopNav";
 import { clientSocket as socket } from "~/lib/clientSocket";
+import parseTeamMembersToIds from "~/lib/parseMembersGetIds";
 
 const getFormattedDate = (): string => new Date().toISOString().split("T")[0];
 
@@ -111,9 +112,8 @@ const CalendarCreateEvent = () => {
     if (createEventError) {
       return console.error(createEventError);
     }
-    const memberIds = teamMemberOptions().map((member) => member.value);
     showNotification(`${eventType() === "event" ? "Event" : "Task"} Created`);
-    for (const userId of memberIds) {
+    for (const userId of parseTeamMembersToIds(teamMemberOptions())) {
       socket.emit("create-calendar-event", {
         title: title(),
         userId: userId.toString(),

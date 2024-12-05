@@ -23,15 +23,13 @@ export default function App() {
     async () => await getUserIdFromSession()
   );
   onMount(() => {
-    socket.on("user-connected", (name) => {
-      appendMessage(name);
-    });
     if (userId()) {
       socket.emit("new-user", userId()!.toString());
     }
     socket.on("chat-message", (message) => {
       appendMessage(`${message.message}`);
     });
+    
     socket.on("journal-entry-created", (entry) => {
       appendMessage(`New journal entry created: ${entry}`);
     });
@@ -52,8 +50,16 @@ export default function App() {
       appendMessage(`Event updated: ${event}`);
     });
 
-    socket.on("calendar-event-deleted", (eventId) => {
-      appendMessage(`Event deleted (ID: ${eventId})`);
+    socket.on("calendar-event-deleted", (eventTitle) => {
+      appendMessage(`Event: ${eventTitle} deleted`);
+    });
+    socket.on("status-calendar-event-updated", (eventData) => {
+      appendMessage(
+        `${eventData.user} updated their status: ${eventData.status} under ${eventData.title}`
+      );
+    });
+    socket.on("calendar-task-completed", (eventData) => {
+      appendMessage(`Event: ${eventData} has been ${eventData.complete}ed`);
     });
 
     // Clean up socket listeners on component unmount

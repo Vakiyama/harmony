@@ -41,6 +41,7 @@ import DeleteConfirmation from "~/components/shared/delete-confirmation";
 import { getUser } from "~/api/server";
 import { showNotification } from "~/routes/api/notificationStore";
 import { clientSocket as socket } from "~/lib/clientSocket";
+import parseTeamMembersToIds from "~/lib/parseMembersGetIds";
 
 type Participant = {
   participant: User;
@@ -181,6 +182,14 @@ export default function EventPage() {
       return console.error(deleteEventError);
     }
     showNotification(`${event()?.type === "event" ? "Event" : "Task"} Deleted`);
+
+    for (const userId of parseTeamMembersToIds(teamMemberOptions())) {
+      socket.emit("delete-calendar-event", {
+        title: event()?.title!,
+        userId: userId.toString(),
+      });
+    }
+
     navigate(`/team/${teamId}/calendar`);
   };
 
@@ -224,12 +233,17 @@ export default function EventPage() {
         return console.error(newMemberError);
       }
     }
+    for (const userId of parseTeamMembersToIds(teamMemberOptions())) {
+      socket.emit("edit-calendar-event", {
+        title: event()?.title!,
+        userId: userId.toString(),
+      });
+    }
     await refetch();
     await fetchParticipants();
     // reset team member ids
     // setTeamMemberIds(participants()?.map((p) => p.participant.id) ?? []);
     closeModal();
-    socket.emit("edit-calendar-event", event()?.title!);
     // temp need to invalidate
   };
 
@@ -244,6 +258,15 @@ export default function EventPage() {
     if (updateStatusError) {
       return console.error(updateStatusError);
     }
+    for (const userId of parseTeamMembersToIds(teamMemberOptions())) {
+      socket.emit("update-status-calendar-event", {
+        title: event()?.title!,
+        userId: userId.toString(),
+        status: updateStatusResult[0].status!,
+        user: teamMemberOptions().filter((member) => member.value === userId)[0]
+          .label,
+      });
+    }
     await refetch();
     await fetchParticipants();
   };
@@ -254,6 +277,13 @@ export default function EventPage() {
     );
     if (updateCompleteError) {
       return console.error(updateCompleteError);
+    }
+    for (const userId of parseTeamMembersToIds(teamMemberOptions())) {
+      socket.emit("complete-calendar-task", {
+        title: event()?.title!,
+        userId: userId.toString(),
+        complete: complete,
+      });
     }
     await refetch();
     await fetchParticipants();
