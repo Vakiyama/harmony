@@ -170,9 +170,9 @@ export default function HarmonyVoice() {
         console.log("aslo setup");
         socket.on("end-utterance", () => {
           if (
-            playing() ||
+            (playing() ||
             isHandlingConversation ||
-            (currentStreamedRole() === "assitant" && messages.length !== 0)
+            (currentStreamedRole() === "assitant" && messages.length !== 0)) && transcribedMessage()  !== ""
           ) {
             return;
           }

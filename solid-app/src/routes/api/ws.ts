@@ -84,6 +84,7 @@ export async function processAudioFrame(frameDataStream: {
           connection.on(LiveTranscriptionEvents.Open, () => {
             if (!connection) return;
             connection.on(LiveTranscriptionEvents.Close, () => {
+              socket.emit("end-utterance");
               console.log("Connection close event.");
             });
 
