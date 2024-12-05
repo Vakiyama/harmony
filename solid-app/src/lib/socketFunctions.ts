@@ -40,6 +40,7 @@ export const sendCalendarCreateMessage = async (
   const userIds = getTeamMemberResult.map(
     (members) => members.teammembers.userId
   );
+  console.log(title, userIds);
   for (const userId of userIds) {
     socket.emit("create-calendar-event", { title, userId: userId.toString() });
   }

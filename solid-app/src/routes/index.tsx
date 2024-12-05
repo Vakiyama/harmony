@@ -1,10 +1,11 @@
 import LandingContent from "~/components/landing/LandingContent";
 import { getAllEvents } from "~/api/calendar";
-import { createResource, Show, useContext } from "solid-js";
+import { createResource, onMount, Show, useContext } from "solid-js";
 import EventCard from "~/components/calendar/EventCard";
 import { TeamContext } from "~/components/Layout-Context";
 import CalendarIconSVG from "./assets/FaSolidCalendar.svg";
 import { A } from "@solidjs/router";
+import { clientSocket as socket } from "~/lib/clientSocket";
 
 export default function Index() {
   const context = useContext(TeamContext);
@@ -18,7 +19,7 @@ export default function Index() {
   const defaultTeam = () =>
     teamListData()?.find((team) => team.team.defaultTeam === true);
 
-  const [events] = createResource(
+  const [events, { refetch }] = createResource(
     () => {
       const teamId = defaultTeam()?.team.id;
       const refetch = refetchTrigger();
@@ -26,6 +27,16 @@ export default function Index() {
     },
     async ({ teamId }) => await getAllEvents(teamId, 3)
   );
+  onMount(() => {
+    socket.on("journal-entry-created", (entryType) => refetch());
+    socket.on("journal-entry-edited", (entryType) => refetch());
+    socket.on("journal-entry-deleted", (entryType) => refetch());
+    socket.on("calendar-event-created", (eventTitle) => refetch());
+    socket.on("calendar-event-edited", (event) => refetch());
+    socket.on("calendar-event-deleted", (eventTitle) => refetch());
+    socket.on("status-calendar-event-updated", (eventData) => refetch());
+    socket.on("calendar-task-completed", (eventData) => refetch());
+  });
   return (
     <main class="flex flex-col m-2 gap-4">
       <section class="h-full flex flex-col gap-2">

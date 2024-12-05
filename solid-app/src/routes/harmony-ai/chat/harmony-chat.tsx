@@ -22,6 +22,8 @@ import { getUser } from "~/api/server";
 import { User } from "@/schema/Users";
 import TopNav from "~/components/shared/TopNav";
 import { useTeam } from "~/context/team-context";
+import { sendJournalMessage } from "~/lib/socketFunctions";
+import { sendCalendarCreateMessage } from "../../../lib/socketFunctions";
 
 export function useHarmonyChat(
   user: Accessor<
@@ -174,7 +176,40 @@ export function HarmonyChat() {
     { startHour: 18, endHour: 24, label: "Evening" },
     { startHour: 0, endHour: 5, label: "Evening" },
   ]);
-
+  createEffect(() => {
+    console.log(messages());
+    const assistantMessages = messages().filter(
+      (m) => m.role === "assistant" && typeof m.content !== "string"
+    );
+    const toolUseMessages = assistantMessages.filter((m) =>
+      (m.content as [ToolUse]).filter((m) => m.type === "tool_use")
+    );
+    if (toolUseMessages[0]) {
+      if (
+        (toolUseMessages.reverse()[0].content as [ToolUse])[0].name ===
+        "createJournalEntry"
+      ) {
+        sendJournalMessage(
+          "create-journal-entry",
+          teams.state.id,
+          (toolUseMessages.reverse()[0].content as [ToolUse])[0].input.entry
+            .category
+        );
+      }
+      console.log(toolUseMessages, "toolUseMessages!!!!!!!!!");
+      if (
+        (toolUseMessages.reverse()[0].content as [ToolUse])[0].name ===
+        "createCalendarEvent"
+      ) {
+        console.log("creating calendar event");
+        sendCalendarCreateMessage(
+          teams.state.id,
+          (toolUseMessages.reverse()[0].content as [ToolUse])[0].input.event
+            .title
+        );
+      }
+    }
+  });
   return (
     <div class="bg-white h-full relative overflow-hidden text-lg">
       <TopNav
