@@ -170,8 +170,9 @@ export async function processAudioFrame(frameDataStream: {
       });
 
       socket.on("edit-calendar-event", (eventData) => {
-        console.log(eventData, " im in her emouth like boba");
-        socket.broadcast.emit("calendar-event-edited", eventData.title);
+        socket.broadcast
+          .to(eventData.userId)
+          .emit("calendar-event-edited", eventData.title);
       });
 
       socket.on("delete-calendar-event", (eventData) => {
