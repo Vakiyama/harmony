@@ -1,4 +1,3 @@
-// import TeamPreview from "./team-preview";
 import { createSignal } from "solid-js";
 import { A } from "@solidjs/router";
 import {
@@ -8,7 +7,6 @@ import {
   TabsTrigger,
 } from "~/components/ui/teams/team-tab";
 import TeamGeneralInfo from "./team-general-info";
-import TeamMedicalDetail from "./team-medical-detail";
 import TeamMedicationInfo from "./team-medical-info";
 
 const TeamTab = () => {

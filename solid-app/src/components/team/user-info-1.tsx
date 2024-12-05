@@ -2,7 +2,7 @@ import { createSignal, For } from "solid-js";
 import TextFieldLine from "~/components/shared/text-field-line";
 import { Button } from "~/components/ui/button";
 import { useTeam } from "~/context/team-context";
-import { FormState } from "~/context/team-context"; // Import the type if needed
+import { FormState } from "~/context/team-context";
 
 const formFields: {
   name: keyof FormState["recipient"];

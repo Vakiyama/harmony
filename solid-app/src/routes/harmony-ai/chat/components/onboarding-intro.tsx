@@ -6,7 +6,6 @@ import { User } from "@/schema/Users";
 import { twMerge } from "tailwind-merge";
 import { DragGesture } from "@use-gesture/vanilla";
 import { updateUser } from "~/api/server";
-import { redirect } from "@solidjs/router";
 
 type Voice = (typeof voicesMap)[number];
 
@@ -24,7 +23,7 @@ export function OnboardingIntro(props: { user: User; fetchUser: () => void }) {
   const [pageIndex, setPageIndex] = createSignal(0);
   const [selectedVoice, setSelectedVoice] = createSignal<Voice>(voicesMap[0]);
   const [preference, setPreference] = createSignal<"Text" | "Voice" | null>(
-    "Text",
+    "Text"
   );
 
   async function completeOnboarding() {
@@ -76,7 +75,7 @@ function PageThree(props: {
           <Button
             class={twMerge(
               "w-full bg-gray-200 text-black/70 h-[5rem] text-xl",
-              props.pref === type ? "bg-primary-purple-300" : "",
+              props.pref === type ? "bg-primary-purple-300" : ""
             )}
             onClick={() => props.setPreference(type)}
           >
@@ -128,7 +127,7 @@ function PageTwo(props: {
         setTransformX((prev) => {
           return Math.min(
             Math.max(0, prev - event.delta[0]),
-            itemWidth * (voicesMap.length - 1),
+            itemWidth * (voicesMap.length - 1)
           );
         });
       }
@@ -180,7 +179,7 @@ function PageTwo(props: {
           <div
             class={twMerge(
               "flex flex-col items-center justify-center",
-              dragging() ? "transition-none" : "transition-transform",
+              dragging() ? "transition-none" : "transition-transform"
             )}
             style={{
               transform: `translateX(-${transformX()}px)`,
@@ -194,13 +193,13 @@ function PageTwo(props: {
               <div
                 class={twMerge(
                   sharedClass,
-                  "h-32 animate-sound-wave [animation-delay:_-150ms]",
+                  "h-32 animate-sound-wave [animation-delay:_-150ms]"
                 )}
               />
               <div
                 class={twMerge(
                   sharedClass,
-                  "h-24 animate-sound-wave [animation-delay:_-300ms]",
+                  "h-24 animate-sound-wave [animation-delay:_-300ms]"
                 )}
               />
               <div class={twMerge(sharedClass, "h-12")} />
@@ -217,7 +216,7 @@ function PageTwo(props: {
           <div
             class={twMerge(
               "h-4 w-4 rounded-full bg-black/15",
-              index === currentIndex() ? "bg-primary-purple-500" : "",
+              index === currentIndex() ? "bg-primary-purple-500" : ""
             )}
           />
         ))}

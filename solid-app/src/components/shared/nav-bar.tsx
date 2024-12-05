@@ -51,10 +51,7 @@ export default function NavBar(props: {
       {
         icon: <CalendarIcon />,
         label: "Calendar",
-        href:
-          teamId() === undefined
-            ? `/team/create`
-            : `/team/${teamId()}/calendar`,
+        href: `/team/${teamId()}/calendar`,
       },
       {
         icon: <HarmonyIcon />,
@@ -68,8 +65,7 @@ export default function NavBar(props: {
       {
         icon: <JournalIcon />,
         label: "Journal",
-        href:
-          teamId() === undefined ? `/team/create` : `/team/${teamId()}/journal`,
+        href: `/team/${teamId()}/journal`,
       },
       { icon: <ProfileIcon />, label: "Profile", href: "/profile" },
     ];

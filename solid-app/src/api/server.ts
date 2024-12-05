@@ -6,24 +6,10 @@ import { getKindeClient, sessionManager } from "./kinde";
 import { UserType } from "@kinde-oss/kinde-typescript-sdk";
 import { users } from "../../drizzle/schema/Users";
 import { mightFail } from "might-fail";
-import { seedData } from "../../drizzle/seed";
-import { teams } from "../../drizzle/schema/Teams";
 
 type UserTypeExtended = UserType & {
   dob?: string;
 };
-
-function validateUsername(username: unknown) {
-  if (typeof username !== "string" || username.length < 3) {
-    return `Usernames must be at least 3 characters long`;
-  }
-}
-
-function validatePassword(password: unknown) {
-  if (typeof password !== "string" || password.length < 6) {
-    return `Passwords must be at least 6 characters long`;
-  }
-}
 
 async function login(kindeUser: UserTypeExtended) {
   const user = await db
@@ -61,12 +47,10 @@ async function register(kindeUser: UserTypeExtended) {
 
 export async function loginOrRegister(kindeUser: UserTypeExtended) {
   try {
-    // console.log(kindeUser);
     let user = await login(kindeUser);
     if (!user) {
       user = await register(kindeUser);
     }
-    // user && (await mightFail(seedData(user)));
     const session = (await sessionManager()).getSession();
     await session.update((d) => {
       d.userId = user.id;

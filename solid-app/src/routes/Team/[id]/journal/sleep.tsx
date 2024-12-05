@@ -65,7 +65,6 @@ export default function SleepTracker() {
     });
     setWellBeing(index + 1);
   });
-  createEffect(() => console.log(recipientData(), sleepData()));
   const createAction = useAction(createSleepAction);
   const updateAction = useAction(updateSleepAction);
   const deleteAction = useAction(deleteSleepAction);

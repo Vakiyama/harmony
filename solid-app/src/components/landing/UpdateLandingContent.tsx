@@ -1,12 +1,4 @@
-import { Button } from "~/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/landing/landing-card";
+import { Card } from "~/components/ui/landing/landing-card";
 import {
   Tabs,
   TabsContent,
@@ -14,10 +6,6 @@ import {
   TabsList,
   TabsTrigger,
 } from "~/components/ui/landing/landing-tabs";
-
-import { FaSolidPen } from "solid-icons/fa";
-import LandingImage from "./LandingImage";
-import Member from "./Member";
 
 const UpdateLandingContent = () => {
   return (

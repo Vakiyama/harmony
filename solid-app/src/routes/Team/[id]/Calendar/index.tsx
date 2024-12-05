@@ -35,12 +35,15 @@ import {
 import Notification from "~/components/shared/notification";
 import { getJournalsFromTeamId, getNoteById } from "~/api/journal";
 import { TeamContext } from "~/components/Layout-Context";
+import TeamModal from "~/components/profile/team-modal";
 import { BottomModal } from "~/routes/harmony-ai/chat/components/bottom-modal";
 import { useTeam } from "~/context/team-context";
 import { useHarmonyChat } from "~/routes/harmony-ai/chat/harmony-chat";
 import { getUser } from "~/api/server";
 import SolidMarkdown from "@zentered/solid-markdown";
 import { ImageRoot } from "~/components/ui/image";
+import { getListOfTeams } from "~/api/team";
+import { TeamWithDefault } from "@/schema/Teams";
 
 moment.locale("en");
 moment.updateLocale("en", { weekdaysMin: "S_M_T_W_T_F_S".split("_") });
@@ -93,13 +96,96 @@ export default function CalendarPage() {
     return <div>No team data available</div>;
   }
 
-  const { teamListData } = context;
+  const [teamId, setTeamId] = createSignal<number | undefined>();
+  const [teamListData, setTeamListData] = createSignal<
+    { team: TeamWithDefault }[] | undefined
+  >(undefined);
+  const teamContext = useTeam();
+  createEffect(async () => {
+    teamListData();
+    const teamData = await getListOfTeams();
+    handleRefetch();
+    console.log(events());
+  });
+  onMount(async () => {
+    const teamData = await getListOfTeams();
+    setTeamListData(teamData);
+    const defaultTeam = teamData.find((team) => team.team.defaultTeam);
+    setTeamId(defaultTeam?.team.id);
+    if (defaultTeam && teamContext.state.id === -1) {
+      teamContext.updateTeamId(defaultTeam.team.id);
+    }
+    setCurrentView(
+      localStorage.getItem("calendarViewMode")
+        ? (localStorage.getItem("calendarViewMode") as "week" | "day" | "month")
+        : "week",
+    );
+    console.log(teamId(), "new team id!!");
+    const calendar = await getCalendarFromTeamId(teamId());
+    await fetchEvents(calendar.id);
+    await fetchTeamMembers(teamId());
+    setUser(await getUser());
+    handleGetAISummary();
+  });
+
+  const [isTeamModalOpen, setIsTeamModalOpen] = createSignal(false);
+
+  const openTeamModal = () => {
+    setIsTeamModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsTeamModalOpen(false);
+  };
+
+  const handleBackdropClick = (e: MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      closeModal();
+    }
+  };
 
   const defaultTeam = () =>
     teamListData()?.find((team) => team.team.defaultTeam === true);
-  const teamId = defaultTeam()?.team.id ?? parseInt(param.id);
+  const defaultTeamId = defaultTeam()?.team.id ?? parseInt(param.id);
   if (!teamId) {
-    return <div>No team data available</div>;
+    return (
+      <>
+        <div class="flex flex-col gap-5 h-full px-2">
+          <div class="mt-4 text-center text-gray-600 border rounded-xl flex flex-col p-4 items-center justify-center gap-3 flex-grow min-h-[100px] h-[calc(100dvh_-_410px)]">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M6 1.62359V3.10594H3.75C2.50781 3.10594 1.5 4.1019 1.5 5.32947V7.553H22.5V5.32947C22.5 4.1019 21.4922 3.10594 20.25 3.10594H18V1.62359C18 0.803662 17.3297 0.141235 16.5 0.141235C15.6703 0.141235 15 0.803662 15 1.62359V3.10594H9V1.62359C9 0.803662 8.32969 0.141235 7.5 0.141235C6.67031 0.141235 6 0.803662 6 1.62359ZM22.5 9.03535H1.5V21.6354C1.5 22.8629 2.50781 23.8589 3.75 23.8589H20.25C21.4922 23.8589 22.5 22.8629 22.5 21.6354V9.03535Z"
+                fill="#937AEE"
+              />
+            </svg>
+
+            <p class="text-lg">
+              Please create or join a team to view your calendar.
+            </p>
+          </div>
+          <button
+            onClick={openTeamModal}
+            class="h-[48px] font-medium bg-primary-purple-500 rounded-[100px] text-white"
+          >
+            Create / Join Team
+          </button>
+        </div>
+        {isTeamModalOpen() && (
+          <div
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]"
+            onClick={handleBackdropClick}
+          >
+            <TeamModal onClose={closeModal} />
+          </div>
+        )}
+      </>
+    );
   }
   const DEFAULT_FILTERS: CalendarFilterType[] = [
     "events",
@@ -137,16 +223,6 @@ export default function CalendarPage() {
   });
 
   onMount(async () => {
-    setCurrentView(
-      localStorage.getItem("calendarViewMode")
-        ? (localStorage.getItem("calendarViewMode") as "week" | "day" | "month")
-        : "week",
-    );
-    const calendar = await getCalendarFromTeamId(teamId);
-    await fetchEvents(calendar.id);
-    await fetchTeamMembers(teamId);
-    setUser(await getUser());
-    handleGetAISummary();
   });
 
   createEffect(() => {
@@ -163,7 +239,7 @@ export default function CalendarPage() {
         ? params.selected.toString().split(",")
         : [];
       return await getCalendarData({
-        teamId,
+        teamId: teamId()!,
         selectedUsers,
         filters: {
           uncomplete: paramsArray.includes("uncompleted"),
@@ -178,8 +254,9 @@ export default function CalendarPage() {
   createEffect(async () => {
     const currentResource = resource();
     const [journalEntriesError, journalEntriesResult] = await mightFail(
-      getJournalsFromTeamId(teamId),
+      getJournalsFromTeamId(teamId()),
     );
+    console.log("GG");
     if (journalEntriesError) {
       return console.error(journalEntriesError);
     }
@@ -216,7 +293,7 @@ export default function CalendarPage() {
 
   const fetchEvents = async (calendarId: number) => {
     const [journalEntriesError, journalEntriesResult] = await mightFail(
-      getJournalsFromTeamId(teamId),
+      getJournalsFromTeamId(teamId()),
     );
     if (journalEntriesError) {
       return console.error(journalEntriesError);
@@ -337,7 +414,7 @@ export default function CalendarPage() {
       `,
         },
       ],
-      teamId,
+      teamId(),
     );
   }
 
@@ -385,19 +462,23 @@ export default function CalendarPage() {
               setCurrentView={setCurrentView}
               params={params}
               setParams={setParams}
-              teamId={teamId}
+              forTeamSetting={{
+                teamData: teamListData(),
+                defaultSetter: setTeamListData,
+              }}
+              setTeamId={setTeamId}
             />
           </div>
         </>
       )}
       <Show when={currentView() !== undefined || currentView() !== null}>
         <div
-          class={`w-full overflow-y-auto overflow-x-clip ${
+          class={`w-full overflow-x-clip ${
             currentView() === "day" ? "h-full" : ""
           }`}
         >
           <CalendarTopNav
-            teamId={teamId}
+            teamId={teamId()}
             month={currentMonth}
             setIsSideMenuOpen={setIsSideMenuOpen}
             isSideMenuOpen={isSideMenuOpen}
@@ -414,7 +495,7 @@ export default function CalendarPage() {
 
           <Show when={currentView() === "month"}>
             <MonthCalendarView
-              teamId={teamId}
+              teamId={teamId()}
               currentMonth={currentMonth}
               setCurrentMonth={setCurrentMonth}
               selectedYear={selectedYear}
@@ -431,7 +512,7 @@ export default function CalendarPage() {
           </Show>
           <Show when={currentView() === "week"}>
             <WeekCalendarView
-              teamId={teamId}
+              teamId={teamId()}
               selectedYear={selectedYear}
               setSelectedYear={setSelectedYear}
               selectedMonth={selectedMonth}
@@ -448,7 +529,7 @@ export default function CalendarPage() {
           </Show>
           <Show when={currentView() === "day"}>
             <DayCalendarView
-              teamId={teamId}
+              teamId={teamId()}
               selectedDay={selectedDay}
               selectedMonth={selectedMonth}
               selectedYear={selectedYear}
@@ -547,7 +628,7 @@ export default function CalendarPage() {
           </Show>
         </BottomModal>
       </Show>
-      <A href={`/team/${teamId}/calendar/create`}>
+      <A href={`/team/${teamId()}/calendar/create`}>
         <button class="absolute bottom-[90px] right-3 rounded-full w-[65px] h-[65px] bg-primary-purple-500 flex flex-col justify-center items-center shadow-[4px_4px_4px_rgba(0,0,0,0.25)]">
           <svg
             fill="#FCFCFC"

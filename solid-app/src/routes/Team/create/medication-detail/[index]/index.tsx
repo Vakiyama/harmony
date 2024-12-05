@@ -16,7 +16,6 @@ export default function TeamMedicationDetail() {
     return <p>No medication found at this index.</p>;
   }
   const medication = medications[index];
-  console.log(medication, "hello");
   const {
     pharmacyImg,
     name,
@@ -71,7 +70,9 @@ export default function TeamMedicationDetail() {
           },
           {
             title: "Medication Photo",
-            content: <MedicationImage />,
+            content: (
+              <MedicationImage pharmacyImg={pharmacyImg ? pharmacyImg : ""} />
+            ),
           },
         ]}
       />

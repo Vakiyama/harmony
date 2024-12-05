@@ -192,7 +192,6 @@ export default function UserHealth2() {
               <span class="justify-self-start mt-1">Add More</span>
             </div>
           </button>
-          {/* Next button */}
         </div>
         <div class="flex flex-col justify-end w-full flex-grow">
           <Button

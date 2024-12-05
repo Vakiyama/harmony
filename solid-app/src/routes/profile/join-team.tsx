@@ -1,4 +1,4 @@
-import { createSignal, onMount, Show, useContext } from "solid-js";
+import { createSignal, Show, useContext } from "solid-js";
 import TopNav from "~/components/shared/TopNav";
 import { Button } from "~/components/ui/button";
 import TextInput from "../Team/[id]/Calendar/Create/TextInput";
@@ -66,20 +66,4 @@ export default function JoinTeam() {
       </form>
     </>
   );
-}
-
-{
-  /*
-          <div class="flex items-center justify-center">
-            <p class="text-[12px] text-gray-500">
-              Enter an invite link or code to join a team
-            </p>
-          </div>
-          <TextFieldLine key="1" label="Invite Link" placeholder="Example" />
-          <div class="flex items-center mt-2">
-            <div class="flex-grow border-t border-gray-300"></div>
-            <span class="mx-4 text-gray-500">or</span>
-            <div class="flex-grow border-t border-gray-300"></div>
-          </div>
-        */
 }

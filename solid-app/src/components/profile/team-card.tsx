@@ -1,5 +1,4 @@
 import { A } from "@solidjs/router";
-import { Image, ImageRoot } from "../ui/image";
 import TeamImage from "./team-image";
 
 export default function TeamCard(props: {

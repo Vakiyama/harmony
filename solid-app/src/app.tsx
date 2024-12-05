@@ -1,5 +1,5 @@
 // @refresh reload
-import { Router, useLocation } from "@solidjs/router";
+import { Router } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
 import { createResource, onCleanup, Suspense, useContext } from "solid-js";
 import "./app.css";
