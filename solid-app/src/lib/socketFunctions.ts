@@ -25,3 +25,22 @@ export const sendJournalMessage = async (
     });
   }
 };
+
+export const sendCalendarCreateMessage = async (
+  teamId: number,
+  title: string
+) => {
+  const [getTeamMemberError, getTeamMemberResult] = await mightFail(
+    getTeamMembersFromTeamId(teamId)
+  );
+  if (getTeamMemberError) {
+    console.error("Error getting team members from id", getTeamMemberError);
+    return { error: "Failed to get team members" };
+  }
+  const userIds = getTeamMemberResult.map(
+    (members) => members.teammembers.userId
+  );
+  for (const userId of userIds) {
+    socket.emit("create-calendar-event", { title, userId: userId.toString() });
+  }
+};
