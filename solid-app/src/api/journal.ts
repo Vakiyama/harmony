@@ -85,7 +85,7 @@ export const createNoteAction = action(async (formData: FormData) => {
     return { error: "Failed to create note." };
   }
   const [journalReferenceError, journalReferenceResult] = await mightFail(
-    db.insert(journals).values({ type: "note", entryId: noteResult.id })
+    createJournal({ type: "note", entryId: noteResult.id })
   );
   if (journalReferenceError) {
     console.error("Error making reference to journal", journalReferenceError);
@@ -691,7 +691,7 @@ export const createMoodAction = action(async (formData: FormData) => {
     return { error: "Failed to update mood entry." };
   }
   const [journalReferenceError, journalReferenceResult] = await mightFail(
-    db.insert(journals).values({ type: "mood", entryId: moodResult.id })
+    createJournal({ type: "mood", entryId: moodResult.id })
   );
   if (journalReferenceError) {
     console.error("Error making reference to journal", journalReferenceError);
@@ -700,7 +700,12 @@ export const createMoodAction = action(async (formData: FormData) => {
   return { success: true, message: "Mood entry updated successfully" };
 }, "createMoodAction");
 
-
+export const createJournal = async (data: {
+  type: "mood" | "medication" | "sleep" | "meal" | "note";
+  entryId: number;
+}) => {
+  return await db.insert(journals).values({ type: data.type, entryId: data.entryId });
+};
 
 export const getMoodById = async (moodId: number) => {
   "use server";
@@ -1008,7 +1013,7 @@ export const createMealAction = action(async (formData: FormData) => {
     return { error: "Failed to insert meal entry" };
   }
   const [journalReferenceError, journalReferenceResult] = await mightFail(
-    db.insert(journals).values({ type: "meal", entryId: mealResult.id })
+    createJournal({ type: "meal", entryId: mealResult.id })
   );
   if (journalReferenceError) {
     console.error("Error making reference to journal", journalReferenceError);
@@ -1349,7 +1354,7 @@ export const createSleepAction = action(async (formData: FormData) => {
     return { error: "Failed to create sleep entry." }; // Return error if insertion fails
   }
   const [journalReferenceError, journalReferenceResult] = await mightFail(
-    db.insert(journals).values({ type: "sleep", entryId: sleepResult.id })
+    createJournal({ type: "sleep", entryId: sleepResult.id })
   );
   if (journalReferenceError) {
     console.error("Error making reference to journal", journalReferenceError);

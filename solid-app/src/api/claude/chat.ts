@@ -43,7 +43,11 @@ import { users } from "../../../drizzle/schema/Users";
 import { teams } from "../../../drizzle/schema/Teams";
 import { recipients } from "../../../drizzle/schema/Recipients";
 import { journals } from "../../../drizzle/schema/Journals";
-import { getJournalsFromTeamId, getMedicationsFromTeamId } from "../journal";
+import {
+  createJournal,
+  getJournalsFromTeamId,
+  getMedicationsFromTeamId,
+} from "../journal";
 import {
   getCalendar,
   getCalendarFromTeamId,
@@ -246,7 +250,7 @@ function createJournalTool(params: {
             )
             .returning();
 
-          await db.insert(journals).values({
+          await createJournal({
             type: params.entry.category,
             entryId: result[0].id,
           });
