@@ -104,6 +104,7 @@ export const deleteCalendar = async (calendarId: number) => {
 // Events
 export const getAllEvents = async (calendarId: number, limit?: number) => {
   "use server";
+  console.log(calendarId);
   const query = db
     .select()
     .from(events)
@@ -118,6 +119,7 @@ export const getAllEvents = async (calendarId: number, limit?: number) => {
 };
 
 export const getCalendarData = async (props: {
+  calendarId: number;
   teamId: number;
   selectedUsers: string[];
   page?: number;
@@ -130,6 +132,7 @@ export const getCalendarData = async (props: {
   };
 }) => {
   "use server";
+  console.log("dsdsad", props.teamId);
   const userId = await getUserIdFromSession();
   if (userId === undefined) {
     throw new Error("User is not Authenticated"); // return { error: "Insufficient Permissions" };
@@ -143,7 +146,7 @@ export const getCalendarData = async (props: {
   props.filters = props.filters
     ? props.filters
     : { task: true, event: true, complete: true, uncomplete: true };
-
+  console.log(props.calendarId, props.teamId);
   const offset = (props.page - 1) * props.pageSize;
   const conditions: any[] = [];
   // Start with the base query and make it dynamic
@@ -202,7 +205,10 @@ export const getCalendarData = async (props: {
 
   // Execute the query
   try {
-    const result = await query.where(and(...conditions));
+    const result = await query.where(
+      and(...conditions, eq(events.calendarId, props.calendarId))
+    );
+    console.log(result);
     return result as Event[];
   } catch (error) {
     console.error(error);
