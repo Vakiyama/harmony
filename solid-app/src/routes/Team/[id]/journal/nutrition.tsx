@@ -26,6 +26,7 @@ import DeleteConfirmation from "~/components/shared/delete-confirmation";
 import AddPhotoModal from "~/components/shared/add-photo-modal";
 import TimePicker from "~/components/ui/time-picker";
 import { formatTimeForPicker } from "~/lib/formateDateLocal";
+import { sendJournalMessage } from "~/lib/socketFunctions";
 
 export default function NutritionTracker() {
   const params = useParams();
@@ -87,6 +88,13 @@ export default function NutritionTracker() {
       showNotification(
         isEditing() ? "Nutrition Entry Updated" : "Nutrition Entry Posted"
       );
+      isEditing()
+        ? sendJournalMessage("edit-journal-entry", parseInt(params.id), "nutrition")
+        : sendJournalMessage(
+            "create-journal-entry",
+            parseInt(params.id),
+            "nutrition"
+          );
       navigate(`/team/${params.id}/journal`);
     } else if (result.error) {
       console.error(result.error);
@@ -98,6 +106,11 @@ export default function NutritionTracker() {
     const result = await deleteAction(parseInt(existingEntry));
     if (result.success) {
       showNotification("Nutrition Entry Deleted");
+      sendJournalMessage(
+        "delete-journal-entry",
+        parseInt(params.id),
+        "nutrition"
+      );
       navigate(`/team/${params.id}/journal`);
     } else {
       console.error("Error deleting entry:", result.error);

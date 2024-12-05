@@ -118,12 +118,12 @@ export default function CalendarPage() {
     setCurrentView(
       localStorage.getItem("calendarViewMode")
         ? (localStorage.getItem("calendarViewMode") as "week" | "day" | "month")
-        : "week",
+        : "week"
     );
     console.log(teamId(), "new team id!!");
-    const calendar = await getCalendarFromTeamId(teamId());
+    const calendar = await getCalendarFromTeamId(teamId()!);
     await fetchEvents(calendar.id);
-    await fetchTeamMembers(teamId());
+    await fetchTeamMembers(teamId()!);
     setUser(await getUser());
     handleGetAISummary();
   });
@@ -209,7 +209,7 @@ export default function CalendarPage() {
   const [currentYear, setCurrentYear] = createSignal<number>(moment().year());
   const [selectedDay, setSelectedDay] = createSignal<number>(moment().date());
   const [selectedMonth, setSelectedMonth] = createSignal(
-    moment().format("MMMM"),
+    moment().format("MMMM")
   );
   const [selectedYear, setSelectedYear] = createSignal<number>(moment().year());
   const [searchParams, setSearchParams] = useSearchParams();
@@ -222,8 +222,7 @@ export default function CalendarPage() {
       : DEFAULT_TEAMMEMBERS.join(","),
   });
 
-  onMount(async () => {
-  });
+  onMount(async () => {});
 
   createEffect(() => {
     localStorage.setItem("calendarViewMode", currentView() ?? "week");
@@ -248,20 +247,20 @@ export default function CalendarPage() {
           complete: paramsArray.includes("complete"),
         },
       });
-    },
+    }
   );
 
   createEffect(async () => {
     const currentResource = resource();
     const [journalEntriesError, journalEntriesResult] = await mightFail(
-      getJournalsFromTeamId(teamId()),
+      getJournalsFromTeamId(teamId()!)
     );
     console.log("GG");
     if (journalEntriesError) {
       return console.error(journalEntriesError);
     }
     const formattedJournalEntries = await formatJournalEntries(
-      journalEntriesResult ?? [],
+      journalEntriesResult ?? []
     );
     const sortedItems = sortCalendarItems([
       ...formattedJournalEntries,
@@ -293,7 +292,7 @@ export default function CalendarPage() {
 
   const fetchEvents = async (calendarId: number) => {
     const [journalEntriesError, journalEntriesResult] = await mightFail(
-      getJournalsFromTeamId(teamId()),
+      getJournalsFromTeamId(teamId()!)
     );
     if (journalEntriesError) {
       return console.error(journalEntriesError);
@@ -304,7 +303,7 @@ export default function CalendarPage() {
     }
 
     const formattedJournalEntries = await formatJournalEntries(
-      journalEntriesResult ?? [],
+      journalEntriesResult ?? []
     );
     const sortedItems = sortCalendarItems([
       ...eventResult,
@@ -314,7 +313,7 @@ export default function CalendarPage() {
   };
   const fetchTeamMembers = async (teamId: number) => {
     const [eventError, eventResult] = await mightFail(
-      getTeamMembersFromTeamId(teamId),
+      getTeamMembersFromTeamId(teamId)
     );
     if (eventError) {
       return console.error(eventError);
@@ -323,7 +322,7 @@ export default function CalendarPage() {
   };
 
   const formatJournalEntries = async (
-    journalEntries: JournalReturnType[],
+    journalEntries: JournalReturnType[]
   ): Promise<Journal[]> => {
     return Promise.all(
       journalEntries.map(async (entry) => {
@@ -363,7 +362,7 @@ export default function CalendarPage() {
           notes,
           title,
         };
-      }),
+      })
     );
   };
 
@@ -399,8 +398,8 @@ export default function CalendarPage() {
         currentView() === "day"
           ? `${currentDay()} of month ${currentMonth()}`
           : currentView() === "week"
-            ? `The week of ${currentDay()} of month ${currentMonth()}`
-            : `The month ${currentMonth()}`
+          ? `The week of ${currentDay()} of month ${currentMonth()}`
+          : `The month ${currentMonth()}`
       }
       of the year ${currentYear()}
 
@@ -414,7 +413,7 @@ export default function CalendarPage() {
       `,
         },
       ],
-      teamId(),
+      teamId()!
     );
   }
 
@@ -437,7 +436,7 @@ export default function CalendarPage() {
 
   const sortCalendarItems = (items: (Event | Journal)[]) => {
     const sortedItem = items.toSorted(
-      (a, b) => a.timeStart?.getTime()! - b.timeStart?.getTime()!,
+      (a, b) => a.timeStart?.getTime()! - b.timeStart?.getTime()!
     );
     return sortedItem.map((i, index) => {
       return { ...i, index };
@@ -478,7 +477,7 @@ export default function CalendarPage() {
           }`}
         >
           <CalendarTopNav
-            teamId={teamId()}
+            teamId={teamId()!}
             month={currentMonth}
             setIsSideMenuOpen={setIsSideMenuOpen}
             isSideMenuOpen={isSideMenuOpen}
@@ -495,7 +494,7 @@ export default function CalendarPage() {
 
           <Show when={currentView() === "month"}>
             <MonthCalendarView
-              teamId={teamId()}
+              teamId={teamId()!}
               currentMonth={currentMonth}
               setCurrentMonth={setCurrentMonth}
               selectedYear={selectedYear}
@@ -512,7 +511,7 @@ export default function CalendarPage() {
           </Show>
           <Show when={currentView() === "week"}>
             <WeekCalendarView
-              teamId={teamId()}
+              teamId={teamId()!}
               selectedYear={selectedYear}
               setSelectedYear={setSelectedYear}
               selectedMonth={selectedMonth}
@@ -529,7 +528,7 @@ export default function CalendarPage() {
           </Show>
           <Show when={currentView() === "day"}>
             <DayCalendarView
-              teamId={teamId()}
+              teamId={teamId()!}
               selectedDay={selectedDay}
               selectedMonth={selectedMonth}
               selectedYear={selectedYear}
@@ -597,8 +596,8 @@ export default function CalendarPage() {
                 {currentView() === "day"
                   ? "Daily"
                   : currentView() === "week"
-                    ? "Weekly"
-                    : "Monthly"}{" "}
+                  ? "Weekly"
+                  : "Monthly"}{" "}
                 Summary
               </h1>
               <div class="flex flex-row items-center gap-1 pb-4">

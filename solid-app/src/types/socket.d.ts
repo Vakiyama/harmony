@@ -22,7 +22,7 @@ export interface ServerToClientEvents {
   "transcription-results": (message: string) => void;
   "end-utterance": () => void;
   // Journal Entry Events
-  "journal-entry-created": (journal: string) => void;
+  "journal-entry-created": (type: string) => void;
   "journal-entry-edited": (journal: string) => void;
   "journal-entry-deleted": (entryId: string) => void;
 
@@ -50,9 +50,9 @@ export interface ClientToServerEvents {
   "start-transcription": () => void;
   "end-transcription": () => void;
   // Journal Entry Events
-  "create-journal-entry": (entry: string) => void;
-  "edit-journal-entry": (entry: string) => void;
-  "delete-journal-entry": (entryId: string) => void;
+  "create-journal-entry": (entry: { type: string; userId: string }) => void;
+  "edit-journal-entry": (entry: { type: string; userId: string }) => void;
+  "delete-journal-entry": (entry: { type: string; userId: string }) => void;
   // Calendar Event Events
   "complete-calendar-task": (event: {
     title: string;

@@ -145,15 +145,21 @@ export async function processAudioFrame(frameDataStream: {
       // streaming audio to google-tts
 
       socket.on("create-journal-entry", (entryData) => {
-        socket.broadcast.emit("journal-entry-created", entryData);
+        socket.broadcast
+          .to(entryData.userId)
+          .emit("journal-entry-created", entryData.type);
       });
 
       socket.on("edit-journal-entry", (updatedEntry) => {
-        socket.broadcast.emit("journal-entry-edited", updatedEntry);
+        socket.broadcast
+          .to(updatedEntry.userId)
+          .emit("journal-entry-edited", updatedEntry.type);
       });
 
-      socket.on("delete-journal-entry", (entryId) => {
-        socket.broadcast.emit("journal-entry-deleted", entryId);
+      socket.on("delete-journal-entry", (deletedEntry) => {
+        socket.broadcast
+          .to(deletedEntry.userId)
+          .emit("journal-entry-deleted", deletedEntry.type);
       });
 
       // Calendar Event Handlers
@@ -164,9 +170,8 @@ export async function processAudioFrame(frameDataStream: {
       });
 
       socket.on("edit-calendar-event", (eventData) => {
-        socket.broadcast
-          .to(eventData.userId)
-          .emit("calendar-event-edited", eventData.title);
+        console.log(eventData, " im in her emouth like boba");
+        socket.broadcast.emit("calendar-event-edited", eventData.title);
       });
 
       socket.on("delete-calendar-event", (eventData) => {

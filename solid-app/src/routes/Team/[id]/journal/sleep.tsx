@@ -30,6 +30,7 @@ import DeleteConfirmation from "~/components/shared/delete-confirmation";
 import moment from "moment";
 import TimePicker from "~/components/ui/time-picker";
 import { formatTimeForPicker } from "~/lib/formateDateLocal";
+import { sendJournalMessage } from "~/lib/socketFunctions";
 
 export default function SleepTracker() {
   const currentHour = moment().hour();
@@ -91,6 +92,13 @@ export default function SleepTracker() {
       showNotification(
         isEditing() ? "Sleep Entry Updated" : "Sleep Entry Posted"
       );
+      isEditing()
+        ? sendJournalMessage("edit-journal-entry", parseInt(params.id), "sleep")
+        : sendJournalMessage(
+            "create-journal-entry",
+            parseInt(params.id),
+            "sleep"
+          );
       navigate(`/team/${params.id}/journal`);
     } else if (result.error) {
       console.error(result.error);
@@ -102,6 +110,7 @@ export default function SleepTracker() {
     const result = await deleteAction(parseInt(existingEntry));
     if (result.success) {
       showNotification("Sleep Entry Deleted");
+      sendJournalMessage("delete-journal-entry", parseInt(params.id), "sleep");
       navigate(`/team/${params.id}/journal`);
     } else {
       console.error("Error deleting entry:", result.error);

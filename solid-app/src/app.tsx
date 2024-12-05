@@ -29,17 +29,17 @@ export default function App() {
     socket.on("chat-message", (message) => {
       appendMessage(`${message.message}`);
     });
-    
-    socket.on("journal-entry-created", (entry) => {
-      appendMessage(`New journal entry created: ${entry}`);
+
+    socket.on("journal-entry-created", (entryType) => {
+      appendMessage(`A new ${entryType} entry created`);
     });
 
-    socket.on("journal-entry-edited", (entry) => {
-      appendMessage(`Journal entry updated: ${entry}`);
+    socket.on("journal-entry-edited", (entryType) => {
+      appendMessage(`A ${entryType} entry has been updated`);
     });
 
-    socket.on("journal-entry-deleted", (entryId) => {
-      appendMessage(`Journal entry deleted (ID: ${entryId})`);
+    socket.on("journal-entry-deleted", (entryType) => {
+      appendMessage(`A ${entryType} entry has been deleted`);
     });
 
     socket.on("calendar-event-created", (eventTitle) => {
@@ -63,15 +63,15 @@ export default function App() {
     });
 
     // Clean up socket listeners on component unmount
-    onCleanup(() => {
-      socket.off("chat-message");
-      socket.off("journal-entry-created");
-      socket.off("journal-entry-edited");
-      socket.off("journal-entry-deleted");
-      socket.off("calendar-event-created");
-      socket.off("calendar-event-edited");
-      socket.off("calendar-event-deleted");
-    });
+    // onCleanup(() => {
+    //   socket.off("chat-message");
+    //   socket.off("journal-entry-created");
+    //   socket.off("journal-entry-edited");
+    //   socket.off("journal-entry-deleted");
+    //   socket.off("calendar-event-created");
+    //   socket.off("calendar-event-edited");
+    //   socket.off("calendar-event-deleted");
+    // });
   });
 
   const appendMessage = (message: string) => showNotification(message);

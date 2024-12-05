@@ -26,7 +26,6 @@ import {
   Meal,
   meals,
 } from "../../drizzle/schema/Meals";
-import { sessionManager } from "./kinde";
 import { Medications, medications } from "../../drizzle/schema/Medications";
 import { AttachedUser, User, users } from "../../drizzle/schema/Users";
 import { teams } from "../../drizzle/schema/Teams";
@@ -34,7 +33,6 @@ import { Recipient, recipients } from "../../drizzle/schema/Recipients";
 import { getUserIdFromSession } from "./server";
 import { journals } from "../../drizzle/schema/Journals";
 import { teamMembers } from "../../drizzle/schema/TeamMembers";
-import { clientSocket } from "~/lib/clientSocket";
 
 const mapQuality = (value: number) => {
   return qualityEnum[value - 1];
@@ -703,10 +701,7 @@ export const createMoodAction = action(async (formData: FormData) => {
 export const createJournal = async (data: {
   type: "mood" | "medication" | "sleep" | "meal" | "note";
   entryId: number;
-}) => {
-  return await db.insert(journals).values({ type: data.type, entryId: data.entryId });
-};
-
+}) => await db.insert(journals).values(data).returning();
 export const getMoodById = async (moodId: number) => {
   "use server";
   const userId = await getUserIdFromSession();

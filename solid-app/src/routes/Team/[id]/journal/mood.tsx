@@ -28,6 +28,8 @@ import DeleteConfirmation from "~/components/shared/delete-confirmation";
 import moment from "moment";
 import TimePicker from "~/components/ui/time-picker";
 import { formatTimeForPicker } from "~/lib/formateDateLocal";
+import { clientSocket } from "~/lib/clientSocket";
+import { sendJournalMessage } from "~/lib/socketFunctions";
 
 export default function MoodTracker() {
   const currentHour = moment().hour();
@@ -92,6 +94,17 @@ export default function MoodTracker() {
       showNotification(
         isEditing() ? "Mood Entry Updated" : "Mood Entry Posted"
       );
+      isEditing()
+        ? sendJournalMessage(
+            "edit-journal-entry",
+            parseInt(params.id),
+            "mood"
+          )
+        : sendJournalMessage(
+            "create-journal-entry",
+            parseInt(params.id),
+            "mood"
+          );
       navigate(`/team/${params.id}/journal`);
     } else if (result.error) {
       console.error(result.error);
@@ -103,6 +116,11 @@ export default function MoodTracker() {
     const result = await deleteAction(parseInt(existingEntry));
     if (result.success) {
       showNotification("Mood Entry Deleted");
+      sendJournalMessage(
+        "delete-journal-entry",
+        parseInt(params.id),
+        "mood"
+      );
       navigate(`/team/${params.id}/journal`);
     } else {
       console.error("Error deleting entry:", result.error);

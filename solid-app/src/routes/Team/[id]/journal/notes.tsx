@@ -21,6 +21,7 @@ import { showNotification } from "~/routes/api/notificationStore";
 import NotesIcon from "~/components/icon/notes-icon";
 import DeleteConfirmation from "~/components/shared/delete-confirmation";
 import AddPhotoModal from "~/components/shared/add-photo-modal";
+import { sendJournalMessage } from "~/lib/socketFunctions";
 
 export default function CreateNote() {
   const params = useParams();
@@ -74,6 +75,17 @@ export default function CreateNote() {
       showNotification(
         isEditing() ? "Note Entry Updated" : "Note Entry Posted"
       );
+      isEditing()
+        ? sendJournalMessage(
+            "edit-journal-entry",
+            parseInt(params.id),
+            "note"
+          )
+        : sendJournalMessage(
+            "create-journal-entry",
+            parseInt(params.id),
+            "note"
+          );
       navigate(`/team/${params.id}/journal`);
     } else if (result.error) {
       console.error(result.error);
@@ -85,6 +97,11 @@ export default function CreateNote() {
     const result = await deleteAction(parseInt(existingNote));
     if (result.success) {
       showNotification("Note Entry Deleted");
+      sendJournalMessage(
+        "delete-journal-entry",
+        parseInt(params.id),
+        "notes"
+      );
       navigate(`/team/${params.id}/journal`);
     } else {
       console.error("Error deleting entry:", result.error);
