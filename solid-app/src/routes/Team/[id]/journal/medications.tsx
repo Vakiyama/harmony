@@ -28,6 +28,7 @@ import MedicationIcon from "~/components/icon/medication-icon";
 import RadioGroupComponent from "~/components/shadcn/RadioGroup";
 import DeleteConfirmation from "~/components/shared/delete-confirmation";
 import { twMerge } from "tailwind-merge";
+import { sendJournalMessage } from "~/lib/socketFunctions";
 
 export default function Medication() {
   const params = useParams();
@@ -114,6 +115,17 @@ export default function Medication() {
       showNotification(
         isEditing() ? "Medication Entry Updated" : "Medication Entry Posted"
       );
+      isEditing()
+        ? sendJournalMessage(
+            "edit-journal-entry",
+            parseInt(params.id),
+            "medication"
+          )
+        : sendJournalMessage(
+            "create-journal-entry",
+            parseInt(params.id),
+            "medication"
+          );
       navigate(`/team/${params.id}/journal`);
     } else if (result.error) {
       console.error(result.error);
@@ -125,6 +137,11 @@ export default function Medication() {
     const result = await deleteAction(parseInt(existingEntry));
     if (result.success) {
       showNotification("Medication Entry Deleted");
+      sendJournalMessage(
+        "delete-journal-entry",
+        parseInt(params.id),
+        "medication"
+      );
       navigate(`/team/${params.id}/journal`);
     } else {
       console.error("Error deleting entry:", result.error);

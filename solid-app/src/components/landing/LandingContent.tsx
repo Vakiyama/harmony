@@ -23,6 +23,7 @@ import { useTeam } from "~/context/team-context";
 import BookIconSVG from "./IoBook.svg";
 import { TeamWithDefault } from "@/schema/Teams";
 import JournalsToggleGroup from "../shadcn/toggle-group";
+import { clientSocket as socket } from "~/lib/clientSocket";
 
 const LandingContent = () => {
   const categoryMap: { [key: string]: string } = {
@@ -49,8 +50,16 @@ const LandingContent = () => {
     setDefaultTeam(
       teamListData()?.find((team) => team.team.defaultTeam === true)
     );
+    socket.on("journal-entry-created", (entryType) => refetch());
+    socket.on("journal-entry-edited", (entryType) => refetch());
+    socket.on("journal-entry-deleted", (entryType) => refetch());
+    socket.on("calendar-event-created", (eventTitle) => refetch());
+    socket.on("calendar-event-edited", (event) => refetch());
+    socket.on("calendar-event-deleted", (eventTitle) => refetch());
+    socket.on("status-calendar-event-updated", (eventData) => refetch());
+    socket.on("calendar-task-completed", (eventData) => refetch());
   });
-  const [getJournals] = createResource(
+  const [getJournals, { refetch }] = createResource(
     () => {
       const teamId =
         team.state.id !== -1 ? team.state.id : defaultTeam()?.team.id;

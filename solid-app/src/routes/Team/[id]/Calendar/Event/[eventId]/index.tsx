@@ -40,6 +40,8 @@ import { mightFail } from "might-fail";
 import DeleteConfirmation from "~/components/shared/delete-confirmation";
 import { getUser } from "~/api/server";
 import { showNotification } from "~/routes/api/notificationStore";
+import { clientSocket as socket } from "~/lib/clientSocket";
+import parseTeamMembersToIds from "~/lib/parseMembersGetIds";
 
 type Participant = {
   participant: User;
@@ -180,6 +182,14 @@ export default function EventPage() {
       return console.error(deleteEventError);
     }
     showNotification(`${event()?.type === "event" ? "Event" : "Task"} Deleted`);
+
+    for (const userId of parseTeamMembersToIds(teamMemberOptions())) {
+      socket.emit("delete-calendar-event", {
+        title: event()?.title!,
+        userId: userId.toString(),
+      });
+    }
+
     navigate(`/team/${teamId}/calendar`);
   };
 
@@ -223,6 +233,12 @@ export default function EventPage() {
         return console.error(newMemberError);
       }
     }
+    for (const userId of parseTeamMembersToIds(teamMemberOptions())) {
+      socket.emit("edit-calendar-event", {
+        title: event()?.title!,
+        userId: userId.toString(),
+      });
+    }
     await refetch();
     await fetchParticipants();
     // reset team member ids
@@ -242,6 +258,15 @@ export default function EventPage() {
     if (updateStatusError) {
       return console.error(updateStatusError);
     }
+    for (const userId of parseTeamMembersToIds(teamMemberOptions())) {
+      socket.emit("update-status-calendar-event", {
+        title: event()?.title!,
+        userId: userId.toString(),
+        status: updateStatusResult[0].status!,
+        user: teamMemberOptions().filter((member) => member.value === userId)[0]
+          .label,
+      });
+    }
     await refetch();
     await fetchParticipants();
   };
@@ -252,6 +277,13 @@ export default function EventPage() {
     );
     if (updateCompleteError) {
       return console.error(updateCompleteError);
+    }
+    for (const userId of parseTeamMembersToIds(teamMemberOptions())) {
+      socket.emit("complete-calendar-task", {
+        title: event()?.title!,
+        userId: userId.toString(),
+        complete: complete,
+      });
     }
     await refetch();
     await fetchParticipants();
@@ -264,7 +296,7 @@ export default function EventPage() {
         setModalOpen={openModal}
         teamId={teamId}
       />
-      <div class="flex flex-col p-4 justify-between">
+      <div class="flex flex-col p-4 justify-between h-[90%]">
         <div class="flex flex-col gap-3 mb-32">
           <div class="flex flex-col gap-1 ">
             <h1 class="text-[#1e1e1e] text-[28px] font-grotesque font-medium leading-tight">
@@ -298,20 +330,15 @@ export default function EventPage() {
             <div class="flex items-center space-x-2">
               <FaSolidLocationDot />
               <div class="flex flex-col items-start">
-                <p class="text-center text-[#1e1e1e] text-base font-sf-pro leading-tight">
-                  {event()?.location}
-                </p>
+                {/* <p class="text-center text-[#1e1e1e] text-base font-sf-pro leading-tight">
+                </p> */}
                 <p class="text-center text-[#1e1e1e]/50 text-sm font-sf-pro leading-none">
-                  1780 E Broadway, Vancouver, BC V5N 1W3
+                  {event()?.location}
                 </p>
               </div>
             </div>
-            {/* temp */}
             <div class="flex items-center justify-center ">
-              <img
-                class="max-h-96 max-w-96 rounded-lg border border-[#1e1e1e]/20"
-                src={placeholder}
-              />
+              {/* location map goes here */}
             </div>
           </div>
         </div>
@@ -388,7 +415,7 @@ export default function EventPage() {
                 Notes
               </h2>
               <p class=" text-[#1e1e1e]/50 text-base leading-tight font-sf-pro break-words">
-                {event()?.notes}
+                {event()?.notes || `No notes for this ${event()?.type}`}
               </p>
             </div>
           </div>
@@ -469,7 +496,7 @@ export default function EventPage() {
           >
             <DeleteConfirmation
               onDelete={handleDeleteEvent}
-              buttonText=" Event"
+              buttonText="Event"
               description=""
               onCancel={() => setIsDeleteOpen(false)}
               onClose={() => setIsDeleteOpen(false)}
@@ -510,13 +537,19 @@ export default function EventPage() {
           ) : (
             <div class="justify-end items-center flex h-[30px] mt-[8px] mb-[20px] pr-[12px]">
               <button
-                class="rounded-[999px] h-[30px] px-[15px] border border-[#1e1e1e]/25 flex-col justify-center items-center flex"
+                class={`rounded-[999px] h-[30px] px-[15px] border border-[#1e1e1e]/25 flex-col justify-center items-center flex ${
+                  complete()
+                    ? "bg-[#6fc94f] text-[#fcfcfc]"
+                    : "bg-[#FE7258] text-[#fcfcfc]"
+                }`}
                 onclick={() => {
                   handleUpdateComplete(!complete());
                 }}
               >
-                <p class="self-stretch text-center text-[#1e1e1e] text-[19px] font-medium font-grotesque ">
-                  {!complete() ? "Mark As Incomplete" : "Mark as Complete"}
+                <p
+                  class={`self-stretch text-center text-[#fcfcfc] text-[19px] font-medium font-grotesque`}
+                >
+                  {!complete() ? "Incomplete" : "Complete"}
                 </p>
               </button>
             </div>

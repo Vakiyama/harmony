@@ -7,6 +7,7 @@ import "./input.css";
 import Layout from "./components/Layout";
 import { MetaProvider } from "@solidjs/meta";
 import { TeamProvider } from "./context/team-context";
+import SocketNotification from "./components/socketNotifications/socket-notification";
 
 export default function App() {
   return (
@@ -15,7 +16,10 @@ export default function App() {
         root={(props) => (
           <MetaProvider>
             <Suspense>
-              <Layout>{props.children}</Layout>
+              <Layout>
+                {props.children}
+                <SocketNotification />
+              </Layout>
             </Suspense>
           </MetaProvider>
         )}

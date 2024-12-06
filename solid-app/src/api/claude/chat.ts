@@ -43,7 +43,11 @@ import { users } from "../../../drizzle/schema/Users";
 import { teams } from "../../../drizzle/schema/Teams";
 import { recipients } from "../../../drizzle/schema/Recipients";
 import { journals } from "../../../drizzle/schema/Journals";
-import { getJournalsFromTeamId, getMedicationsFromTeamId } from "../journal";
+import {
+  createJournal,
+  getJournalsFromTeamId,
+  getMedicationsFromTeamId,
+} from "../journal";
 import {
   getCalendar,
   getCalendarFromTeamId,
@@ -51,6 +55,10 @@ import {
 } from "../calendar";
 import { events } from "../../../drizzle/schema/Events";
 import { getTeamFromTeamId } from "../team";
+import {
+  sendCalendarCreateMessage,
+  sendJournalMessage,
+} from "~/lib/socketFunctions";
 
 const CHAT_SYSTEM_MESSAGE = `
 You are a helpful assitant to a caretaker. Your name is "Harmony".
@@ -207,6 +215,7 @@ function createJournalTool(params: {
   entry: z.infer<typeof createJournalEntryToolSchema>["entry"];
   userId: number;
   toolCall: CreateJournalEntryToolUse;
+  teamId: number;
 }) {
   const value = Object.entries(journalTables).find(
     ([key]) => key === params.entry.category
@@ -246,11 +255,15 @@ function createJournalTool(params: {
             )
             .returning();
 
-          await db.insert(journals).values({
+          await createJournal({
             type: params.entry.category,
             entryId: result[0].id,
           });
-
+          sendJournalMessage(
+            "create-journal-entry",
+            params.teamId,
+            params.entry.category
+          );
           return result;
         },
         catch: (e) => new InsertDBError(e, params.toolCall),
@@ -300,13 +313,16 @@ function createCalendarEventTool(
     }),
     Effect.flatMap((calendars) =>
       Effect.tryPromise({
-        try: () =>
-          db.insert(events).values({
+        try: () => {
+          const event = db.insert(events).values({
             ...params,
             timeStart: new Date(params.timeStart!),
             timeEnd: params.timeEnd ? new Date(params.timeEnd) : undefined,
             calendarId: calendars.id,
-          }),
+          });
+          sendCalendarCreateMessage(teamId, params.title);
+          return event;
+        },
         catch: (e) => {
           console.error(e);
           return new InsertDBError(e, toolUse);
@@ -714,6 +730,7 @@ function handleToolCall(
             entry: toolCall.input.entry,
             userId,
             toolCall,
+            teamId,
           }),
           Effect.map((_) => {
             const toolCallMessage = createMessage<AssistantMessage>({
