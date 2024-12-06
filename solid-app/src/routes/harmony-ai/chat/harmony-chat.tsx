@@ -56,18 +56,7 @@ export const demoConversation: ArrayMessage[] = [
   },
   {
     role: "assistant",
-    content:
-      "Great. Would you like to add any notes or reminders for this event?",
-  },
-  {
-    role: "user",
-    content:
-      "Yes, please remind Sylvia to ask about the new medication we discussed.",
-  },
-  {
-    role: "assistant",
-    content:
-      "Noted. I've added a reminder for Sylvia to ask about the new medication. Shall I notify the family about this appointment?",
+    content: "Noted. Shall I notify the family about this appointment?",
   },
   {
     role: "user",
@@ -76,16 +65,7 @@ export const demoConversation: ArrayMessage[] = [
   {
     role: "assistant",
     content:
-      "All set! The doctor's appointment has been added to Grandma's calendar for tomorrow from 10 am to 11 am at Maplewood Clinic. I've notified the family and included the reminder for Sylvia.",
-  },
-  {
-    role: "user",
-    content: "Also, can you check when Grandma's last medication refill was?",
-  },
-  {
-    role: "assistant",
-    content:
-      "Grandma's last medication refill was on October 5th. She has a two-week supply remaining.",
+      "All set! The doctor's appointment has been added to Grandma's calendar. I've notified the family and included the reminder for Sylvia.",
   },
   {
     role: "user",
@@ -93,8 +73,11 @@ export const demoConversation: ArrayMessage[] = [
   },
   {
     role: "assistant",
-    content:
-      "You're welcome! Let me know if there's anything else I can assist you with.",
+    content: "You're welcome! Would you like to head to the calendar?",
+  },
+  {
+    role: "user",
+    content: "Yes, let's go there now.",
   },
 ];
 

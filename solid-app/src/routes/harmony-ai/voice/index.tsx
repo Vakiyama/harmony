@@ -307,7 +307,7 @@ export default function HarmonyVoice() {
       e.preventDefault();
       setDemoIndex((index) => index + 1);
       if (demoIndex() === demoConversation.length) {
-        return navigate("/team/1/calendar");
+        return navigate("localhost:3000/team/1/calendar");
       }
       const message = demoConversation[demoIndex()].content as string;
       if (currentStreamedRole() === "assistant") {
