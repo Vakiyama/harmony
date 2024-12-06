@@ -207,7 +207,7 @@ export const getCalendarData = async (props: {
   // Execute the query
   try {
     const result = await query.where(
-      and(...conditions, eq(events.calendarId, props.calendarId))
+      and(...conditions, eq(events.calendarId, props.calendarId)),
     );
     console.log(result);
     return result as Event[];
@@ -392,8 +392,8 @@ export async function demoHelper(teamId: number) {
         calendarId: calendar.id,
         title: "Dr. Appointment Maplewood",
         notes: "Reminder: Discuss new medication",
-        timeStart: new Date("2024-11-28T10:00:00"),
-        timeEnd: new Date("2024-11-28T11:00:00"),
+        timeStart: new Date("2024-12-07T10:00:00"),
+        timeEnd: new Date("2024-12-07T11:00:00"),
         location: "Maplewood Clinic",
         type: "event",
         repeat: "never",
