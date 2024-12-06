@@ -9,12 +9,12 @@ import { calendars } from "./schema/Calendars";
 import { EventInput, events } from "./schema/Events";
 import { medications } from "./schema/Medications";
 import { eventParticipants } from "./schema/EventParticipants";
-import moment from "moment";
 import { eq, InferSelectModel } from "drizzle-orm";
 import { v4 } from "uuid";
 import { qualityEnum, sleeps, timeFrameEnumSleeps } from "./schema/Sleeps";
 import { journals, journalType } from "./schema/Journals";
 import { categoryEnumMeals, consumptionEnum, meals } from "./schema/Meals";
+import { takenMedications } from "./schema/TakenMedications";
 
 function generateRandomCode(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -318,6 +318,24 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
     .returning()
     .onConflictDoNothing()
     .then((res) => res[0]);
+  const aricept = await db
+    .select()
+    .from(medications)
+    .where(eq(medications.name, "Aricept"));
+  const medicationEntry = await db
+    .insert(takenMedications)
+    .values({
+      hasMissed: false,
+      medicationId: aricept[0].id,
+      type: "Tablet",
+      date: new Date("2024-12-06T10:35:00"),
+      teamId: teamsList[0].id,
+      userId: usersData[1].id,
+      createdAt: new Date("2024-12-06T10:35:00"),
+    })
+    .returning()
+    .onConflictDoNothing()
+    .then((res) => res[0]);
 
   await db.insert(journals).values([
     {
@@ -329,6 +347,11 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
       type: journalType[4],
       entryId: nutritionEntry.id,
       createdAt: new Date("2024-12-06T09:35:00"),
+    },
+    {
+      type: journalType[2],
+      entryId: medicationEntry.id,
+      createdAt: new Date("2024-12-06T10:35:00"),
     },
   ]);
 
