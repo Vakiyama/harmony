@@ -106,7 +106,6 @@ export default function CalendarPage() {
     teamListData();
     const teamData = await getListOfTeams();
     handleRefetch();
-    console.log(events());
   });
   onMount(async () => {
     socket.on("journal-entry-created", (entryType) => refetch());
@@ -265,7 +264,6 @@ export default function CalendarPage() {
     const [journalEntriesError, journalEntriesResult] = await mightFail(
       getJournalsFromTeamId(teamId()!)
     );
-    console.log("GG");
     if (journalEntriesError) {
       return console.error(journalEntriesError);
     }
