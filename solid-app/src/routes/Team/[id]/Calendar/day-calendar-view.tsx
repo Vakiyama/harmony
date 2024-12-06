@@ -1,6 +1,5 @@
 import { Accessor, createSignal, For, Setter, Show } from "solid-js";
 import moment from "moment";
-import type { Event } from "@/schema/Events";
 import EventCard from "~/components/ui/event-card";
 import { CalendarEventType, CalendarJournalType } from ".";
 interface NestedEvent extends CalendarEventType {
@@ -224,7 +223,7 @@ const DayCalendarView = (props: {
       <div class="flex flex-col p-4 h-full w-full ">
         <Show when={props.isCalendarOpen()}>
           <div
-            class="text-lg font-medium z-10 text-black fixed top-[130px] w-full bg-[#F2F2F2] border-y-1 border-black15 -ml-5 -mt-5 flex flex-col align-center"
+            class="text-lg font-medium z-[2] text-black fixed top-[130px] w-full bg-[#F2F2F2] border-y-1 border-black15 -ml-5 -mt-5 flex flex-col align-center"
             ontouchstart={handleTouchStart}
             ontouchend={handleTouchEnd}
           >
@@ -232,7 +231,7 @@ const DayCalendarView = (props: {
           </div>
         </Show>
         <div class="w-full h-full">
-          <div class="relative w-full h-full overflow-scroll overflow-x-hidden">
+          <div class="relative w-full h-full overflow-scroll overflow-x-hidden my-11">
             <div class="sticky left-0">
               <For each={Array.from({ length: 25 }, (_, hour) => hour)}>
                 {(hour) => (

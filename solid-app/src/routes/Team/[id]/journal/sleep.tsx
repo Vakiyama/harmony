@@ -65,7 +65,6 @@ export default function SleepTracker() {
     });
     setWellBeing(index + 1);
   });
-  createEffect(() => console.log(recipientData(), sleepData()));
   const createAction = useAction(createSleepAction);
   const updateAction = useAction(updateSleepAction);
   const deleteAction = useAction(deleteSleepAction);
@@ -187,7 +186,7 @@ export default function SleepTracker() {
                     Date and Time
                   </label>
                   <div class="flex flex-row gap-2 items-center">
-                    <div class="flex-1">
+                    <div class="flex-2">
                       <DatePickerComponent
                         value={entry()?.date.toLocaleDateString("en-us", {
                           month: "long",
@@ -200,7 +199,7 @@ export default function SleepTracker() {
                       time={time}
                       setTime={setTime}
                       name="time"
-                      class="flex-1"
+                      class="flex-1 py-1"
                     />
                   </div>
                 </div>

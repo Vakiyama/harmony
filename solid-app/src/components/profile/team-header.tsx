@@ -1,5 +1,4 @@
 import { Image, ImageFallback, ImageRoot } from "../ui/image";
-import { RiSystemSettings4Fill } from "solid-icons/ri";
 
 type TeamHeaderProps = {
   teamName: string;

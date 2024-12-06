@@ -1,24 +1,4 @@
-// interface TaskProps {
-//   taskName: string;
-//   taskDescription: string;
-//   startTime?: Date;
-//   endTime?: Date;
-//   icon?: string;
-// }
-// export function TaskName({ props }: { props: TaskProps }) {
-//   const { taskName, taskDescription, startTime, endTime, icon } = props;
-//   return (
-//     <div>
-//       <h2>{taskName}</h2>
-//       <p>{taskDescription}</p>
-//       <p>Start Time: {startTime?.toLocaleString()}</p>
-//       <p>End Time: {endTime?.toLocaleString()}</p>
-//       {icon && <img src={icon} alt={taskName} />}
-//     </div>
-//   );
-// }
-
-import { JSX, JSXElement } from "solid-js";
+import { JSXElement } from "solid-js";
 
 interface TaskProps {
   taskName: string;

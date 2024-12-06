@@ -1,6 +1,7 @@
 import { TeamMember } from "@/schema/TeamMembers";
+import { TeamWithDefault } from "@/schema/Teams";
 import { User } from "@/schema/Users";
-import { useSearchParams } from "@solidjs/router";
+import { createAsync, useAction, useSearchParams } from "@solidjs/router";
 import {
   NavigateOptions,
   SearchParams,
@@ -10,31 +11,26 @@ import { FaSolidAngleDown, FaSolidAngleUp } from "solid-icons/fa";
 import {
   Accessor,
   batch,
+  createEffect,
+  createMemo,
   createSignal,
   For,
-  onMount,
   Setter,
   Show,
 } from "solid-js";
+import { updateDefaultTeam } from "~/api/team";
 import BsGrid2x3GapFill from "~/components/icon/bs-grid-2x3-gap-fill";
 import BsGrid3x3GapFill from "~/components/icon/bs-grid-3x3-gap-fill";
-import CalendarIcon from "~/components/icon/calendar-icon";
 import TbRectangleFilled from "~/components/icon/tb-rectangle-filled";
 import Checkbox from "~/components/shared/checkbox";
+import { useTeam } from "~/context/team-context";
+
 type CalendarFilterType =
   | "events"
   | "tasks"
   | "medication"
   | "complete"
   | "uncompleted";
-
-const DEFAULT_FILTERS: CalendarFilterType[] = [
-  "events",
-  "tasks",
-  "medication",
-  "complete",
-  "uncompleted",
-];
 
 const CalendarSideMenu = (props: {
   refetchData: () => Promise<void>;
@@ -47,13 +43,29 @@ const CalendarSideMenu = (props: {
     options?: Partial<NavigateOptions>
   ) => void;
   searchParams: Partial<SearchParams>;
-
   setCurrentView: Setter<"day" | "week" | "month" | undefined>;
+  forTeamSetting: {
+    teamData: { team: TeamWithDefault }[] | undefined;
+    defaultSetter: Setter<{ team: TeamWithDefault }[] | undefined>;
+  };
+  setTeamId?: Setter<number | undefined>;
 }) => {
+  const [isClosing, setIsClosing] = createSignal(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [isPeopleOpen, setIsPeopleOpen] = createSignal(false);
   const [isCalendarOpen, setIsCalendarOpen] = createSignal(false);
   const [isTeamOpen, setIsTeamOpen] = createSignal(false);
+  const updateDefaultAction = useAction(updateDefaultTeam);
+  const [teamName, setTeamName] = createSignal<string | undefined>();
+
+  const teamContext = useTeam();
+  createEffect(() => {
+    const defaultTeam = props.forTeamSetting?.teamData?.find(
+      (team) => team.team.defaultTeam === true
+    );
+    setTeamName(defaultTeam?.team.name || undefined);
+    teamContext.updateTeamId(defaultTeam?.team.id!);
+  });
 
   const updateFilters = async (newFilters: string) => {
     props.setSearchParams(
@@ -89,7 +101,10 @@ const CalendarSideMenu = (props: {
 
   function handleBackdropClick(e: Event) {
     if (e.target === e.currentTarget) {
-      props.setIsSideMenuOpen(false);
+      setIsClosing(true);
+      setTimeout(() => {
+        props.setIsSideMenuOpen(false);
+      }, 300);
     }
   }
 
@@ -132,27 +147,51 @@ const CalendarSideMenu = (props: {
     });
   };
 
+  const setDefaultTeam = async (selectedTeam: TeamWithDefault) => {
+    const updatedOrUndefined = await updateDefaultAction(selectedTeam.id);
+    setTeamName(selectedTeam.name || undefined);
+    teamContext.updateTeamId(selectedTeam.id);
+    props.setTeamId ? props.setTeamId(selectedTeam.id) : "";
+    setIsTeamOpen(false);
+    props.refetchData();
+  };
   return (
     <div
-      class="absolute z-[60] h-full w-full flex bg-black bg-opacity-50"
+      class={`absolute top-0 h-full w-full flex z-[3] ${
+        isClosing() ? "animate-fadeOut" : ""
+      }`}
       onclick={handleBackdropClick}
     >
       <div class="w-[265px] h-full absolute right-0 bg-[#fcfcfc] ">
-        <div class="w-full h-[90px] pt-1.5 pb-2.5  bg-[#fcfcfc] border-b border-[#1e1e1e]/20 flex-col justify-end items-center gap-2.5 inline-flex">
+        <div class="relative w-full h-[90px] pt-1.5 pb-2.5 bg-[#fcfcfc] border-b border-[#1e1e1e]/20 flex-col justify-end items-center gap-2.5 inline-flex">
           <button
-            class="w-44 h-6 flex justify-between items-center"
+            class="h-6 w-full flex justify-center items-center gap-2 px-2"
             onclick={() => {
               setIsTeamOpen(!isTeamOpen());
             }}
           >
-            <div class="text-[#1e1e1e] text-[19px] font-medium font-grotesque  leading-[22.80px]">
-              Lola’s Care Team
-            </div>
-            <Show
-              when={isTeamOpen()}
-              fallback={<FaSolidAngleDown class="text-xl" />}
-            >
-              <FaSolidAngleUp class="text-xl" />
+            <Show when={teamName()}>
+              <div class="text-[#1e1e1e] text-[19px] font-medium font-grotesque leading-[22.80px]">
+                {teamName() ? `${teamName()}'s Care Team` : ""}
+              </div>
+              <Show
+                when={isTeamOpen()}
+                fallback={<FaSolidAngleDown class="text-xl" />}
+              >
+                <FaSolidAngleUp class="text-xl" />
+                <div class="absolute left-0 top-[90px] rounded-b-lg bg-white shadow-lg p-2 w-full">
+                  <ul class="list-none">
+                    {props.forTeamSetting?.teamData?.map((item) => (
+                      <li
+                        class="p-2 hover:bg-gray-200 cursor-pointer"
+                        onClick={() => setDefaultTeam(item.team)}
+                      >
+                        {item.team.name}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </Show>
             </Show>
           </button>
         </div>

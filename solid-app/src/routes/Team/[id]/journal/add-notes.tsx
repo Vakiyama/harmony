@@ -7,7 +7,7 @@ interface AddNoteProps {
 export default function AddNote(props: AddNoteProps) {
   return (
     <div class="flex flex-col gap-2">
-      <label class="text-h4 mb-2 font-grotesque leading-[120%] font-medium text-[#1E1E1E]">
+      <label class="text-h4 font-grotesque leading-[120%] font-medium text-[#1E1E1E]">
         {props.title}
       </label>
       <textarea

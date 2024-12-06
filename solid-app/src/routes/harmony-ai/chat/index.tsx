@@ -1,6 +1,5 @@
 import { getUser } from "~/api/server";
 import { HarmonyChat } from "./harmony-chat";
-import { createAsync, redirect, useNavigate } from "@solidjs/router";
 import { Show, createSignal, onMount } from "solid-js";
 import { InferSelectModel } from "drizzle-orm";
 import { users } from "@/schema/Users";
@@ -24,7 +23,7 @@ export default function Index() {
   return (
     <>
       <Show when={user() && !user()?.chosenVoice}>
-        <BottomModal>
+        <BottomModal close={() => {}}>
           <OnboardingIntro user={user()!} fetchUser={fetchUser} />
         </BottomModal>
       </Show>
@@ -33,6 +32,4 @@ export default function Index() {
       </Show>
     </>
   );
-
-  // <HarmonyChat />;
 }

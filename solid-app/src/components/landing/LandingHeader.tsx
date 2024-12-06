@@ -1,14 +1,6 @@
 import { createAsync, RouteDefinition, useAction } from "@solidjs/router";
 import { TeamWithDefault } from "../../../drizzle/schema/Teams";
-import { BiSolidBell } from "solid-icons/bi";
-import { FaSolidAngleDown } from "solid-icons/fa";
-import {
-  createEffect,
-  createSignal,
-  onMount,
-  Setter,
-  Suspense,
-} from "solid-js";
+import { createEffect, createSignal, Setter, Suspense } from "solid-js";
 import { updateDefaultTeam } from "~/api/team";
 import { getUser } from "~/api";
 import { useTeam } from "~/context/team-context";
@@ -34,11 +26,16 @@ export function LandingHeader(props: {
   const team = useTeam();
 
   createEffect(() => {
-    const defaultTeam = props.teamData?.find(
-      (team) => team.team.defaultTeam === true
-    );
-    setTeamName(defaultTeam?.team.name || undefined);
-    team.updateTeamId(defaultTeam?.team.id!);
+    if (team.state.id === -1 || team.state.id === undefined) {
+      const defaultTeam = props.teamData?.find(
+        (team) => team.team.defaultTeam === true
+      );
+      if (!defaultTeam) return;
+      setTeamName(defaultTeam?.team.name || undefined);
+      team.updateTeamId(defaultTeam?.team.id!);
+    } else {
+      setTeamName(team.state.teamName);
+    }
   });
 
   const toggleDropdown = () => {

@@ -3,6 +3,7 @@ export type CreateRecipientActionResponse = {
   error?: string;
   recipientId?: number;
   message?: string;
+  photo?: string;
 };
 
 export type CreateTeamActionResponse = {

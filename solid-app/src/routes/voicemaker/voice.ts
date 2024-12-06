@@ -66,7 +66,7 @@ export async function POST(params: {
             body: stringifiedBody,
           }),
         catch: (e) => FetchError(e as Error),
-      }),
+      })
     ),
     Effect.flatMap((res) =>
       Effect.try({
@@ -76,13 +76,13 @@ export async function POST(params: {
           return res;
         },
         catch: (e) => FetchError(e as Error),
-      }),
+      })
     ),
     Effect.flatMap((res) =>
       Effect.tryPromise({
         try: () => res.blob(),
         catch: (e) => FetchError(e as Error),
-      }),
+      })
     ),
     Effect.retry({ times: 3 }), // network failures
     Effect.runPromiseExit,
@@ -95,12 +95,10 @@ export async function POST(params: {
             return new Response(null, { status: 500 });
           },
           onSuccess: async (result) => {
-            console.log("Got audio!");
-            console.log(result.stream);
             const res = new Response(result, { status: 200 });
             return res;
           },
-        }),
-      ),
+        })
+      )
   );
 }

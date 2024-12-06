@@ -6,7 +6,7 @@ export default function AddPhoto() {
         class="flex flex-col h-full items-center justify-center"
       >
         <input
-          id="photo-upload"
+          id={`photo-upload`}
           type="file"
           accept="image/*"
           name="photo"

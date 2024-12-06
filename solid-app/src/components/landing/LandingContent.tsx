@@ -78,7 +78,7 @@ const LandingContent = () => {
 
   return (
     <div class="flex flex-col gap-1.5">
-      <div class="w-full flex flex-wrap items-start">
+      <div class="w-full flex flex-wrap items-start mb-[6px]">
         <JournalsToggleGroup
           items={["Medication Taken", "Nutrition", "Sleep", "Mood", "Notes"]}
           getOuter={selectedOuter}

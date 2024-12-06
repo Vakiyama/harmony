@@ -1720,9 +1720,9 @@ export const getJournalsFromTeamId = async (teamId: number) => {
       .orderBy(desc(journals.createdAt))
       .groupBy(journals.id)
   );
-  // console.log(res, "res");
   if (err) {
-    console.error(err);
+    console.error(err, "erorr at journal.ts getJournalsFromTeamId");
+    console.trace();
     return undefined;
   }
   const transformedData = res.map((entry: TransformedJournalEntry) => {

@@ -15,7 +15,7 @@ export default function MedicalDetail(props: MedicalDetailProps) {
         <div class="w-full flex flex-row border rounded-md items-center justify-center p-2">
           <div class="w-full flex flex-col">
             <p class="font-medium text-h4">{medicineName}</p>
-            <p class="text-gray-500 text-subtitle">
+            <p class="text-gray-500">
               {medicineDose}, {medicineInstructions}
             </p>
           </div>

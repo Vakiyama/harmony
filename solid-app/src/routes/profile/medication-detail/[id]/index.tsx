@@ -1,51 +1,78 @@
-import { useParams } from "@solidjs/router";
 import { MedicationCard } from "~/components/profile/medication-card";
 import MedicationImage from "~/components/profile/medication-image";
 import TopNav from "~/components/shared/TopNav";
-import { useTeam } from "~/context/team-context";
+import { onMount, createSignal } from "solid-js";
+import { getMedFromMedId } from "~/api/team";
+import { useParams } from "@solidjs/router";
+import { Show } from "solid-js";
+import { Medications } from "@/schema/Medications";
 
 export default function MedicationDetail() {
   const params = useParams();
-  const team = useTeam();
-
+  const [med, setMed] = createSignal<Medications>();
+  onMount(async () => {
+    const medId = Number(params.id);
+    if (medId) {
+      try {
+        const fetchedMed = await getMedFromMedId(medId);
+        setMed(fetchedMed);
+      } catch (error) {
+        console.error("Failed to fetch medication details:", error);
+      }
+    }
+  });
   return (
     <div class="px-2">
-      <TopNav leftNavigation="Back" name="Medication Details" />
+      <Show when={med()?.teamId}>
+        <TopNav
+          leftNavigation="Team"
+          name="Medication Details"
+          backNav={med()?.teamId ? `/team/${med()?.teamId}` : "/profile"}
+        />
+      </Show>
       <MedicationCard
-        title="Advil"
+        title={med()?.name!}
         sections={[
           {
             title: "Dosage",
-            content: <p>200mg</p>,
+            content: med()?.dosage,
           },
           {
             title: "Type of Medication",
-            content: <p>Oral Pill</p>,
+            content: med()?.typeOfMedication || "No medication type provided",
           },
           {
             title: "Frequency",
-            content: <p>Twice a day</p>,
+            content: med()?.frequency,
           },
           {
             title: "Medication Schedule",
-            content: <p>Morning and Evening</p>,
+            content: med()?.schedule,
           },
           {
             title: "Side Effects",
-            content: <p>Can cause dizziness</p>,
+            content:
+              med()?.sideEffects || "No medication side effects provided",
           },
           {
             title: "Instructions",
-            content: <p>Take after a meal</p>,
+            content:
+              med()?.instructions || "No medication instructions provided",
           },
           {
             title: "Pharmacy Information",
-            content: <p>Shoppers, 123 Sesame Street, Vancouver BC</p>,
+            content: med()?.pharmacyInfo || "No pharmacy info provided",
           },
-          {
-            title: "Medication Photo",
-            content: <MedicationImage />,
-          },
+          ...(med()?.pharmacyImg
+            ? [
+                {
+                  title: "Medication Photo",
+                  content: (
+                    <MedicationImage pharmacyImg={med()!.pharmacyImg!} />
+                  ),
+                },
+              ]
+            : []),
         ]}
       />
     </div>

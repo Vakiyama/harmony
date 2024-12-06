@@ -1,5 +1,5 @@
 import { FaSolidPen } from "solid-icons/fa";
-import { createSignal, For, JSXElement, onMount, useContext } from "solid-js";
+import { createSignal, For, JSXElement, onMount } from "solid-js";
 import {
   Card,
   CardContent,
@@ -11,8 +11,10 @@ import Member from "../Member";
 import { Section } from "./Section";
 import { AttachedUser } from "@/schema/Users";
 import { A } from "@solidjs/router";
-import { TeamWithDefault } from "@/schema/Teams";
-import { TeamContext } from "~/components/Layout-Context";
+import { useTeam } from "~/context/team-context";
+import { getListOfTeams } from "~/api/team";
+import { getUser } from "~/api";
+import { User } from "@/schema/Users";
 
 export function JournalCard(props: {
   icon: JSXElement;
@@ -24,20 +26,24 @@ export function JournalCard(props: {
   member: AttachedUser | null;
   entryId: number;
 }) {
-  const context = useContext(TeamContext);
-  const [defaultTeam, setDefaultTeam] = createSignal<
-    { team: TeamWithDefault } | undefined
-  >();
-  if (!context) {
-    return <div>No team data available</div>;
-  }
-
-  const { teamListData } = context;
+  const team = useTeam();
+  const [teamId, setTeamId] = createSignal<number | undefined>();
+  const [user, setUser] = createSignal<User>();
 
   onMount(async () => {
-    setDefaultTeam(
-      teamListData()?.find((team) => team.team.defaultTeam === true)
-    );
+    const currentUser = await getUser();
+    setUser(currentUser);
+    if (team.state.id === -1 || team.state.id === undefined) {
+      const teamData = await getListOfTeams();
+      const defaultTeam = teamData.find(
+        (team) => team.team.defaultTeam === true
+      );
+      if (!defaultTeam) return;
+      setTeamId(defaultTeam?.team.id || undefined);
+      team.updateTeamId(defaultTeam?.team.id!);
+    } else {
+      setTeamId(team.state.id);
+    }
   });
   const backgroundColor = `bg-${props.value
     .split(" ")
@@ -78,15 +84,17 @@ export function JournalCard(props: {
               >
                 {props.dateTime}
               </CardDescription>
-              <A
-                href={`/team/${defaultTeam()?.team.id}/journal/${
-                  props.value === "medication taken"
-                    ? "medications"
-                    : props.value
-                }?edit=${props.entryId}`}
-              >
-                <FaSolidPen size={11} color="#1E1E1EBF" />
-              </A>
+              {user()?.id === props.member?.id && (
+                <A
+                  href={`/team/${teamId()}/journal/${
+                    props.value === "medication taken"
+                      ? "medications"
+                      : props.value
+                  }?edit=${props.entryId}`}
+                >
+                  <FaSolidPen size={11} color="#1E1E1EBF" />
+                </A>
+              )}
             </div>
           </div>
         </CardHeader>

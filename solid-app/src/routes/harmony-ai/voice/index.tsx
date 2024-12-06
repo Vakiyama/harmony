@@ -8,7 +8,7 @@ import Speaker from "../images/Speaker.svg";
 import EndCall from "../images/end.svg";
 import Mute from "../images/BsMicMuteFill.svg";
 import { createEffect, createSignal, onCleanup, onMount, Show } from "solid-js";
-import { A } from "@solidjs/router";
+import { A, useNavigate } from "@solidjs/router";
 import { twMerge } from "tailwind-merge";
 import { Effect, Exit, pipe } from "effect";
 import { demoConversation, useHarmonyChat } from "../chat/harmony-chat";
@@ -19,34 +19,22 @@ import { ImageRoot, Image } from "~/components/ui/image";
 import { db } from "~/api/db";
 import { events } from "../../../../drizzle/schema/Events";
 import { demoHelper, getCalendarFromTeamId } from "~/api/calendar";
-import { useTeam } from "~/context/team-context";
 import { eventParticipants } from "@/schema/EventParticipants";
 import { getListOfTeams } from "~/api/team";
 
-function toTwoDigits(value: number): string {
-  return value.toString().length === 1 ? `0${value}` : `${value}`;
-}
-
-function formatCounter(seconds: number) {
-  if (seconds / 60 > 0) {
-    const minutes = Math.floor(seconds / 60);
-    const secondsRemainder = seconds - Math.floor(seconds / 60) * 60;
-    return `${toTwoDigits(minutes)}:${toTwoDigits(secondsRemainder)}`;
-  } else return `00:${toTwoDigits(seconds)}`;
-}
+import { useTeam } from "~/context/team-context";
 
 function sleep(ms: number) {
   return new Promise<void>((res) =>
     setTimeout(() => {
       res();
-    }, ms)
+    }, ms),
   );
 }
 
 export default function HarmonyVoice() {
-  const [counter, setCounter] = createSignal(0);
   const [streamedMessage, setStreamedMessage] = createSignal(
-    "What can I help you with today?"
+    "What can I help you with today?",
   );
   const [loudness, setLoudness] = createSignal(0);
   const [demoIndex, setDemoIndex] = createSignal(-1);
@@ -72,10 +60,10 @@ export default function HarmonyVoice() {
   const [transcribedMessage, setTranscribedMessage] = createSignal("");
   const [recorder, setRecorder] = createSignal<MediaRecorder>();
   const [muted, setMuted] = createSignal(false);
+
   const teams = useTeam();
 
   createEffect(() => {
-    console.log(audioState.currentTime, audioState.duration);
     if (
       audioState.currentTime >= audioState.duration &&
       playing() &&
@@ -109,7 +97,7 @@ export default function HarmonyVoice() {
 
       await sleep(
         (sleepRange.low + Math.floor(sleepRange.high * Math.random())) /
-          speedFactor
+          speedFactor,
       );
 
       messageRangeCutoff++;
@@ -157,7 +145,6 @@ export default function HarmonyVoice() {
   }
 
   function streamChunksToServer(mediaStreamTrack: MediaStreamTrack) {
-    console.log("Streaming chunks to server.");
     pipe(
       mediaStreamTrack,
       (stream) => new MediaStream([stream]),
@@ -201,7 +188,6 @@ export default function HarmonyVoice() {
           mimeType: "audio/webm;codecs=opus",
           audioBitsPerSecond: 16000,
         });
-        console.log(recorder.audioBitsPerSecond);
         return recorder;
       },
       (mediaRecorder) => {
@@ -213,8 +199,7 @@ export default function HarmonyVoice() {
         socket.on("transcription-results", (message) => {
           return;
           if (message === "") return;
-          if (playing())
-            return console.log("Receiving, ignoring because playing.");
+          if (playing()) return;
           setTranscribedMessage(message);
           if (!playing() && lastTranscribedMessage() !== transcribedMessage()) {
             setStreamedMessage(message);
@@ -237,10 +222,10 @@ export default function HarmonyVoice() {
           setPlaying(true);
           setLastTranscribedMessage(transcribedMessage());
           socket.emit("end-transcription");
-          handleConversation([
-            ...messages(),
-            { role: "user", content: transcribedMessage() },
-          ]).finally(() => {
+          handleConversation(
+            [...messages(), { role: "user", content: transcribedMessage() }],
+            teams.state.id,
+          ).finally(() => {
             isHandlingConversation = false;
           });
         });
@@ -258,7 +243,6 @@ export default function HarmonyVoice() {
           ) {
             return;
           }
-          console.log("Sending data...");
           socket.emit("write-transcription", {
             dataBlob: event.data,
           });
@@ -266,31 +250,9 @@ export default function HarmonyVoice() {
 
         mediaRecorder.start(100);
         setRecorder(mediaRecorder);
-      }
+      },
     );
   }
-
-  /*
-  createEffect(async () => {
-    console.log(messages(), "messages");
-    if (messages().at(-1)?.role === "assistant") {
-      const lastMessage = messages().at(-1)!;
-      if (typeof lastMessage.content !== "string") return;
-      console.log("content sent:", lastMessage.content);
-      console.log(
-        lastMessage.content,
-        demoConversation[demoIndex() - 1].content,
-      );
-      if (lastMessage.content === demoConversation[demoIndex()].content) {
-        /*
-        await setAudioFromMessageText(lastMessage.content);
-        console.log("Audio set, playing!");
-        setPlaying(true);
-      }
-      socket.emit("start-transcription");
-    }
-  }, [messages]);
-  */
 
   function getMicStreamWithPermission() {
     pipe(
@@ -311,12 +273,11 @@ export default function HarmonyVoice() {
       async (result) => {
         return Exit.match(await result, {
           onSuccess: (stream) => {
-            console.log("Got audio stream!");
             streamChunksToServer(stream);
           },
           onFailure: console.error,
         });
-      }
+      },
     );
   }
 
@@ -324,19 +285,17 @@ export default function HarmonyVoice() {
     if (!user()) return;
     const recorderSignal = recorder();
     if (recorderSignal) {
-      console.log("Attempting to turn off recorder signal.");
       recorderSignal.stop();
       setRecorder(undefined);
     }
-    // socket?.disconnect();
   }
 
   onCleanup(handleCleanup);
+  const navigate = useNavigate();
 
   onMount(async () => {
     const teamData = await getListOfTeams();
     const defaultTeam = teamData.find((team) => team.team.defaultTeam);
-    setInterval(() => setCounter(counter() + 1), 1000);
     const user = await getUser();
     setUser(user);
     setPlaying(false);
@@ -347,12 +306,17 @@ export default function HarmonyVoice() {
       if (e.key !== "p") return;
       e.preventDefault();
       setDemoIndex((index) => index + 1);
+      if (demoIndex() === demoConversation.length) {
+        return navigate("/team/1/calendar");
+      }
       const message = demoConversation[demoIndex()].content as string;
       if (currentStreamedRole() === "assistant") {
         setUserMessage(demoConversation[demoIndex()].content as string);
+        const nextMessage = demoConversation[demoIndex() + 1].content as string;
+        if (typeof nextMessage === "string")
+          await setAudioFromMessageText(nextMessage);
       } else if (currentStreamedRole() === "user") {
         setAIMessage(message);
-        await setAudioFromMessageText(message);
         setPlaying(true);
       }
 
@@ -395,21 +359,17 @@ export default function HarmonyVoice() {
         blob,
         URL.createObjectURL,
         (url) => {
-          console.log(url);
           return url;
         },
-        setAudioSource
+        setAudioSource,
       );
     }
   }
 
   return (
-    <div class="flex flex-col items-center justify-between h-full pb-8 bg-gradient-to-b from-[#987CFF] to-[#C9BDF7]">
+    <div class="flex flex-col items-center justify-between h-full pb-8 bg-gradient-to-b from-[#7859EA] to-[#C9BDF7]">
       <div class="w-full">
         <div class="flex flex-col items-center mt-10">
-          <h3 class="text-xl font-grotesque text-white">
-            {formatCounter(counter())}
-          </h3>
           <h2 class="text-4xl mt-2 text-white">Harmony</h2>
           <div class="flex flex-row bg-black/15 rounded-full px-4 gap-0.5 h-6 items-center mt-2">
             {Array(7)
@@ -429,7 +389,9 @@ export default function HarmonyVoice() {
         <ImageRoot
           class={twMerge(
             "mt-0 ml-4 h-[260px] w-[260px]",
-            messages().at(-1)?.role === "assistant" ? "h-[280px] w-[280px]" : ""
+            messages().at(-1)?.role === "assistant"
+              ? "h-[280px] w-[280px]"
+              : "",
           )}
         >
           <Image class="w-full" src={HarmonyMascotAnimated} />
@@ -456,7 +418,7 @@ export default function HarmonyVoice() {
         <A onClick={handleCleanup} href="/harmony-ai/chat">
           <div class="flex flex-col items-center gap-2">
             <div class="rounded-full bg-[#FE463C] w-20 h-20 flex items-center justify-center">
-              <ImageRoot class="">
+              <ImageRoot class="w-12 h-12">
                 <Image class="w-full" src={EndCall} />
               </ImageRoot>
             </div>
@@ -467,22 +429,49 @@ export default function HarmonyVoice() {
           <div
             class={twMerge(
               "rounded-full bg-[#1E1E1E]/15 w-16 h-16 flex items-center justify-center",
-              muted() ? "border-2 border-red-500" : ""
+              muted() ? "bg-white text-error" : "",
             )}
             onClick={() => {
               setMuted((muted) => {
                 const newMuted = !muted;
 
                 socket.emit(
-                  newMuted ? "end-transcription" : "start-transcription"
+                  newMuted ? "end-transcription" : "start-transcription",
                 );
 
                 return newMuted;
               });
             }}
           >
-            <ImageRoot class="p-1 ">
-              <Image class="w-full" src={Mute} />
+            <ImageRoot class="p-1">
+              <svg
+                width="35"
+                height="34"
+                viewBox="0 0 35 34"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <g clip-path="url(#clip0_1993_1978)">
+                  <path
+                    d="M27.8685 17.0456C27.8685 18.2226 27.6723 19.3558 27.3134 20.4117L25.6147 18.713C25.7258 18.1642 25.7818 17.6056 25.7816 17.0456V14.9587C25.7816 14.682 25.8916 14.4166 26.0872 14.2209C26.2829 14.0252 26.5483 13.9153 26.8251 13.9153C27.1018 13.9153 27.3672 14.0252 27.5629 14.2209C27.7586 14.4166 27.8685 14.682 27.8685 14.9587V17.0456ZM17.4341 25.3931C19.1412 25.3931 20.7272 24.8818 22.0503 24.0012L23.5487 25.5016C22.059 26.5819 20.3088 27.2467 18.4776 27.4278V31.6537H24.7382C25.0149 31.6537 25.2803 31.7637 25.476 31.9594C25.6717 32.155 25.7816 32.4204 25.7816 32.6972C25.7816 32.9739 25.6717 33.2393 25.476 33.435C25.2803 33.6307 25.0149 33.7406 24.7382 33.7406H10.1301C9.85333 33.7406 9.58793 33.6307 9.39225 33.435C9.19656 33.2393 9.08663 32.9739 9.08663 32.6972C9.08663 32.4204 9.19656 32.155 9.39225 31.9594C9.58793 31.7637 9.85333 31.6537 10.1301 31.6537H16.3907V27.4278C13.8169 27.1691 11.431 25.9637 9.69575 24.0453C7.96052 22.1269 6.99972 19.6324 6.99976 17.0456V14.9587C6.99976 14.682 7.10969 14.4166 7.30537 14.2209C7.50105 14.0252 7.76646 13.9153 8.04319 13.9153C8.31993 13.9153 8.58533 14.0252 8.78101 14.2209C8.9767 14.4166 9.08663 14.682 9.08663 14.9587V17.0456C9.08663 19.2595 9.9661 21.3827 11.5316 22.9482C13.097 24.5136 15.2202 25.3931 17.4341 25.3931ZM23.6948 6.61124V16.7931L11.5032 4.60158C11.981 3.19761 12.9415 2.00875 14.2137 1.24665C15.486 0.484539 16.9874 0.198641 18.4507 0.43985C19.9139 0.681059 21.2441 1.43372 22.2045 2.56384C23.1648 3.69396 23.6929 5.12821 23.6948 6.61124Z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M20.5352 22.4861L11.1735 13.1223V17.0456C11.1731 18.1419 11.4607 19.219 12.0073 20.1693C12.554 21.1195 13.3405 21.9096 14.2884 22.4604C15.2362 23.0112 16.3121 23.3035 17.4083 23.308C18.5046 23.3125 19.5828 23.0291 20.5352 22.4861ZM4.17407 3.17624L29.2166 28.2187L30.6941 26.7412L5.65158 1.69873L4.17407 3.17624Z"
+                    fill="currentColor"
+                  />
+                </g>
+                <defs>
+                  <clipPath id="clip0_1993_1978">
+                    <rect
+                      width="33.39"
+                      height="33.39"
+                      fill="currentColor"
+                      transform="translate(0.739014 0.350586)"
+                    />
+                  </clipPath>
+                </defs>
+              </svg>
             </ImageRoot>
           </div>
           <p>Mute</p>

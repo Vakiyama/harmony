@@ -80,7 +80,6 @@ export default function UserInfo2() {
       newErrors["gender"] = null;
     }
     setErrors(newErrors);
-    console.log(errors());
     if (!hasError) {
       team.nextStep();
     }

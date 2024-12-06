@@ -18,6 +18,7 @@ import { TeamWithDefault } from "../../../drizzle/schema/Teams";
 import { getUser } from "~/api/server";
 import { users } from "@/schema/Users";
 import { InferSelectModel } from "drizzle-orm";
+import { useTeam } from "~/context/team-context";
 
 export default function NavBar(props: {
   teamData: { team: TeamWithDefault }[] | undefined;
@@ -27,18 +28,23 @@ export default function NavBar(props: {
   const params = useParams();
   const [teamId, setTeamId] = createSignal<number | undefined>();
   const [user, setUser] = createSignal<Awaited<ReturnType<typeof getUser>>>();
-
+  const team = useTeam();
   onMount(async () => {
     setUser(await getUser());
   });
 
   createEffect(() => {
-    const defaultTeam = props.teamData?.find(
-      (team) => team.team.defaultTeam === true
-    );
-    setTeamId(defaultTeam?.team.id || undefined);
+    if (team.state.id === -1 || team.state.id === undefined) {
+      const defaultTeam = props.teamData?.find(
+        (team) => team.team.defaultTeam === true
+      );
+      if (!defaultTeam) return;
+      setTeamId(defaultTeam?.team.id || undefined);
+      team.updateTeamId(defaultTeam?.team.id!);
+    } else {
+      setTeamId(team.state.id);
+    }
   });
-
   const routes = createMemo(() => {
     return [
       { icon: <HomeIcon />, label: "Home", href: "/" },
@@ -59,8 +65,7 @@ export default function NavBar(props: {
       {
         icon: <JournalIcon />,
         label: "Journal",
-        href:
-          teamId() === undefined ? `/team/create` : `/team/${teamId()}/journal`,
+        href: `/team/${teamId()}/journal`,
       },
       { icon: <ProfileIcon />, label: "Profile", href: "/profile" },
     ];

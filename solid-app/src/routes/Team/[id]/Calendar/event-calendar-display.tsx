@@ -29,7 +29,7 @@ const EventCalendarDisplay = (props: {
   };
 
   return (
-    <div class="w-full flex-col justify-start items-end gap-5 inline-flex overflow-scroll max-h-screen">
+    <div class="w-full flex-col justify-start items-end gap-5 inline-flex overflow-scroll h-full">
       <For each={getDates()}>
         {(date) => (
           <div class="self-stretch justify-between items-start inline-flex space-x-5">

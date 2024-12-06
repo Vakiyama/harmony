@@ -17,7 +17,6 @@ import ShowError from "~/routes/Team/[id]/journal/show-error";
 import { Button } from "~/components/ui/button";
 import AddNote from "~/routes/Team/[id]/journal/add-notes";
 import Header from "./header";
-import Upload from "./upload";
 import { showNotification } from "~/routes/api/notificationStore";
 import NotesIcon from "~/components/icon/notes-icon";
 import DeleteConfirmation from "~/components/shared/delete-confirmation";
@@ -117,18 +116,6 @@ export default function CreateNote() {
                   placeholder="Add your notes for the day!"
                   content={noteValue()}
                 />
-                <label class="text-h4">Add Media</label>
-                <div class="flex flex-row w-full gap-2">
-                  <div class="w-full" onClick={() => setShowAddPhoto(true)}>
-                    <Upload type="photo" description="Tap to add a photo" />
-                  </div>
-                  <label class="w-full cursor-pointer">
-                    <input type="file" id="fileInput" hidden />
-                    <div>
-                      <Upload type="file" description="Tap to upload a file" />
-                    </div>
-                  </label>
-                </div>
                 <Button
                   class="rounded-[100px] h-12 w-full bg-primary-purple-300 text-black"
                   variant="default"
@@ -161,8 +148,6 @@ export default function CreateNote() {
             <AddPhotoModal
               onCancel={() => setShowAddPhoto(false)}
               onClose={() => setShowAddPhoto(false)}
-              // onCamera={() => }
-              // onFromGallery={() => }
             />
           </Show>
         </section>

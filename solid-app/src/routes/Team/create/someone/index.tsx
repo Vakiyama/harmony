@@ -1,8 +1,6 @@
 import { useAction, useNavigate } from "@solidjs/router";
 import { createEffect, createSignal, Show } from "solid-js";
 import { useTeam } from "~/context/team-context";
-import { showNotification } from "~/routes/api/notificationStore";
-
 import TeamTopNav from "~/components/team/team-top-nav";
 import { Button } from "~/components/ui/button";
 import UploadPhoto from "../../../../components/team/upload-photo";
@@ -13,7 +11,6 @@ import UserHealth2 from "../../../../components/team/user-health-2";
 import UserRelationship from "../../../../components/team/user-relationship";
 import AddMedication from "../../../../components/team/add-medication";
 import { TextField, TextFieldRoot } from "~/components/ui/textfield";
-import TeamUserRole from "../../../../components/team/team-user-role";
 import ReviewTeamInfo from "~/components/team/review-team-info";
 import Notification from "~/components/shared/notification";
 import aiButton from "~/components/svg/ai-icon";
@@ -92,13 +89,13 @@ export default function CreateSomeone() {
         setTeamError(recipientResult.error || "Failed to create recipient");
         throw new Error(recipientResult.error || "Failed to create recipient");
       }
-      showNotification("Recipient created successfully");
 
       // create team
       const teamResult = (await teamAction({
         teamInput: {
           teamName: team.state.teamName,
           recipientId: recipientResult.recipientId,
+          photo: recipientResult.photo || "",
           memberRelationship: team.state.memberRelationship,
         },
       })) as CreateTeamActionResponse;
@@ -107,7 +104,6 @@ export default function CreateSomeone() {
         setTeamError(teamResult.error || "Failed to create team");
         throw new Error(teamResult.error || "Failed to create team");
       }
-      showNotification("Team created successfully");
 
       // create important surgeries
       if (
@@ -115,7 +111,6 @@ export default function CreateSomeone() {
         team.state.importantSurgeries[0].name !== "" &&
         team.state.importantSurgeries[0].year !== ""
       ) {
-        console.log("before creating", team.state.importantSurgeries);
         const surgeryResult = (await surgeryAction({
           surgeriesInput: {
             surgeries: team.state.importantSurgeries,
@@ -124,10 +119,8 @@ export default function CreateSomeone() {
         })) as CreateSurgeryActionResponse;
 
         if (!surgeryResult.success) {
-          console.log(surgeryResult.error || "Failed to create surgeries");
-          // setTeamError(surgeryResult.error || "Failed to create surgeries");
+          console.error(surgeryResult.error || "Failed to create surgeries");
         }
-        showNotification("Surgeries added successfully");
       }
 
       // create past injuries
@@ -135,7 +128,6 @@ export default function CreateSomeone() {
         team.state.pastInjuries.length > 0 &&
         team.state.pastInjuries[0].name.trim() !== ""
       ) {
-        console.log("before creating", team.state.pastInjuries);
         const injuryResult = (await injuryAction({
           injuriesInput: {
             injuries: team.state.pastInjuries,
@@ -144,10 +136,8 @@ export default function CreateSomeone() {
         })) as CreateInjuryActionResponse;
 
         if (!injuryResult.success) {
-          console.log(injuryResult.error || "Failed to create injuries");
-          // setTeamError(injuryResult.error || "Failed to create injuries");
+          console.error(injuryResult.error || "Failed to create injuries");
         }
-        showNotification("Past injuries added successfully");
       }
 
       // create medications
@@ -160,15 +150,13 @@ export default function CreateSomeone() {
         })) as CreateMedicationActionResponse;
 
         if (!medicationResult.success) {
-          console.log(medicationResult.error || "Failed to create medications");
-          // setTeamError(medicationResult.error ||"Failed to create medication");
+          console.error(
+            medicationResult.error || "Failed to create medications"
+          );
         }
-        showNotification("Medications added successfully");
       }
-      showNotification("Created Team successfully");
-      await new Promise((resolve) => setTimeout(resolve, 3000));
       team.resetForm();
-      window.location.href = "/";
+      navigate(`/team/${teamResult.teamId}`);
     } catch (error) {
       console.error("Error creating team or recipient:", error);
       setTeamError("Failed to create team");
@@ -187,8 +175,8 @@ export default function CreateSomeone() {
             }
             return back()();
           }}
-          rightText={team.currentStep() === 10 ? "Create Team" : aiButton()}
-          rightAction={team.currentStep() === 10 ? handleSubmit : undefined}
+          rightText={team.currentStep() === 9 ? "Create Team" : aiButton()}
+          rightAction={team.currentStep() === 9 ? handleSubmit : undefined}
           isCreating={isCreating()}
         />
       </Show>
@@ -272,11 +260,11 @@ export default function CreateSomeone() {
         </Show>
 
         {/* step 9: team Name */}
-        <Show when={team.currentStep() === 9}>
+        {/* <Show when={team.currentStep() === 9}>
           <TeamUserRole />
-        </Show>
+        </Show> */}
         {/* step 10: review */}
-        <Show when={team.currentStep() === 10}>
+        <Show when={team.currentStep() === 9}>
           <ReviewTeamInfo />
         </Show>
       </form>

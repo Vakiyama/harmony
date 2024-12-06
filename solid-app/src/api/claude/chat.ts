@@ -77,7 +77,7 @@ all caps isn't very natural.
 When asking for info, try to be conversational as much as possible! Instead of asking for 7 different things at once,
 ask for them one at a time. This will keep the caretaker more engaged and less confused!
 
-The current date is: ${new Date(Date.now()).toLocaleTimeString()}
+The current date is: ${new Date().toLocaleString()}
 `;
 
 const CHAT_SYSTEM_MESSAGE_WITH_VOICE = `
@@ -171,7 +171,7 @@ const createJournalEntryToolDefinition = Effect.runSync(
     The current time is: ${new Date().toLocaleString()}
     `,
     schema: createJournalEntryToolSchema,
-  }),
+  })
 );
 
 class InvalidCategoryForJournalCreationError {
@@ -209,7 +209,7 @@ function createJournalTool(params: {
   toolCall: CreateJournalEntryToolUse;
 }) {
   const value = Object.entries(journalTables).find(
-    ([key]) => key === params.entry.category,
+    ([key]) => key === params.entry.category
   );
   return pipe(
     Effect.try({
@@ -242,7 +242,7 @@ function createJournalTool(params: {
             .values(
               noteId
                 ? ({ ...params.entry.values, noteId } as any)
-                : params.entry.values,
+                : params.entry.values
             )
             .returning();
 
@@ -254,8 +254,8 @@ function createJournalTool(params: {
           return result;
         },
         catch: (e) => new InsertDBError(e, params.toolCall),
-      }),
-    ),
+      })
+    )
   );
 }
 
@@ -282,13 +282,13 @@ const createCalendarEventToolDefinition = Effect.runSync(
 
     timeStart and timeEnd should be parsable by the javascript new Date() constructor and will be fed directly to it.
     `,
-  }),
+  })
 );
 
 function createCalendarEventTool(
   params: z.infer<typeof eventCreationSchema>,
   teamId: number,
-  toolUse: ToolUse,
+  toolUse: ToolUse
 ) {
   return pipe(
     Effect.tryPromise({
@@ -311,8 +311,8 @@ function createCalendarEventTool(
           console.error(e);
           return new InsertDBError(e, toolUse);
         },
-      }),
-    ),
+      })
+    )
   );
 }
 
@@ -320,12 +320,12 @@ const queryCalendarToolSchema = z.object({
   startDate: z
     .string()
     .describe(
-      "A date in A date in MM/DD/YYYY format. Example: 11/01/2024. This is the start of the time range you are querying.",
+      "A date in A date in MM/DD/YYYY format. Example: 11/01/2024. This is the start of the time range you are querying."
     ),
   endDate: z
     .string()
     .describe(
-      "A date in A date in MM/DD/YYYY format. Example: 12/01/2024. This is the end of the time range you are querying.",
+      "A date in A date in MM/DD/YYYY format. Example: 12/01/2024. This is the end of the time range you are querying."
     ),
 });
 
@@ -346,13 +346,12 @@ const queryCalendarToolDefinition = Effect.runSync(
     The result will be sorted in ascending order (newest items first in the array.)
     `,
     schema: queryCalendarToolSchema,
-  }),
+  })
 );
 
-getCalendarFromTeamId;
 function queryCalendarTool(
   params: z.infer<typeof queryCalendarToolSchema>,
-  teamId: number,
+  teamId: number
 ) {
   return pipe(
     Effect.tryPromise({
@@ -368,9 +367,9 @@ function queryCalendarTool(
         Effect.flatMap((calendarResult) =>
           Object.keys(calendarResult).includes("error")
             ? Effect.fail(
-              new QueryDBError("Permissions error when querying calendar"),
-            )
-            : Effect.succeed(calendarResult),
+                new QueryDBError("Permissions error when querying calendar")
+              )
+            : Effect.succeed(calendarResult)
         ),
         Effect.map((calendars) => {
           const eventsAndJournal = {
@@ -390,17 +389,17 @@ function queryCalendarTool(
           ];
           const sorted = all.toSorted(
             (first, second) =>
-              first.timeStart.getTime() - second.timeStart.getTime(),
+              first.timeStart.getTime() - second.timeStart.getTime()
           );
 
           return sorted.filter(
             (item) =>
               item.timeStart.getTime() > new Date(params.startDate).getTime() &&
-              item.timeStart.getTime() < new Date(params.endDate).getTime(),
+              item.timeStart.getTime() < new Date(params.endDate).getTime()
           );
-        }),
+        })
       );
-    }),
+    })
   );
 }
 
@@ -417,7 +416,7 @@ const queryJournalToolDefinition = Effect.runSync(
       Only call this tool if you need that information, otherwise, just assist the user.
       `,
     schema: queryJournalToolSchema,
-  }),
+  })
 );
 
 class QueryJournalDBError {
@@ -431,7 +430,7 @@ class QueryJournalDBError {
 
 function queryJournalTool(
   params: z.infer<typeof queryJournalToolSchema>,
-  teamId: number,
+  teamId: number
 ) {
   const result = Match.value(params).pipe(
     // please don't ever repeat code this much i'm jsut lazy rn ok
@@ -445,7 +444,7 @@ function queryJournalTool(
             .leftJoin(users, eq(users.id, notes.userId))
             .where(eq(moods.userId, teamId)),
         catch: (error) => new QueryJournalDBError(error),
-      }),
+      })
     ),
     Match.when({ category: "sleep" }, () =>
       Effect.tryPromise({
@@ -458,13 +457,13 @@ function queryJournalTool(
             .where(eq(sleeps.userId, teamId)),
 
         catch: (error) => new QueryJournalDBError(error),
-      }),
+      })
     ),
     Match.when({ category: "note" }, () =>
       Effect.tryPromise({
         try: () => db.select().from(notes).where(eq(notes.userId, teamId)),
         catch: (error) => new QueryJournalDBError(error),
-      }),
+      })
     ),
     Match.when({ category: "meal" }, () =>
       Effect.tryPromise({
@@ -476,7 +475,7 @@ function queryJournalTool(
             .leftJoin(users, eq(users.id, meals.userId))
             .where(eq(meals.userId, teamId)),
         catch: (error) => new QueryJournalDBError(error),
-      }),
+      })
     ),
     Match.when({ category: "medication" }, () =>
       Effect.tryPromise({
@@ -492,15 +491,15 @@ function queryJournalTool(
             .leftJoin(users, eq(users.id, takenMedications.userId))
             .innerJoin(
               medications,
-              eq(takenMedications.medicationId, medications.id),
+              eq(takenMedications.medicationId, medications.id)
             )
             .where(eq(takenMedications.userId, teamId)),
 
         catch: (error) => new QueryJournalDBError(error),
-      }),
+      })
     ),
     Match.exhaustive,
-    Effect.map((result) => ({ result, category: params.category })),
+    Effect.map((result) => ({ result, category: params.category }))
   );
   return result;
 }
@@ -558,7 +557,7 @@ function makeClaudeToolCall(
   result: GraphState,
   id: number,
   teamId: number,
-  voice?: boolean,
+  voice?: boolean
 ) {
   return Effect.tryPromise({
     try: () => getRecipientFromUserId(id, teamId),
@@ -590,19 +589,21 @@ function makeClaudeToolCall(
         ## User information:
 
           ${info.user}
-`,
-              ),
+`
+              )
             ),
           onLeft: () =>
             Effect.succeed("") as Effect.Effect<string, QueryDBError>,
-        }),
+        })
       );
       return pipe(
         extra.pipe(
           Effect.flatMap((extraInfo) =>
             callClaudeWithTools({
               claudeSettings: defaultClaudeSettings,
-              system: `${voice ? CHAT_SYSTEM_MESSAGE_WITH_VOICE : CHAT_SYSTEM_MESSAGE}
+              system: `${
+                voice ? CHAT_SYSTEM_MESSAGE_WITH_VOICE : CHAT_SYSTEM_MESSAGE
+              }
               ${extraInfo} 
         `,
               retryCount: 5,
@@ -610,11 +611,11 @@ function makeClaudeToolCall(
               type: "tools",
               toolChoice: { type: "auto" },
               tools: [...claudeTools],
-            }),
-          ),
-        ),
+            })
+          )
+        )
       );
-    }),
+    })
   );
 }
 
@@ -622,7 +623,7 @@ type ExtractValue<T> = T extends Effect.Effect<infer R, any, any> ? R : never;
 
 function handleNoToolCall(
   assitantResponse: AssistantResponse,
-  state: GraphState,
+  state: GraphState
 ) {
   const newMessage = createMessage({
     role: "assistant",
@@ -639,7 +640,7 @@ function handleToolCall(
   toolCall: ToolCallResult<[]>,
   state: GraphState,
   userId: number,
-  teamId: number,
+  teamId: number
 ) {
   return pipe(toolCall, (toolCall) =>
     Match.value(toolCall.toolCall).pipe(
@@ -663,13 +664,13 @@ function handleToolCall(
                   },
                 ],
                 prev: Option.some(toolCallMessage),
-              }),
+              })
             );
 
             getLast(state.messages).next = Option.some(toolCallMessage);
 
             return { messages: getFirst(state.messages) };
-          }),
+          })
         );
       }),
       Match.when({ name: "getJournalEntries" }, (toolCall) =>
@@ -688,18 +689,24 @@ function handleToolCall(
                   {
                     type: "tool_result",
                     tool_use_id: toolCall.id,
-                    content: `Category: ${callResult.category}, Result: ${JSON.stringify(callResult.result, undefined, 2)}`,
+                    content: `Category: ${
+                      callResult.category
+                    }, Result: ${JSON.stringify(
+                      callResult.result,
+                      undefined,
+                      2
+                    )}`,
                   },
                 ],
                 prev: Option.some(toolCallMessage),
-              }),
+              })
             );
 
             getLast(state.messages).next = Option.some(toolCallMessage);
 
             return { messages: getFirst(state.messages) };
-          }),
-        ),
+          })
+        )
       ),
       Match.when({ name: "createJournalEntry" }, (toolCall) =>
         pipe(
@@ -725,14 +732,14 @@ function handleToolCall(
                   },
                 ],
                 prev: Option.some(toolCallMessage),
-              }),
+              })
             );
 
             getLast(state.messages).next = Option.some(toolCallMessage);
 
             return { messages: getFirst(state.messages) };
-          }),
-        ),
+          })
+        )
       ),
       Match.when({ name: "getCalendar" }, (toolCall) =>
         pipe(
@@ -754,16 +761,16 @@ function handleToolCall(
                   },
                 ],
                 prev: Option.some(toolCallMessage),
-              }),
+              })
             );
             getLast(state.messages).next = Option.some(toolCallMessage);
 
             return { messages: getFirst(state.messages) };
-          }),
-        ),
+          })
+        )
       ),
-      Match.orElse(() => Effect.fail(new ToolNameNotFound())),
-    ),
+      Match.orElse(() => Effect.fail(new ToolNameNotFound()))
+    )
   );
 }
 
@@ -771,7 +778,7 @@ function handleClaudeResponse(
   result: ExtractValue<ReturnType<typeof makeClaudeToolCall>>,
   state: GraphState,
   userId: number,
-  teamId: number,
+  teamId: number
 ) {
   return Either.match(result, {
     onLeft: (res) => handleNoToolCall(res, state),
@@ -783,14 +790,14 @@ function chat(
   state: GraphState,
   userId: number,
   teamId: number,
-  voice?: boolean,
+  voice?: boolean
 ) {
   return pipe(
     state,
     (state) => makeClaudeToolCall(state, userId, teamId, voice),
     Effect.flatMap((result) =>
-      handleClaudeResponse(result, state, userId, teamId),
-    ),
+      handleClaudeResponse(result, state, userId, teamId)
+    )
   );
 }
 
@@ -800,7 +807,7 @@ export const harmonyChat = async (
   message: ArrayMessage[],
   id: number,
   teamId: number,
-  voice?: boolean,
+  voice?: boolean
 ): Promise<ArrayMessage[] | void> => {
   const index = chatStates.findIndex((state) => state.id === id);
   if (index === -1) {
@@ -819,7 +826,7 @@ export const harmonyChat = async (
     },
     id,
     teamId,
-    voice,
+    voice
   );
 
   const next = await Effect.runPromiseExit(
@@ -843,7 +850,7 @@ export const harmonyChat = async (
                 },
               ],
               prev: Option.some(toolCallMessage),
-            }),
+            })
           );
 
           const last = getLast(Option.getOrThrow(toLinkedList(message)));
@@ -856,9 +863,9 @@ export const harmonyChat = async (
         }
       }),
       Effect.retry(
-        Schedule.exponential(1000).pipe(Schedule.compose(Schedule.recurs(3))),
-      ),
-    ),
+        Schedule.exponential(1000).pipe(Schedule.compose(Schedule.recurs(3)))
+      )
+    )
   );
 
   return next.pipe(
@@ -873,6 +880,7 @@ export const harmonyChat = async (
         const unwrapped = toArray(getFirst(next.messages));
 
         const lastMessage = unwrapped.at(-1);
+        /*
         if (lastMessage) {
           if (typeof lastMessage.content === "string") {
             return unwrapped;
@@ -882,8 +890,9 @@ export const harmonyChat = async (
             return harmonyChat(unwrapped, id, teamId, voice);
           }
         }
+        */
         return unwrapped;
       },
-    }),
+    })
   );
 };

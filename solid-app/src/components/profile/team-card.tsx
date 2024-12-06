@@ -1,5 +1,4 @@
 import { A } from "@solidjs/router";
-import { Image, ImageRoot } from "../ui/image";
 import TeamImage from "./team-image";
 
 export default function TeamCard(props: {
@@ -7,6 +6,7 @@ export default function TeamCard(props: {
   imageUrl: string;
   href: string;
 }) {
+  console.log(typeof props.imageUrl);
   return (
     <A
       href={props.href}
@@ -16,7 +16,7 @@ export default function TeamCard(props: {
         <TeamImage teamName={props.teamName} imageUrl={props.imageUrl} />
       </div>
 
-      <div class="flex items-center justify-center text-base font-medium w-full h-[35px]">
+      <div class="flex items-center justify-center text-base font-medium w-full h-[35px] overflow-hidden">
         {props.teamName}
       </div>
     </A>

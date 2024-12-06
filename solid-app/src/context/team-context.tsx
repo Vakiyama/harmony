@@ -2,13 +2,12 @@ import {
   createContext,
   ParentComponent,
   useContext,
-  JSX,
   createSignal,
   Accessor,
   onMount,
 } from "solid-js";
 import { createStore } from "solid-js/store";
-import { db } from "~/api/db";
+import { getListOfTeams, getTeamFromTeamId } from "~/api/team";
 
 export interface FormState {
   id: number;
@@ -112,12 +111,14 @@ export const TeamProvider: ParentComponent = (props) => {
 
   const contextValue: FormContextValue = {
     state,
-
     updateField: (section, field, value) => {
       setState(section as any, field as any, value);
     },
     updateTeamId: (value: number) => {
       setState("id", value);
+      getTeamFromTeamId(value).then(
+        (result) => result && setState("teamName", result.data.teams.teamName)
+      );
     },
     updateTeamName: (value: string) => {
       setState("teamName", value);
@@ -206,5 +207,18 @@ export const useTeam = () => {
   if (!context) {
     throw new Error("useTeam must be used within a TeamProvider");
   }
+
+  onMount(async () => {
+    const teamData = await getListOfTeams();
+    const defaultTeam = teamData.find((team) => team.team.defaultTeam);
+    if (defaultTeam && context.state.id === -1) {
+      context.updateTeamId(defaultTeam.team.id);
+    } else if (!defaultTeam && context.state.id === -1) {
+      if (teamData.length > 0) {
+        context.updateTeamId(teamData[0].team.id);
+      }
+    }
+  });
+
   return context;
 };

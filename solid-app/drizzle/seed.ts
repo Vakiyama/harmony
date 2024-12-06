@@ -207,8 +207,8 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
       location: "Local Clinic",
       repeat: "never",
       type: "task",
-      timeStart: new Date("2024-11-27T11:30:00"),
-      timeEnd: new Date("2024-11-27T12:00:00"),
+      timeStart: new Date("2024-12-06T10:00:00"),
+      timeEnd: new Date("2024-12-06T11:00:00"),
     },
     {
       calendarId: Calendars[0].id,
@@ -217,8 +217,8 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
       location: "Supermarket",
       repeat: "never",
       type: "event",
-      timeStart: new Date("2024-11-27T11:00:00"),
-      timeEnd: new Date("2024-11-27T13:00:00"),
+      timeStart: new Date("2024-12-06T14:00:00"),
+      timeEnd: new Date("2024-12-06T15:00:00"),
     },
   ];
   for await (const data of eventsData) {
@@ -295,10 +295,10 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
       timeFrame: timeFrameEnumSleeps[1],
       troubleSleeping: false,
       duration: 8,
-      date: new Date(1732680000 * 1000),
+      date: new Date("2024-12-05T22:00:00"),
       teamId: teamsList[0].id,
       userId: usersData[1].id,
-      createdAt: new Date(1732722300 * 1000),
+      createdAt: new Date("2024-12-06T07:45:00"),
     })
     .returning()
     .onConflictDoNothing()
@@ -310,10 +310,10 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
       category: categoryEnumMeals[0],
       foodName: "Oatmeal",
       consumption: consumptionEnum[3],
-      date: new Date(1732728900 * 1000),
+      date: new Date("2024-12-06T09:35:00"),
       teamId: teamsList[0].id,
       userId: usersData[1].id,
-      createdAt: new Date(1732728900 * 1000),
+      createdAt: new Date("2024-12-06T09:35:00"),
     })
     .returning()
     .onConflictDoNothing()
@@ -323,12 +323,12 @@ export const seedData = async (user?: InferSelectModel<typeof users>) => {
     {
       type: journalType[3],
       entryId: sleepEntry.id,
-      createdAt: new Date(1732722300 * 1000),
+      createdAt: new Date("2024-12-06T07:45:00"),
     },
     {
       type: journalType[4],
       entryId: nutritionEntry.id,
-      createdAt: new Date(1732728900 * 1000),
+      createdAt: new Date("2024-12-06T09:35:00"),
     },
   ]);
 

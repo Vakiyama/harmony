@@ -1,9 +1,7 @@
-import { FaSolidPen } from "solid-icons/fa";
 import { For, JSXElement } from "solid-js";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "~/components/ui/landing/landing-card";

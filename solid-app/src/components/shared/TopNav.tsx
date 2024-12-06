@@ -11,6 +11,7 @@ export default function TopNav(props: {
   name?: JSX.Element;
   leftNavigation?: JSX.Element;
   rightNavigation?: JSX.Element;
+  backNav?: string;
   class?: string;
   forTeamSetting?: {
     teamData: { team: TeamWithDefault }[] | undefined;
@@ -25,8 +26,9 @@ export default function TopNav(props: {
   const team = useTeam();
   createEffect(() => {
     const defaultTeam = props.forTeamSetting?.teamData?.find(
-      (team) => team.team.defaultTeam === true
+      (team) => team.team.defaultTeam === true,
     );
+    if (!defaultTeam) return;
     setTeamName(defaultTeam?.team.name || undefined);
     team.updateTeamId(defaultTeam?.team.id!);
   });
@@ -60,10 +62,14 @@ export default function TopNav(props: {
   }
 
   if (
-    location.pathname.includes("/profile/") ||
+    location.pathname.startsWith("/profile/") ||
     location.pathname.endsWith(`/team/${params.id}`)
   ) {
     backLocation = "/profile";
+  }
+
+  if (location.pathname.startsWith("/profile/medication-detail")) {
+    backLocation = props.backNav;
   }
 
   if (location.pathname.startsWith(`/team/${params.id}/calendar/create`)) {
@@ -74,10 +80,10 @@ export default function TopNav(props: {
     <div
       class={twMerge(
         "w-full flex flex-row min-h-[95px] bg-white fixed top-0 items-center",
-        props.class ? props.class : ""
+        props.class ? props.class : "",
       )}
     >
-      <div class="w-full flex flex-row px-2 h-full items-center justify-start">
+      <div class="w-full flex flex-row px-2 h-full items-center justify-start gap-3">
         {/* Left column */}
         <div class="flex-1 flex items-center">
           {backLocation && props.leftNavigation ? (
@@ -121,14 +127,30 @@ export default function TopNav(props: {
                 )}
               </Show>
             </div>
+          ) : location.pathname.startsWith(`/profile/medication-detail`) ? (
+            <div class="flex flex-row items-center">
+              <h1 class="text-h4 font-medium flex items-center">
+                <span class="truncate overflow-hidden max-w-full">
+                  {props.name}
+                </span>
+              </h1>
+            </div>
           ) : props.name ? (
-            <h4 class="text-h4 font-medium">{props.name}</h4>
+            <div class="flex flex-row items-center">
+              <h1 class="text-h4 font-medium flex items-center">
+                <span class="truncate overflow-hidden max-w-[120px]">
+                  {props.name}
+                </span>
+                <span class="whitespace-nowrap">'s Care Team</span>
+              </h1>
+            </div>
           ) : null}
         </div>
 
         {/* Right column */}
         <div class="flex-1 flex justify-end items-center">
           {location.pathname.startsWith(`/team/${params.id}/journal`) ? (
+            //Not Implemented - search & filters for journal
             <div class="flex gap-x-3">
               {/* <svg
                 fill="none"
@@ -144,7 +166,7 @@ export default function TopNav(props: {
               >
                 <path d="M11 3A8 8 0 1 0 11 19 8 8 0 1 0 11 3z"></path>
                 <path d="M21 21 16.65 16.65"></path>
-              </svg> */}
+              </svg>
               <svg
                 fill="none"
                 stroke-width="0"
@@ -158,7 +180,7 @@ export default function TopNav(props: {
                   fill="currentColor"
                   d="M4 6a1 1 0 0 1 1-1h14a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1ZM4 18a1 1 0 0 1 1-1h14a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1ZM11 11a1 1 0 1 0 0 2h8a1 1 0 1 0 0-2h-8Z"
                 ></path>
-              </svg>
+              </svg> */}
             </div>
           ) : props.rightNavigation ? (
             <A href="/" class="text-md">

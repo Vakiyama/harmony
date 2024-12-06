@@ -67,17 +67,6 @@ const MealCard = ({ meal }: { meal: MealWithNoteUser }) => (
               title: "Additional Notes",
               content: <p class="text-subtitle">{meal.note.note}</p>,
             },
-            // {
-            //   content: (
-            //     <>
-            //       {/* Images */}
-            //       <div class="flex flex-row gap-x-2">
-            //         <LandingImage />
-            //         <LandingImage />
-            //       </div>
-            //     </>
-            //   ),
-            // },
           ]
         : []),
     ]}

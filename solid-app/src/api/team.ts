@@ -167,10 +167,9 @@ export const getListOfTeams = async () => {
   if (!userId) {
     return [];
   }
-  console.log("userid", userId);
   const [teamsError, teamsResult] = await mightFail(
     db
-      .select({
+      .selectDistinct({
         team: {
           id: teamMembers.teamId,
           name: teams.teamName,
@@ -183,11 +182,46 @@ export const getListOfTeams = async () => {
       .leftJoin(teams, eq(teamMembers.teamId, teams.id))
       .where(eq(teamMembers.userId, userId)),
   );
-  console.log(teamsResult);
   if (teamsError || !teamsResult.length) {
     return [];
   }
   return teamsResult;
+};
+
+export const getListOfTeamsNoMembers = async () => {
+  "use server";
+  const manager = await sessionManager();
+  const session = manager.getSession();
+  const userId: number = session.data.userId;
+  if (!userId) {
+    return [];
+  }
+  const [teamsError, teamsResult] = await mightFail(
+    db
+      .select({
+        team: {
+          id: teamMembers.teamId,
+          teamId: teams.id,
+          name: teams.teamName,
+          photo: teams.photo,
+          defaultTeam: teamMembers.defaultTeam,
+          inviteCode: teams.inviteCode,
+        },
+      })
+      .from(teamMembers)
+      .leftJoin(teams, eq(teamMembers.teamId, teams.id))
+      .where(eq(teamMembers.userId, userId)),
+  );
+  if (teamsError || !teamsResult.length) {
+    return [];
+  }
+  const uniqueTeams: typeof teamsResult = [];
+  teamsResult.forEach((result) => {
+    if (uniqueTeams.find((team) => result.team.teamId === team.team.teamId)) {
+      return;
+    } else uniqueTeams.push(result);
+  });
+  return uniqueTeams;
 };
 
 export const getTeamFromTeamId = async (teamId: number) => {
@@ -288,12 +322,10 @@ export const updateDefaultTeam = action(async (teamId: number) => {
   const session = await manager.getSession();
   const userId: number = session.data.userId;
   if (!userId) {
-    console.log("User is not Authenticated");
     return undefined;
   }
   const isMember = await isMemberOfTeam(userId, teamId);
   if (!isMember) {
-    console.log("Insufficient Permissions");
     return undefined;
   }
   const transactionResult = await db.transaction(async (tx) => {
@@ -333,7 +365,6 @@ export const updateDefaultTeam = action(async (teamId: number) => {
         details: newDefaultError,
       };
     }
-    console.log("Default team updated successfully!");
 
     const [selectError, selectResult] = await mightFail(
       tx
@@ -410,6 +441,7 @@ export const createRecipientAction = action(
     const [recipientError, recipientResult] = await mightFail(
       db.insert(recipients).values(recipientInput).returning({
         recipientId: recipients.id,
+        photo: recipients.photo,
       }),
     );
     if (recipientError) {
@@ -420,6 +452,7 @@ export const createRecipientAction = action(
       success: true,
       message: "Recipient successfully created.",
       recipientId: recipientResult[0].recipientId,
+      photo: recipientResult[0].photo,
     };
   },
   "createRecipientAction",
@@ -443,6 +476,7 @@ export const createTeamAction = action(
       teamName: string;
       recipientId: number;
       memberRelationship: string;
+      photo?: string;
     };
   }) => {
     "use server";
@@ -542,7 +576,6 @@ export const createSurgeryAction = action(
       if (!surgery.name || !surgery.year) {
         return { error: "Surgery name and year are required" };
       }
-      console.log("backend:", surgery);
       const [surgeriesError] = await mightFail(
         db.insert(importantSurgeries).values({ ...surgery, recipientId }),
       );
@@ -601,3 +634,52 @@ export const createPastInjuryAction = action(
   },
   "createPastInjuryAction",
 );
+
+export const uploadPhotoAction = action(async (formData: FormData) => {
+  const file = formData.get("photo") as File;
+  if (!file) {
+    return { error: "No file selected" };
+  }
+  try {
+    const response = await fetch("/api/photo/uploadPhoto", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { error: errorData.error || "Failed to upload photo" };
+    }
+    const data = await response.json();
+    return data.url;
+  } catch (error) {
+    return { error: "Failed to upload photo" };
+  }
+}, "uploadPhotoAction");
+
+export const getMedFromMedId = async (id: number) => {
+  "use server";
+  const manager = await sessionManager();
+  const session = manager.getSession();
+  const userId: number = session.data.userId;
+  if (!userId) {
+    return undefined;
+  }
+  const [medError, medResult] = await mightFail(
+    db
+      .select()
+      .from(medications)
+      .where(eq(medications.id, id))
+      .then((res) => res[0]),
+  );
+  if (medError || !medResult) {
+    return undefined;
+  }
+
+  const isMember = await isMemberOfTeam(userId, medResult.teamId);
+  if (!isMember) {
+    return undefined;
+  }
+
+  return medResult;
+};

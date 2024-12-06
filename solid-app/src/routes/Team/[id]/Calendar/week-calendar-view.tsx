@@ -1,8 +1,17 @@
-import { Accessor, createSignal, For, Setter, Show } from "solid-js";
+import {
+  Accessor,
+  createEffect,
+  createSignal,
+  For,
+  Setter,
+  Show,
+} from "solid-js";
 import moment from "moment";
 import { Event } from "@/schema/Events";
 import EventCalendarDisplay from "./event-calendar-display";
 import { CalendarJournalType } from ".";
+import { getEventBackground } from "~/utils/getEventBackground";
+import { cn } from "~/libs/cn";
 
 const WeekCalendarView = (props: {
   selectedDay: Accessor<number>;
@@ -19,11 +28,15 @@ const WeekCalendarView = (props: {
   isCalendarOpen: Accessor<boolean>;
   teamId: number;
 }) => {
+  const [slideDirection, setSlideDirection] = createSignal<
+    "left" | "right" | null
+  >(null);
   const weekdays = moment.weekdaysMin();
 
   const [currentWeekStart, setCurrentWeekStart] = createSignal(
     moment().startOf("week")
   );
+  const [weekEvents, setWeekEvents] = createSignal(props.events());
 
   const [daysWithDates, setDaysWithDates] = createSignal(
     Array.from({ length: 7 }, (_, i) => {
@@ -38,12 +51,40 @@ const WeekCalendarView = (props: {
   );
 
   const hasEventsOnDay = (dayInfo: { fullDate: moment.Moment }) => {
-    return props.events().some((event) => {
+    const matchingEvents = props.events().filter((event) => {
       if (!event.timeStart) return false;
       const eventDate = moment(event.timeStart);
       return eventDate.isSame(dayInfo.fullDate, "day");
     });
+
+    return {
+      hasEvents: matchingEvents.length > 0,
+      eventCount: matchingEvents.length,
+    };
   };
+
+  function getClosestEvents(events: (Event | CalendarJournalType)[]) {
+    const now = moment();
+
+    const sortedEvents = events
+      .filter((event) => event.timeStart)
+      .map((event) => {
+        const timeDiff = moment(event.timeStart).diff(now);
+        return { ...event, timeDiff };
+      })
+      .sort((a, b) => {
+        const absDiffA = Math.abs(a.timeDiff);
+        const absDiffB = Math.abs(b.timeDiff);
+
+        if (a.timeDiff < 0 && b.timeDiff >= 0) return -1;
+        if (a.timeDiff >= 0 && b.timeDiff < 0) return 1;
+
+        return absDiffA - absDiffB;
+      })
+      .slice(0, 3);
+
+    return sortedEvents.sort((a, b) => a.timeDiff - b.timeDiff);
+  }
 
   const handleSelectDay = (dayInfo: {
     day: string;
@@ -58,25 +99,41 @@ const WeekCalendarView = (props: {
   };
 
   const handleCurrentWeek = (change: number) => {
-    const newStart = currentWeekStart().add(change, "week");
-    setCurrentWeekStart(newStart);
+    setSlideDirection(change > 0 ? "left" : "right");
 
-    const midWeek = newStart.clone().add(3, "days");
-    props.setCurrentMonth(midWeek.format("MMMM"));
-    props.setCurrentYear(midWeek.year());
+    setTimeout(() => {
+      const newStart = currentWeekStart().clone().add(change, "week");
+      setCurrentWeekStart(newStart);
 
-    setDaysWithDates(
-      Array.from({ length: 7 }, (_, i) => {
-        const date = newStart.clone().add(i, "days");
-        return {
-          day: date.format("D"),
-          month: date.format("MMMM"),
-          year: date.year(),
-          fullDate: date,
-        };
-      })
-    );
+      const midWeek = newStart.clone().add(3, "days");
+      props.setCurrentMonth(midWeek.format("MMMM"));
+      props.setCurrentYear(midWeek.year());
+
+      setDaysWithDates(
+        Array.from({ length: 7 }, (_, i) => {
+          const date = newStart.clone().add(i, "days");
+          return {
+            day: date.format("D"),
+            month: date.format("MMMM"),
+            year: date.year(),
+            fullDate: date,
+          };
+        })
+      );
+      setSlideDirection(null);
+    }, 300);
   };
+
+  createEffect(() => {
+    const startOfWeek = currentWeekStart();
+    const endOfWeek = moment(startOfWeek).endOf("week");
+
+    const filteredEvents = props.events().filter((event) => {
+      const eventStartTime = moment(event.timeStart);
+      return eventStartTime.isBetween(startOfWeek, endOfWeek, null, "[]");
+    });
+    setWeekEvents(filteredEvents);
+  }, [currentWeekStart]);
 
   let startX: number;
 
@@ -102,12 +159,17 @@ const WeekCalendarView = (props: {
           ontouchstart={handleTouchStart}
           ontouchend={handleTouchEnd}
         >
-          <div class="grid grid-cols-7 text-center text-lg font-medium text-[#00000080] mb-1">
+          <div class="grid grid-cols-7 text-center text-lg font-medium text-[#00000080] mb-1 transition-transform duration-300">
             <For each={weekdays}>
               {(weekDayName) => <div class="py-2">{weekDayName}</div>}
             </For>
           </div>
-          <div class="grid grid-cols-7 pb-3">
+          <div
+            class={cn("grid grid-cols-7 pb-3", {
+              "animate-fadeLeft": slideDirection() === "left",
+              "animate-fadeRight": slideDirection() === "right",
+            })}
+          >
             <For each={daysWithDates()}>
               {(dayInfo) => {
                 return (
@@ -125,8 +187,41 @@ const WeekCalendarView = (props: {
                     >
                       {dayInfo.day}
                     </div>
-                    <Show when={hasEventsOnDay(dayInfo)}>
-                      <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full aspect-square h-2 bg-[#9b82f3]" />
+                    <Show when={hasEventsOnDay(dayInfo).hasEvents}>
+                      <div
+                        class={`absolute -bottom-1 h-2 ${
+                          hasEventsOnDay(dayInfo).eventCount >= 3
+                            ? "left-[calc(50%-8px)]"
+                            : hasEventsOnDay(dayInfo).eventCount > 1
+                            ? "left-[calc(50%-6px)]"
+                            : "left-[calc(50%-4px)]"
+                        }`}
+                      >
+                        <For
+                          each={getClosestEvents(
+                            props.events().filter((event) => {
+                              const eventMoment = moment(event.timeStart);
+                              const dayInfoUTC = dayInfo.fullDate.utc();
+                              return eventMoment.isSame(dayInfoUTC, "day");
+                            })
+                          )}
+                        >
+                          {(event, index) => {
+                            const horizontalOffset = index() * 4;
+                            return index() <= 2 ? (
+                              <div
+                                class={cn(
+                                  `absolute rounded-full w-[9px] h-[9px] border border-white/85`,
+                                  getEventBackground(event, true)
+                                )}
+                                style={{
+                                  transform: `translateX(${horizontalOffset}px)`,
+                                }}
+                              ></div>
+                            ) : null;
+                          }}
+                        </For>
+                      </div>
                     </Show>
                   </div>
                 );
@@ -135,8 +230,8 @@ const WeekCalendarView = (props: {
           </div>
         </div>
       </Show>
-      <div class="flex justify-center pt-4 px-3 bg-white">
-        <EventCalendarDisplay events={props.events} teamId={props.teamId} />
+      <div class="flex justify-center pt-4 px-3 bg-white pb-3 h-full">
+        <EventCalendarDisplay events={weekEvents} teamId={props.teamId} />
       </div>
     </>
   );
