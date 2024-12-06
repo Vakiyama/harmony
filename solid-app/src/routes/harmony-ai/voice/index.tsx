@@ -320,7 +320,7 @@ export default function HarmonyVoice() {
         setPlaying(true);
       }
 
-      if (demoIndex() === 11) {
+      if (demoIndex() === 6) {
         console.log("YO", defaultTeam?.team.id);
         await demoHelper(defaultTeam?.team.id!);
         console.log("Success");

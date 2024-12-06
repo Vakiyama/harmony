@@ -48,14 +48,6 @@ export const demoConversation: ArrayMessage[] = [
   },
   {
     role: "assistant",
-    content: "Understood. Who will be taking Grandma to the appointment?",
-  },
-  {
-    role: "user",
-    content: "Aunt Sylvia will take her.",
-  },
-  {
-    role: "assistant",
     content: "Noted. Shall I notify the family about this appointment?",
   },
   {
