@@ -46,7 +46,10 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
   "new-user": (name: string) => void;
   "send-chat-message": (message: string) => void;
-  "write-transcription": (frameDataStream: { dataBlob: Blob }) => void;
+  "write-transcription": (frameDataStream: {
+    data: ArrayBuffer;
+    sampleRate: number;
+  }) => void;
   "start-transcription": () => void;
   "end-transcription": () => void;
   // Journal Entry Events

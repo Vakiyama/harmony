@@ -49,7 +49,6 @@ const CalendarSideMenu = (props: {
     defaultSetter: Setter<{ team: TeamWithDefault }[] | undefined>;
   };
   setTeamId?: Setter<number | undefined>;
-  refetch?: any;
 }) => {
   const [isClosing, setIsClosing] = createSignal(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -154,6 +153,7 @@ const CalendarSideMenu = (props: {
     teamContext.updateTeamId(selectedTeam.id);
     props.setTeamId ? props.setTeamId(selectedTeam.id) : "";
     setIsTeamOpen(false);
+    props.refetchData();
   };
   return (
     <div

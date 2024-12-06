@@ -6,6 +6,7 @@ export default function TeamCard(props: {
   imageUrl: string;
   href: string;
 }) {
+  console.log(typeof props.imageUrl);
   return (
     <A
       href={props.href}

@@ -119,10 +119,13 @@ export default function CalendarPage() {
       localStorage.getItem("calendarViewMode")
         ? (localStorage.getItem("calendarViewMode") as "week" | "day" | "month")
         : "week"
+        : "week"
     );
     console.log(teamId(), "new team id!!");
     const calendar = await getCalendarFromTeamId(teamId()!);
+    const calendar = await getCalendarFromTeamId(teamId()!);
     await fetchEvents(calendar.id);
+    await fetchTeamMembers(teamId()!);
     await fetchTeamMembers(teamId()!);
     setUser(await getUser());
     handleGetAISummary();
@@ -222,8 +225,6 @@ export default function CalendarPage() {
       : DEFAULT_TEAMMEMBERS.join(","),
   });
 
-  onMount(async () => {});
-
   createEffect(() => {
     localStorage.setItem("calendarViewMode", currentView() ?? "week");
   });
@@ -237,7 +238,10 @@ export default function CalendarPage() {
       const selectedUsers = params.selected
         ? params.selected.toString().split(",")
         : [];
+      const calendar = await getCalendarFromTeamId(teamId()!);
+
       return await getCalendarData({
+        calendarId: calendar.id,
         teamId: teamId()!,
         selectedUsers,
         filters: {
