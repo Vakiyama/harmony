@@ -44,6 +44,7 @@ import SolidMarkdown from "@zentered/solid-markdown";
 import { ImageRoot } from "~/components/ui/image";
 import { getListOfTeams } from "~/api/team";
 import { TeamWithDefault } from "@/schema/Teams";
+import { clientSocket as socket } from "~/lib/clientSocket";
 
 moment.locale("en");
 moment.updateLocale("en", { weekdaysMin: "S_M_T_W_T_F_S".split("_") });
@@ -108,6 +109,14 @@ export default function CalendarPage() {
     console.log(events());
   });
   onMount(async () => {
+    socket.on("journal-entry-created", (entryType) => refetch());
+    socket.on("journal-entry-edited", (entryType) => refetch());
+    socket.on("journal-entry-deleted", (entryType) => refetch());
+    socket.on("calendar-event-created", (eventTitle) => refetch());
+    socket.on("calendar-event-edited", (event) => refetch());
+    socket.on("calendar-event-deleted", (eventTitle) => refetch());
+    socket.on("status-calendar-event-updated", (eventData) => refetch());
+    socket.on("calendar-task-completed", (eventData) => refetch());
     const teamData = await getListOfTeams();
     setTeamListData(teamData);
     const defaultTeam = teamData.find((team) => team.team.defaultTeam);
@@ -119,10 +128,7 @@ export default function CalendarPage() {
       localStorage.getItem("calendarViewMode")
         ? (localStorage.getItem("calendarViewMode") as "week" | "day" | "month")
         : "week"
-        : "week"
     );
-    console.log(teamId(), "new team id!!");
-    const calendar = await getCalendarFromTeamId(teamId()!);
     const calendar = await getCalendarFromTeamId(teamId()!);
     await fetchEvents(calendar.id);
     await fetchTeamMembers(teamId()!);
